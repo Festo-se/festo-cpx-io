@@ -6,3 +6,4 @@ build/*
 docs/build/*
 docs/source/modules.rst
 .vscode/*
+venv

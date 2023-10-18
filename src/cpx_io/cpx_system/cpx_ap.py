@@ -8,12 +8,13 @@ __email__ = "martin.plank@festo.com"
 __status__ = "Development"
 
 
-from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 
 import logging
 import struct
+
+from cpx_base import CPX_BASE
 
 class _ModbusCommands:    
 #input registers
@@ -33,7 +34,7 @@ class _ModbusCommands:
     ProductKey=(15014,6) # (+37*n)
     OrderText=(15020,16) # (+37*n)
 
-class CPXAP:
+class CPX_AP(CPX_BASE):
     """
     A class to connect to the Festo CPX-AP-I-EP-M12 and read data from IO modules
 
@@ -42,7 +43,7 @@ class CPXAP:
         moduleInformation -- List with detail for the modules (read on `__init__()` or `readStaticInformation()`)
 
     Methods:
-        readData(self, register, length=1, type="holding_register") -- Reads and returns holding or input register from Modbus server
+        readRegData(self, register, length=1, type="holding_register") -- Reads and returns holding or input register from Modbus server
         readInputRegData(self, register, length=1) -- Reads and returns input registers from Modbus server
         readHoldingRegData(self, register, length=1) -- Reads and returns holding registers form Modbus server
         readModuleCount(self) -- Reads and returns IO module count
@@ -50,77 +51,23 @@ class CPXAP:
         readStaticInformation(self) -- Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
         readModuleData(self, module) -- Reads and returns process data of a specific IO module
     """
-    def __init__(self, host="192.168.0.1", tcpPort=502, timeout=1):
-        self.moduleCount = None
-        self.moduleInformation = []
-
-        self.deviceConfig = {"tcpPort": tcpPort, "ip" : host, "modbusSlave" : 16, "timeout": timeout}
-
-        try:
-            self.client = ModbusTcpClient(host=self.deviceConfig["ip"], port=self.deviceConfig["tcpPort"], timeout=self.deviceConfig["timeout"])
-            self.client.connect()
-            logging.info("Connected")
-
-        except Exception as e:
-            print("Incorrect Modbus configuration : ", str(e))
-
+    def __init__(self):
+        # TODO: Is this really neccessary?
         self.readStaticInformation()
 
-
-    def readData(self, register, length=1, type="holding_register"):
-        """Reads and returns holding or input register from Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        type -- type of register. Can be `holding_register` or `input_register` (default: `holding_register`)
-        """
-        try:
-            if(type == "holding_register"):
-                data = self.client.read_holding_registers(register, length, unit=self.deviceConfig['modbusSlave'])
-            elif(type == "input_register"):
-                data = self.client.read_input_registers(register, length, unit=self.deviceConfig['modbusSlave'])
-            else:
-                raise Exception("Unknown type")
-            if(data.isError()):
-                raise Exception("Cannot read register")
-            if(length == 1):
-                return data.registers[0]
-            else:
-                return data.registers
-        except Exception as e:
-            print("Error while reading: ", str(e))
-
-    def readInputRegData(self, register, length=1):
-        """Reads and returns input registers from Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        """
-        return self.readData(register, length, "input_register")
-
-    def readHoldingRegData(self, register, length=1):
-        """Reads and returns holding registers form Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        """
-        return self.readData(register, length, "holding_register")
-
-    # def writeData(self, register, val):
-    #     status = object
-    #     print(f"{register}, {val}")
-    #     try:
-    #         if val < 0:
-    #             val = val + 2**16
-    #         self.client.write_register(register, val, unit=self.deviceConfig['modbusSlave'])
-    #         status = self.client.read_input_registers(_ModbusCommands.StatusWord, count=1, unit=self.deviceConfig['modbusSlave']) 
-    #         while (status.registers[0] & 1) == 1:
-    #             status = self.client.read_input_registers(_ModbusCommands.StatusWord, 1, unit=self.deviceConfig['modbusSlave'])
-    #     except Exception as e:
-    #         print("error while writing : ", str(e)) 
+    def writeData(self, register, val):
+         #TODO: Not tested yet!!!
+         status = object
+         print(f"{register}, {val}")
+         try:
+             if val < 0:
+                 val = val + 2**16
+             self.client.write_register(register, val, unit=self.deviceConfig['modbusSlave'])
+             status = self.client.read_input_registers(_ModbusCommands.StatusWord, count=1, unit=self.deviceConfig['modbusSlave']) 
+             while (status.registers[0] & 1) == 1:
+                 status = self.client.read_input_registers(_ModbusCommands.StatusWord, 1, unit=self.deviceConfig['modbusSlave'])
+         except Exception as e:
+             print("error while writing : ", str(e)) 
 
     def readModuleCount(self):
         """Reads and returns IO module count
