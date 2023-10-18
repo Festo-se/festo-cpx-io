@@ -3,15 +3,30 @@ import pytest
 import sys
 sys.path.append(".")
 
-from src.cpx_io.cpx_system import cpx_e
+from src.cpx_io.cpx_system.cpx_e import CPX_E
 
 def test_init():
-    cpxe = cpx_e.CPX_E(host="192.168.1.3", tcpPort=502, timeout=1)
-    cpxe.moduleCount
-    cpxe.moduleInformation
+    cpxe = CPX_E(host="172.16.1.40", tcpPort=502, timeout=1)
+    assert cpxe
     cpxe.__del__()
 
-def test_readRegData():
-    cpxe = cpx_e.CPX_E(host="192.168.1.3")
-    reg = cpxe.readRegData(40001, length=1, type="input_register")
-    print(reg)
+def test_readFunctionNumber():
+    cpxe = CPX_E(host="172.16.1.40")
+    response = cpxe.readFunctionNumber(1)
+    assert response == [0]*16
+    cpxe.__del__()
+
+def test_writeFunctionNumber():
+    cpxe = CPX_E(host="172.16.1.40")
+    response = cpxe.writeFunctionNumber(1,1)
+    assert response == None
+    cpxe.__del__()
+
+def test_module_count():
+    cpxe = CPX_E(host="172.16.1.40")
+    response = cpxe.module_count()
+    assert response == 6
+    cpxe.__del__()
+
+
+

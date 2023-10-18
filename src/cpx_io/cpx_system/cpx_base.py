@@ -10,17 +10,9 @@ __status__ = "Development"
 
 from pymodbus.client import ModbusTcpClient
 
+from . import cpx_exceptions
+
 import logging
-
-class exceptions:
-    def UnknownTypeError(Exception):
-        def __init__(self, message="Unknown Type Error"):
-            super().__init__(message)
-
-    def ReadFailedError(Exception):
-        def __init__(self, message="Read Failed Error"):
-            super().__init__(message)
-
 
 class CPX_BASE:
     """
@@ -39,7 +31,7 @@ class CPX_BASE:
         readStaticInformation(self) -- Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
         readModuleData(self, module) -- Reads and returns process data of a specific IO module
     """
-    def __init__(self, host="192.168.0.1", tcpPort=502, timeout=1):
+    def __init__(self, host="192.168.1.1", tcpPort=502, timeout=1):
         self.moduleCount = None
         self.moduleInformation = []
 
@@ -49,29 +41,22 @@ class CPX_BASE:
         self.client.connect()
         logging.info("Connected")
 
-    def readRegData(self, register, length=1, type="holding_register"):
-        """Reads and returns holding or input register from Modbus server
+    def readRegData(self, register:int, length=1) -> list:
+        """Reads and returns register from Modbus server
 
         Arguments:
         register -- adress of the first register to read
         length -- number of registers to read (default: 1)
-        type -- type of register. Can be `holding_register` or `input_register` (default: `holding_register`)
         """
 
-        if(type == "holding_register"):
-            data = self.client.read_holding_registers(register, length)
-        elif(type == "input_register"):
-            data = self.client.read_input_registers(register, length)
-        else:
-            raise exceptions.UnknownTypeError()
+        data = self.client.read_holding_registers(register, length)
+    
         if(data.isError()):
-            raise exceptions.ReadFailedError()
-        if(length == 1):
-            return data.registers[0]
-        else:
-            return data.registers
+            raise cpx_exceptions.ReadFailedError()
 
+        return data.registers
 
+    '''
     def readInputRegData(self, register, length=1):
         """Reads and returns input registers from Modbus server
 
@@ -89,17 +74,15 @@ class CPX_BASE:
         length -- number of registers to read (default: 1)
         """
         return self.readRegData(register, length, "holding_register")
-    
-    def writeData(self, register, data):
+    '''
+    def writeRegData(self, register: int, data: int):
         """Todo
 
         """
-        try:
-            self.client.write_register(register, data)
-        except Exception as e:
-            print("Error while writing: ", str(e))
+        
+        self.client.write_register(register, data)
 
-
+    '''
     def writeMultipleData(self, register, data):
         """Todo
 
@@ -108,7 +91,7 @@ class CPX_BASE:
             self.client.write_registers(register, data)
         except Exception as e:
             print("Error while writing: ", str(e))
-  
+
 
     def writeOutputRegData(self, register, data):
         """Todo
@@ -121,7 +104,7 @@ class CPX_BASE:
 
         """
         return self.writeMultipleData(register, data)
-     
+    '''     
     def __del__(self):
         self.client.close()
         logging.info("Disconnected")
