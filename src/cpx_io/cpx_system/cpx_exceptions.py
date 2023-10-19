@@ -12,6 +12,10 @@ class UnknownTypeError(Exception):
     def __init__(self, message="Unknown Type Error"):
         super().__init__(message)
 
+class UnknownModuleError(Exception):
+    def __init__(self, message="Unknown Module Error"):
+        super().__init__(message)
+
 class ReadFailedError(Exception):
     def __init__(self, message="Read Failed Error"):
         super().__init__(message)

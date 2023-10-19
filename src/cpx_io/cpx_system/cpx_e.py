@@ -12,6 +12,8 @@ import logging
 
 from .cpx_base import CPX_BASE
 
+from .cpx_exceptions import UnknownModuleError
+
 class _ModbusCommands:    
     # (RegAdress, Length)
     # input registers
@@ -40,12 +42,19 @@ class _ModbusTCPObjects:
     ProductName = 4
     ModelName = 5
 
+
 class CPX_E(CPX_BASE):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._control_bit_value = 1 << 15
         self._write_bit_value = 1 << 13
+        
+        self._next_output_register = 0
+        self._next_input_register = 0
+
+        self.modules = {} 
+        self.add_module("CPX-E-EP")
 
     def writeFunctionNumber(self, FunctionNumber: int, value: int):
         self.writeRegData(value, *_ModbusCommands.DataSystemTableWrite)
@@ -85,7 +94,6 @@ class CPX_E(CPX_BASE):
         logging.info(f"Read Data from {FunctionNumber}: {data} and {data2} (after {its} iterations)")
         return data2
 
-
     def module_count(self) -> int:
         ''' returns the total count of attached modules
         '''
@@ -93,7 +101,7 @@ class CPX_E(CPX_BASE):
         return sum([bin(d).count("1") for d in data])
 
 
-    def fault_detection(self) -> list:
+    def fault_detection(self) -> list[bool]:
         ''' returns list of bools with Errors (True)
         '''
         data = self.readRegData(*_ModbusCommands.FaultDetection)
@@ -109,12 +117,108 @@ class CPX_E(CPX_BASE):
         data = self.readRegData(*_ModbusCommands.StatusRegister)
         return (bool(data[0] & 1 << writeProtectBit), bool(data[0] & 1 << forceActiveBit))
 
-    def read_device_identification(self) -> list:
+    def read_device_identification(self) -> int:
         ''' returns Objects IDO 1,2,3,4,5
         '''
         data = self.readFunctionNumber(43)
         return data[0] 
 
+    def add_module(self, module_name):
+        ''' adds one module at the next available position
+        returns module
+        '''
+        position = len(self.modules)
+        self.modules[module_name] = position
+    
+        if module_name == "CPX-E-EP":
+            return CPX_E_EP(self, position)
+        elif module_name == "CPX-E-8DO":
+            return CPX_E_8DO(self, position)
+        elif module_name == "CPX-E-16DI":
+            return CPX_E_16DI(self, position)
+        # TODO: Add more modules
+        else:
+            raise UnknownModuleError
+
+class CPX_E_EP(CPX_E):
+    def __init__(self, base: CPX_E, position: int):
+        self.position = position
+        self.base = base
+        
+        self.output_register = _ModbusCommands.RequestDiagnosis[0]
+        self.input_register = _ModbusCommands.ResponseDiagnosis[0]
+
+        self.base._next_output_register = self.output_register + 2
+        self.base._next_input_register = self.input_register + 3
+
+class CPX_E_8DO(CPX_E):
+    def __init__(self, base: CPX_E, position: int):
+        self.position = position
+        self.base = base
+
+        self.output_register = self.base._next_output_register
+        self.input_register = self.base._next_input_register
+
+        self.base._next_output_register = self.output_register + 1
+        self.base._next_input_register = self.input_register + 2
+
+    def read_channels(self) -> list[bool]:
+        data = self.base.readRegData(self.input_register)[0] & 0x0F
+        return [d == "1" for d in bin(data)[2:].zfill(8)]
+
+    def write_channels(self, data: list[bool]) -> None:
+        # Make binary from list of bools
+        binary_string = ''.join('1' if value else '0' for value in reversed(data))
+        # Convert the binary string to an integer
+        integer_data = int(binary_string, 2)
+        self.base.writeRegData(integer_data, self.output_register)
+
+    def read_status(self) -> list[bool]:
+        data = self.base.readRegData(self.input_register + 1)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)]
+        
+    def read_channel(self, channel: int) -> bool:
+        return self.read_channels()[channel]
+
+    def set_channel(self, channel: int) -> None:
+        data = self.base.readRegData(self.input_register)[0] 
+        self.base.writeRegData(data | 1 << channel , self.output_register)
+
+    def clear_channel(self, channel: int) -> None:
+        data = self.base.readRegData(self.input_register)[0]
+        self.base.writeRegData(data & ~(1 << channel), self.output_register)
+    
+    def toggle_channel(self, channel: int) -> None:
+        data = (self.base.readRegData(self.input_register)[0] & 1 << channel) >> channel
+        if data == 1:
+            self.clear_channel(channel)
+        elif data == 0:
+            self.set_channel(channel)
+        else:
+            raise ValueError
+
+
+class CPX_E_16DI(CPX_E):
+    def __init__(self, base: CPX_E, position: int):
+        self.position = position
+        self.base = base
+
+        self.output_register = None
+        self.input_register = self.base._next_input_register
+
+        #self.base._next_output_register = self.base._next_output_register + 0
+        self.base._next_input_register = self.input_register + 2
+
+    def read_channels(self) -> list[bool]:
+        data = self.base.readRegData(self.input_register)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)]
+
+    def read_status(self) -> list[bool]:
+        data = self.base.readRegData(self.input_register + 1)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)]
+
+    def read_channel(self, channel: int) -> bool:
+        return self.read_channels()[channel]
 
 
 # functions copied over
