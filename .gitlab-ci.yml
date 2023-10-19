@@ -48,7 +48,7 @@ unit-test-job:   # This job runs in the test stage.
     - python -m pip install .
     - python -m pip install pytest pytest-cov
   script:
-    - pytest tests -v --cov=cpx-io
+    - pytest tests -v --cov=cpx_io
 
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
 

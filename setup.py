@@ -25,9 +25,9 @@ setup(
     python_requires=">= 3.10",
     setup_requires=["setuptools_scm"],
     install_requires=['pymodbus>=3.0.0,<4.0.0', 'rich'],
-    packages=find_packages(where="src", exclude="tests"),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     entry_points={
-        'console_scripts': ['festo-cpx-io = cpx-io.cli.cli:main']
-    },
+        'console_scripts': ['festo-cpx-io = cpx_io.cli.cli:main']
+    }
 )
