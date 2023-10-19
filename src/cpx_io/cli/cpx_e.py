@@ -13,5 +13,5 @@ def add_cpx_e_parser(subparsers):
 def cpx_e_func(args):
     """Executes subcommand based on provided arguments"""
     cpx_e = CPXE(args.ip_address)
-    print(cpx_e.readData(args.read_register))
-
+    register_value = cpx_e.readData(int(args.read_register))
+    print(f"Value: {register_value}")
