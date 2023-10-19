@@ -1,6 +1,6 @@
 """CLI Tool that distributes subcommands"""
 import argparse
-
+from cpx_io.cli.cpx_e import add_cpx_e_parser
 
 def main():
     """Parses command line arguments and calls corresponding subcommand program."""
@@ -13,6 +13,9 @@ def main():
     subparsers = parser.add_subparsers(dest='subcommand', required=True,
                                        title='subcommands',
                                        help="Subcommand that should be called")
+
+    # Options for position
+    add_cpx_e_parser(subparsers)
 
     args = parser.parse_args()
 
