@@ -7,3 +7,4 @@ build/*
 docs/build/*
 docs/source/modules.rst
 .vscode/*
+src/festo_cpx_io.egg-info/*
