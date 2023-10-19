@@ -28,5 +28,17 @@ def test_module_count():
     assert response == 6
     cpxe.__del__()
 
+def test_fault_detection():
+    cpxe = CPX_E(host="172.16.1.40")
+    response = cpxe.fault_detection()
+    assert response == [False] * 24 
+    cpxe.__del__()
+
+def test_status_register():
+    cpxe = CPX_E(host="172.16.1.40")
+    response = cpxe.status_register()
+    assert response == (False, False) 
+    cpxe.__del__()
+
 
 
