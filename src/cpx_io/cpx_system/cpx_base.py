@@ -75,12 +75,18 @@ class CPX_BASE:
         """
         return self.readRegData(register, length, "holding_register")
     '''
-    def writeRegData(self, register: int, data: int):
+    def writeRegData(self, data: int|list, register: int, length=1):
         """Todo
 
         """
-        
-        self.client.write_register(register, data)
+        if isinstance(data, int):       
+            self.client.write_register(register, data)
+
+        elif isinstance(data, list):
+            for i, d in enumerate(data):
+                self.client.write_register(register + i, data)
+        else:
+            raise cpx_exceptions.UnknownTypeError()
 
     '''
     def writeMultipleData(self, register, data):

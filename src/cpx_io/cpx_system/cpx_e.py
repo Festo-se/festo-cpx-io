@@ -18,18 +18,27 @@ class _ModbusCommands:
 
     # holding registers
     # E-EP
-    RequestDiagnosis=(40001,16) # ??
-    DataSystemTableWrite=(4002,16)
+    RequestDiagnosis=(40001,1)
+    DataSystemTableWrite=(4002,1)
 
-    ResponseDiagnosis=(45392,16)
-    DataSystemTableRead=(45393,16)
-    ModuleDiagnosisData=(45394,16)
+    ResponseDiagnosis=(45392,1)
+    DataSystemTableRead=(45393,1)
+    ModuleDiagnosisData=(45394,1)
 
     ModuleConfiguration=(45367,3)
     FaultDetection=(45383,3)
     StatusRegister=(45391,1)
     # E-8DO
     # ...
+
+#TODO: need this??
+class _ModbusTCPObjects:
+    VendorName = 0
+    ProductCode = 1
+    MajorMinorRevision = 2
+    VendorURL = 3
+    ProductName = 4
+    ModelName = 5
 
 class CPX_E(CPX_BASE):
 
@@ -39,32 +48,33 @@ class CPX_E(CPX_BASE):
         self._write_bit_value = 1 << 13
 
     def writeFunctionNumber(self, FunctionNumber: int, value: int):
-        self.writeRegData(_ModbusCommands.DataSystemTableWrite[0], value)
-        self.writeRegData(_ModbusCommands.RequestDiagnosis[0], 0)
-        self.writeRegData(_ModbusCommands.RequestDiagnosis[0], self._control_bit_value | self._write_bit_value | FunctionNumber)
+        self.writeRegData(value, *_ModbusCommands.DataSystemTableWrite)
+        self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
+        self.writeRegData(self._control_bit_value | self._write_bit_value | FunctionNumber, 
+                            *_ModbusCommands.RequestDiagnosis)
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.readRegData(_ModbusCommands.ResponseDiagnosis[0])[0] 
+            data = self.readRegData(*_ModbusCommands.ResponseDiagnosis)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.readRegData(_ModbusCommands.DataSystemTableRead[0])[0] 
+        data2 = self.readRegData(*_ModbusCommands.DataSystemTableRead)[0]
         logging.info(f"Write Data({value}) to {FunctionNumber}: {data} and {data2} (after {its} iterations)")
 
 
     def readFunctionNumber(self, FunctionNumber: int):
-        self.writeRegData(_ModbusCommands.RequestDiagnosis[0], 0)
-        self.writeRegData(_ModbusCommands.RequestDiagnosis[0], self._control_bit_value | FunctionNumber)
+        self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
+        self.writeRegData(self._control_bit_value | FunctionNumber, *_ModbusCommands.RequestDiagnosis)
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.readRegData(_ModbusCommands.ResponseDiagnosis[0])[0]
+            data = self.readRegData(*_ModbusCommands.ResponseDiagnosis)[0]
             its += 1
 
         if its >= 1000:
@@ -99,7 +109,15 @@ class CPX_E(CPX_BASE):
         data = self.readRegData(*_ModbusCommands.StatusRegister)
         return (bool(data[0] & 1 << writeProtectBit), bool(data[0] & 1 << forceActiveBit))
 
+    def read_device_identification(self) -> list:
+        ''' returns Objects IDO 1,2,3,4,5
+        '''
+        data = self.readFunctionNumber(43)
+        return data[0] 
 
+
+
+# functions copied over
     def create_cpxe_8do(self, register_nummer: int):
         return self.Cpxe8Do(self, register_nummer)
 

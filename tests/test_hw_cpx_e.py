@@ -13,12 +13,12 @@ def test_init():
 def test_readFunctionNumber():
     cpxe = CPX_E(host="172.16.1.40")
     response = cpxe.readFunctionNumber(1)
-    assert response == [0]*16
+    assert response == [0]
     cpxe.__del__()
 
 def test_writeFunctionNumber():
     cpxe = CPX_E(host="172.16.1.40")
-    response = cpxe.writeFunctionNumber(1,1)
+    response = cpxe.writeFunctionNumber(23,1)
     assert response == None
     cpxe.__del__()
 
@@ -40,5 +40,10 @@ def test_status_register():
     assert response == (False, False) 
     cpxe.__del__()
 
+def test_device_identification():
+    cpxe = CPX_E(host="172.16.1.40")
+    response = cpxe.read_device_identification()
+    assert response in range(1,6)
+    cpxe.__del__()
 
 
