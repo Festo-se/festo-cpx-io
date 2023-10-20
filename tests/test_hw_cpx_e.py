@@ -179,3 +179,23 @@ def test_4modules():
                             "CPX-E-4AO_U_I": 4
                             }                              
     cpxe.__del__()
+
+def test_5modules():
+    pass
+
+def test_modules_with_init():
+    modules = [CPX_E_EP(), 
+               CPX_E_16DI(), 
+               CPX_E_8DO(), 
+               CPX_E_4AI_U_I(), 
+               CPX_E_4AO_U_I()
+               ]
+
+    cpxe = CPX_E(host="172.16.1.40", modules=modules) 
+
+    assert cpxe.modules == {"CPX-E-EP": 0,
+                            "CPX-E-16DI": 1,
+                            "CPX-E-8DO": 2,
+                            "CPX-E-4AI_U_I": 3,
+                            "CPX-E-4AO_U_I": 4
+                            }        

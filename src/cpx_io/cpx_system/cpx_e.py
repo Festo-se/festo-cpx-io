@@ -36,7 +36,7 @@ class _ModbusCommands:
 
 class CPX_E(CPX_BASE):
 
-    def __init__(self, **kwargs):
+    def __init__(self, modules=None, **kwargs):
         super().__init__(**kwargs)
         self._control_bit_value = 1 << 15
         self._write_bit_value = 1 << 13
@@ -46,7 +46,11 @@ class CPX_E(CPX_BASE):
 
         self.modules = {}
         
-        self.add_module(CPX_E_EP())
+        if modules:
+            for m in modules:
+                self.add_module(m)
+        else:
+            self.add_module(CPX_E_EP())
 
     def writeFunctionNumber(self, FunctionNumber: int, value: int):
         self.writeRegData(value, *_ModbusCommands.DataSystemTableWrite)
