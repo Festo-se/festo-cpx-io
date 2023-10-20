@@ -30,8 +30,8 @@ class CPX_BASE:
         readModuleData(self, module) -- Reads and returns process data of a specific IO module
     """
     def __init__(self, host="192.168.1.1", tcpPort=502, timeout=1):
-        self.moduleCount = None
-        self.moduleInformation = []
+        #self.moduleCount = None -> must go to CPX-AP only
+        #self.moduleInformation = [] -> must go to CPX-AP only
 
         self.deviceConfig = {"tcpPort": tcpPort, "ip": host, "modbusSlave": 16, "timeout": timeout}
 
@@ -82,7 +82,7 @@ class CPX_BASE:
 
         elif isinstance(data, list):
             for i, d in enumerate(data):
-                self.client.write_register(register + i, data)
+                self.client.write_register(register + i, d)
         else:
             raise TypeError("data must be of type int or list")
 

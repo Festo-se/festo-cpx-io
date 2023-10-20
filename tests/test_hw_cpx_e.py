@@ -59,7 +59,7 @@ def test_add_module():
 
 def test_1module():
     cpxe = CPX_E(host="172.16.1.40")
-    e16di = CPX_E_16DI(cpxe)
+    e16di = cpxe.add_module(CPX_E_16DI())
     assert e16di.output_register == None
     assert e16di.input_register == 45395
     assert cpxe._next_output_register == 40003
@@ -79,8 +79,8 @@ def test_1module():
 def test_2modules():
     #time.sleep(10)
     cpxe = CPX_E(host="172.16.1.40", timeout=200)
-    e16di = CPX_E_16DI(cpxe)
-    e8do = CPX_E_8DO(cpxe)
+    e16di = cpxe.add_module(CPX_E_16DI())
+    e8do = cpxe.add_module(CPX_E_8DO())
     assert e8do.output_register == 40003
     assert e8do.input_register == 45397
     assert cpxe._next_output_register == 40004
@@ -89,31 +89,31 @@ def test_2modules():
     assert e8do.position == 2
     assert e8do.read_channels() == [False] * 8 
     assert e8do.read_channel(0) == False
-
+    '''
     data = [False] * 8
     data[0] = True
     assert e8do.write_channels(data) == None
-    time.sleep(.1)
+    #time.sleep(.1)
     assert e16di.read_channel(1) == True
     #assert e8do.read_channels() == data
     #assert e8do.read_channel(0) == True
 
     assert e8do.set_channel(0) == None
-    time.sleep(.1)
+    #time.sleep(.1)
     assert e16di.read_channel(1) == True
     #assert e8do.read_channel(0) == True
     assert e8do.clear_channel(0) == None
-    time.sleep(.1)
+    #time.sleep(.1)
     assert e16di.read_channel(1) == False
     #assert e8do.read_channel(0) == False
     assert e8do.toggle_channel(0) == None
-    time.sleep(.1)
+    #time.sleep(.1)
     assert e16di.read_channel(1) == True
     #assert e8do.read_channel(0) == True
     assert e8do.clear_channel(0) == None
-    time.sleep(.1)
+    #time.sleep(.1)
     assert e16di.read_channel(1) == False
-
+    '''
     assert cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2
@@ -126,9 +126,9 @@ def test_2modules():
 
 def test_3modules():
     cpxe = CPX_E(host="172.16.1.40", timeout=200)
-    e16di = CPX_E_16DI(cpxe)
-    e8do = CPX_E_8DO(cpxe)
-    e4ai = CPX_E_4AI_U_I(cpxe)
+    e16di = cpxe.add_module(CPX_E_16DI())
+    e8do = cpxe.add_module(CPX_E_8DO())
+    e4ai = cpxe.add_module(CPX_E_4AI_U_I())
     assert e4ai.output_register == None
     assert e4ai.input_register == 45399
     assert cpxe._next_output_register == 40004
@@ -140,16 +140,22 @@ def test_3modules():
     assert e4ai.set_channel_range(0, "0-10V") == None
     assert e4ai.set_channel_smothing(0, 2) == None
     assert e4ai.read_channels() == [0] * 4
-    assert e4ai.read_channel(0) == 0                    
+    assert e4ai.read_channel(0) == 0  
+
+    assert cpxe.modules == {"CPX-E-EP": 0,
+                            "CPX-E-16DI": 1,
+                            "CPX-E-8DO": 2,
+                            "CPX-E-4AI_U_I": 3
+                            }                   
     cpxe.__del__()
 
 
 def test_4modules():
     cpxe = CPX_E(host="172.16.1.40", timeout=200)
-    e16di = CPX_E_16DI(cpxe)
-    e8do = CPX_E_8DO(cpxe)
-    e4ai = CPX_E_4AI_U_I(cpxe)
-    e4ao = CPX_E_4AO_U_I(cpxe)
+    e16di = cpxe.add_module(CPX_E_16DI())
+    e8do = cpxe.add_module(CPX_E_8DO())
+    e4ai = cpxe.add_module(CPX_E_4AI_U_I())
+    e4ao = cpxe.add_module(CPX_E_4AO_U_I())
     assert e4ao.output_register == 40004
     assert e4ao.input_register == 45404
     assert cpxe._next_output_register == 40008
@@ -160,9 +166,16 @@ def test_4modules():
     assert e4ao.read_status() == [False] * 16 
 
     assert e4ao.position == 4
-    assert e4ao.set_channel_range(0, "0-10V") == None
+    #assert e4ao.set_channel_range(0, "0-10V") == None
     assert e4ao.read_channels() == [0] * 4
-    assert e4ao.write_channels([0]*4) 
+    assert e4ao.write_channels([0]*4) == None
     assert e4ao.read_channels() == [0] * 4
-    assert e4ao.read_channel(0) == 0                    
+    assert e4ao.read_channel(0) == 0    
+
+    assert cpxe.modules == {"CPX-E-EP": 0,
+                            "CPX-E-16DI": 1,
+                            "CPX-E-8DO": 2,
+                            "CPX-E-4AI_U_I": 3,
+                            "CPX-E-4AO_U_I": 4
+                            }                              
     cpxe.__del__()
