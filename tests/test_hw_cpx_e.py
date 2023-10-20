@@ -5,7 +5,7 @@ import time
 import sys
 sys.path.append(".")
 
-from src.cpx_io.cpx_system.cpx_e import CPX_E
+from src.cpx_io.cpx_system.cpx_e import *
 
 def test_init():
     cpxe = CPX_E(host="172.16.1.40", tcpPort=502, timeout=1)
@@ -59,7 +59,7 @@ def test_add_module():
 
 def test_1module():
     cpxe = CPX_E(host="172.16.1.40")
-    e16di = cpxe.add_module("CPX-E-16DI")
+    e16di = CPX_E_16DI(cpxe)
     assert e16di.output_register == None
     assert e16di.input_register == 45395
     assert cpxe._next_output_register == 40003
@@ -79,8 +79,8 @@ def test_1module():
 def test_2modules():
     #time.sleep(10)
     cpxe = CPX_E(host="172.16.1.40", timeout=200)
-    e16di = cpxe.add_module("CPX-E-16DI")
-    e8do = cpxe.add_module("CPX-E-8DO")
+    e16di = CPX_E_16DI(cpxe)
+    e8do = CPX_E_8DO(cpxe)
     assert e8do.output_register == 40003
     assert e8do.input_register == 45397
     assert cpxe._next_output_register == 40004
@@ -126,9 +126,9 @@ def test_2modules():
 
 def test_3modules():
     cpxe = CPX_E(host="172.16.1.40", timeout=200)
-    e16di = cpxe.add_module("CPX-E-16DI")
-    e8do = cpxe.add_module("CPX-E-8DO")
-    e4ai = cpxe.add_module("CPX_E_4AI_U_I")
+    e16di = CPX_E_16DI(cpxe)
+    e8do = CPX_E_8DO(cpxe)
+    e4ai = CPX_E_4AI_U_I(cpxe)
     assert e4ai.output_register == None
     assert e4ai.input_register == 45399
     assert cpxe._next_output_register == 40004
@@ -146,14 +146,16 @@ def test_3modules():
 
 def test_4modules():
     cpxe = CPX_E(host="172.16.1.40", timeout=200)
-    e16di = cpxe.add_module("CPX-E-16DI")
-    e8do = cpxe.add_module("CPX-E-8DO")
-    e4ai = cpxe.add_module("CPX_E_4AI_U_I")
-    e4ao = cpxe.add_module("CPX_E_4AO_U_I")
+    e16di = CPX_E_16DI(cpxe)
+    e8do = CPX_E_8DO(cpxe)
+    e4ai = CPX_E_4AI_U_I(cpxe)
+    e4ao = CPX_E_4AO_U_I(cpxe)
     assert e4ao.output_register == 40004
     assert e4ao.input_register == 45404
     assert cpxe._next_output_register == 40008
     assert cpxe._next_input_register == 45409
+
+    test = cpxe.read_device_identification()
 
     assert e4ao.read_status() == [False] * 16 
 

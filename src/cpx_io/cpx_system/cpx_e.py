@@ -12,36 +12,22 @@ import logging
 
 from .cpx_base import CPX_BASE
 
-from .cpx_exceptions import UnknownModuleError
-
 class _ModbusCommands:    
     # (RegAdress, Length)
     # input registers
 
     # holding registers
-    # E-EP
     RequestDiagnosis=(40001,1)
     DataSystemTableWrite=(4002,1)
 
     ResponseDiagnosis=(45392,1)
     DataSystemTableRead=(45393,1)
-    ModuleDiagnosisData=(45394,1)
+    #ModuleDiagnosisData=(45394,1)
 
     ModuleConfiguration=(45367,3)
     FaultDetection=(45383,3)
     StatusRegister=(45391,1)
-    # E-8DO
-    # ...
-
-#TODO: need this??
-class _ModbusTCPObjects:
-    VendorName = 0
-    ProductCode = 1
-    MajorMinorRevision = 2
-    VendorURL = 3
-    ProductName = 4
-    ModelName = 5
-
+   
 
 class CPX_E(CPX_BASE):
 
@@ -53,8 +39,9 @@ class CPX_E(CPX_BASE):
         self._next_output_register = 0
         self._next_input_register = 0
 
-        self.modules = {} 
-        self.add_module("CPX-E-EP")
+        self.modules = {}  
+
+        CPX_E_EP(self)
 
     def writeFunctionNumber(self, FunctionNumber: int, value: int):
         self.writeRegData(value, *_ModbusCommands.DataSystemTableWrite)
@@ -74,7 +61,6 @@ class CPX_E(CPX_BASE):
         data &= ~self._control_bit_value
         data2 = self.readRegData(*_ModbusCommands.DataSystemTableRead)[0]
         logging.info(f"Write Data({value}) to {FunctionNumber}: {data} and {data2} (after {its} iterations)")
-
 
     def readFunctionNumber(self, FunctionNumber: int):
         self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
@@ -121,31 +107,12 @@ class CPX_E(CPX_BASE):
         data = self.readFunctionNumber(43)
         return data[0] 
 
-    def add_module(self, module_name):
-        ''' adds one module at the next available position
-        returns module
-        '''
-        position = len(self.modules)
-        self.modules[module_name] = position
-    
-        if module_name == "CPX-E-EP":
-            return CPX_E_EP(self, position)
-        elif module_name == "CPX-E-8DO":
-            return CPX_E_8DO(self, position)
-        elif module_name == "CPX-E-16DI":
-            return CPX_E_16DI(self, position)
-        elif module_name == "CPX_E_4AI_U_I":
-            return CPX_E_4AI_U_I(self, position)
-        elif module_name == "CPX_E_4AO_U_I":
-            return CPX_E_4AO_U_I(self, position)
-        # TODO: Add more modules
-        else:
-            raise UnknownModuleError
 
 class CPX_E_EP(CPX_E):
-    def __init__(self, base: CPX_E, position: int):
-        self.position = position
+    def __init__(self, base: CPX_E):
         self.base = base
+        self.position = len(self.base.modules)
+        self.base.modules["CPX-E-EP"] = self.position
         
         self.output_register = _ModbusCommands.RequestDiagnosis[0]
         self.input_register = _ModbusCommands.ResponseDiagnosis[0]
@@ -154,9 +121,10 @@ class CPX_E_EP(CPX_E):
         self.base._next_input_register = self.input_register + 3
 
 class CPX_E_8DO(CPX_E):
-    def __init__(self, base: CPX_E, position: int):
-        self.position = position
+    def __init__(self, base: CPX_E):
         self.base = base
+        self.position = len(self.base.modules)
+        self.base.modules["CPX-E-8DO"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -201,9 +169,10 @@ class CPX_E_8DO(CPX_E):
             raise ValueError
 
 class CPX_E_16DI(CPX_E):
-    def __init__(self, base: CPX_E, position: int):
-        self.position = position
+    def __init__(self, base: CPX_E):
         self.base = base
+        self.position = len(self.base.modules)
+        self.base.modules["CPX-E-16DI"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -223,9 +192,10 @@ class CPX_E_16DI(CPX_E):
         return self.read_channels()[channel]
 
 class CPX_E_4AI_U_I(CPX_E):
-    def __init__(self, base: CPX_E, position: int):
-        self.position = position
+    def __init__(self, base: CPX_E):
         self.base = base
+        self.position = len(self.base.modules)
+        self.base.modules["CPX-E-4AI_U_I"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -314,9 +284,10 @@ class CPX_E_4AI_U_I(CPX_E):
             raise ValueError(f"'{channel}' is not in range 0...3")
 
 class CPX_E_4AO_U_I(CPX_E):
-    def __init__(self, base: CPX_E, position: int):
-        self.position = position
+    def __init__(self, base: CPX_E):
         self.base = base
+        self.position = len(self.base.modules)
+        self.base.modules["CPX-E-4AO_U_I"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -370,68 +341,16 @@ class CPX_E_4AO_U_I(CPX_E):
 
         if channel < 2:
             funcionNumber = 4828 + 64 * self.position + 11
-            self._signalrange_01 = self._signalrange_01 & keepbits
-            self._signalrange_01 = self._signalrange_01 | bitmask
+            self._signalrange_01 &= keepbits
+            self._signalrange_01 |= bitmask
             self.base.writeFunctionNumber(funcionNumber, self._signalrange_01)
         elif 2 <= channel < 4:
             funcionNumber = 4828 + 64 * self.position + 12
-            self._signalrange_23 = self._signalrange_23 & keepbits
-            self._signalrange_23 = self._signalrange_23 | bitmask
+            self._signalrange_23 &= keepbits
+            self._signalrange_23 |= bitmask
             self.base.writeFunctionNumber(funcionNumber, self._signalrange_23)
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 
-# functions copied over
-    def create_cpxe_8do(self, register_nummer: int):
-        return self.Cpxe8Do(self, register_nummer)
 
-    def create_cpxe_4ai_u_i(self, module_nummer: int, register_nummer: int):
-        return self.Cpxe4AiUI(self, module_nummer, register_nummer)
-
-    class Cpxe4AiUI:
-               
-
-        def read_channel(self, channel: int):
-            return self._cpxe_control.sps.readData(self.start_register_nummer + channel)
-
-        def create_ai_channel(self, channel: int):
-            return self.AiChannel(self, channel)
-
-        class AiChannel:
-            def __init__(self, cpxe_4ai_u_i, channel):
-                self.cpxe_4ai_u_i = cpxe_4ai_u_i
-                self.channel = channel
-
-            def set_signalrange(self, signalrange: str):
-                self.cpxe_4ai_u_i.set_channel_signalrange(self.channel, signalrange)
-                
-            def set_signalsmothing(self, smothing_potenz: int):
-                self.cpxe_4ai_u_i.set_channel_signalsmothing(self.channel, smothing_potenz)
-
-            def read(self):
-                return self.cpxe_4ai_u_i.read_channel(self.channel)
-
-    def create_cpxe_4ao_u_i(self, module_nummer: int, register_nummer: int):
-        return self.Cpxe4AoUI(self, module_nummer, register_nummer)
-
-    class Cpxe4AoUI:
-
-        def create_ao_channel(self, channel: int):
-            return self.AoChannel(self, channel)
-
-        class AoChannel:
-            def __init__(self, cpxe_4ao_u_i, channel):
-                self.cpxe_4ao_u_i = cpxe_4ao_u_i
-                self.channel = channel
-
-            def set_signalrange(self, signalrange: str):
-                self.cpxe_4ao_u_i.set_channel_signalrange(self.channel, signalrange)
-
-            def write(self, value: int):
-                return self.cpxe_4ao_u_i.write_channel(self.channel, value)
-
-    def create_cpxe_16di(self, register_nummer: int):
-        return self.Cpxe16Di(self, register_nummer)
-
-
-# TODO: Add more Modules
+# TODO: Add IO-Link module

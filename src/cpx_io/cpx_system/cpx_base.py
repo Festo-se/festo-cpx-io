@@ -10,8 +10,6 @@ __status__ = "Development"
 
 from pymodbus.client import ModbusTcpClient
 
-from . import cpx_exceptions
-
 import logging
 
 class CPX_BASE:
@@ -52,7 +50,7 @@ class CPX_BASE:
         data = self.client.read_holding_registers(register, length)
     
         if(data.isError()):
-            raise cpx_exceptions.ReadFailedError()
+            raise ValueError("Reading modbus failed")
 
         return data.registers
 
@@ -86,7 +84,7 @@ class CPX_BASE:
             for i, d in enumerate(data):
                 self.client.write_register(register + i, data)
         else:
-            raise cpx_exceptions.UnknownTypeError()
+            raise TypeError("data must be of type int or list")
 
     '''
     def writeMultipleData(self, register, data):
