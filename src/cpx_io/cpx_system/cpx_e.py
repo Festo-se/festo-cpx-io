@@ -10,7 +10,12 @@ __status__ = "Development"
 
 import logging
 
-from .cpx_base import CPX_BASE
+# TODO: Fix imports
+if __name__ == "__main__":
+    from cpx_base import CPX_BASE
+else:
+    from .cpx_base import CPX_BASE
+
 
 class InitError(Exception):
     def __init__(self, message="Module must be part of a cpx_e class. Use add_module() to add it"):
@@ -128,6 +133,13 @@ class CPX_E_MODULE(CPX_E):
         self.base = base
         self.position = position
 
+    def _require_base(self, func):
+        def wrapper(*args, **kwargs):
+            if self.base is None:
+                raise InitError()
+            return func(*args, **kwargs)
+        return wrapper
+
 class CPX_E_EP(CPX_E_MODULE):
     
     def _initialize(self, *args):
@@ -153,31 +165,25 @@ class CPX_E_8DO(CPX_E_MODULE):
 
         self.base._next_output_register = self.output_register + 1
         self.base._next_input_register = self.input_register + 2
-
+    
+    @_require_base
     def read_channels(self) -> list[bool]:
         # TODO: This register reads back 0
-        if self.base:
-            data = self.base.readRegData(self.input_register)[0] & 0x0F
-            return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
-        else: 
-            raise InitError()
+        data = self.base.readRegData(self.input_register)[0] & 0x0F
+        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
+    @_require_base
     def write_channels(self, data: list[bool]) -> None:
-        if self.base:
-            # Make binary from list of bools
-            binary_string = ''.join('1' if value else '0' for value in reversed(data))
-            # Convert the binary string to an integer
-            integer_data = int(binary_string, 2)
-            self.base.writeRegData(integer_data, self.output_register)
-        else:
-            raise InitError()
+        # Make binary from list of bools
+        binary_string = ''.join('1' if value else '0' for value in reversed(data))
+        # Convert the binary string to an integer
+        integer_data = int(binary_string, 2)
+        self.base.writeRegData(integer_data, self.output_register)
 
+    @_require_base
     def read_status(self) -> list[bool]:
-        if self.base:
-            data = self.base.readRegData(self.input_register + 1)[0]
-            return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
-        else: 
-            raise InitError()
+        data = self.base.readRegData(self.input_register + 1)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
         
     def read_channel(self, channel: int) -> bool:
         if self.base:
