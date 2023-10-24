@@ -127,18 +127,20 @@ class CPX_E(CPX_BASE):
 
 class CPX_E_MODULE(CPX_E):
     def __init__(self):
-        pass
+        self.base = None
 
     def _initialize(self, base, position, output_reg_start, input_reg_start):
         self.base = base
         self.position = position
 
-    def _require_base(self, func):
-        def wrapper(*args, **kwargs):
-            if self.base is None:
+    #@staticmethod
+    def _require_base(func):
+        def wrapper(self, *args):
+            if not self.base:
                 raise InitError()
-            return func(*args, **kwargs)
+            return func(self, *args)
         return wrapper
+
 
 class CPX_E_EP(CPX_E_MODULE):
     
@@ -166,13 +168,13 @@ class CPX_E_8DO(CPX_E_MODULE):
         self.base._next_output_register = self.output_register + 1
         self.base._next_input_register = self.input_register + 2
     
-    @_require_base
+    @CPX_E_MODULE._require_base
     def read_channels(self) -> list[bool]:
         # TODO: This register reads back 0
         data = self.base.readRegData(self.input_register)[0] & 0x0F
         return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
-    @_require_base
+    @CPX_E_MODULE._require_base
     def write_channels(self, data: list[bool]) -> None:
         # Make binary from list of bools
         binary_string = ''.join('1' if value else '0' for value in reversed(data))
@@ -180,42 +182,35 @@ class CPX_E_8DO(CPX_E_MODULE):
         integer_data = int(binary_string, 2)
         self.base.writeRegData(integer_data, self.output_register)
 
-    @_require_base
+    @CPX_E_MODULE._require_base
     def read_status(self) -> list[bool]:
         data = self.base.readRegData(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
         
+    @CPX_E_MODULE._require_base    
     def read_channel(self, channel: int) -> bool:
-        if self.base:
-            return self.read_channels()[channel]
-        else:
-            raise InitError()
+        return self.read_channels()[channel]
 
-    def set_channel(self, channel: int) -> None:
-        if self.base:            
-            data = self.base.readRegData(self.input_register)[0] 
-            self.base.writeRegData(data | 1 << channel , self.output_register)
-        else:
-            raise InitError()
-            
-    def clear_channel(self, channel: int) -> None:
-        if self.base: 
-            data = self.base.readRegData(self.input_register)[0]
-            self.base.writeRegData(data & ~(1 << channel), self.output_register)
-        else:
-            raise InitError()
+    @CPX_E_MODULE._require_base
+    def set_channel(self, channel: int) -> None:         
+        data = self.base.readRegData(self.input_register)[0] 
+        self.base.writeRegData(data | 1 << channel , self.output_register)
     
+    @CPX_E_MODULE._require_base
+    def clear_channel(self, channel: int) -> None:
+        data = self.base.readRegData(self.input_register)[0]
+        self.base.writeRegData(data & ~(1 << channel), self.output_register)
+    
+    @CPX_E_MODULE._require_base
     def toggle_channel(self, channel: int) -> None:
-        if self.base: 
-            data = (self.base.readRegData(self.input_register)[0] & 1 << channel) >> channel
-            if data == 1:
-                self.clear_channel(channel)
-            elif data == 0:
-                self.set_channel(channel)
-            else:
-                raise ValueError
+        data = (self.base.readRegData(self.input_register)[0] & 1 << channel) >> channel
+        if data == 1:
+            self.clear_channel(channel)
+        elif data == 0:
+            self.set_channel(channel)
         else:
-            raise InitError()
+            raise ValueError
+
 
 class CPX_E_16DI(CPX_E_MODULE):
     
@@ -230,25 +225,19 @@ class CPX_E_16DI(CPX_E_MODULE):
         #self.base._next_output_register = self.base._next_output_register + 0
         self.base._next_input_register = self.input_register + 2
 
+    @CPX_E_MODULE._require_base
     def read_channels(self) -> list[bool]:
-        if self.base:
-            data = self.base.readRegData(self.input_register)[0]
-            return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
-        else:
-            raise InitError()
+        data = self.base.readRegData(self.input_register)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
+    @CPX_E_MODULE._require_base
     def read_status(self) -> list[bool]:
-        if self.base:            
-            data = self.base.readRegData(self.input_register + 1)[0]
-            return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
-        else:
-            raise InitError()
+        data = self.base.readRegData(self.input_register + 1)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
+    @CPX_E_MODULE._require_base
     def read_channel(self, channel: int) -> bool:
-        if self.base:
-            return self.read_channels()[channel]
-        else:
-            raise InitError()
+        return self.read_channels()[channel]
 
 class CPX_E_4AI_U_I(CPX_E_MODULE):
     
@@ -268,95 +257,86 @@ class CPX_E_4AI_U_I(CPX_E_MODULE):
         self._signalsmothing_01 = 0
         self._signalsmothing_23 = 0
 
+    @CPX_E_MODULE._require_base
     def read_channels(self) -> list[bool]:
-        if self.base:
-            # TODO: add signal conversion according to signalrange of the channel
-            data = self.base.readRegData(self.input_register, length=4)
-            return data
-        else:
-            raise InitError()
+        # TODO: add signal conversion according to signalrange of the channel
+        data = self.base.readRegData(self.input_register, length=4)
+        return data
 
+    @CPX_E_MODULE._require_base
     def read_status(self) -> list[bool]:
-        if self.base:
-            data = self.base.readRegData(self.input_register + 4)[0]
-            return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
-        else:
-            raise InitError()
+        data = self.base.readRegData(self.input_register + 4)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
+    @CPX_E_MODULE._require_base
     def read_channel(self, channel: int) -> bool:
-        if self.base:
-            return self.read_channels()[channel]
-        else:
-            raise InitError()
+        return self.read_channels()[channel]
 
+    @CPX_E_MODULE._require_base
     def set_channel_range(self, channel: int, signalrange: str) -> None:
-        if self.base:
-            signal_dict = {
-                "None": 0b0000,
-                "0-10V": 0b0001,
-                "-10-+10V": 0b0010,
-                "-5-+5V": 0b0011,
-                "1-5V": 0b0100,
-                "0-20mA": 0b0101,
-                "4-20mA": 0b0110,
-                "-20-+20mA": 0b0111,
-                "0-10VoU": 0b1000,
-                "0-20mAoU": 0b1001,
-                "4-20mAoU": 0b1010
-            }
-            if signalrange not in signal_dict:
-                raise ValueError(f"'{signalrange}' is not an option")
+        signal_dict = {
+            "None": 0b0000,
+            "0-10V": 0b0001,
+            "-10-+10V": 0b0010,
+            "-5-+5V": 0b0011,
+            "1-5V": 0b0100,
+            "0-20mA": 0b0101,
+            "4-20mA": 0b0110,
+            "-20-+20mA": 0b0111,
+            "0-10VoU": 0b1000,
+            "0-20mAoU": 0b1001,
+            "4-20mAoU": 0b1010
+        }
+        if signalrange not in signal_dict:
+            raise ValueError(f"'{signalrange}' is not an option")
 
-            keepbits = 0x0F
-            bitmask = signal_dict[signalrange]
+        keepbits = 0x0F
+        bitmask = signal_dict[signalrange]
 
-            if channel in [1,3]:
-                bitmask <<= 4
-            else:
-                keepbits <<= 4
-
-            if channel < 2:
-                functionNumber = 4828 + 64 * self.position + 13
-                self._signalrange_01 &= keepbits
-                self._signalrange_01 |= bitmask
-                self.base.writeFunctionNumber(functionNumber, self._signalrange_01)
-            elif 2 <= channel < 4:
-                functionNumber = 4828 + 64 * self.position + 14
-                self._signalrange_23 &= keepbits
-                self._signalrange_23 |= bitmask
-                self.base.writeFunctionNumber(functionNumber, self._signalrange_23)
-            else:
-                raise ValueError(f"'{channel}' is not in range 0...3")
+        if channel in [1,3]:
+            bitmask <<= 4
         else:
-            raise InitError()
-                
+            keepbits <<= 4
+
+        if channel < 2:
+            functionNumber = 4828 + 64 * self.position + 13
+            self._signalrange_01 &= keepbits
+            self._signalrange_01 |= bitmask
+            self.base.writeFunctionNumber(functionNumber, self._signalrange_01)
+        elif 2 <= channel < 4:
+            functionNumber = 4828 + 64 * self.position + 14
+            self._signalrange_23 &= keepbits
+            self._signalrange_23 |= bitmask
+            self.base.writeFunctionNumber(functionNumber, self._signalrange_23)
+        else:
+            raise ValueError(f"'{channel}' is not in range 0...3")
+    
+    @CPX_E_MODULE._require_base            
     def set_channel_smothing(self, channel: int, smothing_power: int) -> None:
-        if self.base:
-            if smothing_power > 15:
-                raise ValueError(f"'{smothing_power}' is not an option")
+        if smothing_power > 15:
+            raise ValueError(f"'{smothing_power}' is not an option")
 
-            keepbits = 0x0F
-            bitmask = smothing_power
+        keepbits = 0x0F
+        bitmask = smothing_power
 
-            if channel in [1, 3]:
-                bitmask <<= 4
-            else:
-                keepbits <<= 4
-
-            if channel < 2:
-                functionNumber = 4828 + 64 * self.position + 15
-                self._signalsmothing_01 &= keepbits
-                self._signalsmothing_01 |=  bitmask
-                self.base.writeFunctionNumber(functionNumber, self._signalsmothing_01)
-            elif 2 <= channel < 4:
-                functionNumber = 4828 + 64 * self.position + 16
-                self._signalsmothing_23 &= keepbits
-                self._signalsmothing_23 |= bitmask
-                self.base.writeFunctionNumber(functionNumber, self._signalsmothing_23)
-            else:
-                raise ValueError(f"'{channel}' is not in range 0...3")
+        if channel in [1, 3]:
+            bitmask <<= 4
         else:
-            raise InitError()
+            keepbits <<= 4
+
+        if channel < 2:
+            functionNumber = 4828 + 64 * self.position + 15
+            self._signalsmothing_01 &= keepbits
+            self._signalsmothing_01 |=  bitmask
+            self.base.writeFunctionNumber(functionNumber, self._signalsmothing_01)
+        elif 2 <= channel < 4:
+            functionNumber = 4828 + 64 * self.position + 16
+            self._signalsmothing_23 &= keepbits
+            self._signalsmothing_23 |= bitmask
+            self.base.writeFunctionNumber(functionNumber, self._signalsmothing_23)
+        else:
+            raise ValueError(f"'{channel}' is not in range 0...3")
+
 
 class CPX_E_4AO_U_I(CPX_E_MODULE):
     
@@ -374,77 +354,65 @@ class CPX_E_4AO_U_I(CPX_E_MODULE):
         self._signalrange_01 = 0b00010001
         self._signalrange_23 = 0b00010001
 
+    @CPX_E_MODULE._require_base
     def read_channels(self) -> list[bool]:
-        if self.base:
-            # TODO: add signal conversion according to signalrange of the channel
-            data = self.base.readRegData(self.input_register, length=4)
-            return data
-        else:
-            raise InitError()
+        # TODO: add signal conversion according to signalrange of the channel
+        data = self.base.readRegData(self.input_register, length=4)
+        return data
 
+    @CPX_E_MODULE._require_base
     def read_status(self) -> list[bool]:
-        if self.base:
-            data = self.base.readRegData(self.input_register + 4)[0]
-            return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
-        else:
-            raise InitError()
+        data = self.base.readRegData(self.input_register + 4)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
+    @CPX_E_MODULE._require_base
     def read_channel(self, channel: int) -> bool:
-        if self.base:
-            return self.read_channels()[channel]
-        else:
-            raise InitError()
+        return self.read_channels()[channel]
 
+    @CPX_E_MODULE._require_base
     def write_channels(self, data: list[int]) -> None:
-        if self.base:
-            # TODO: scaling to given signalrange
-            self.base.writeRegData(data, self.output_register, length=4)
-        else:
-            raise InitError()
+        # TODO: scaling to given signalrange
+        self.base.writeRegData(data, self.output_register, length=4)
 
+    @CPX_E_MODULE._require_base
     def write_channel(self, channel: int, data: int) -> None:
-        if self.base:
-            # TODO: scaling to given signalrange
-            self.base.writeRegData(data, self.output_register + channel)
-        else:
-            raise InitError()
+        # TODO: scaling to given signalrange
+        self.base.writeRegData(data, self.output_register + channel)
 
+    @CPX_E_MODULE._require_base
     def set_channel_range(self, channel: int, signalrange: str):
-        if self.base:
-            signal_dict = {
-                "0-10V": 0b0001,
-                "-10-+10V": 0b0010,
-                "-5-+5V": 0b0011,
-                "1-5V": 0b0100,
-                "0-20mA": 0b0101,
-                "4-20mA": 0b0110,
-                "-20-+20mA": 0b0111
-            }
-            if signalrange not in signal_dict:
-                raise ValueError(f"'{signalrange}' is not an option")
+        signal_dict = {
+            "0-10V": 0b0001,
+            "-10-+10V": 0b0010,
+            "-5-+5V": 0b0011,
+            "1-5V": 0b0100,
+            "0-20mA": 0b0101,
+            "4-20mA": 0b0110,
+            "-20-+20mA": 0b0111
+        }
+        if signalrange not in signal_dict:
+            raise ValueError(f"'{signalrange}' is not an option")
 
-            keepbits = 0b1111
-            bitmask = signal_dict[signalrange]
+        keepbits = 0b1111
+        bitmask = signal_dict[signalrange]
 
-            if channel in [1, 3]:
-                bitmask <<= 4
-            else:
-                keepbits <<= 4
-
-            if channel < 2:
-                funcionNumber = 4828 + 64 * self.position + 11
-                self._signalrange_01 &= keepbits
-                self._signalrange_01 |= bitmask
-                self.base.writeFunctionNumber(funcionNumber, self._signalrange_01)
-            elif 2 <= channel < 4:
-                funcionNumber = 4828 + 64 * self.position + 12
-                self._signalrange_23 &= keepbits
-                self._signalrange_23 |= bitmask
-                self.base.writeFunctionNumber(funcionNumber, self._signalrange_23)
-            else:
-                raise ValueError(f"'{channel}' is not in range 0...3")
+        if channel in [1, 3]:
+            bitmask <<= 4
         else:
-            raise InitError()
+            keepbits <<= 4
+
+        if channel < 2:
+            funcionNumber = 4828 + 64 * self.position + 11
+            self._signalrange_01 &= keepbits
+            self._signalrange_01 |= bitmask
+            self.base.writeFunctionNumber(funcionNumber, self._signalrange_01)
+        elif 2 <= channel < 4:
+            funcionNumber = 4828 + 64 * self.position + 12
+            self._signalrange_23 &= keepbits
+            self._signalrange_23 |= bitmask
+            self.base.writeFunctionNumber(funcionNumber, self._signalrange_23)
+        else:
+            raise ValueError(f"'{channel}' is not in range 0...3")
 
 
 # TODO: Add IO-Link module

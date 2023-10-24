@@ -15,7 +15,7 @@ def test_cpxe():
     cpxe.__del__()
 
 def test_init(test_cpxe):
-    assert connection
+    assert test_cpxe
 
 def test_readFunctionNumber(test_cpxe):
     response = test_cpxe.readFunctionNumber(1)
@@ -47,6 +47,10 @@ def test_add_module(test_cpxe):
     assert test_cpxe._next_output_register == 40003  
     assert test_cpxe._next_input_register == 45395 
 
+def test_module_not_initialized(test_cpxe):
+    e8do = CPX_E_8DO()
+    with pytest.raises(InitError):
+        e8do.set_channel(0)
 
 def test_1module(test_cpxe):
     e16di = test_cpxe.add_module(CPX_E_16DI())
