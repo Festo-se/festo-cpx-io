@@ -1,45 +1,55 @@
-__author__ = "Wiesner, Martin"
-__copyright__ = "Copyright 2023, Festo"
-__credits__ = [""]
-__license__ = "Apache"
-__version__ = "0.0.1"
-__maintainer__ = "Wiesner, Martin"
-__email__ = "martin.wiesner@festo.com"
-__status__ = "Development"
-
+'''
+# TODO: Add Docstring
+'''
+import logging
 
 from pymodbus.client import ModbusTcpClient
 
-import logging
 
-class CPX_BASE:
+class CpxBase:
     """
     A class to connect to the Festo CPX system and read data from IO modules
 
     Attributes:
-        moduleCount -- Integer representing the IO module count (read on `__init__()` or `readStaticInformation()`)
-        moduleInformation -- List with detail for the modules (read on `__init__()` or `readStaticInformation()`)
+        moduleCount -- Integer representing the IO module count 
+            (read on `__init__()` or `readStaticInformation()`)
+        moduleInformation -- List with detail for the modules 
+            (read on `__init__()` or `readStaticInformation()`)
 
     Methods:
-        readData(self, register, length=1, type="holding_register") -- Reads and returns holding or input register from Modbus server
-        readInputRegData(self, register, length=1) -- Reads and returns input registers from Modbus server
-        readHoldingRegData(self, register, length=1) -- Reads and returns holding registers form Modbus server
+        readData(self, register, length=1, type="holding_register") 
+            -- Reads and returns holding or input register from Modbus server
+        readInputRegData(self, register, length=1) 
+            -- Reads and returns input registers from Modbus server
+        readHoldingRegData(self, register, length=1) 
+            -- Reads and returns holding registers form Modbus server
         readModuleCount(self) -- Reads and returns IO module count
-        readModuleInformation(self, module) -- Reads and returns detailed information for a specific IO module
-        readStaticInformation(self) -- Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
-        readModuleData(self, module) -- Reads and returns process data of a specific IO module
+        readModuleInformation(self, module) 
+            -- Reads and returns detailed information for a specific IO module
+        readStaticInformation(self) 
+            -- Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
+        readModuleData(self, module) 
+            -- Reads and returns process data of a specific IO module
     """
-    def __init__(self, host="192.168.1.1", tcpPort=502, timeout=1):
+    def __init__(self, host="192.168.1.1", tcp_port=502, timeout=1):
+        # TODO:
         #self.moduleCount = None -> must go to CPX-AP only
         #self.moduleInformation = [] -> must go to CPX-AP only
 
-        self.deviceConfig = {"tcpPort": tcpPort, "ip": host, "modbusSlave": 16, "timeout": timeout}
+        self.device_config = {"tcpPort": tcp_port,
+                             "ip": host,
+                             "modbusSlave": 16,
+                             "timeout": timeout
+                             }
 
-        self.client = ModbusTcpClient(host=self.deviceConfig["ip"], port=self.deviceConfig["tcpPort"], timeout=self.deviceConfig["timeout"])
+        self.client = ModbusTcpClient(host=self.device_config["ip"],
+                                      port=self.device_config["tcpPort"],
+                                      timeout=self.device_config["timeout"])
+
         self.client.connect()
         logging.info("Connected")
 
-    def readRegData(self, register:int, length=1) -> list:
+    def read_reg_data(self, register:int, length=1) -> list:
         """Reads and returns register from Modbus server
 
         Arguments:
@@ -48,12 +58,13 @@ class CPX_BASE:
         """
 
         data = self.client.read_holding_registers(register, length)
-    
-        if(data.isError()):
+
+        if data.isError():
             raise ValueError("Reading modbus failed")
 
         return data.registers
 
+    # TODO: Check if needed here
     '''
     def readInputRegData(self, register, length=1):
         """Reads and returns input registers from Modbus server
@@ -63,7 +74,7 @@ class CPX_BASE:
         length -- number of registers to read (default: 1)
         """
         return self.readRegData(register, length, "input_register")
-    
+
     def readHoldingRegData(self, register, length=1):
         """Reads and returns holding registers form Modbus server
 
@@ -73,11 +84,11 @@ class CPX_BASE:
         """
         return self.readRegData(register, length, "holding_register")
     '''
-    def writeRegData(self, data: int|list, register: int, length=1):
+    def write_reg_data(self, data: int|list, register: int):
         """Todo
 
         """
-        if isinstance(data, int):       
+        if isinstance(data, int):
             self.client.write_register(register, data)
 
         elif isinstance(data, list):
@@ -86,6 +97,7 @@ class CPX_BASE:
         else:
             raise TypeError("data must be of type int or list")
 
+    # TODO: Check if needed here
     '''
     def writeMultipleData(self, register, data):
         """Todo
@@ -108,7 +120,7 @@ class CPX_BASE:
 
         """
         return self.writeMultipleData(register, data)
-    '''     
+    '''
     def __del__(self):
         self.client.close()
         logging.info("Disconnected")

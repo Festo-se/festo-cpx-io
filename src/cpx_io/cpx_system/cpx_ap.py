@@ -1,18 +1,8 @@
-__author__ = "Plank, Martin"
-__copyright__ = "Copyright 2022, Festo"
-__credits__ = [""]
-__license__ = "Apache"
-__version__ = "0.0.1"
-__maintainer__ = "Plank, Martin"
-__email__ = "martin.plank@festo.com"
-__status__ = "Development"
-
+import logging
+import struct
 
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
-
-import logging
-import struct
 
 from cpx_base import CPX_BASE
 
