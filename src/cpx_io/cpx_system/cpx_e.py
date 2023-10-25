@@ -11,8 +11,8 @@ else:
 
 
 class InitError(Exception):
-    '''Error is raised if a cpx-e-... module is instanciated without connecting it to a base module.
-    Connect it to the cpx-e by adding it with add_module(<object>)
+    '''Error should be raised if a cpx-e-... module is instanciated without connecting it to a base module.
+    Connect it to the cpx-e by adding it with add_module(<object instance>)
     '''
     def __init__(self, message="Module must be part of a cpx_e class. Use add_module() to add it"):
         super().__init__(message)
