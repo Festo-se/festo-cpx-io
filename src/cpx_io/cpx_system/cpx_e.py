@@ -50,7 +50,6 @@ class CpxE(CpxBase):
 
         self.output_register = None
         self.input_register = None
-        self.position = None
 
         self.modules = {}
 
@@ -143,6 +142,7 @@ class _CpxEModule(CpxE):
     '''
     def __init__(self):
         self.base = None
+        self.position = None
 
     def _initialize(self, base, position):
         self.base = base
