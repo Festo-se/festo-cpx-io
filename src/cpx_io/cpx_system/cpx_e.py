@@ -1,28 +1,26 @@
-__author__ = "Wiesner, Martin"
-__copyright__ = "Copyright 2022, Festo"
-__credits__ = [""]
-__license__ = "Apache"
-__version__ = "0.0.1"
-__maintainer__ = "Wiesner, Martin"
-__email__ = "martin.wiesner@festo.com"
-__status__ = "Development"
-
+'''TODO: Add module docstring
+'''
 
 import logging
 
 # TODO: Fix imports
 if __name__ == "__main__":
-    from cpx_base import CPX_BASE
+    from cpx_base import CpxBase
 else:
-    from .cpx_base import CPX_BASE
+    from .cpx_base import CpxBase
 
 
 class InitError(Exception):
+    '''Error should be raised if a cpx-e-... module is instanciated without connecting it to a base module.
+    Connect it to the cpx-e by adding it with add_module(<object instance>)
+    '''
     def __init__(self, message="Module must be part of a cpx_e class. Use add_module() to add it"):
         super().__init__(message)
 
 
-class _ModbusCommands:    
+class _ModbusCommands:
+    '''Modbus start adresses used to read and write registers
+    '''
     # (RegAdress, Length)
     # input registers
 
@@ -39,28 +37,34 @@ class _ModbusCommands:
     StatusRegister=(45391,1)
 
 
-class CPX_E(CPX_BASE):
-
+class CpxE(CpxBase):
+    '''CPX-E base class
+    '''
     def __init__(self, modules=None, **kwargs):
         super().__init__(**kwargs)
         self._control_bit_value = 1 << 15
         self._write_bit_value = 1 << 13
-        
+
         self._next_output_register = 0
         self._next_input_register = 0
 
+        self.output_register = None
+        self.input_register = None
+
         self.modules = {}
-        
+
         if modules:
             for m in modules:
                 self.add_module(m)
         else:
-            self.add_module(CPX_E_EP())
+            self.add_module(CpxEEp())
 
-    def writeFunctionNumber(self, FunctionNumber: int, value: int):
+    def write_function_number(self, function_number: int, value: int):
+        '''Write parameters via function number
+        '''
         self.writeRegData(value, *_ModbusCommands.DataSystemTableWrite)
         self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
-        self.writeRegData(self._control_bit_value | self._write_bit_value | FunctionNumber, 
+        self.writeRegData(self._control_bit_value | self._write_bit_value | function_number,
                             *_ModbusCommands.RequestDiagnosis)
 
         data = 0
@@ -74,11 +78,14 @@ class CPX_E(CPX_BASE):
 
         data &= ~self._control_bit_value
         data2 = self.readRegData(*_ModbusCommands.DataSystemTableRead)[0]
-        logging.info(f"Write Data({value}) to {FunctionNumber}: {data} and {data2} (after {its} iterations)")
+        logging.info(f"Write Data({value}) to {function_number}: {data} and {data2}")
 
-    def readFunctionNumber(self, FunctionNumber: int):
+    def read_function_number(self, function_number: int):
+        '''Read parameters via function number
+        '''
         self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
-        self.writeRegData(self._control_bit_value | FunctionNumber, *_ModbusCommands.RequestDiagnosis)
+        self.writeRegData(self._control_bit_value | function_number,
+                          *_ModbusCommands.RequestDiagnosis)
 
         data = 0
         its = 0
@@ -91,49 +98,57 @@ class CPX_E(CPX_BASE):
 
         data &= ~self._control_bit_value
         data2 = self.readRegData(*_ModbusCommands.DataSystemTableRead)
-        logging.info(f"Read Data from {FunctionNumber}: {data} and {data2} (after {its} iterations)")
+        logging.info(f"Read Data from {function_number}: {data} and {data2}")
         return data2
 
     def module_count(self) -> int:
         ''' returns the total count of attached modules
         '''
         data = self.readRegData(*_ModbusCommands.ModuleConfiguration)
-        return sum([bin(d).count("1") for d in data])
+        return sum(bin(d).count("1") for d in data)
 
     def fault_detection(self) -> list[bool]:
         ''' returns list of bools with Errors (True)
         '''
         data = self.readRegData(*_ModbusCommands.FaultDetection)
-        data = data[2] << 16 + data[1] << 8 + data[0] 
-        return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]] 
+        data = data[2] << 16 + data[1] << 8 + data[0]
+        return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]]
 
     def status_register(self) -> tuple:
         ''' returns (Write-protected, Force active)
         '''
-        writeProtectBit = 11
-        forceActiveBit = 15
+        write_protect_bit = 11
+        force_active_bit = 15
         data = self.readRegData(*_ModbusCommands.StatusRegister)
-        return (bool(data[0] & 1 << writeProtectBit), bool(data[0] & 1 << forceActiveBit))
+        return (bool(data[0] & 1 << write_protect_bit), bool(data[0] & 1 << force_active_bit))
 
     def read_device_identification(self) -> int:
         ''' returns Objects IDO 1,2,3,4,5
         '''
-        data = self.readFunctionNumber(43)
-        return data[0] 
+        data = self.read_function_number(43)
+        return data[0]
 
     def add_module(self, module):
-        module._initialize(self, len(self.modules), self._next_output_register, self._next_input_register)
+        '''Adds one module to the base. This is required to use the module.
+        '''
+        module._initialize(self, len(self.modules),
+                           self._next_output_register,
+                           self._next_input_register)
         return module
 
-class CPX_E_MODULE(CPX_E):
+
+class _CpxEModule(CpxE):
+    '''Base class for cpx-e modules
+    '''
     def __init__(self):
         self.base = None
+        self.position = None
 
-    def _initialize(self, base, position, output_reg_start, input_reg_start):
+    def _initialize(self, base, position):
         self.base = base
         self.position = position
 
-    #@staticmethod
+    @staticmethod
     def _require_base(func):
         def wrapper(self, *args):
             if not self.base:
@@ -142,21 +157,25 @@ class CPX_E_MODULE(CPX_E):
         return wrapper
 
 
-class CPX_E_EP(CPX_E_MODULE):
-    
+class CpxEEp(_CpxEModule):
+    '''Class for CPX-E-EP module
+    '''
     def _initialize(self, *args):
         super()._initialize(*args)
 
         self.base.modules["CPX-E-EP"] = self.position
-        
+
         self.output_register = _ModbusCommands.RequestDiagnosis[0]
         self.input_register = _ModbusCommands.ResponseDiagnosis[0]
 
         self.base._next_output_register = self.output_register + 2
         self.base._next_input_register = self.input_register + 3
 
-class CPX_E_8DO(CPX_E_MODULE):
-    
+
+class CpxE8Do(_CpxEModule):
+    '''Class for CPX-E-8DO module
+    '''
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -167,42 +186,56 @@ class CPX_E_8DO(CPX_E_MODULE):
 
         self.base._next_output_register = self.output_register + 1
         self.base._next_input_register = self.input_register + 2
-    
-    @CPX_E_MODULE._require_base
+
+    @_CpxEModule._require_base
     def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values
+        '''
         # TODO: This register reads back 0
         data = self.base.readRegData(self.input_register)[0] & 0x0F
         return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def write_channels(self, data: list[bool]) -> None:
+        '''write all channels with a list of bool values
+        '''
         # Make binary from list of bools
         binary_string = ''.join('1' if value else '0' for value in reversed(data))
         # Convert the binary string to an integer
         integer_data = int(binary_string, 2)
         self.base.writeRegData(integer_data, self.output_register)
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
+        '''read module status register. Further information see module datasheet
+        '''
         data = self.base.readRegData(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
-        
-    @CPX_E_MODULE._require_base    
+
+    @_CpxEModule._require_base
     def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
         return self.read_channels()[channel]
 
-    @CPX_E_MODULE._require_base
-    def set_channel(self, channel: int) -> None:         
-        data = self.base.readRegData(self.input_register)[0] 
+    @_CpxEModule._require_base
+    def set_channel(self, channel: int) -> None:
+        '''set one channel to logic high level
+        '''
+        data = self.base.readRegData(self.input_register)[0]
         self.base.writeRegData(data | 1 << channel , self.output_register)
-    
-    @CPX_E_MODULE._require_base
+
+    @_CpxEModule._require_base
     def clear_channel(self, channel: int) -> None:
+        '''set one channel to logic low level
+        '''
         data = self.base.readRegData(self.input_register)[0]
         self.base.writeRegData(data & ~(1 << channel), self.output_register)
-    
-    @CPX_E_MODULE._require_base
+
+    @_CpxEModule._require_base
     def toggle_channel(self, channel: int) -> None:
+        '''set one channel the inverted of current logic level
+        '''
         data = (self.base.readRegData(self.input_register)[0] & 1 << channel) >> channel
         if data == 1:
             self.clear_channel(channel)
@@ -212,8 +245,10 @@ class CPX_E_8DO(CPX_E_MODULE):
             raise ValueError
 
 
-class CPX_E_16DI(CPX_E_MODULE):
-    
+class CpxE16Di(_CpxEModule):
+    '''Class for CPX-E-16DI module
+    '''
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -225,22 +260,39 @@ class CPX_E_16DI(CPX_E_MODULE):
         #self.base._next_output_register = self.base._next_output_register + 0
         self.base._next_input_register = self.input_register + 2
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values
+        '''
         data = self.base.readRegData(self.input_register)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
+        '''read module status register. Further information see module datasheet
+        '''
         data = self.base.readRegData(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
         return self.read_channels()[channel]
 
-class CPX_E_4AI_U_I(CPX_E_MODULE):
-    
+
+class CpxE4AiUi(_CpxEModule):
+    '''Class for CPX-E-4AI-UI module
+    '''
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self._signalrange_01 = 0
+        self._signalrange_23 = 0
+        self._signalsmothing_01 = 0
+        self._signalsmothing_23 = 0
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -252,28 +304,31 @@ class CPX_E_4AI_U_I(CPX_E_MODULE):
         #self.base._next_output_register = self.base._next_output_register + 0
         self.base._next_input_register = self.input_register + 5
 
-        self._signalrange_01 = 0
-        self._signalrange_23 = 0
-        self._signalsmothing_01 = 0
-        self._signalsmothing_23 = 0
-
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values
+        '''
         # TODO: add signal conversion according to signalrange of the channel
         data = self.base.readRegData(self.input_register, length=4)
         return data
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
+        '''read module status register. Further information see module datasheet
+        '''
         data = self.base.readRegData(self.input_register + 4)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
         return self.read_channels()[channel]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def set_channel_range(self, channel: int, signalrange: str) -> None:
+        '''set the signal range and type of one channel
+        '''
         signal_dict = {
             "None": 0b0000,
             "0-10V": 0b0001,
@@ -299,20 +354,22 @@ class CPX_E_4AI_U_I(CPX_E_MODULE):
             keepbits <<= 4
 
         if channel < 2:
-            functionNumber = 4828 + 64 * self.position + 13
+            function_number = 4828 + 64 * self.position + 13
             self._signalrange_01 &= keepbits
             self._signalrange_01 |= bitmask
-            self.base.writeFunctionNumber(functionNumber, self._signalrange_01)
+            self.base.write_function_number(function_number, self._signalrange_01)
         elif 2 <= channel < 4:
-            functionNumber = 4828 + 64 * self.position + 14
+            function_number = 4828 + 64 * self.position + 14
             self._signalrange_23 &= keepbits
             self._signalrange_23 |= bitmask
-            self.base.writeFunctionNumber(functionNumber, self._signalrange_23)
+            self.base.write_function_number(function_number, self._signalrange_23)
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
-    
-    @CPX_E_MODULE._require_base            
+
+    @_CpxEModule._require_base
     def set_channel_smothing(self, channel: int, smothing_power: int) -> None:
+        '''set the signal smoothing of one channel
+        '''
         if smothing_power > 15:
             raise ValueError(f"'{smothing_power}' is not an option")
 
@@ -325,21 +382,28 @@ class CPX_E_4AI_U_I(CPX_E_MODULE):
             keepbits <<= 4
 
         if channel < 2:
-            functionNumber = 4828 + 64 * self.position + 15
+            function_number = 4828 + 64 * self.position + 15
             self._signalsmothing_01 &= keepbits
             self._signalsmothing_01 |=  bitmask
-            self.base.writeFunctionNumber(functionNumber, self._signalsmothing_01)
+            self.base.write_function_number(function_number, self._signalsmothing_01)
         elif 2 <= channel < 4:
-            functionNumber = 4828 + 64 * self.position + 16
+            function_number = 4828 + 64 * self.position + 16
             self._signalsmothing_23 &= keepbits
             self._signalsmothing_23 |= bitmask
-            self.base.writeFunctionNumber(functionNumber, self._signalsmothing_23)
+            self.base.write_function_number(function_number, self._signalsmothing_23)
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 
 
-class CPX_E_4AO_U_I(CPX_E_MODULE):
-    
+class CpxE4AoUi(_CpxEModule):
+    '''Class for CPX-E-4AO-UI module
+    '''
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self._signalrange_01 = 0b00010001
+        self._signalrange_23 = 0b00010001
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -351,36 +415,45 @@ class CPX_E_4AO_U_I(CPX_E_MODULE):
         self.base._next_output_register = self.output_register  + 4
         self.base._next_input_register = self.input_register + 5
 
-        self._signalrange_01 = 0b00010001
-        self._signalrange_23 = 0b00010001
-
-    @CPX_E_MODULE._require_base
-    def read_channels(self) -> list[bool]:
+    @_CpxEModule._require_base
+    def read_channels(self) -> list[int]:
+        '''read all channels as a list of integer values
+        '''
         # TODO: add signal conversion according to signalrange of the channel
         data = self.base.readRegData(self.input_register, length=4)
         return data
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
+        '''read module status register. Further information see module datasheet
+        '''
         data = self.base.readRegData(self.input_register + 4)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
         return self.read_channels()[channel]
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def write_channels(self, data: list[int]) -> None:
-        # TODO: scaling to given signalrange
+        '''write data to module channels in ascending order
+        '''
+        # TODO: scaling to given signalrange, limit data[] to 0xFF
         self.base.writeRegData(data, self.output_register, length=4)
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def write_channel(self, channel: int, data: int) -> None:
-        # TODO: scaling to given signalrange
+        '''write data to module channel number
+        '''
+        # TODO: scaling to given signalrange, limit data to 0xFF
         self.base.writeRegData(data, self.output_register + channel)
 
-    @CPX_E_MODULE._require_base
+    @_CpxEModule._require_base
     def set_channel_range(self, channel: int, signalrange: str):
+        '''set the signal range and type of one channel
+        '''
         signal_dict = {
             "0-10V": 0b0001,
             "-10-+10V": 0b0010,
@@ -402,15 +475,15 @@ class CPX_E_4AO_U_I(CPX_E_MODULE):
             keepbits <<= 4
 
         if channel < 2:
-            funcionNumber = 4828 + 64 * self.position + 11
+            function_number = 4828 + 64 * self.position + 11
             self._signalrange_01 &= keepbits
             self._signalrange_01 |= bitmask
-            self.base.writeFunctionNumber(funcionNumber, self._signalrange_01)
+            self.base.write_function_number(function_number, self._signalrange_01)
         elif 2 <= channel < 4:
-            funcionNumber = 4828 + 64 * self.position + 12
+            function_number = 4828 + 64 * self.position + 12
             self._signalrange_23 &= keepbits
             self._signalrange_23 |= bitmask
-            self.base.writeFunctionNumber(funcionNumber, self._signalrange_23)
+            self.base.write_function_number(function_number, self._signalrange_23)
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 

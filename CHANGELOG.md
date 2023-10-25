@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- [Minor] Fixed linting issues
+
+### Changed
 - [Minor] Reworked CPX-E class structure.
 
 ## v0.1.1 - 20.10.23
