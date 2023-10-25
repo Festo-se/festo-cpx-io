@@ -36,14 +36,14 @@ class CpxBase:
         #self.moduleCount = None -> must go to CPX-AP only
         #self.moduleInformation = [] -> must go to CPX-AP only
 
-        self.device_config = {"tcpPort": tcp_port,
+        self.device_config = {"tcp_port": tcp_port,
                              "ip": host,
-                             "modbusSlave": 16,
+                             "modbus_slave": 16,
                              "timeout": timeout
                              }
 
         self.client = ModbusTcpClient(host=self.device_config["ip"],
-                                      port=self.device_config["tcpPort"],
+                                      port=self.device_config["tcp_port"],
                                       timeout=self.device_config["timeout"])
 
         self.client.connect()
@@ -84,12 +84,13 @@ class CpxBase:
         """
         return self.readRegData(register, length, "holding_register")
     '''
-    def write_reg_data(self, data: int|list, register: int):
+    def write_reg_data(self, data: int|list, register: int, length=1):
         """Todo
 
         """
         if isinstance(data, int):
-            self.client.write_register(register, data)
+            for i in range(0, length):
+                self.client.write_register(register + i, data)
 
         elif isinstance(data, list):
             for i, d in enumerate(data):

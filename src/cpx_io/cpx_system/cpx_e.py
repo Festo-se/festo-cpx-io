@@ -30,7 +30,7 @@ class _ModbusCommands:
 
     ResponseDiagnosis=(45392,1)
     DataSystemTableRead=(45393,1)
-    #ModuleDiagnosisData=(45394,1)
+    #ModuleDiagnosisData=(45394,1) #TODO: needed?
 
     ModuleConfiguration=(45367,3)
     FaultDetection=(45383,3)
@@ -62,55 +62,55 @@ class CpxE(CpxBase):
     def write_function_number(self, function_number: int, value: int):
         '''Write parameters via function number
         '''
-        self.writeRegData(value, *_ModbusCommands.DataSystemTableWrite)
-        self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
-        self.writeRegData(self._control_bit_value | self._write_bit_value | function_number,
+        self.write_reg_data(value, *_ModbusCommands.DataSystemTableWrite)
+        self.write_reg_data(0, *_ModbusCommands.RequestDiagnosis)
+        self.write_reg_data(self._control_bit_value | self._write_bit_value | function_number,
                             *_ModbusCommands.RequestDiagnosis)
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.readRegData(*_ModbusCommands.ResponseDiagnosis)[0]
+            data = self.read_reg_data(*_ModbusCommands.ResponseDiagnosis)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.readRegData(*_ModbusCommands.DataSystemTableRead)[0]
+        data2 = self.read_reg_data(*_ModbusCommands.DataSystemTableRead)[0]
         logging.info(f"Write Data({value}) to {function_number}: {data} and {data2}")
 
     def read_function_number(self, function_number: int):
         '''Read parameters via function number
         '''
-        self.writeRegData(0, *_ModbusCommands.RequestDiagnosis)
-        self.writeRegData(self._control_bit_value | function_number,
+        self.write_reg_data(0, *_ModbusCommands.RequestDiagnosis)
+        self.write_reg_data(self._control_bit_value | function_number,
                           *_ModbusCommands.RequestDiagnosis)
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.readRegData(*_ModbusCommands.ResponseDiagnosis)[0]
+            data = self.read_reg_data(*_ModbusCommands.ResponseDiagnosis)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.readRegData(*_ModbusCommands.DataSystemTableRead)
+        data2 = self.read_reg_data(*_ModbusCommands.DataSystemTableRead)
         logging.info(f"Read Data from {function_number}: {data} and {data2}")
         return data2
 
     def module_count(self) -> int:
         ''' returns the total count of attached modules
         '''
-        data = self.readRegData(*_ModbusCommands.ModuleConfiguration)
+        data = self.read_reg_data(*_ModbusCommands.ModuleConfiguration)
         return sum(bin(d).count("1") for d in data)
 
     def fault_detection(self) -> list[bool]:
         ''' returns list of bools with Errors (True)
         '''
-        data = self.readRegData(*_ModbusCommands.FaultDetection)
+        data = self.read_reg_data(*_ModbusCommands.FaultDetection)
         data = data[2] << 16 + data[1] << 8 + data[0]
         return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]]
 
@@ -119,7 +119,7 @@ class CpxE(CpxBase):
         '''
         write_protect_bit = 11
         force_active_bit = 15
-        data = self.readRegData(*_ModbusCommands.StatusRegister)
+        data = self.read_reg_data(*_ModbusCommands.StatusRegister)
         return (bool(data[0] & 1 << write_protect_bit), bool(data[0] & 1 << force_active_bit))
 
     def read_device_identification(self) -> int:
@@ -131,9 +131,7 @@ class CpxE(CpxBase):
     def add_module(self, module):
         '''Adds one module to the base. This is required to use the module.
         '''
-        module._initialize(self, len(self.modules),
-                           self._next_output_register,
-                           self._next_input_register)
+        module._initialize(self, len(self.modules))
         return module
 
 
@@ -192,7 +190,7 @@ class CpxE8Do(_CpxEModule):
         '''read all channels as a list of bool values
         '''
         # TODO: This register reads back 0
-        data = self.base.readRegData(self.input_register)[0] & 0x0F
+        data = self.base.read_reg_data(self.input_register)[0] & 0x0F
         return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
     @_CpxEModule._require_base
@@ -203,13 +201,13 @@ class CpxE8Do(_CpxEModule):
         binary_string = ''.join('1' if value else '0' for value in reversed(data))
         # Convert the binary string to an integer
         integer_data = int(binary_string, 2)
-        self.base.writeRegData(integer_data, self.output_register)
+        self.base.write_reg_data(integer_data, self.output_register)
 
     @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
-        data = self.base.readRegData(self.input_register + 1)[0]
+        data = self.base.read_reg_data(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
     @_CpxEModule._require_base
@@ -222,21 +220,21 @@ class CpxE8Do(_CpxEModule):
     def set_channel(self, channel: int) -> None:
         '''set one channel to logic high level
         '''
-        data = self.base.readRegData(self.input_register)[0]
-        self.base.writeRegData(data | 1 << channel , self.output_register)
+        data = self.base.read_reg_data(self.input_register)[0]
+        self.base.write_reg_data(data | 1 << channel , self.output_register)
 
     @_CpxEModule._require_base
     def clear_channel(self, channel: int) -> None:
         '''set one channel to logic low level
         '''
-        data = self.base.readRegData(self.input_register)[0]
-        self.base.writeRegData(data & ~(1 << channel), self.output_register)
+        data = self.base.read_reg_data(self.input_register)[0]
+        self.base.write_reg_data(data & ~(1 << channel), self.output_register)
 
     @_CpxEModule._require_base
     def toggle_channel(self, channel: int) -> None:
         '''set one channel the inverted of current logic level
         '''
-        data = (self.base.readRegData(self.input_register)[0] & 1 << channel) >> channel
+        data = (self.base.read_reg_data(self.input_register)[0] & 1 << channel) >> channel
         if data == 1:
             self.clear_channel(channel)
         elif data == 0:
@@ -264,14 +262,14 @@ class CpxE16Di(_CpxEModule):
     def read_channels(self) -> list[bool]:
         '''read all channels as a list of bool values
         '''
-        data = self.base.readRegData(self.input_register)[0]
+        data = self.base.read_reg_data(self.input_register)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
     @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
-        data = self.base.readRegData(self.input_register + 1)[0]
+        data = self.base.read_reg_data(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
     @_CpxEModule._require_base
@@ -309,14 +307,14 @@ class CpxE4AiUi(_CpxEModule):
         '''read all channels as a list of bool values
         '''
         # TODO: add signal conversion according to signalrange of the channel
-        data = self.base.readRegData(self.input_register, length=4)
+        data = self.base.read_reg_data(self.input_register, length=4)
         return data
 
     @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
-        data = self.base.readRegData(self.input_register + 4)[0]
+        data = self.base.read_reg_data(self.input_register + 4)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
     @_CpxEModule._require_base
@@ -420,14 +418,14 @@ class CpxE4AoUi(_CpxEModule):
         '''read all channels as a list of integer values
         '''
         # TODO: add signal conversion according to signalrange of the channel
-        data = self.base.readRegData(self.input_register, length=4)
+        data = self.base.read_reg_data(self.input_register, length=4)
         return data
 
     @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
-        data = self.base.readRegData(self.input_register + 4)[0]
+        data = self.base.read_reg_data(self.input_register + 4)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
     @_CpxEModule._require_base
@@ -441,14 +439,14 @@ class CpxE4AoUi(_CpxEModule):
         '''write data to module channels in ascending order
         '''
         # TODO: scaling to given signalrange, limit data[] to 0xFF
-        self.base.writeRegData(data, self.output_register, length=4)
+        self.base.write_reg_data(data, self.output_register, length=4)
 
     @_CpxEModule._require_base
     def write_channel(self, channel: int, data: int) -> None:
         '''write data to module channel number
         '''
         # TODO: scaling to given signalrange, limit data to 0xFF
-        self.base.writeRegData(data, self.output_register + channel)
+        self.base.write_reg_data(data, self.output_register + channel)
 
     @_CpxEModule._require_base
     def set_channel_range(self, channel: int, signalrange: str):

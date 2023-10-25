@@ -2,14 +2,11 @@ import pytest
 
 import time
 
-import sys
-sys.path.append(".")
+from cpx_io.cpx_system.cpx_e import *
 
-from src.cpx_io.cpx_system.cpx_e import *
-
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def test_cpxe():
-    cpxe = CPX_E(host="172.16.1.40", tcpPort=502, timeout=1)
+    cpxe = CpxE(host="172.16.1.40", tcp_port=502, timeout=1)
     yield cpxe
 
     cpxe.__del__()
@@ -18,11 +15,11 @@ def test_init(test_cpxe):
     assert test_cpxe
 
 def test_readFunctionNumber(test_cpxe):
-    response = test_cpxe.readFunctionNumber(1)
+    response = test_cpxe.read_function_number(1)
     assert response == [0]
 
 def test_writeFunctionNumber(test_cpxe):
-    response = test_cpxe.writeFunctionNumber(23,1)
+    response = test_cpxe.write_function_number(23,1)
     assert response == None
 
 def test_module_count(test_cpxe):
@@ -48,12 +45,12 @@ def test_add_module(test_cpxe):
     assert test_cpxe._next_input_register == 45395 
 
 def test_module_not_initialized(test_cpxe):
-    e8do = CPX_E_8DO()
+    e8do = CpxE8Do()
     with pytest.raises(InitError):
         e8do.set_channel(0)
 
 def test_1module(test_cpxe):
-    e16di = test_cpxe.add_module(CPX_E_16DI())
+    e16di = test_cpxe.add_module(CpxE16Di())
     assert e16di.output_register == None
     assert e16di.input_register == 45395
     assert test_cpxe._next_output_register == 40003
@@ -70,8 +67,8 @@ def test_1module(test_cpxe):
 
 
 def test_2modules(test_cpxe):
-    e16di = test_cpxe.add_module(CPX_E_16DI())
-    e8do = test_cpxe.add_module(CPX_E_8DO())
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
     assert e8do.output_register == 40003
     assert e8do.input_register == 45397
     assert test_cpxe._next_output_register == 40004
@@ -116,9 +113,9 @@ def test_2modules(test_cpxe):
 
 
 def test_3modules(test_cpxe): 
-    e16di = test_cpxe.add_module(CPX_E_16DI())
-    e8do = test_cpxe.add_module(CPX_E_8DO())
-    e4ai = test_cpxe.add_module(CPX_E_4AI_U_I())
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUi())
     assert e4ai.output_register == None
     assert e4ai.input_register == 45399
     assert test_cpxe._next_output_register == 40004
@@ -140,10 +137,10 @@ def test_3modules(test_cpxe):
 
 
 def test_4modules(test_cpxe):
-    e16di = test_cpxe.add_module(CPX_E_16DI())
-    e8do = test_cpxe.add_module(CPX_E_8DO())
-    e4ai = test_cpxe.add_module(CPX_E_4AI_U_I())
-    e4ao = test_cpxe.add_module(CPX_E_4AO_U_I())
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUi())
+    e4ao = test_cpxe.add_module(CpxE4AoUi())
     assert e4ao.output_register == 40004
     assert e4ao.input_register == 45404
     assert test_cpxe._next_output_register == 40008
@@ -169,14 +166,14 @@ def test_5modules(test_cpxe):
     pass
 
 def test_modules_with_init():
-    modules = [CPX_E_EP(), 
-               CPX_E_16DI(), 
-               CPX_E_8DO(), 
-               CPX_E_4AI_U_I(), 
-               CPX_E_4AO_U_I()
+    modules = [CpxEEp(), 
+               CpxE16Di(), 
+               CpxE8Do(), 
+               CpxE4AiUi(), 
+               CpxE4AoUi()
                ]
 
-    cpxe = CPX_E(host="172.16.1.40", modules=modules) 
+    cpxe = CpxE(host="172.16.1.40", modules=modules) 
 
     assert cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
