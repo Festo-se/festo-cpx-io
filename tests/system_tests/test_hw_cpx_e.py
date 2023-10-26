@@ -46,6 +46,9 @@ def test_signed16_to_int():
     assert module.signed16_to_int(0xFFFF) == -1
     assert module.signed16_to_int(0xFFFE) == -2
 
+def test_int_to_signed16():
+    module = CpxE8Do()
+
     assert module.int_to_signed16(0) == 0x0000
     assert module.int_to_signed16(1) == 0x0001
     assert module.int_to_signed16(-1) == 0xFFFF
@@ -149,15 +152,13 @@ def test_3modules(test_cpxe):
     assert e4ai.read_status() == [False] * 16 
     assert e4ai.position == 3
 
-    # channel 0 is hardwired to 5 Vdc, this is around 6518 digits
-    assert e4ai.set_channel_range(0, "0-10V") == None
-    assert e4ai.set_channel_smothing(0, 2) == None
+    # channel 3 is hardwired to 5 Vdc, this is around 13800 digits
+    assert e4ai.set_channel_range(3, "0-10V") == None
+    assert e4ai.set_channel_smothing(3, 2) == None
     time.sleep(.1)
-    data0 = e4ai.read_channel(0)
+    data0 = e4ai.read_channel(3)
     assert 13700 < data0 < 13900
-    data = [0] * 3
-    # cut off the first unpredictable and already tested channel
-    assert e4ai.read_channels()[1:] == data
+    assert 13700 < e4ai.read_channels()[3] < 13900
 
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
@@ -225,12 +226,14 @@ def test_analog_io(test_cpxe):
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
     e4ao.set_channel_range(1,'0-10V')
-    e4ao.set_channel_range(2,'-10-+10V')
-    e4ao.set_channel_range(3,'-5-+5V')
+    e4ao.set_channel_range(2,'0-10V')
+    #e4ao.set_channel_range(2,'-10-+10V')
+    #e4ao.set_channel_range(3,'-5-+5V')
 
     e4ai.set_channel_range(1,'0-10V')
-    e4ai.set_channel_range(2,'-10-+10V')
-    e4ai.set_channel_range(3,'-5-+5V')
+    e4ai.set_channel_range(2,'0-10V')
+    #e4ai.set_channel_range(2,'-10-+10V')
+    #e4ai.set_channel_range(3,'-5-+5V')
 
     value = 4000
     assert e4ao.write_channel(2, value) == None

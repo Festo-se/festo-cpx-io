@@ -151,24 +151,25 @@ class _CpxEModule(CpxE):
         return wrapper
     
     @staticmethod
-    def int_to_signed16(value: int, bits=16):
+    def int_to_signed16(value: int):
         '''Converts a int to 16 bit register where msb is the sign
+        with checking the range
         '''
-        if (value <= -32768) or (value > 32768):
+        if (value <= -2**15) or (value > 2**15):
             raise ValueError(f"Integer value {value} must be in range -32768...32767 (15 bit)")
         
         if value >=0:
             return value
         else:
-            return (1 << (bits - 1)) | ((value - (1 << bits)) & (((1 << bits) -1) // 2))
+            return 2**15 | ((value - 2**16) & ((2**16 - 1) // 2))
     
     @staticmethod
-    def signed16_to_int(value: int, bits=16):
+    def signed16_to_int(value: int):
         '''Converts a 16 bit register where msb is the sign to python signed int
         by computing the two's complement 
         '''
-        if (value & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
-            value = value - (1 << bits)        # compute negative value
+        if (value & (2**15)) != 0:        # if sign bit is set
+            value = value - 2**16       # compute negative value
         return value
 
 class CpxEEp(_CpxEModule):
