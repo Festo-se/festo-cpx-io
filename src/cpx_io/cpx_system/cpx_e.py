@@ -3,11 +3,7 @@
 
 import logging
 
-# TODO: Fix imports
-if __name__ == "__main__":
-    from cpx_base import CpxBase
-else:
-    from .cpx_base import CpxBase
+from .cpx_base import CpxBase
 
 
 class InitError(Exception):
@@ -25,16 +21,15 @@ class _ModbusCommands:
     # input registers
 
     # holding registers
-    RequestDiagnosis=(40001,1)
-    DataSystemTableWrite=(4002,1)
+    process_data_outputs=(40001,1)
+    data_system_table_write=(40002,1)
 
-    ResponseDiagnosis=(45392,1)
-    DataSystemTableRead=(45393,1)
-    #ModuleDiagnosisData=(45394,1) #TODO: needed?
+    process_data_inputs=(45392,1)
+    data_system_table_read=(45393,1)
 
-    ModuleConfiguration=(45367,3)
-    FaultDetection=(45383,3)
-    StatusRegister=(45391,1)
+    module_configuration=(45367,3)
+    fault_detection=(45383,3)
+    status_register=(45391,1)
 
 
 class CpxE(CpxBase):
@@ -62,65 +57,65 @@ class CpxE(CpxBase):
     def write_function_number(self, function_number: int, value: int):
         '''Write parameters via function number
         '''
-        self.write_reg_data(value, *_ModbusCommands.DataSystemTableWrite)
-        self.write_reg_data(0, *_ModbusCommands.RequestDiagnosis)
+        self.write_reg_data(value, *_ModbusCommands.data_system_table_write)
+        self.write_reg_data(0, *_ModbusCommands.process_data_outputs)
         self.write_reg_data(self._control_bit_value | self._write_bit_value | function_number,
-                            *_ModbusCommands.RequestDiagnosis)
+                            *_ModbusCommands.process_data_outputs)
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*_ModbusCommands.ResponseDiagnosis)[0]
+            data = self.read_reg_data(*_ModbusCommands.process_data_inputs)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.read_reg_data(*_ModbusCommands.DataSystemTableRead)[0]
+        data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)[0]
         logging.info(f"Write Data({value}) to {function_number}: {data} and {data2}")
 
     def read_function_number(self, function_number: int):
         '''Read parameters via function number
         '''
-        self.write_reg_data(0, *_ModbusCommands.RequestDiagnosis)
+        self.write_reg_data(0, *_ModbusCommands.process_data_outputs)
         self.write_reg_data(self._control_bit_value | function_number,
-                          *_ModbusCommands.RequestDiagnosis)
+                          *_ModbusCommands.process_data_outputs)
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*_ModbusCommands.ResponseDiagnosis)[0]
+            data = self.read_reg_data(*_ModbusCommands.process_data_inputs)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.read_reg_data(*_ModbusCommands.DataSystemTableRead)
+        data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)
         logging.info(f"Read Data from {function_number}: {data} and {data2}")
         return data2
 
     def module_count(self) -> int:
         ''' returns the total count of attached modules
         '''
-        data = self.read_reg_data(*_ModbusCommands.ModuleConfiguration)
+        data = self.read_reg_data(*_ModbusCommands.module_configuration)
         return sum(bin(d).count("1") for d in data)
 
     def fault_detection(self) -> list[bool]:
-        ''' returns list of bools with Errors (True)
+        ''' returns list of bools with Errors (True = Error)
         '''
-        data = self.read_reg_data(*_ModbusCommands.FaultDetection)
+        data = self.read_reg_data(*_ModbusCommands.fault_detection)
         data = data[2] << 16 + data[1] << 8 + data[0]
         return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]]
 
     def status_register(self) -> tuple:
         ''' returns (Write-protected, Force active)
         '''
-        write_protect_bit = 11
-        force_active_bit = 15
-        data = self.read_reg_data(*_ModbusCommands.StatusRegister)
-        return (bool(data[0] & 1 << write_protect_bit), bool(data[0] & 1 << force_active_bit))
+        write_protect_bit = 1 << 11
+        force_active_bit = 1 << 15
+        data = self.read_reg_data(*_ModbusCommands.status_register)
+        return (bool(data[0] & write_protect_bit), bool(data[0] & force_active_bit))
 
     def read_device_identification(self) -> int:
         ''' returns Objects IDO 1,2,3,4,5
@@ -163,8 +158,8 @@ class CpxEEp(_CpxEModule):
 
         self.base.modules["CPX-E-EP"] = self.position
 
-        self.output_register = _ModbusCommands.RequestDiagnosis[0]
-        self.input_register = _ModbusCommands.ResponseDiagnosis[0]
+        self.output_register = _ModbusCommands.process_data_outputs[0]
+        self.input_register = _ModbusCommands.process_data_inputs[0]
 
         self.base._next_output_register = self.output_register + 2
         self.base._next_input_register = self.input_register + 3
@@ -241,6 +236,21 @@ class CpxE8Do(_CpxEModule):
             self.set_channel(channel)
         else:
             raise ValueError
+        
+    @_CpxEModule._require_base
+    def set_diagnostics(self, **kwargs):
+        '''Sets diagnostics. Allowed keywords are "short_circuit" and "undervoltage"
+        '''
+        if "short_circuit" in kwargs:
+            self.write_function_number(4828 + 64 * self.position + 0)
+        elif "undervoltage" in kwargs:
+            self.write_function_number(4828 + 64 * self.position + 0)
+        else:
+            raise KeyError("Key not known. Allowed keys are 'short_circuit' and 'undervoltage'.")
+    
+    @_CpxEModule._require_base
+    def set_behaviour_after_SCO(self, value: bool):
+        pass
 
 
 class CpxE16Di(_CpxEModule):

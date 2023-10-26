@@ -57,12 +57,14 @@ def test_1module(test_cpxe):
     assert test_cpxe._next_input_register == 45397
 
     assert e16di.position == 1
+
+    # set up channel 1 to True (hardwire, hardcode)
     data = [False] * 16
-    data[0] = True 
+    data[1] = True 
     test = e16di.read_channels()
     assert e16di.read_channels() == data
-    assert e16di.read_channel(0) == True
-    assert e16di.read_channel(1) == False
+    assert e16di.read_channel(0) == False
+    assert e16di.read_channel(1) == True
     assert test_cpxe.modules == {"CPX-E-EP": 0, "CPX-E-16DI": 1}   
 
 
@@ -75,42 +77,46 @@ def test_2modules(test_cpxe):
     assert test_cpxe._next_input_register == 45399
 
     assert e8do.position == 2
-    #assert e8do.read_channels() == [False] * 8 
-    #assert e8do.read_channel(0) == False
+    assert e8do.read_channels() == [False] * 8 
+    assert e8do.read_channel(0) == False
     
+    # set up channel 0 to True on 8DO, 
+    # this is routed to channel 0 16DI.
+    # channel 1 of 16DI is still True (hardwired)
     data = [False] * 8
     data[0] = True
     assert e8do.write_channels(data) == None
-    #time.sleep(.1)
-    '''
-    assert e16di.read_channel(1) == True
-    #assert e8do.read_channels() == data
-    #assert e8do.read_channel(0) == True
+    assert e8do.read_channels() == data
+    assert e8do.read_channel(0) == True
+    time.sleep(.1)
+    assert e16di.read_channel(0) == True
 
     assert e8do.set_channel(0) == None
-    #time.sleep(.1)
-    assert e16di.read_channel(1) == True
-    #assert e8do.read_channel(0) == True
+    assert e8do.read_channel(0) == True
+    time.sleep(.1)
+    assert e16di.read_channel(0) == True
+
     assert e8do.clear_channel(0) == None
-    #time.sleep(.1)
-    assert e16di.read_channel(1) == False
-    #assert e8do.read_channel(0) == False
+    assert e8do.read_channel(0) == False
+    time.sleep(.1)
+    assert e16di.read_channel(0) == False
+
     assert e8do.toggle_channel(0) == None
-    #time.sleep(.1)
-    assert e16di.read_channel(1) == True
-    #assert e8do.read_channel(0) == True
+    assert e8do.read_channel(0) == True
+    time.sleep(.1)
+    assert e16di.read_channel(0) == True
+
     assert e8do.clear_channel(0) == None
-    #time.sleep(.1)
-    assert e16di.read_channel(1) == False
-    '''
+    assert e8do.read_channel(0) == False
+    time.sleep(.1)
+    assert e16di.read_channel(0) == False
+
+    assert e8do.read_channels() == [False] * 8
+    
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2
                             } 
-
-    #response = e8do.read_channels()   
-    #assert response == [False] * 8
-
 
 def test_3modules(test_cpxe): 
     e16di = test_cpxe.add_module(CpxE16Di())
@@ -127,7 +133,7 @@ def test_3modules(test_cpxe):
     assert e4ai.set_channel_range(0, "0-10V") == None
     assert e4ai.set_channel_smothing(0, 2) == None
     assert e4ai.read_channels() == [0] * 4
-    assert e4ai.read_channel(0) == 0  
+    assert e4ai.read_channel(0) == 0
 
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
