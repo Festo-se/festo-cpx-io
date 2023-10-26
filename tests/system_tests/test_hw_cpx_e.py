@@ -6,7 +6,7 @@ from cpx_io.cpx_system.cpx_e import *
 
 @pytest.fixture(scope="function")
 def test_cpxe():
-    cpxe = CpxE(host="172.16.1.40", tcp_port=502, timeout=1)
+    cpxe = CpxE(host="172.16.1.40", tcp_port=502, timeout=500)
     yield cpxe
 
     cpxe.__del__()
@@ -37,6 +37,25 @@ def test_status_register(test_cpxe):
 def test_device_identification(test_cpxe):
     response = test_cpxe.read_device_identification()
     assert response in range(1,6)
+
+def test_signed16_to_int():
+    module = CpxE8Do()
+
+    assert module.signed16_to_int(0x0000) == 0
+    assert module.signed16_to_int(0x0001) == 1
+    assert module.signed16_to_int(0xFFFF) == -1
+    assert module.signed16_to_int(0xFFFE) == -2
+
+    assert module.int_to_signed16(0) == 0x0000
+    assert module.int_to_signed16(1) == 0x0001
+    assert module.int_to_signed16(-1) == 0xFFFF
+    assert module.int_to_signed16(-2) == 0xFFFE
+    
+    with pytest.raises(ValueError):
+        module.int_to_signed16(32769)
+
+    with pytest.raises(ValueError):
+        module.int_to_signed16(-32769)
 
 
 def test_add_module(test_cpxe):
@@ -75,8 +94,8 @@ def test_2modules(test_cpxe):
     assert e8do.input_register == 45397
     assert test_cpxe._next_output_register == 40004
     assert test_cpxe._next_input_register == 45399
-
     assert e8do.position == 2
+
     assert e8do.read_channels() == [False] * 8 
     assert e8do.read_channel(0) == False
     
@@ -121,62 +140,73 @@ def test_2modules(test_cpxe):
 def test_3modules(test_cpxe): 
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
-    e4ai = test_cpxe.add_module(CpxE4AiUi())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
     assert e4ai.output_register == None
     assert e4ai.input_register == 45399
     assert test_cpxe._next_output_register == 40004
     assert test_cpxe._next_input_register == 45404
 
     assert e4ai.read_status() == [False] * 16 
-
     assert e4ai.position == 3
+
+    # channel 0 is hardwired to 5 Vdc, this is around 6518 digits
     assert e4ai.set_channel_range(0, "0-10V") == None
     assert e4ai.set_channel_smothing(0, 2) == None
-    assert e4ai.read_channels() == [0] * 4
-    assert e4ai.read_channel(0) == 0
+    time.sleep(.1)
+    data0 = e4ai.read_channel(0)
+    assert 13700 < data0 < 13900
+    data = [0] * 3
+    # cut off the first unpredictable and already tested channel
+    assert e4ai.read_channels()[1:] == data
 
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2,
                             "CPX-E-4AI_U_I": 3
-                            }                   
+                            }                  
 
 
 def test_4modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
-    e4ai = test_cpxe.add_module(CpxE4AiUi())
-    e4ao = test_cpxe.add_module(CpxE4AoUi())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
     assert e4ao.output_register == 40004
     assert e4ao.input_register == 45404
     assert test_cpxe._next_output_register == 40008
     assert test_cpxe._next_input_register == 45409
 
     assert e4ao.read_status() == [False] * 16 
-
     assert e4ao.position == 4
-    #assert e4ao.set_channel_range(0, "0-10V") == None
+
     assert e4ao.read_channels() == [0] * 4
     assert e4ao.write_channels([0]*4) == None
     assert e4ao.read_channels() == [0] * 4
-    assert e4ao.read_channel(0) == 0    
+    assert e4ao.read_channel(0) == 0
+
+    assert e4ao.write_channels([20]*4) == None
+    assert e4ao.read_channels() == [20] * 4
+
+    assert e4ao.write_channel(0, 40) == None
+    assert e4ao.read_channel(0) == 40
 
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2,
                             "CPX-E-4AI_U_I": 3,
                             "CPX-E-4AO_U_I": 4
-                            }                              
+                            }                           
 
 def test_5modules(test_cpxe):
+    # TODO: IO-LINK master
     pass
 
 def test_modules_with_init():
     modules = [CpxEEp(), 
                CpxE16Di(), 
                CpxE8Do(), 
-               CpxE4AiUi(), 
-               CpxE4AoUi()
+               CpxE4AiUI(), 
+               CpxE4AoUI()
                ]
 
     cpxe = CpxE(host="172.16.1.40", modules=modules) 
@@ -187,3 +217,33 @@ def test_modules_with_init():
                             "CPX-E-4AI_U_I": 3,
                             "CPX-E-4AO_U_I": 4
                             }        
+
+def test_analog_io(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e4ao.set_channel_range(1,'0-10V')
+    e4ao.set_channel_range(2,'-10-+10V')
+    e4ao.set_channel_range(3,'-5-+5V')
+
+    e4ai.set_channel_range(1,'0-10V')
+    e4ai.set_channel_range(2,'-10-+10V')
+    e4ai.set_channel_range(3,'-5-+5V')
+
+    value = 4000
+    assert e4ao.write_channel(2, value) == None
+    assert e4ao.read_channel(2) == value
+
+    for _ in range(100):
+        e4ao.write_channel(1, value)
+        e4ao.write_channel(2, value)
+        time.sleep(.01)
+    result = e4ai.read_channels()
+
+    e4ao.write_channel(2, value)
+    result = e4ai.read_channel(1)
+
+    e4ao.write_channel(3, value)
+    result = e4ai.read_channel(1)

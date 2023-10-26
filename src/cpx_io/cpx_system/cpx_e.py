@@ -2,6 +2,7 @@
 '''
 
 import logging
+import ctypes
 
 from .cpx_base import CpxBase
 
@@ -58,7 +59,7 @@ class CpxE(CpxBase):
         '''Write parameters via function number
         '''
         self.write_reg_data(value, *_ModbusCommands.data_system_table_write)
-        self.write_reg_data(0, *_ModbusCommands.process_data_outputs)
+        #self.write_reg_data(0, *_ModbusCommands.process_data_outputs) # TODO: needed?
         self.write_reg_data(self._control_bit_value | self._write_bit_value | function_number,
                             *_ModbusCommands.process_data_outputs)
 
@@ -78,7 +79,7 @@ class CpxE(CpxBase):
     def read_function_number(self, function_number: int):
         '''Read parameters via function number
         '''
-        self.write_reg_data(0, *_ModbusCommands.process_data_outputs)
+        #self.write_reg_data(0, *_ModbusCommands.process_data_outputs) # TODO: needed?
         self.write_reg_data(self._control_bit_value | function_number,
                           *_ModbusCommands.process_data_outputs)
 
@@ -100,7 +101,7 @@ class CpxE(CpxBase):
         ''' returns the total count of attached modules
         '''
         data = self.read_reg_data(*_ModbusCommands.module_configuration)
-        return sum(bin(d).count("1") for d in data)
+        return sum(d.bit_count() for d in data)
 
     def fault_detection(self) -> list[bool]:
         ''' returns list of bools with Errors (True = Error)
@@ -148,7 +149,27 @@ class _CpxEModule(CpxE):
                 raise InitError()
             return func(self, *args)
         return wrapper
-
+    
+    @staticmethod
+    def int_to_signed16(value: int, bits=16):
+        '''Converts a int to 16 bit register where msb is the sign
+        '''
+        if (value <= -32768) or (value > 32768):
+            raise ValueError(f"Integer value {value} must be in range -32768...32767 (15 bit)")
+        
+        if value >=0:
+            return value
+        else:
+            return (1 << (bits - 1)) | ((value - (1 << bits)) & (((1 << bits) -1) // 2))
+    
+    @staticmethod
+    def signed16_to_int(value: int, bits=16):
+        '''Converts a 16 bit register where msb is the sign to python signed int
+        by computing the two's complement 
+        '''
+        if (value & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
+            value = value - (1 << bits)        # compute negative value
+        return value
 
 class CpxEEp(_CpxEModule):
     '''Class for CPX-E-EP module
@@ -289,7 +310,7 @@ class CpxE16Di(_CpxEModule):
         return self.read_channels()[channel]
 
 
-class CpxE4AiUi(_CpxEModule):
+class CpxE4AiUI(_CpxEModule):
     '''Class for CPX-E-4AI-UI module
     '''
 
@@ -313,12 +334,13 @@ class CpxE4AiUi(_CpxEModule):
         self.base._next_input_register = self.input_register + 5
 
     @_CpxEModule._require_base
-    def read_channels(self) -> list[bool]:
-        '''read all channels as a list of bool values
+    def read_channels(self) -> list[int]:
+        '''read all channels as a list of (signed) integers
         '''
         # TODO: add signal conversion according to signalrange of the channel
-        data = self.base.read_reg_data(self.input_register, length=4)
-        return data
+        raw_data = self.base.read_reg_data(self.input_register, length=4)
+        signed_integers = [self.signed16_to_int(x) for x in raw_data]
+        return signed_integers
 
     @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
@@ -403,7 +425,7 @@ class CpxE4AiUi(_CpxEModule):
             raise ValueError(f"'{channel}' is not in range 0...3")
 
 
-class CpxE4AoUi(_CpxEModule):
+class CpxE4AoUI(_CpxEModule):
     '''Class for CPX-E-4AO-UI module
     '''
     def __init__(self, *args):
@@ -428,8 +450,9 @@ class CpxE4AoUi(_CpxEModule):
         '''read all channels as a list of integer values
         '''
         # TODO: add signal conversion according to signalrange of the channel
-        data = self.base.read_reg_data(self.input_register, length=4)
-        return data
+        raw_data = self.base.read_reg_data(self.input_register, length=4)
+        signed_integers = [self.signed16_to_int(x) for x in raw_data]
+        return signed_integers
 
     @_CpxEModule._require_base
     def read_status(self) -> list[bool]:
@@ -448,15 +471,17 @@ class CpxE4AoUi(_CpxEModule):
     def write_channels(self, data: list[int]) -> None:
         '''write data to module channels in ascending order
         '''
-        # TODO: scaling to given signalrange, limit data[] to 0xFF
-        self.base.write_reg_data(data, self.output_register, length=4)
+        # TODO: scaling to given signalrange
+        reg_data = [self.int_to_signed16(x) for x in data]
+        self.base.write_reg_data(reg_data, self.output_register, length=4)
 
     @_CpxEModule._require_base
     def write_channel(self, channel: int, data: int) -> None:
         '''write data to module channel number
         '''
-        # TODO: scaling to given signalrange, limit data to 0xFF
-        self.base.write_reg_data(data, self.output_register + channel)
+        # TODO: scaling to given signalrange
+        reg_data = self.int_to_signed16(data)
+        self.base.write_reg_data(reg_data, self.output_register + channel)
 
     @_CpxEModule._require_base
     def set_channel_range(self, channel: int, signalrange: str):
