@@ -318,15 +318,15 @@ class CpxE4AiUI(_CpxEModule):
     def __init__(self, *args):
         super().__init__(*args)
 
-        self._signalrange_01 = 0
-        self._signalrange_23 = 0
-        self._signalsmothing_01 = 0
-        self._signalsmothing_23 = 0
+        self._signalrange_01 = 0x00
+        self._signalrange_23 = 0x00
+        self._signalsmothing_01 = 0x00
+        self._signalsmothing_23 = 0x00
 
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-4AI_U_I"] = self.position
+        self.base.modules["CPX-E-4AI-U-I"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -360,7 +360,7 @@ class CpxE4AiUI(_CpxEModule):
     def set_channel_range(self, channel: int, signalrange: str) -> None:
         '''set the signal range and type of one channel
         '''
-        signal_dict = {
+        bitmask = {
             "None": 0b0000,
             "0-10V": 0b0001,
             "-10-+10V": 0b0010,
@@ -373,29 +373,30 @@ class CpxE4AiUI(_CpxEModule):
             "0-20mAoU": 0b1001,
             "4-20mAoU": 0b1010
         }
-        if signalrange not in signal_dict:
-            raise ValueError(f"'{signalrange}' is not an option")
+        if signalrange not in bitmask:
+            raise ValueError(f"'{signalrange}' is not an option. Choose from {bitmask.keys()}")
 
-        keepbits = 0x0F
-        bitmask = signal_dict[signalrange]
-
-        if channel in [1,3]:
-            bitmask <<= 4
-        else:
-            keepbits <<= 4
-
-        if channel < 2:
-            function_number = 4828 + 64 * self.position + 13
-            self._signalrange_01 &= keepbits
-            self._signalrange_01 |= bitmask
-            self.base.write_function_number(function_number, self._signalrange_01)
-        elif 2 <= channel < 4:
-            function_number = 4828 + 64 * self.position + 14
-            self._signalrange_23 &= keepbits
-            self._signalrange_23 |= bitmask
-            self.base.write_function_number(function_number, self._signalrange_23)
+        function_number = 4828 + 64 * self.position
+        if channel == 0:
+            function_number += 13
+            self._signalrange_01 |= bitmask[signalrange]
+            value_to_write = self._signalrange_01
+        elif channel == 1:
+            function_number += 13
+            self._signalrange_01 |= bitmask[signalrange] << 4
+            value_to_write = self._signalrange_01
+        elif channel == 2:
+            function_number += 14
+            self._signalrange_23 |= bitmask[signalrange]
+            value_to_write = self._signalrange_23
+        elif channel == 3:
+            function_number += 14
+            self._signalrange_23 |= bitmask[signalrange] << 4
+            value_to_write = self._signalrange_23     
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
+        
+        self.base.write_function_number(function_number, value_to_write)
 
     @_CpxEModule._require_base
     def set_channel_smothing(self, channel: int, smothing_power: int) -> None:
@@ -404,26 +405,30 @@ class CpxE4AiUI(_CpxEModule):
         if smothing_power > 15:
             raise ValueError(f"'{smothing_power}' is not an option")
 
-        keepbits = 0x0F
         bitmask = smothing_power
 
-        if channel in [1, 3]:
-            bitmask <<= 4
-        else:
-            keepbits <<= 4
+        function_number = 4828 + 64 * self.position
 
-        if channel < 2:
-            function_number = 4828 + 64 * self.position + 15
-            self._signalsmothing_01 &= keepbits
+        if channel == 0:
+            function_number += 15
             self._signalsmothing_01 |=  bitmask
-            self.base.write_function_number(function_number, self._signalsmothing_01)
-        elif 2 <= channel < 4:
-            function_number = 4828 + 64 * self.position + 16
-            self._signalsmothing_23 &= keepbits
-            self._signalsmothing_23 |= bitmask
-            self.base.write_function_number(function_number, self._signalsmothing_23)
+            value_to_write = self._signalsmothing_01
+        elif channel == 1:
+            function_number += 15
+            self._signalsmothing_01 |=  bitmask << 4
+            value_to_write = self._signalsmothing_01
+        elif channel == 2:
+            function_number += 16
+            self._signalsmothing_23 |=  bitmask
+            value_to_write = self._signalsmothing_23
+        elif channel == 3:
+            function_number += 16
+            self._signalsmothing_23 |=  bitmask << 4
+            value_to_write = self._signalsmothing_23
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
+        
+        self.base.write_function_number(function_number, value_to_write)
 
 
 class CpxE4AoUI(_CpxEModule):
@@ -438,7 +443,7 @@ class CpxE4AoUI(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-4AO_U_I"] = self.position
+        self.base.modules["CPX-E-4AO-U-I"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -488,7 +493,7 @@ class CpxE4AoUI(_CpxEModule):
     def set_channel_range(self, channel: int, signalrange: str):
         '''set the signal range and type of one channel
         '''
-        signal_dict = {
+        bitmask = {
             "0-10V": 0b0001,
             "-10-+10V": 0b0010,
             "-5-+5V": 0b0011,
@@ -497,29 +502,31 @@ class CpxE4AoUI(_CpxEModule):
             "4-20mA": 0b0110,
             "-20-+20mA": 0b0111
         }
-        if signalrange not in signal_dict:
-            raise ValueError(f"'{signalrange}' is not an option")
+        if signalrange not in bitmask:
+            raise ValueError(f"'{signalrange}' is not an option. Choose from {bitmask.keys()}")
 
-        keepbits = 0b1111
-        bitmask = signal_dict[signalrange]
+        function_number = 4828 + 64 * self.position
 
-        if channel in [1, 3]:
-            bitmask <<= 4
-        else:
-            keepbits <<= 4
-
-        if channel < 2:
-            function_number = 4828 + 64 * self.position + 11
-            self._signalrange_01 &= keepbits
-            self._signalrange_01 |= bitmask
-            self.base.write_function_number(function_number, self._signalrange_01)
-        elif 2 <= channel < 4:
-            function_number = 4828 + 64 * self.position + 12
-            self._signalrange_23 &= keepbits
-            self._signalrange_23 |= bitmask
-            self.base.write_function_number(function_number, self._signalrange_23)
+        if channel == 0:
+            function_number += 11
+            self._signalrange_01 |= bitmask[signalrange]
+            value_to_write = self._signalrange_01
+        elif channel == 1:
+            function_number += 11
+            self._signalrange_01 |= bitmask[signalrange]
+            value_to_write = self._signalrange_01
+        elif channel == 2:
+            function_number += 12
+            self._signalrange_23 |= bitmask[signalrange]
+            value_to_write = self._signalrange_23
+        elif channel == 3:
+            function_number += 12
+            self._signalrange_23 |= bitmask[signalrange]
+            value_to_write = self._signalrange_23
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
+
+        self.base.write_function_number(function_number, value_to_write)
 
 
 # TODO: Add IO-Link module
