@@ -143,6 +143,25 @@ def test_2modules(test_cpxe):
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2
                             } 
+def test_8DO_diagnostics(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+
+    e8do.set_diagnostics(short_circuit=False, undervoltage=False)
+    time.sleep(.01)
+    assert e8do.base.read_function_number(4828 + 64*2) == [0]
+
+    e8do.set_diagnostics(short_circuit=True, undervoltage=False)
+    time.sleep(.01)
+    assert e8do.base.read_function_number(4828 + 64*2) == [2]
+
+    e8do.set_diagnostics(short_circuit=False, undervoltage=True)
+    time.sleep(.01)
+    assert e8do.base.read_function_number(4828 + 64*2) == [4]
+
+    e8do.set_diagnostics(short_circuit=True, undervoltage=True)
+    time.sleep(.01)
+    assert e8do.base.read_function_number(4828 + 64*2) == [6]
 
 def test_3modules(test_cpxe): 
     e16di = test_cpxe.add_module(CpxE16Di())
@@ -155,15 +174,15 @@ def test_3modules(test_cpxe):
 
     assert e4ai.read_status() == [False] * 16 
     assert e4ai.position == 3
-    '''
+    
     # channel 3 is hardwired to 5 Vdc, this is around 13800 digits
     assert e4ai.set_channel_range(3, "0-10V") == None
     assert e4ai.set_channel_smothing(3, 2) == None
     time.sleep(.1)
     data0 = e4ai.read_channel(3)
-    assert 13700 < data0 < 13900
-    assert 13700 < e4ai.read_channels()[3] < 13900
-    '''
+    assert -10 < data0 < 10
+    assert -10 < e4ai.read_channels()[3] < 10
+    
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2,

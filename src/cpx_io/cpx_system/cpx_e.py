@@ -148,10 +148,10 @@ class _CpxEModule(CpxE):
 
     @staticmethod
     def _require_base(func):
-        def wrapper(self, *args):
+        def wrapper(self, *args, **kwargs):
             if not self.base:
                 raise InitError()
-            return func(self, *args)
+            return func(self, *args, **kwargs)
         return wrapper
     
     @staticmethod
@@ -197,6 +197,12 @@ class CpxEEp(_CpxEModule):
 class CpxE8Do(_CpxEModule):
     '''Class for CPX-E-8DO module
     '''
+    def __init__(self, *args):
+        super().__init__(*args)
+
+        self._short_circuit = True
+        self._undervoltage = True
+        self._behaviour_after_SCO = False
 
     def _initialize(self, *args):
         super()._initialize(*args)
@@ -213,7 +219,6 @@ class CpxE8Do(_CpxEModule):
     def read_channels(self) -> list[bool]:
         '''read all channels as a list of bool values
         '''
-        # TODO: This register reads back 0
         data = self.base.read_reg_data(self.input_register)[0] & 0x0F
         return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
@@ -267,16 +272,24 @@ class CpxE8Do(_CpxEModule):
             raise ValueError
         
     @_CpxEModule._require_base
-    def set_diagnostics(self, **kwargs):
-        '''Sets diagnostics. Allowed keywords are "short_circuit" and "undervoltage"
+    def set_diagnostics(self, short_circuit=None, undervoltage=None):
+        '''Sets diagnostics
         '''
-        if "short_circuit" in kwargs:
-            self.write_function_number(4828 + 64 * self.position + 0)
-        elif "undervoltage" in kwargs:
-            self.write_function_number(4828 + 64 * self.position + 0)
-        else:
-            raise KeyError("Key not known. Allowed keys are 'short_circuit' and 'undervoltage'.")
-    
+        # Fill in the unchanged values
+        if short_circuit == None:
+            short_circuit = self._short_circuit
+        if undervoltage == None:
+            undervoltage = self._undervoltage
+
+        # update the stored values    
+        self._short_circuit = short_circuit
+        self._undervoltage = undervoltage
+
+        value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2)
+
+        self.base.write_function_number(4828 + 64 * self.position + 0, value_to_write)
+                
+        
     @_CpxEModule._require_base
     def set_behaviour_after_SCO(self, value: bool):
         pass
