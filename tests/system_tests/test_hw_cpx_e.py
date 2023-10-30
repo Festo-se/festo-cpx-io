@@ -143,25 +143,38 @@ def test_2modules(test_cpxe):
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2
                             } 
+    
 def test_8DO_diagnostics(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
 
-    e8do.set_diagnostics(short_circuit=False, undervoltage=False)
+    e8do.configure_diagnostics(short_circuit=False, undervoltage=False)
     time.sleep(.01)
     assert e8do.base.read_function_number(4828 + 64*2) == [0]
 
-    e8do.set_diagnostics(short_circuit=True, undervoltage=False)
+    e8do.configure_diagnostics(short_circuit=True, undervoltage=False)
     time.sleep(.01)
     assert e8do.base.read_function_number(4828 + 64*2) == [2]
 
-    e8do.set_diagnostics(short_circuit=False, undervoltage=True)
+    e8do.configure_diagnostics(short_circuit=False, undervoltage=True)
     time.sleep(.01)
     assert e8do.base.read_function_number(4828 + 64*2) == [4]
 
-    e8do.set_diagnostics(short_circuit=True, undervoltage=True)
+    e8do.configure_diagnostics(short_circuit=True, undervoltage=True)
     time.sleep(.01)
     assert e8do.base.read_function_number(4828 + 64*2) == [6]
+
+def test_8DO_configure_power_reset(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+
+    e8do.configure_power_reset(True)
+    time.sleep(.1)
+    assert e8do.base.read_function_number(4828 + 64*2 + 1) == [2]
+
+    e8do.configure_power_reset(False)
+    time.sleep(.1)
+    assert e8do.base.read_function_number(4828 + 64*2 + 1) == [0]
 
 def test_3modules(test_cpxe): 
     e16di = test_cpxe.add_module(CpxE16Di())

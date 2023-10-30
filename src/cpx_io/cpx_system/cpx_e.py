@@ -197,13 +197,6 @@ class CpxEEp(_CpxEModule):
 class CpxE8Do(_CpxEModule):
     '''Class for CPX-E-8DO module
     '''
-    def __init__(self, *args):
-        super().__init__(*args)
-
-        self._short_circuit = True
-        self._undervoltage = True
-        self._behaviour_after_SCO = False
-
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -272,27 +265,46 @@ class CpxE8Do(_CpxEModule):
             raise ValueError
         
     @_CpxEModule._require_base
-    def set_diagnostics(self, short_circuit=None, undervoltage=None):
-        '''Sets diagnostics
+    def configure_diagnostics(self, short_circuit=None, undervoltage=None):
+        '''The "Diagnostics of short circuit at output" parameter defines whether the diagnostics of the outputs
+        in regard to short circuit or overload should be activated or deactivated.
+        The "Diagnostics of undervoltage at load supply" parameter defines if the diagnostics for the load
+        supply must be activated or deactivated with regard to undervoltage.
+        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
+        module by the error LED.
         '''
-        # Fill in the unchanged values
+        function_number = 4828 + 64 * self.position + 0
+        diagnostics_reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
         if short_circuit == None:
-            short_circuit = self._short_circuit
+            short_circuit = bool((diagnostics_reg & 0x02) >> 2)
         if undervoltage == None:
-            undervoltage = self._undervoltage
-
-        # update the stored values    
-        self._short_circuit = short_circuit
-        self._undervoltage = undervoltage
+            undervoltage = bool((diagnostics_reg & 0x04) >> 4)
 
         value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2)
 
-        self.base.write_function_number(4828 + 64 * self.position + 0, value_to_write)
-                
-        
+        self.base.write_function_number(function_number, value_to_write)
+
+
     @_CpxEModule._require_base
-    def set_behaviour_after_SCO(self, value: bool):
-        pass
+    def configure_power_reset(self, value: bool):
+        '''The "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False", default) or 
+        automatically switches on ("True") again after a short circuit or overload at the outputs.
+        In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
+        off and on or the corresponding output must be reset and to restore the power.
+        '''
+        function_number = 4828 + 64 * self.position + 1
+        behaviour_reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = behaviour_reg | 0x02
+        else:
+            value_to_write = behaviour_reg & 0xFD
+
+        self.base.write_function_number(function_number, value_to_write)
+                
 
 
 class CpxE16Di(_CpxEModule):
