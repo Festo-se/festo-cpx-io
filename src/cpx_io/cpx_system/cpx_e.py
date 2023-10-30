@@ -306,7 +306,6 @@ class CpxE8Do(_CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
                 
 
-
 class CpxE16Di(_CpxEModule):
     '''Class for CPX-E-16DI module
     '''
@@ -341,6 +340,48 @@ class CpxE16Di(_CpxEModule):
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
+    
+    @_CpxEModule._require_base
+    def configure_diagnostics(self, value: bool) -> None:
+        '''The "Diagnostics of sensor supply short circuit" defines whether the diagnostics of the sensor supply
+        in regard to short circuit or overload should be activated ("True", default) or deactivated (False).
+        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
+        module by the error LED.
+        '''
+        pass
+    
+    @_CpxEModule._require_base
+    def configure_power_reset(self, value: bool) -> None:
+        ''' "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False") or 
+        automatically switches on again ("True", default) after a short circuit or overload of the sensor supply.
+        In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
+        off and on to restore the power.
+
+        '''
+        pass
+    
+    @_CpxEModule._require_base
+    def configrue_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal.
+        In this way, unwanted signal edge changes can be suppressed during switching operations (bouncing
+        of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        if value < 0 or value > 4:
+            raise ValueError("Value {value} must be between 0 and 3")
+        pass
+    
+    @_CpxEModule._require_base
+    def configure_signal_extension_time(self, value: int) -> None:
+        '''The "Signal extension time" parameter defines the minimum valid duration of the assumed signal
+        status of the input signal. Edge changes within the signal extension time are ignored.
+        Short input signals can also be recorded by defining a signal extension time.
+        Accepted values are 0: 0.5 ms; 1: 15 ms (default); 2: 50 ms; 3: 100 ms;
+        '''
+        if value < 0 or value > 4:
+            raise ValueError("Value {value} must be between 0 and 3")
+        pass
 
 
 class CpxE4AiUI(_CpxEModule):
