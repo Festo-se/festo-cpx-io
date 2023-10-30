@@ -59,7 +59,9 @@ class CpxE(CpxBase):
         '''Write parameters via function number
         '''
         self.write_reg_data(value, *_ModbusCommands.data_system_table_write)
-        #self.write_reg_data(0, *_ModbusCommands.process_data_outputs) # TODO: needed?
+        # need to write 0 first because there might be an 
+        # old unknown configuration in the register
+        self.write_reg_data(0, *_ModbusCommands.process_data_outputs)
         self.write_reg_data(self._control_bit_value | self._write_bit_value | function_number,
                             *_ModbusCommands.process_data_outputs)
 
@@ -79,7 +81,9 @@ class CpxE(CpxBase):
     def read_function_number(self, function_number: int):
         '''Read parameters via function number
         '''
-        #self.write_reg_data(0, *_ModbusCommands.process_data_outputs) # TODO: needed?
+        # need to write 0 first because there might be an 
+        # old unknown configuration in the register
+        self.write_reg_data(0, *_ModbusCommands.process_data_outputs)
         self.write_reg_data(self._control_bit_value | function_number,
                           *_ModbusCommands.process_data_outputs)
 
@@ -168,6 +172,9 @@ class _CpxEModule(CpxE):
         '''Converts a 16 bit register where msb is the sign to python signed int
         by computing the two's complement 
         '''
+        if value > 0xFFFF:
+            raise ValueError(f"Value {value} must not be bigger than 16 bit")
+        
         if (value & (2**15)) != 0:        # if sign bit is set
             value = value - 2**16       # compute negative value
         return value

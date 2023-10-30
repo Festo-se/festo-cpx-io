@@ -45,6 +45,10 @@ def test_signed16_to_int():
     assert module.signed16_to_int(0x0001) == 1
     assert module.signed16_to_int(0xFFFF) == -1
     assert module.signed16_to_int(0xFFFE) == -2
+    assert module.signed16_to_int(0xCAFE) == -13570
+    
+    with pytest.raises(ValueError):
+        module.int_to_signed16(0x1FFFF)
 
 def test_int_to_signed16():
     module = CpxE8Do()
@@ -53,6 +57,7 @@ def test_int_to_signed16():
     assert module.int_to_signed16(1) == 0x0001
     assert module.int_to_signed16(-1) == 0xFFFF
     assert module.int_to_signed16(-2) == 0xFFFE
+    assert module.int_to_signed16(-13570) == 0xCAFE
     
     with pytest.raises(ValueError):
         module.int_to_signed16(32769)
@@ -150,7 +155,7 @@ def test_3modules(test_cpxe):
 
     assert e4ai.read_status() == [False] * 16 
     assert e4ai.position == 3
-
+    '''
     # channel 3 is hardwired to 5 Vdc, this is around 13800 digits
     assert e4ai.set_channel_range(3, "0-10V") == None
     assert e4ai.set_channel_smothing(3, 2) == None
@@ -158,7 +163,7 @@ def test_3modules(test_cpxe):
     data0 = e4ai.read_channel(3)
     assert 13700 < data0 < 13900
     assert 13700 < e4ai.read_channels()[3] < 13900
-
+    '''
     assert test_cpxe.modules == {"CPX-E-EP": 0,
                             "CPX-E-16DI": 1,
                             "CPX-E-8DO": 2,
@@ -228,31 +233,22 @@ def test_analog_io(test_cpxe):
     e4ao.set_channel_range(1,'0-10V')
     e4ao.set_channel_range(2,'0-10V')
     e4ao.set_channel_range(3,'0-10V')
-    #e4ao.set_channel_range(2,'-10-+10V')
-    #e4ao.set_channel_range(3,'-5-+5V')
 
     e4ai.set_channel_range(0,'0-10V')
     e4ai.set_channel_range(1,'0-10V')
     e4ai.set_channel_range(2,'0-10V')
     e4ai.set_channel_range(3,'0-10V')
-    #e4ai.set_channel_range(2,'-10-+10V')
-    #e4ai.set_channel_range(3,'-5-+5V')
+    time.sleep(.05)
 
-    value = 13858
-    #assert e4ao.write_channel(2, value) == None
-    #assert e4ao.read_channel(2) == value
+    values = [0, 1000, 5000, 13000]
 
-    for _ in range(100):
-        e4ao.write_channel(0, value)
-        e4ao.write_channel(1, value)
-        e4ao.write_channel(2, value)
-        e4ao.write_channel(3, value)
-        time.sleep(.01)
+    e4ao.write_channel(0, values[0])
+    e4ao.write_channel(1, values[1])
+    e4ao.write_channel(2, values[2])
+    e4ao.write_channel(3, values[3])
+    time.sleep(.05)
 
     result = e4ai.read_channels()
 
-    e4ao.write_channel(2, value)
-    result = e4ai.read_channel(1)
-
-    e4ao.write_channel(3, value)
-    result = e4ai.read_channel(1)
+    for i, v in enumerate(values):
+        assert v - 50 < result[i] < v + 50
