@@ -348,7 +348,16 @@ class CpxE16Di(_CpxEModule):
         When the diagnostics are activated, the error will be sent to the bus module and displayed on the
         module by the error LED.
         '''
-        pass
+        function_number = 4828 + 64 * self.position + 0
+        behaviour_reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = behaviour_reg | 0x01
+        else:
+            value_to_write = behaviour_reg & 0xFE
+
+        self.base.write_function_number(function_number, value_to_write)
     
     @_CpxEModule._require_base
     def configure_power_reset(self, value: bool) -> None:
@@ -356,21 +365,36 @@ class CpxE16Di(_CpxEModule):
         automatically switches on again ("True", default) after a short circuit or overload of the sensor supply.
         In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
         off and on to restore the power.
-
         '''
-        pass
+        function_number = 4828 + 64 * self.position + 1
+        behaviour_reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = behaviour_reg | 0x01
+        else:
+            value_to_write = behaviour_reg & 0xFE
+
+        self.base.write_function_number(function_number, value_to_write)
     
     @_CpxEModule._require_base
-    def configrue_debounce_time(self, value: int) -> None:
+    def configure_debounce_time(self, value: int) -> None:
         '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
         assumed as a logical input signal.
         In this way, unwanted signal edge changes can be suppressed during switching operations (bouncing
         of the input signal).
         Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
         '''
-        if value < 0 or value > 4:
+        if value < 0 or value > 3:
             raise ValueError("Value {value} must be between 0 and 3")
-        pass
+        
+        function_number = 4828 + 64 * self.position + 1
+        behaviour_reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register, delete bit 4+5 from it and refill it with value
+        value_to_write = (behaviour_reg & 0xCF) | (value << 4)
+
+        self.base.write_function_number(function_number, value_to_write)
     
     @_CpxEModule._require_base
     def configure_signal_extension_time(self, value: int) -> None:
@@ -379,9 +403,16 @@ class CpxE16Di(_CpxEModule):
         Short input signals can also be recorded by defining a signal extension time.
         Accepted values are 0: 0.5 ms; 1: 15 ms (default); 2: 50 ms; 3: 100 ms;
         '''
-        if value < 0 or value > 4:
+        if value < 0 or value > 3:
             raise ValueError("Value {value} must be between 0 and 3")
-        pass
+        
+        function_number = 4828 + 64 * self.position + 1
+        behaviour_reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register, delete bit 6+7 from it and refill it with value
+        value_to_write = (behaviour_reg & 0x3F) | (value << 6)
+
+        self.base.write_function_number(function_number, value_to_write)
 
 
 class CpxE4AiUI(_CpxEModule):

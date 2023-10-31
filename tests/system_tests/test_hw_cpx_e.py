@@ -176,6 +176,66 @@ def test_8DO_configure_power_reset(test_cpxe):
     time.sleep(.1)
     assert e8do.base.read_function_number(4828 + 64*2 + 1) == [0]
 
+def test_16DI_diagnostics(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+
+    e16di.configure_diagnostics(False)
+    time.sleep(.1)
+    assert e16di.base.read_function_number(4828 + 64*1) == [0]
+
+    e16di.configure_diagnostics(True)
+    time.sleep(.1)
+    assert e16di.base.read_function_number(4828 + 64*1) == [1]
+
+def test_16DI_configure_power_reset(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+
+    e16di.configure_power_reset(False)
+    time.sleep(.1)
+    assert (e16di.base.read_function_number(4828 + 64*1 + 1)[0] & 0x01) == 0
+
+    e16di.configure_power_reset(True)
+    time.sleep(.1)
+    assert (e16di.base.read_function_number(4828 + 64*1 + 1)[0] & 0x01) == 1
+
+def test_16DI_configure_debounce_time(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+
+    val = 2
+    e16di.configure_debounce_time(val)
+    time.sleep(.1)
+    assert (e16di.base.read_function_number(4828 + 64*1 + 1)[0] & 0b00110000) >> 4 == val
+
+    val = 1
+    e16di.configure_debounce_time(val)
+    time.sleep(.1)
+    assert (e16di.base.read_function_number(4828 + 64*1 + 1)[0] & 0b00110000) >> 4 == val
+
+    with pytest.raises(ValueError):
+        e16di.configure_debounce_time(-1)
+
+    with pytest.raises(ValueError):
+        e16di.configure_debounce_time(4)
+
+def test_16DI_configure_signal_extension_time(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+
+    val = 2
+    e16di.configure_signal_extension_time(val)
+    time.sleep(.1)
+    assert (e16di.base.read_function_number(4828 + 64*1 + 1)[0] & 0b11000000) >> 6 == val
+
+    val = 1
+    e16di.configure_signal_extension_time(val)
+    time.sleep(.1)
+    assert (e16di.base.read_function_number(4828 + 64*1 + 1)[0] & 0b11000000) >> 6 == val
+
+    with pytest.raises(ValueError):
+        e16di.configure_signal_extension_time(-1)
+
+    with pytest.raises(ValueError):
+        e16di.configure_signal_extension_time(4)
+
 def test_3modules(test_cpxe): 
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
