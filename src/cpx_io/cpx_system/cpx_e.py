@@ -47,13 +47,17 @@ class CpxE(CpxBase):
         self.output_register = None
         self.input_register = None
 
-        self.modules = {}
+        self._modules = {}
 
         if modules:
             for m in modules:
                 self.add_module(m)
         else:
             self.add_module(CpxEEp())
+
+    @property
+    def modules(self):
+        return self._modules
 
     def write_function_number(self, function_number: int, value: int):
         '''Write parameters via function number
@@ -131,7 +135,7 @@ class CpxE(CpxBase):
     def add_module(self, module):
         '''Adds one module to the base. This is required to use the module.
         '''
-        module._initialize(self, len(self.modules))
+        module._initialize(self, len(self._modules))
         return module
 
 
@@ -185,7 +189,7 @@ class CpxEEp(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-EP"] = self.position
+        self.base._modules["CPX-E-EP"] = self.position
 
         self.output_register = _ModbusCommands.process_data_outputs[0]
         self.input_register = _ModbusCommands.process_data_inputs[0]
@@ -200,7 +204,7 @@ class CpxE8Do(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-8DO"] = self.position
+        self.base._modules["CPX-E-8DO"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -274,13 +278,13 @@ class CpxE8Do(_CpxEModule):
         module by the error LED.
         '''
         function_number = 4828 + 64 * self.position + 0
-        diagnostics_reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)[0]
         
         # Fill in the unchanged values from the register
         if short_circuit == None:
-            short_circuit = bool((diagnostics_reg & 0x02) >> 2)
+            short_circuit = bool((reg & 0x02) >> 2)
         if undervoltage == None:
-            undervoltage = bool((diagnostics_reg & 0x04) >> 4)
+            undervoltage = bool((reg & 0x04) >> 4)
 
         value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2)
 
@@ -295,13 +299,13 @@ class CpxE8Do(_CpxEModule):
         off and on or the corresponding output must be reset and to restore the power.
         '''
         function_number = 4828 + 64 * self.position + 1
-        behaviour_reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)[0]
         
         # Fill in the unchanged values from the register
         if value:
-            value_to_write = behaviour_reg | 0x02
+            value_to_write = reg | 0x02
         else:
-            value_to_write = behaviour_reg & 0xFD
+            value_to_write = reg & 0xFD
 
         self.base.write_function_number(function_number, value_to_write)
                 
@@ -313,7 +317,7 @@ class CpxE16Di(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-16DI"] = self.position
+        self.base._modules["CPX-E-16DI"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -349,13 +353,13 @@ class CpxE16Di(_CpxEModule):
         module by the error LED.
         '''
         function_number = 4828 + 64 * self.position + 0
-        behaviour_reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)[0]
         
         # Fill in the unchanged values from the register
         if value:
-            value_to_write = behaviour_reg | 0x01
+            value_to_write = reg | 0x01
         else:
-            value_to_write = behaviour_reg & 0xFE
+            value_to_write = reg & 0xFE
 
         self.base.write_function_number(function_number, value_to_write)
     
@@ -367,13 +371,13 @@ class CpxE16Di(_CpxEModule):
         off and on to restore the power.
         '''
         function_number = 4828 + 64 * self.position + 1
-        behaviour_reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)[0]
         
         # Fill in the unchanged values from the register
         if value:
-            value_to_write = behaviour_reg | 0x01
+            value_to_write = reg | 0x01
         else:
-            value_to_write = behaviour_reg & 0xFE
+            value_to_write = reg & 0xFE
 
         self.base.write_function_number(function_number, value_to_write)
     
@@ -389,10 +393,10 @@ class CpxE16Di(_CpxEModule):
             raise ValueError("Value {value} must be between 0 and 3")
         
         function_number = 4828 + 64 * self.position + 1
-        behaviour_reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)[0]
         
         # Fill in the unchanged values from the register, delete bit 4+5 from it and refill it with value
-        value_to_write = (behaviour_reg & 0xCF) | (value << 4)
+        value_to_write = (reg & 0xCF) | (value << 4)
 
         self.base.write_function_number(function_number, value_to_write)
     
@@ -407,10 +411,10 @@ class CpxE16Di(_CpxEModule):
             raise ValueError("Value {value} must be between 0 and 3")
         
         function_number = 4828 + 64 * self.position + 1
-        behaviour_reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)[0]
         
         # Fill in the unchanged values from the register, delete bit 6+7 from it and refill it with value
-        value_to_write = (behaviour_reg & 0x3F) | (value << 6)
+        value_to_write = (reg & 0x3F) | (value << 6)
 
         self.base.write_function_number(function_number, value_to_write)
 
@@ -430,7 +434,7 @@ class CpxE4AiUI(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-4AI-U-I"] = self.position
+        self.base._modules["CPX-E-4AI-U-I"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -534,6 +538,148 @@ class CpxE4AiUI(_CpxEModule):
         
         self.base.write_function_number(function_number, value_to_write)
 
+    @_CpxEModule._require_base
+    def configure_diagnostics(self, short_circuit=None, param_error=None):
+        '''The "Diagnostics of sensor supply short circuit" defines whether the diagnostics of the sensor supply
+        in regard to short circuit or overload should be activated ("True", default) or deactivated ("False").
+        The parameter "Diagnostics of parameterisation error" defines if the diagnostics for the subsequently
+        listed parameters must be activated ("True", default) or deactivated ("False) with regard to unapproved settings:
+         * Hysteresis < 0
+         * Signal range (sensor type)
+         * Lower limit > upper limit
+        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
+        module by the error LED.
+        '''
+        function_number = 4828 + 64 * self.position + 0
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if short_circuit == None:
+            short_circuit = bool((reg & 0x01) >> 1)
+        if param_error == None:
+            param_error = bool((reg & 0x80) >> 8)
+
+        value_to_write = (int(short_circuit) << 0) | (int(param_error) << 8)
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_power_reset(self, value: bool) -> None:
+        '''The "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False") or automatically 
+        switches on ("True, default") again after a short circuit or overload of the sensor supply.
+        In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
+        off and on to restore the power
+        '''
+        function_number = 4828 + 64 * self.position + 1
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x01
+        else:
+            value_to_write = reg & 0xFE
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_data_format(self, value: bool) -> None:
+        '''The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
+         * False (default): Sign + 15 bit
+         * True: Linear scaled
+        '''
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x01
+        else:
+            value_to_write = reg & 0xFE
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_sensor_supply(self, value: bool) -> None:
+        '''The parameter "Sensor supply" defines if the sensor supply must be switched off ("False") 
+        or switched on ("True", default).
+        The sensor supply can also be switched off and switched on during operation.
+        '''
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x20
+        else:
+            value_to_write = reg & 0xDF
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_diagnostics_overload(self, value: bool) -> None:
+        '''The parameter "Diagnostics of overload at analogue inputs" defines if the diagnostics for the current
+        inputs must be activated ("True", default) or deactivated ("False") with regard to overload.
+        When the diagnostics are activated, the error at an input current of >30 mA will be sent to the bus
+        module and displayed with the error LED on the module.
+        '''
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x40
+        else:
+            value_to_write = reg & 0xBF
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_behaviour_overload(self, value: bool) -> None:
+        '''The parameter "Behaviour after overload at analogue inputs" defines if the power remains switched
+        off ("False") after an overload at the inputs or if it should be switched on again ("True", default) automatically.
+        In the case of the "Leave power switched off" setting, the automation system CPX-E must be switched
+        off and on to restore the power.
+        '''
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x80
+        else:
+            value_to_write = reg & 0x7F
+
+        self.base.write_function_number(function_number, value_to_write)
+
+    @_CpxEModule._require_base
+    def configure_hysteresis_limit_monitoring(self, low:int|None=None, high:int|None=None) -> None:
+        '''The parameter "Hysteresis of limit monitoring" defines the hysteresis value of the limit monitoring for
+        all channels.
+        The set hysteresis value must not be larger than the difference between the upper and lower limit values.
+        The defined value is not checked for validity and incorrect parameterisations will be applied.
+        '''
+        if low:
+            if low < 0 or low > 32767 :
+                raise ValueError("Values for low {low} must be between 0 and 32767")
+        if high:
+            if high < 0 or high > 32767:
+                raise ValueError("Values for high {high} must be between 0 and 32767")
+
+        function_number_low = 4828 + 64 * self.position + 7
+        function_number_high = 4828 + 64 * self.position + 8
+
+        if low == None and isinstance(high, int):
+            self.base.write_function_number(function_number_high, high)
+        elif high == None and isinstance(low, int):
+            self.base.write_function_number(function_number_low, low)
+        elif isinstance(high, int) and isinstance(low, int):
+            self.base.write_function_number(function_number_high, high)
+            self.base.write_function_number(function_number_low, low)
+        else:
+            raise ValueError("Value must be given for high, low or both")
+    
+    # TODO: add more functions CPX-E-_AI-U-I_description_2020-01a_8126669g1.pdf chapter 3.3 ff.
+
 
 class CpxE4AoUI(_CpxEModule):
     '''Class for CPX-E-4AO-UI module
@@ -547,7 +693,7 @@ class CpxE4AoUI(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base.modules["CPX-E-4AO-U-I"] = self.position
+        self.base._modules["CPX-E-4AO-U-I"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register

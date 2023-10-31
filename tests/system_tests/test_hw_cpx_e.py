@@ -4,6 +4,7 @@ import time
 
 from cpx_io.cpx_system.cpx_e import *
 
+
 @pytest.fixture(scope="function")
 def test_cpxe():
     cpxe = CpxE(host="172.16.1.40", tcp_port=502, timeout=500)
@@ -236,7 +237,7 @@ def test_16DI_configure_signal_extension_time(test_cpxe):
     with pytest.raises(ValueError):
         e16di.configure_signal_extension_time(4)
 
-def test_3modules(test_cpxe): 
+def test_3modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -248,7 +249,6 @@ def test_3modules(test_cpxe):
     assert e4ai.read_status() == [False] * 16 
     assert e4ai.position == 3
     
-    # channel 3 is hardwired to 5 Vdc, this is around 13800 digits
     assert e4ai.set_channel_range(3, "0-10V") == None
     assert e4ai.set_channel_smothing(3, 2) == None
     time.sleep(.1)
@@ -262,6 +262,118 @@ def test_3modules(test_cpxe):
                             "CPX-E-4AI-U-I": 3
                             }                  
 
+def test_4AI_configure_diagnostics(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+
+    e4ai.configure_diagnostics(False)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 0)[0] & 0x01) == 0
+
+    e4ai.configure_diagnostics(True)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 0)[0] & 0x01) == 1
+
+def test_4AI_configure_power_reset(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+
+    e4ai.configure_power_reset(False)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 1)[0] & 0x01) == 0
+
+    e4ai.configure_power_reset(True)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 1)[0] & 0x01) == 1
+    
+def test_4AI_configure_data_format(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+
+    e4ai.configure_data_format(True)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0x01) == 1
+
+    e4ai.configure_data_format(False)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0x01) == 0
+    
+def test_4AI_configure_sensor_supply(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+
+    e4ai.configure_sensor_supply(False)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0b00100000) >> 5 == 0
+
+    e4ai.configure_sensor_supply(True)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0b00100000) >> 5 == 1
+ 
+def test_4AI_configure_diagnostics_overload(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+
+    e4ai.configure_diagnostics_overload(False)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0b01000000) >> 6 == 0
+
+    e4ai.configure_diagnostics_overload(True)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0b01000000) >> 6 == 1
+
+def test_4AI_configure_behaviour_overload(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+
+    e4ai.configure_behaviour_overload(False)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0b10000000) >> 7 == 0
+
+    e4ai.configure_behaviour_overload(True)
+    time.sleep(.1)
+    assert (e4ai.base.read_function_number(4828 + 64*3 + 6)[0] & 0b10000000) >> 7 == 1
+
+def test_4AI_configure_hysteresis_limit_monitoring(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    time.sleep(.05)
+
+    low = 10
+    high = 20
+    e4ai.configure_hysteresis_limit_monitoring(low=low)
+    time.sleep(.1)
+    assert e4ai.base.read_function_number(4828 + 64*3 + 7) == [10]
+
+    e4ai.configure_hysteresis_limit_monitoring(high=high)
+    time.sleep(.1)
+    assert e4ai.base.read_function_number(4828 + 64*3 + 8) == [20]
+
+    e4ai.configure_hysteresis_limit_monitoring(low=0, high=0)
+    assert e4ai.base.read_function_number(4828 + 64*3 + 7) == [0]
+    assert e4ai.base.read_function_number(4828 + 64*3 + 8) == [0]
+
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring(low=-1)
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring(low=32768)
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring(high=-1)
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring(high=32768)
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring(low=-1, high=-1)
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring(low=32768, high=32768)
+    with pytest.raises(ValueError):
+        e4ai.configure_hysteresis_limit_monitoring()
 
 def test_4modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
