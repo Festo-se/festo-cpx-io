@@ -1,51 +1,41 @@
+'''TODO: Add module docstring
+'''
+
 import logging
 import struct
 
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 
-from cpx_base import CPX_BASE
+from .cpx_base import CpxBase
 
-class _ModbusCommands:    
-#input registers
-#holding registers
-    Diagnosis=(11000,100)
-    ModuleCount=(12000,1)
-    ModuleCode=(15000,2) # (+37*n)
-    ModuleClass=(15002,1) # (+37*n)
-    CommunicationProfiles=(15003,1) # (+37*n)
-    InputSize=(15004,1) # (+37*n)
-    InputChannels=(15005,1) # (+37*n)
-    OutputSize=(15006,1) # (+37*n)
-    OutputChanneles=(15007,1) # (+37*n)
-    HWVersion=(15008,1) # (+37*n)
-    FWVersion=(15009,3) # (+37*n)
-    SerialNumber=(15012,2) # (+37*n)
-    ProductKey=(15014,6) # (+37*n)
-    OrderText=(15020,16) # (+37*n)
+class _ModbusCommands:   
+    '''Modbus start adresses used to read and write registers
+    ''' 
+    #input registers
 
-class CPX_AP(CPX_BASE):
-    """
-    A class to connect to the Festo CPX-AP-I-EP-M12 and read data from IO modules
+    #holding registers
+    diagnosis=(11000,100)
+    module_count=(12000,1)
 
-    Attributes:
-        moduleCount -- Integer representing the IO module count (read on `__init__()` or `readStaticInformation()`)
-        moduleInformation -- List with detail for the modules (read on `__init__()` or `readStaticInformation()`)
+    module_code=(15000,2) # (+37*n)
+    module_class=(15002,1) # (+37*n)
+    communication_profiles=(15003,1) # (+37*n)
+    input_size=(15004,1) # (+37*n)
+    input_channels=(15005,1) # (+37*n)
+    output_size=(15006,1) # (+37*n)
+    output_channels=(15007,1) # (+37*n)
+    hw_version=(15008,1) # (+37*n)
+    fw_version=(15009,3) # (+37*n)
+    serial_number=(15012,2) # (+37*n)
+    product_key=(15014,6) # (+37*n)
+    order_text=(15020,17) # (+37*n)
 
-    Methods:
-        readRegData(self, register, length=1, type="holding_register") -- Reads and returns holding or input register from Modbus server
-        readInputRegData(self, register, length=1) -- Reads and returns input registers from Modbus server
-        readHoldingRegData(self, register, length=1) -- Reads and returns holding registers form Modbus server
-        readModuleCount(self) -- Reads and returns IO module count
-        readModuleInformation(self, module) -- Reads and returns detailed information for a specific IO module
-        readStaticInformation(self) -- Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
-        readModuleData(self, module) -- Reads and returns process data of a specific IO module
-    """
-    def __init__(self):
-        # TODO: Is this really neccessary?
-        self.readStaticInformation()
 
-    def writeData(self, register, val):
+class CpxAP(CpxBase):
+    '''CPX-AP base class
+    '''
+    def write_data(self, register, val):
          #TODO: Not tested yet!!!
          status = object
          print(f"{register}, {val}")
@@ -59,12 +49,12 @@ class CPX_AP(CPX_BASE):
          except Exception as e:
              print("error while writing : ", str(e)) 
 
-    def readModuleCount(self):
-        """Reads and returns IO module count
+    def read_module_count(self) -> int:
+        """Reads and returns IO module count as integer
         """
-        return self.readHoldingRegData(*_ModbusCommands.ModuleCount)
+        return self.read_reg_data(*_ModbusCommands.module_count)[0]
 
-    def _moduleOffset(self, modbusCommand, module):
+    def _module_offset(self, modbusCommand, module):
         register, length = modbusCommand
         return ((register + 37 * module), length)
 
@@ -72,69 +62,72 @@ class CPX_AP(CPX_BASE):
         swapped = []
         for r in registers:
             k = struct.pack('<H', r)
-            k = int.from_bytes(k, 'big', signed=False)
+            k = int.from_bytes(k, byteorder='big', signed=False)
             swapped.append(k)
         return swapped
 
-    def _decodeString(self, registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(self._swap_bytes(registers), byteorder=Endian.Big) #Bug in pymodbus! Byteorder does not work for strings. https://github.com/riptideio/pymodbus/issues/508
+    def _decode_string(self, registers):
+        # _swap_bytes has to be used because of a bug in pymodbus! 
+        # Byteorder does not work for strings. https://github.com/riptideio/pymodbus/issues/508
+        decoder = BinaryPayloadDecoder.fromRegisters(self._swap_bytes(registers), byteorder=Endian.BIG) 
         return decoder.decode_string(34).decode('ascii').strip("\x00")
 
-    def _decodeSerial(self, registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.Big)
+    def _decode_serial(self, registers):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
         return format(decoder.decode_16bit_uint(), "#010x")
 
-    def readModuleInformation(self, module):
+    def read_module_information(self, module):
         """Reads and returns detailed information for a specific IO module
         
         Arguments:
         module -- Number of the IO module
         """
-        logging.debug("readModuleInformation for module {}".format(module))
+        logging.debug(f"read_module_information for module {module}")
 
-        moduleCode = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.ModuleCode, module))[0]
-        moduleClass = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.ModuleClass, module))
-        communicationProfiles = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.CommunicationProfiles, module))
-        inputSize = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.InputSize, module))
-        inputChannels = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.InputChannels, module))
-        outputSize = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.OutputSize, module))
-        outputChanneles = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.OutputChanneles, module))
-        hWVersion = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.HWVersion, module))
-        fWVersion = ".".join(str(x) for x in self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.FWVersion, module)))
-        serialNumber = self._decodeSerial(self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.SerialNumber, module)))
-        productKey = self._decodeString(self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.ProductKey, module)))
-        orderText = self._decodeString(self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.OrderText, module)))
+        module_code = int(self._decode_serial(self.read_reg_data(*self._module_offset(_ModbusCommands.module_code, module))), 16)
+        module_class = self.read_reg_data(*self._module_offset(_ModbusCommands.module_class, module))[0]
+        communication_profiles = self.read_reg_data(*self._module_offset(_ModbusCommands.communication_profiles, module))[0]
+        input_size = self.read_reg_data(*self._module_offset(_ModbusCommands.input_size, module))[0]
+        input_channels = self.read_reg_data(*self._module_offset(_ModbusCommands.input_channels, module))[0]
+        output_size = self.read_reg_data(*self._module_offset(_ModbusCommands.output_size, module))[0]
+        output_channels = self.read_reg_data(*self._module_offset(_ModbusCommands.output_channels, module))[0]
+        hW_version = self.read_reg_data(*self._module_offset(_ModbusCommands.hw_version, module))[0]
+        fW_version = ".".join(str(x) for x in self.read_reg_data(*self._module_offset(_ModbusCommands.fw_version, module)))
+        serial_number = self._decode_serial(self.read_reg_data(*self._module_offset(_ModbusCommands.serial_number, module)))
+        product_key = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.product_key, module)))
+        order_text = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.order_text, module)))
 
         return {
-            "ModuleCode": moduleCode,
-            "ModuleClass": moduleClass,
-            "CommunicationProfiles": communicationProfiles,
-            "InputSize": inputSize,
-            "InputChannels": inputChannels,
-            "OutputSize": outputSize,
-            "OutputChanneles": outputChanneles,
-            "HWVersion": hWVersion,
-            "FWVersion": fWVersion,
-            "SerialNumber": serialNumber,
-            "ProductKey": productKey,
-            "OrderText": orderText,
+            "Module Code": module_code,
+            "Module Class": module_class,
+            "Communication Profiles": communication_profiles,
+            "Input Size": input_size,
+            "Input Channels": input_channels,
+            "Output Size": output_size,
+            "Output Channeles": output_channels,
+            "HW Version": hW_version,
+            "FW Version": fW_version,
+            "Serial Number": serial_number,
+            "Product Key": product_key,
+            "Order Text": order_text,
             }
 
-    def readStaticInformation(self):
-        """Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
-        """
-        logging.debug("readStaticInformation")
-        self.moduleCount = self.readModuleCount()
-        
-        self.moduleInformation = []
-        for i in range(self.moduleCount):
-            self.moduleInformation.append(self.readModuleInformation(i))
+    # TODO: Needed?
+    #def update_static_information(self):
+    #    """Manualy reads and updates the class attributes `module count` and `moduleInformation`
+    #    """
+    #    logging.debug("update_static_information")
+    #    self.module_count = self.read_module_count()
+    #    
+    #    self.module_information = []
+    #    for i in range(self.module_count):
+    #        self.module_information.append(self.read_module_information(i))
 
     def _getModuleOffset(self, module):
         offset = 5000
         for i in range(module):
-            moduleCode = self.moduleInformation[i]["ModuleCode"]
-            moduleInputSize = self.moduleInformation[i]["InputSize"]
+            moduleCode = self.moduleInformation[i]["Module Code"]
+            moduleInputSize = self.moduleInformation[i]["Input Size"]
             if(moduleCode == 8199): #CPX-AP-I-8DI-M8-3P
                 offset += 1
             else:
@@ -151,7 +144,7 @@ class CPX_AP(CPX_BASE):
         Arguments:
         module -- Number of the IO module
         """
-        logging.debug("readModuleInformation for module {}".format(module))
+        logging.debug("read_module_information for module {}".format(module))
 
         moduleCode = self.moduleInformation[module]["ModuleCode"]
         moduleInputSize = self.moduleInformation[module]["InputSize"]//2
@@ -166,7 +159,7 @@ class CPX_AP(CPX_BASE):
             return None
         
         if(moduleCode == 8202): # CPX-AP-I-4AI-U-I-RTD-M12
-            moduleData = self.readHoldingRegData(moduleOffset, moduleInputSize)
+            moduleData = self.read_reg_data(moduleOffset, moduleInputSize)
             logging.debug("moduleData: {}".format(moduleData))
 
             decoder = BinaryPayloadDecoder.fromRegisters(moduleData, byteorder=Endian.Little)
@@ -183,7 +176,7 @@ class CPX_AP(CPX_BASE):
                 }
        
         if(moduleCode == 8212): # CPX-AP-I-4IOL-M12
-            moduleData = self.readHoldingRegData(moduleOffset, moduleInputSize)
+            moduleData = self.read_reg_data(moduleOffset, moduleInputSize)
             logging.debug("moduleData: {}".format(moduleData))
 
             decoder = BinaryPayloadDecoder.fromRegisters(moduleData, byteorder=Endian.Little)
@@ -202,7 +195,7 @@ class CPX_AP(CPX_BASE):
                 }
         
         if(moduleCode == 8199): #CPX-AP-I-8DI-M8-3P
-            moduleData = self.readHoldingRegData(moduleOffset, 1)
+            moduleData = self.read_reg_data(moduleOffset, 1)
             logging.debug("moduleData: {}".format(moduleData))
 
             moduleDataBin = bin(moduleData)[2:].zfill(8)

@@ -2,7 +2,6 @@
 '''
 
 import logging
-import ctypes
 
 from .cpx_base import CpxBase
 

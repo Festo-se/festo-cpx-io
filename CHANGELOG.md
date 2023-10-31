@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
+- [Minor] Added base functionality for CPX-AP-I
+
+### Changed
 - [Minor] Fixed that registers are read before writing to them instead of saving the values in the object instance
 
 ### Changed
