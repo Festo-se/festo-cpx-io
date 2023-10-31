@@ -555,11 +555,11 @@ class CpxE4AiUI(_CpxEModule):
         
         # Fill in the unchanged values from the register
         if short_circuit == None:
-            short_circuit = bool((reg & 0x01) >> 1)
+            short_circuit = bool((reg & 0x01) >> 0)
         if param_error == None:
-            param_error = bool((reg & 0x80) >> 8)
+            param_error = bool((reg & 0x80) >> 7)
 
-        value_to_write = (int(short_circuit) << 0) | (int(param_error) << 8)
+        value_to_write = (int(short_circuit) << 0) | (int(param_error) << 7)
 
         self.base.write_function_number(function_number, value_to_write)
     
@@ -778,5 +778,98 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+    @_CpxEModule._require_base
+    def configure_diagnostics(self, short_circuit=None, undervoltage=None, param_error=None):
+        '''The parameter "Diagnostics of short circuit in actuator supply" defines if the diagnostics for the 
+        actuator supply with regard to short circuit or overload must be activated ("True", default) or deactivated ("False").
+        When the diagnostics are activated, the error will be sent to the bus module and displayed on the module by the
+        error LED.
+        '''
+        function_number = 4828 + 64 * self.position + 0
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if short_circuit == None:
+            short_circuit = bool((reg & 0x01) >> 1)
+        if undervoltage == None:
+            undervoltage = bool((reg & 0x04) >> 2)
+        if param_error == None:
+            param_error = bool((reg & 0x80) >> 7)
+
+        value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2) | (int(param_error) << 7)
+
+        self.base.write_function_number(function_number, value_to_write)
+        
+    @_CpxEModule._require_base
+    def configure_power_reset(self, value: bool) -> None:
+        '''he parameter “Behaviour after SCS actuator supply” defines if the power remains switched off ("False) after a
+        short circuit or overload of the actuator supply or if it should be switched on again automatically ("True", default). 
+        In the case of the "Leave power switched off" setting, the automation system CPX-E must be switched
+        off and on to restore the power.
+        '''
+        function_number = 4828 + 64 * self.position + 1
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x02
+        else:
+            value_to_write = reg & 0xFD
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_behaviour_overload(self, value: bool) -> None:
+        '''The parameter “Behaviour after SCS analogue output” defines if the power remains switched off ("False") after
+        a short circuit or overload at the outputs or if it should be switched on again automatically ("True", default). In the case
+        of the "Leave power switched off" setting, the automation system CPX-E must be switched off and on
+        to restore the power.
+        '''
+        function_number = 4828 + 64 * self.position + 1
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x08
+        else:
+            value_to_write = reg & 0xF7
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_data_format(self, value: bool) -> None:
+        '''The parameter “Data format” defines the data format "Sign + 15 bit” or “linear scaled".
+         * False (default): Sign + 15 bit
+         * True: Linear scaled
+        '''
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x01
+        else:
+            value_to_write = reg & 0xFE
+
+        self.base.write_function_number(function_number, value_to_write)
+    
+    @_CpxEModule._require_base
+    def configure_actuator_supply(self, value: bool) -> None:
+        '''The parameter “Actuator supply” defines if the diagnostics for the actuator supply 
+        must be activated ("True", default) or deactivated ("False").
+
+        '''
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)[0]
+        
+        # Fill in the unchanged values from the register
+        if value:
+            value_to_write = reg | 0x20
+        else:
+            value_to_write = reg & 0xDF
+
+        self.base.write_function_number(function_number, value_to_write)
+
+    # TODO: add more functions CPX-E-_AI-U-I_description_2020-01a_8126669g1.pdf chapter 3.3 ff.
 
 # TODO: Add IO-Link module

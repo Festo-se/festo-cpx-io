@@ -427,6 +427,77 @@ def test_modules_with_init():
                             "CPX-E-4AO-U-I": 4
                             }        
 
+def test_4AO_configure_diagnostics(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e4ao.configure_diagnostics(short_circuit=False, undervoltage=False, param_error=False)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 0)[0] & 0b10000110) == 0
+
+    e4ao.configure_diagnostics(short_circuit=True, undervoltage=True, param_error=True)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 0)[0] & 0b10000110) == 0b10000110
+
+def test_4AO_configure_power_reset(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e4ao.configure_power_reset(False)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 1)[0] & 0x02) >> 1 == 0
+
+    e4ao.configure_power_reset(True)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 1)[0] & 0x02) >> 1 == 1
+
+def test_4AO_configure_behaviour_overload(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e4ao.configure_behaviour_overload(False)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 1)[0] & 0x08) >> 3 == 0
+
+    e4ao.configure_behaviour_overload(True)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 1)[0] & 0x08) >> 3 == 1
+    
+def test_4AO_configure_data_format(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e4ao.configure_data_format(True)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 6)[0] & 0x01) == 1
+
+    e4ao.configure_data_format(False)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 6)[0] & 0x01) == 0
+    
+def test_4AO_configure_actuator_supply(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e4ao.configure_actuator_supply(False)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 6)[0] & 0b00100000) >> 5 == 0
+
+    e4ao.configure_actuator_supply(True)
+    time.sleep(.1)
+    assert (e4ao.base.read_function_number(4828 + 64*4 + 6)[0] & 0b00100000) >> 5 == 1
+ 
+
 def test_analog_io(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -442,7 +513,7 @@ def test_analog_io(test_cpxe):
     e4ai.set_channel_range(1,'0-10V')
     e4ai.set_channel_range(2,'0-10V')
     e4ai.set_channel_range(3,'0-10V')
-    time.sleep(.05)
+    time.sleep(.1)
 
     values = [0, 1000, 5000, 13000]
 
@@ -450,7 +521,7 @@ def test_analog_io(test_cpxe):
     e4ao.write_channel(1, values[1])
     e4ao.write_channel(2, values[2])
     e4ao.write_channel(3, values[3])
-    time.sleep(.05)
+    time.sleep(.1)
 
     result = e4ai.read_channels()
 
