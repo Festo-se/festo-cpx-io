@@ -47,7 +47,7 @@ class CpxE(CpxBase):
         self.output_register = None
         self.input_register = None
 
-        self._modules = {}
+        self._modules = []
 
         if modules:
             for m in modules:
@@ -136,6 +136,7 @@ class CpxE(CpxBase):
         '''Adds one module to the base. This is required to use the module.
         '''
         module._initialize(self, len(self._modules))
+        self.modules.append(module)
         return module
 
 
@@ -189,8 +190,6 @@ class CpxEEp(_CpxEModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.base._modules["CPX-E-EP"] = self.position
-
         self.output_register = _ModbusCommands.process_data_outputs[0]
         self.input_register = _ModbusCommands.process_data_inputs[0]
 
@@ -203,8 +202,6 @@ class CpxE8Do(_CpxEModule):
     '''
     def _initialize(self, *args):
         super()._initialize(*args)
-
-        self.base._modules["CPX-E-8DO"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -316,8 +313,6 @@ class CpxE16Di(_CpxEModule):
 
     def _initialize(self, *args):
         super()._initialize(*args)
-
-        self.base._modules["CPX-E-16DI"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -433,8 +428,6 @@ class CpxE4AiUI(_CpxEModule):
 
     def _initialize(self, *args):
         super()._initialize(*args)
-
-        self.base._modules["CPX-E-4AI-U-I"] = self.position
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -692,8 +685,6 @@ class CpxE4AoUI(_CpxEModule):
 
     def _initialize(self, *args):
         super()._initialize(*args)
-
-        self.base._modules["CPX-E-4AO-U-I"] = self.position
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
