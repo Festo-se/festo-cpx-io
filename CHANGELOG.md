@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
+- [Minor] Fixed that registers are read before writing to them instead of saving the values in the object instance
+
+### Changed
 - [Minor] Updated modules list so each module can be adressed via the base class
 
 ### Changed

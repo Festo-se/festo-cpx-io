@@ -417,15 +417,6 @@ class CpxE16Di(_CpxEModule):
 class CpxE4AiUI(_CpxEModule):
     '''Class for CPX-E-4AI-UI module
     '''
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-        self._signalrange_01 = 0x00
-        self._signalrange_23 = 0x00
-        self._signalsmothing_01 = 0x00
-        self._signalsmothing_23 = 0x00
-
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -478,54 +469,53 @@ class CpxE4AiUI(_CpxEModule):
             raise ValueError(f"'{signalrange}' is not an option. Choose from {bitmask.keys()}")
 
         function_number = 4828 + 64 * self.position
+
+        reg_01 = self.base.read_function_number(function_number + 13)[0]
+        reg_23 = self.base.read_function_number(function_number + 14)[0]
+
         if channel == 0:
             function_number += 13
-            self._signalrange_01 |= bitmask[signalrange]
-            value_to_write = self._signalrange_01
+            value_to_write = reg_01 | bitmask[signalrange]
         elif channel == 1:
             function_number += 13
-            self._signalrange_01 |= bitmask[signalrange] << 4
-            value_to_write = self._signalrange_01
+            value_to_write = reg_01 | bitmask[signalrange] << 4
         elif channel == 2:
             function_number += 14
-            self._signalrange_23 |= bitmask[signalrange]
-            value_to_write = self._signalrange_23
+            value_to_write = reg_23 | bitmask[signalrange]
         elif channel == 3:
             function_number += 14
-            self._signalrange_23 |= bitmask[signalrange] << 4
-            value_to_write = self._signalrange_23     
+            value_to_write = reg_23 | bitmask[signalrange] << 4
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
         
         self.base.write_function_number(function_number, value_to_write)
 
     @_CpxEModule._require_base
-    def set_channel_smothing(self, channel: int, smothing_power: int) -> None:
+    def set_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
         '''set the signal smoothing of one channel
         '''
-        if smothing_power > 15:
-            raise ValueError(f"'{smothing_power}' is not an option")
+        if smoothing_power > 15:
+            raise ValueError(f"'{smoothing_power}' is not an option")
 
-        bitmask = smothing_power
+        bitmask = smoothing_power
 
         function_number = 4828 + 64 * self.position
 
+        reg_01 = self.base.read_function_number(function_number + 15)[0]
+        reg_23 = self.base.read_function_number(function_number + 16)[0]
+
         if channel == 0:
             function_number += 15
-            self._signalsmothing_01 |=  bitmask
-            value_to_write = self._signalsmothing_01
+            value_to_write = reg_01 | bitmask
         elif channel == 1:
             function_number += 15
-            self._signalsmothing_01 |=  bitmask << 4
-            value_to_write = self._signalsmothing_01
+            value_to_write = reg_01 | bitmask << 4
         elif channel == 2:
             function_number += 16
-            self._signalsmothing_23 |=  bitmask
-            value_to_write = self._signalsmothing_23
+            value_to_write = reg_23 | bitmask
         elif channel == 3:
             function_number += 16
-            self._signalsmothing_23 |=  bitmask << 4
-            value_to_write = self._signalsmothing_23
+            value_to_write = reg_23 | bitmask << 4
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
         
@@ -677,12 +667,6 @@ class CpxE4AiUI(_CpxEModule):
 class CpxE4AoUI(_CpxEModule):
     '''Class for CPX-E-4AO-UI module
     '''
-    def __init__(self, *args):
-        super().__init__(*args)
-
-        self._signalrange_01 = 0b00010001
-        self._signalrange_23 = 0b00010001
-
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -748,22 +732,21 @@ class CpxE4AoUI(_CpxEModule):
 
         function_number = 4828 + 64 * self.position
 
+        reg_01 = self.base.read_function_number(function_number + 11)[0]
+        reg_23 = self.base.read_function_number(function_number + 12)[0]
+
         if channel == 0:
             function_number += 11
-            self._signalrange_01 |= bitmask[signalrange]
-            value_to_write = self._signalrange_01
+            value_to_write = reg_01 | bitmask[signalrange]
         elif channel == 1:
             function_number += 11
-            self._signalrange_01 |= bitmask[signalrange]
-            value_to_write = self._signalrange_01
+            value_to_write = reg_01 | bitmask[signalrange] << 4
         elif channel == 2:
             function_number += 12
-            self._signalrange_23 |= bitmask[signalrange]
-            value_to_write = self._signalrange_23
+            value_to_write = reg_23 | bitmask[signalrange]
         elif channel == 3:
             function_number += 12
-            self._signalrange_23 |= bitmask[signalrange]
-            value_to_write = self._signalrange_23
+            value_to_write = reg_23 | bitmask[signalrange] << 4
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 
@@ -861,6 +844,6 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
-    # TODO: add more functions CPX-E-_AI-U-I_description_2020-01a_8126669g1.pdf chapter 3.3 ff.
+    # TODO: add more functions CPX-E-_AO-U-I_description_2020-01a_8126651g1.pdf chapter 3.3 ff.
 
 # TODO: Add IO-Link module

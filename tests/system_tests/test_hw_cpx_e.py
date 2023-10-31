@@ -250,7 +250,7 @@ def test_3modules(test_cpxe):
     assert e4ai.position == 3
     
     assert e4ai.set_channel_range(3, "0-10V") == None
-    assert e4ai.set_channel_smothing(3, 2) == None
+    assert e4ai.set_channel_smoothing(3, 2) == None
     time.sleep(.1)
     data0 = e4ai.read_channel(3)
     assert -10 < data0 < 10
