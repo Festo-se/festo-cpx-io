@@ -74,7 +74,7 @@ def test_add_module(test_cpxe):
 
 def test_module_not_initialized(test_cpxe):
     e8do = CpxE8Do()
-    with pytest.raises(InitError):
+    with pytest.raises(CpxInitError):
         e8do.set_channel(0)
 
 def test_1module(test_cpxe):

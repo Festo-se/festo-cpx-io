@@ -3,15 +3,7 @@
 
 import logging
 
-from .cpx_base import CpxBase
-
-
-class InitError(Exception):
-    '''Error should be raised if a cpx-e-... module is instanciated without connecting it to a base module.
-    Connect it to the cpx-e by adding it with add_module(<object instance>)
-    '''
-    def __init__(self, message="Module must be part of a cpx_e class. Use add_module() to add it"):
-        super().__init__(message)
+from .cpx_base import CpxBase, CpxInitError
 
 
 class _ModbusCommands:
@@ -40,12 +32,8 @@ class CpxE(CpxBase):
         self._control_bit_value = 1 << 15
         self._write_bit_value = 1 << 13
 
-        self._next_output_register = 0
-        self._next_input_register = 0
-
-        self.output_register = None
-        self.input_register = None
-
+        self._next_output_register = None
+        self._next_input_register = None
         self._modules = []
 
         if modules:
@@ -146,6 +134,10 @@ class _CpxEModule(CpxE):
         self.base = None
         self.position = None
 
+        self.output_register = None
+        self.input_register = None
+
+
     def _initialize(self, base, position):
         self.base = base
         self.position = position
@@ -154,7 +146,7 @@ class _CpxEModule(CpxE):
     def _require_base(func):
         def wrapper(self, *args, **kwargs):
             if not self.base:
-                raise InitError()
+                raise CpxInitError()
             return func(self, *args, **kwargs)
         return wrapper
     
@@ -182,6 +174,7 @@ class _CpxEModule(CpxE):
         if (value & (2**15)) != 0:        # if sign bit is set
             value = value - 2**16       # compute negative value
         return value
+
 
 class CpxEEp(_CpxEModule):
     '''Class for CPX-E-EP module
@@ -316,7 +309,6 @@ class CpxE16Di(_CpxEModule):
         self.output_register = None
         self.input_register = self.base._next_input_register
 
-        #self.base._next_output_register = self.base._next_output_register + 0
         self.base._next_input_register = self.input_register + 2
 
     @_CpxEModule._require_base
@@ -845,4 +837,14 @@ class CpxE4AoUI(_CpxEModule):
 
     # TODO: add more functions CPX-E-_AO-U-I_description_2020-01a_8126651g1.pdf chapter 3.3 ff.
 
-# TODO: Add IO-Link module
+
+class CpxE4Iol(_CpxEModule):
+    # TODO: Add IO-Link module
+    def __init__(self):
+        raise NotImplementedError("The module CPX-E-4IOL has not yet been implemented")
+
+
+class CpxE1Cl(_CpxEModule):
+    # TODO: Add 1Cl module
+    def __init__(self):
+        raise NotImplementedError("The module CPX-E-1Cl has not yet been implemented")

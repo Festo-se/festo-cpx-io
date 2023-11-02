@@ -5,6 +5,12 @@ import logging
 
 from pymodbus.client import ModbusTcpClient
 
+class CpxInitError(Exception):
+    '''Error should be raised if a cpx-... module is instanciated without connecting it to a base module.
+    Connect it to the cpx by adding it with add_module(<object instance>)
+    '''
+    def __init__(self, message="Module must be part of a Cpx class. Use add_module() to add it"):
+        super().__init__(message)
 
 class CpxBase:
     """
