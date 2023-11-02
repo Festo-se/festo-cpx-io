@@ -142,39 +142,6 @@ class _CpxEModule(CpxE):
         self.base = base
         self.position = position
 
-    @staticmethod
-    def _require_base(func):
-        def wrapper(self, *args, **kwargs):
-            if not self.base:
-                raise CpxInitError()
-            return func(self, *args, **kwargs)
-        return wrapper
-    
-    @staticmethod
-    def int_to_signed16(value: int):
-        '''Converts a int to 16 bit register where msb is the sign
-        with checking the range
-        '''
-        if (value <= -2**15) or (value > 2**15):
-            raise ValueError(f"Integer value {value} must be in range -32768...32767 (15 bit)")
-        
-        if value >=0:
-            return value
-        else:
-            return 2**15 | ((value - 2**16) & ((2**16 - 1) // 2))
-    
-    @staticmethod
-    def signed16_to_int(value: int):
-        '''Converts a 16 bit register where msb is the sign to python signed int
-        by computing the two's complement 
-        '''
-        if value > 0xFFFF:
-            raise ValueError(f"Value {value} must not be bigger than 16 bit")
-        
-        if (value & (2**15)) != 0:        # if sign bit is set
-            value = value - 2**16       # compute negative value
-        return value
-
 
 class CpxEEp(_CpxEModule):
     '''Class for CPX-E-EP module
@@ -201,51 +168,53 @@ class CpxE8Do(_CpxEModule):
         self.base._next_output_register = self.output_register + 1
         self.base._next_input_register = self.input_register + 2
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[bool]:
         '''read all channels as a list of bool values
         '''
-        data = self.base.read_reg_data(self.input_register)[0] & 0x0F
+        data = self.base.read_reg_data(self.input_register)[0]
         return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def write_channels(self, data: list[bool]) -> None:
         '''write all channels with a list of bool values
         '''
+        if len(data) != 8:
+            raise ValueError("Data must be list of eight elements")
         # Make binary from list of bools
         binary_string = ''.join('1' if value else '0' for value in reversed(data))
         # Convert the binary string to an integer
         integer_data = int(binary_string, 2)
         self.base.write_reg_data(integer_data, self.output_register)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
         data = self.base.read_reg_data(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def set_channel(self, channel: int) -> None:
         '''set one channel to logic high level
         '''
         data = self.base.read_reg_data(self.input_register)[0]
         self.base.write_reg_data(data | 1 << channel , self.output_register)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def clear_channel(self, channel: int) -> None:
         '''set one channel to logic low level
         '''
         data = self.base.read_reg_data(self.input_register)[0]
         self.base.write_reg_data(data & ~(1 << channel), self.output_register)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def toggle_channel(self, channel: int) -> None:
         '''set one channel the inverted of current logic level
         '''
@@ -257,7 +226,7 @@ class CpxE8Do(_CpxEModule):
         else:
             raise ValueError
         
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_diagnostics(self, short_circuit=None, undervoltage=None):
         '''The "Diagnostics of short circuit at output" parameter defines whether the diagnostics of the outputs
         in regard to short circuit or overload should be activated or deactivated.
@@ -280,7 +249,7 @@ class CpxE8Do(_CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
 
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_power_reset(self, value: bool):
         '''The "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False", default) or 
         automatically switches on ("True") again after a short circuit or overload at the outputs.
@@ -311,27 +280,27 @@ class CpxE16Di(_CpxEModule):
 
         self.base._next_input_register = self.input_register + 2
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[bool]:
         '''read all channels as a list of bool values
         '''
         data = self.base.read_reg_data(self.input_register)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
         data = self.base.read_reg_data(self.input_register + 1)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_diagnostics(self, value: bool) -> None:
         '''The "Diagnostics of sensor supply short circuit" defines whether the diagnostics of the sensor supply
         in regard to short circuit or overload should be activated ("True", default) or deactivated (False).
@@ -349,7 +318,7 @@ class CpxE16Di(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_power_reset(self, value: bool) -> None:
         ''' "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False") or 
         automatically switches on again ("True", default) after a short circuit or overload of the sensor supply.
@@ -367,7 +336,7 @@ class CpxE16Di(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_debounce_time(self, value: int) -> None:
         '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
         assumed as a logical input signal.
@@ -386,7 +355,7 @@ class CpxE16Di(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_signal_extension_time(self, value: int) -> None:
         '''The "Signal extension time" parameter defines the minimum valid duration of the assumed signal
         status of the input signal. Edge changes within the signal extension time are ignored.
@@ -417,29 +386,29 @@ class CpxE4AiUI(_CpxEModule):
         #self.base._next_output_register = self.base._next_output_register + 0
         self.base._next_input_register = self.input_register + 5
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[int]:
         '''read all channels as a list of (signed) integers
         '''
         # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        signed_integers = [self.signed16_to_int(x) for x in raw_data]
+        signed_integers = [CpxBase.signed16_to_int(x) for x in raw_data]
         return signed_integers
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
         data = self.base.read_reg_data(self.input_register + 4)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def set_channel_range(self, channel: int, signalrange: str) -> None:
         '''set the signal range and type of one channel
         '''
@@ -481,7 +450,7 @@ class CpxE4AiUI(_CpxEModule):
         
         self.base.write_function_number(function_number, value_to_write)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def set_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
         '''set the signal smoothing of one channel
         '''
@@ -512,7 +481,7 @@ class CpxE4AiUI(_CpxEModule):
         
         self.base.write_function_number(function_number, value_to_write)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_diagnostics(self, short_circuit=None, param_error=None):
         '''The "Diagnostics of sensor supply short circuit" defines whether the diagnostics of the sensor supply
         in regard to short circuit or overload should be activated ("True", default) or deactivated ("False").
@@ -537,7 +506,7 @@ class CpxE4AiUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_power_reset(self, value: bool) -> None:
         '''The "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False") or automatically 
         switches on ("True, default") again after a short circuit or overload of the sensor supply.
@@ -555,7 +524,7 @@ class CpxE4AiUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_data_format(self, value: bool) -> None:
         '''The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
          * False (default): Sign + 15 bit
@@ -572,7 +541,7 @@ class CpxE4AiUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_sensor_supply(self, value: bool) -> None:
         '''The parameter "Sensor supply" defines if the sensor supply must be switched off ("False") 
         or switched on ("True", default).
@@ -589,7 +558,7 @@ class CpxE4AiUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_diagnostics_overload(self, value: bool) -> None:
         '''The parameter "Diagnostics of overload at analogue inputs" defines if the diagnostics for the current
         inputs must be activated ("True", default) or deactivated ("False") with regard to overload.
@@ -607,7 +576,7 @@ class CpxE4AiUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_behaviour_overload(self, value: bool) -> None:
         '''The parameter "Behaviour after overload at analogue inputs" defines if the power remains switched
         off ("False") after an overload at the inputs or if it should be switched on again ("True", default) automatically.
@@ -625,7 +594,7 @@ class CpxE4AiUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_hysteresis_limit_monitoring(self, low:int|None=None, high:int|None=None) -> None:
         '''The parameter "Hysteresis of limit monitoring" defines the hysteresis value of the limit monitoring for
         all channels.
@@ -667,45 +636,45 @@ class CpxE4AoUI(_CpxEModule):
         self.base._next_output_register = self.output_register  + 4
         self.base._next_input_register = self.input_register + 5
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[int]:
         '''read all channels as a list of integer values
         '''
         # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        signed_integers = [self.signed16_to_int(x) for x in raw_data]
+        signed_integers = [CpxBase.signed16_to_int(x) for x in raw_data]
         return signed_integers
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_status(self) -> list[bool]:
         '''read module status register. Further information see module datasheet
         '''
         data = self.base.read_reg_data(self.input_register + 4)[0]
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def write_channels(self, data: list[int]) -> None:
         '''write data to module channels in ascending order
         '''
         # TODO: scaling to given signalrange
-        reg_data = [self.int_to_signed16(x) for x in data]
+        reg_data = [CpxBase.int_to_signed16(x) for x in data]
         self.base.write_reg_data(reg_data, self.output_register, length=4)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def write_channel(self, channel: int, data: int) -> None:
         '''write data to module channel number
         '''
         # TODO: scaling to given signalrange
-        reg_data = self.int_to_signed16(data)
+        reg_data = CpxBase.int_to_signed16(data)
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def set_channel_range(self, channel: int, signalrange: str):
         '''set the signal range and type of one channel
         '''
@@ -743,7 +712,7 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_diagnostics(self, short_circuit=None, undervoltage=None, param_error=None):
         '''The parameter "Diagnostics of short circuit in actuator supply" defines if the diagnostics for the 
         actuator supply with regard to short circuit or overload must be activated ("True", default) or deactivated ("False").
@@ -765,7 +734,7 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
         
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_power_reset(self, value: bool) -> None:
         '''he parameter “Behaviour after SCS actuator supply” defines if the power remains switched off ("False) after a
         short circuit or overload of the actuator supply or if it should be switched on again automatically ("True", default). 
@@ -783,7 +752,7 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_behaviour_overload(self, value: bool) -> None:
         '''The parameter “Behaviour after SCS analogue output” defines if the power remains switched off ("False") after
         a short circuit or overload at the outputs or if it should be switched on again automatically ("True", default). In the case
@@ -801,7 +770,7 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_data_format(self, value: bool) -> None:
         '''The parameter “Data format” defines the data format "Sign + 15 bit” or “linear scaled".
          * False (default): Sign + 15 bit
@@ -818,7 +787,7 @@ class CpxE4AoUI(_CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
     
-    @_CpxEModule._require_base
+    @CpxBase._require_base
     def configure_actuator_supply(self, value: bool) -> None:
         '''The parameter “Actuator supply” defines if the diagnostics for the actuator supply 
         must be activated ("True", default) or deactivated ("False").

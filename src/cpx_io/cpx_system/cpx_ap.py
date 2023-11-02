@@ -241,48 +241,37 @@ class _CpxApModule(CpxAp):
     def _update_information(self, information):
         self.information = information
 
-    @staticmethod
-    def _require_base(func):
-        def wrapper(self, *args, **kwargs):
-            if not self.base:
-                raise CpxInitError()
-            return func(self, *args, **kwargs)
-        return wrapper
-
 
 class CpxApEp(_CpxApModule):
     '''Class for CPX-AP-EP module
     '''
     def _initialize(self, *args):
         super()._initialize(*args)
-        self.output_register = _ModbusCommands.outputs[0]
-        self.input_register = _ModbusCommands.inputs[0]
+        self.output_register = None
+        self.input_register = None
 
-        self.base._next_output_register = self.output_register
-        self.base._next_input_register = self.input_register
+        self.base._next_output_register = _ModbusCommands.outputs[0]
+        self.base._next_input_register =  _ModbusCommands.inputs[0]
         
 
 class CpxAp4Di(_CpxApModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.output_register = self.base._next_output_register
+        self.output_register = None
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register += self.information["Output Size"]
+        #self.base._next_output_register += self.information["Output Size"]
         self.base._next_input_register += self.information["Input Size"]
         
-    @_CpxApModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[bool]:
         '''read all channels as a list of bool values
-        '''    
-        data = self.base.read_reg_data(self.input_register, 1)[0]
-        logging.debug("data: {}".format(data))
+        '''
+        data = self.base.read_reg_data(self.input_register)[0] & 0xF
+        return [d == "1" for d in bin(data)[2:].zfill(4)[::-1]]
 
-        dataBin = bin(data)[2:].zfill(4)
-        return [bool(int(d)) for d in dataBin[::-1]]
-
-    @_CpxApModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
@@ -293,24 +282,20 @@ class CpxAp8Di(_CpxApModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.output_register = self.base._next_output_register
+        self.output_register = None
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register += self.information["Output Size"]
+        #self.base._next_output_register += self.information["Output Size"]
         self.base._next_input_register += self.information["Input Size"]
         
-    @_CpxApModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[bool]:
         '''read all channels as a list of bool values
         '''
-        
-        data = self.base.read_reg_data(self.input_register, 1)[0]
-        logging.debug("data: {}".format(data))
+        data = self.base.read_reg_data(self.input_register)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
 
-        dataBin = bin(data)[2:].zfill(8)
-        return [bool(d) for d in dataBin[::-1]]
-
-    @_CpxApModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
@@ -321,20 +306,22 @@ class CpxAp4AiUI(_CpxApModule):
     def _initialize(self, *args):
         super()._initialize(*args)
 
-        self.output_register = self.base._next_output_register
+        self.output_register = None
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register += self.information["Output Size"]
-        self.base._next_input_register += self.information["Input Size"]
+        #self.base._next_output_register += self.information["Output Size"]
+        self.base._next_input_register += self.information["Input Size"] // 2
 
-    @_CpxApModule._require_base
+    @CpxBase._require_base
     def read_channels(self) -> list[int]:
         '''read all channels as a list of (signed) integers
         '''
-        # TODO
-        pass
+        # TODO: add signal conversion according to signalrange of the channel
+        raw_data = self.base.read_reg_data(self.input_register, length=4)
+        signed_integers = [CpxBase.signed16_to_int(x) for x in raw_data]
+        return signed_integers
 
-    @_CpxApModule._require_base
+    @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
         '''read back the value of one channel
         '''
@@ -350,7 +337,65 @@ class CpxAp4Di4Do(_CpxApModule):
 
         self.base._next_output_register += self.information["Output Size"]
         self.base._next_input_register += self.information["Input Size"]
-        #raise NotImplementedError("The module CPX-AP-4DI4DO has not yet been implemented")
+        
+    @CpxBase._require_base
+    def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values. 
+        Returns a list of 8 elements where the first 4 elements are the input channels 0..3
+        and the last 4 elements are the output channels 0..3
+        '''
+        data = self.base.read_reg_data(self.input_register)[0] & 0xF
+        data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 4
+        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int, output_numbering=False) -> bool:
+        '''read back the value of one channel
+        Optional parameter 'output_numbering' defines if the outputs are numbered with the inputs ("True", default), 
+        so the range of output channels is 4..7 (as 0..3 are the input channels). If "False", the outputs are numbered
+        from 0..3, the inputs cannot be accessed this way.
+        '''
+        if output_numbering:
+            channel -= 4
+        return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def write_channels(self, data: list[bool]) -> None:
+        '''write all channels with a list of bool values
+        '''
+        if len(data) != 4:
+            raise ValueError("Data must be list of four elements")
+        # Make binary from list of bools
+        binary_string = ''.join('1' if value else '0' for value in reversed(data))
+        # Convert the binary string to an integer
+        integer_data = int(binary_string, 2)
+        self.base.write_reg_data(integer_data, self.output_register)
+
+    @CpxBase._require_base
+    def set_channel(self, channel: int) -> None:
+        '''set one channel to logic high level
+        '''
+        data = self.base.read_reg_data(self.output_register)[0] & 0xF
+        self.base.write_reg_data(data | 1 << channel , self.output_register)
+
+    @CpxBase._require_base
+    def clear_channel(self, channel: int) -> None:
+        '''set one channel to logic low level
+        '''
+        data = self.base.read_reg_data(self.output_register)[0] & 0xF
+        self.base.write_reg_data(data & ~(1 << channel), self.output_register)
+
+    @CpxBase._require_base
+    def toggle_channel(self, channel: int) -> None:
+        '''set one channel the inverted of current logic level
+        '''
+        data = (self.base.read_reg_data(self.output_register)[0] & 1 << channel) >> channel
+        if data == 1:
+            self.clear_channel(channel)
+        elif data == 0:
+            self.set_channel(channel)
+        else:
+            raise ValueError
 
 
 class CpxAp4Iol(_CpxApModule):
@@ -360,6 +405,6 @@ class CpxAp4Iol(_CpxApModule):
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register += self.information["Output Size"]
-        self.base._next_input_register += self.information["Input Size"]
+        self.base._next_output_register += self.information["Output Size"] // 2
+        self.base._next_input_register += self.information["Input Size"] // 2
         #raise NotImplementedError("The module CPX-AP-4IOL-M12 has not yet been implemented")

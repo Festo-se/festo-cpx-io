@@ -38,18 +38,62 @@ def test_modules(test_cpxap):
         assert m.information["Input Size"] >= 0
 
     assert test_cpxap.modules[0].information["Module Code"] == 8323
-    assert test_cpxap.modules[0].position == 0 
+    assert test_cpxap.modules[0].position == 0
 
-    assert test_cpxap.modules[0].input_register == 5000
-    assert test_cpxap.modules[1].input_register == 5000
-    assert test_cpxap.modules[2].input_register == 5001
-    assert test_cpxap.modules[3].input_register == 5002
-    assert test_cpxap.modules[4].input_register == 5010
-    assert test_cpxap.modules[5].input_register == 5046
+    assert test_cpxap.modules[0].output_register == None # EP
+    assert test_cpxap.modules[1].output_register == None # 8DI
+    assert test_cpxap.modules[2].output_register == 0 # 4DI4DO
+    assert test_cpxap.modules[3].output_register == None # 4AIUI
+    assert test_cpxap.modules[4].output_register == 1 # 4IOL
+    assert test_cpxap.modules[5].output_register == None # 4Di
+
+    assert test_cpxap.modules[0].input_register == None # EP
+    assert test_cpxap.modules[1].input_register == 5000 # 8DI
+    assert test_cpxap.modules[2].input_register == 5001 # 4DI4DO
+    assert test_cpxap.modules[3].input_register == 5002 # 4AIUI
+    assert test_cpxap.modules[4].input_register == 5006 # 4IOL
+    assert test_cpxap.modules[5].input_register == 5024 # 4Di
     
 def test_8Di(test_cpxap):
     assert test_cpxap.modules[1].read_channels() == [False] * 8
 
 def test_4Di(test_cpxap):
-    assert test_cpxap.modules[2].read_channels() == [False] * 4
+    assert test_cpxap.modules[5].read_channels() == [False] * 4
+
+def test_4Di4Do(test_cpxap):
+    assert test_cpxap.modules[2].read_channels() == [False] * 8
+
+    data = [True, False, True, False]
+    test_cpxap.modules[2].write_channels(data)
+    time.sleep(.05)
+    assert test_cpxap.modules[2].read_channels()[:4] == [False] * 4
+    assert test_cpxap.modules[2].read_channels()[4:] == data
+
+    data = [False, True, False, True]
+    test_cpxap.modules[2].write_channels(data)
+    time.sleep(.05)
+    assert test_cpxap.modules[2].read_channels()[:4] == [False] * 4
+    assert test_cpxap.modules[2].read_channels()[4:] == data
+
+    test_cpxap.modules[2].write_channels([False, False, False, False])
+
+    test_cpxap.modules[2].set_channel(0)
+    time.sleep(.05)
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == True
+    assert test_cpxap.modules[2].read_channel(4) == True
+
+    test_cpxap.modules[2].clear_channel(0)
+    time.sleep(.05)
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == False
+    assert test_cpxap.modules[2].read_channel(4) == False
+
+    test_cpxap.modules[2].toggle_channel(0)
+    time.sleep(.05)
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == True
+    assert test_cpxap.modules[2].read_channel(4) == True
+
+    test_cpxap.modules[2].clear_channel(0)
+
+def test_4AiUI(test_cpxap):
+    test_cpxap.modules[3].read_channels() == [0] * 4
     

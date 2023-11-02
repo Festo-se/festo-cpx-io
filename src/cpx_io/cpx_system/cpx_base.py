@@ -128,6 +128,39 @@ class CpxBase:
         """
         return self.writeMultipleData(register, data)
     '''
+    @staticmethod
+    def _require_base(func):
+        def wrapper(self, *args, **kwargs):
+            if not self.base:
+                raise CpxInitError()
+            return func(self, *args, **kwargs)
+        return wrapper
+    
+    @staticmethod
+    def int_to_signed16(value: int):
+        '''Converts a int to 16 bit register where msb is the sign
+        with checking the range
+        '''
+        if (value <= -2**15) or (value > 2**15):
+            raise ValueError(f"Integer value {value} must be in range -32768...32767 (15 bit)")
+        
+        if value >=0:
+            return value
+        else:
+            return 2**15 | ((value - 2**16) & ((2**16 - 1) // 2))
+    
+    @staticmethod
+    def signed16_to_int(value: int):
+        '''Converts a 16 bit register where msb is the sign to python signed int
+        by computing the two's complement 
+        '''
+        if value > 0xFFFF:
+            raise ValueError(f"Value {value} must not be bigger than 16 bit")
+        
+        if (value & (2**15)) != 0:        # if sign bit is set
+            value = value - 2**16       # compute negative value
+        return value
+    
     def __del__(self):
         self.client.close()
         logging.info("Disconnected")
