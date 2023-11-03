@@ -3,11 +3,12 @@
 
 import logging
 import struct
+import math
 
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 
-from .cpx_base import CpxBase, CpxInitError
+from .cpx_base import CpxBase, CpxInitError, CpxRequestError
 
 class _ModbusCommands:   
     '''Modbus start adresses used to read and write registers
@@ -118,29 +119,47 @@ class CpxAp(CpxBase):
         decoder = BinaryPayloadDecoder.fromRegisters(self._swap_bytes(registers), byteorder=Endian.BIG) 
         return decoder.decode_string(34).decode('ascii').strip("\x00")
 
-    def _decode_serial(self, registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
-        return format(decoder.decode_16bit_uint(), "#010x")
+    def _decode_int(self, registers, type='uint16'):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers[::-1], byteorder=Endian.BIG)
+        if type == "uint8":
+            return decoder.decode_8bit_uint()
+        elif type == "uint16":
+            return decoder.decode_16bit_uint()
+        elif type == "uint32":
+            return decoder.decode_32bit_uint()
+        if type == "int8":
+            return decoder.decode_8bit_int()
+        elif type == "int16":
+            return decoder.decode_16bit_int()
+        elif type == "int32":
+            return decoder.decode_32bit_int()
+        elif type == "bool":
+            return bool(decoder.decode_bits(0))
+        else:
+            raise NotImplementedError(f"Type {type} not implemented")
     
-    def _decodeHex(self, registers):
+    def _decode_hex(self, registers, type='uint16'):
         decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
-        return format(decoder.decode_16bit_uint(), "#010x")
-
+        if type == "uint16":
+            return format(decoder.decode_16bit_uint(), "#010x")
+        else:
+            raise NotImplementedError(f"Type {type} not implemented")
+        
     def read_module_information(self, position):
         """Reads and returns detailed information for a specific IO module
         """
         logging.debug(f"read_module_information for module on position {position}")
 
-        module_code = int(self._decode_serial(self.read_reg_data(*self._module_offset(_ModbusCommands.module_code, position))), 16)
-        module_class = self.read_reg_data(*self._module_offset(_ModbusCommands.module_class, position))[0]
-        communication_profiles = self.read_reg_data(*self._module_offset(_ModbusCommands.communication_profiles, position))[0]
-        input_size = self.read_reg_data(*self._module_offset(_ModbusCommands.input_size, position))[0]
-        input_channels = self.read_reg_data(*self._module_offset(_ModbusCommands.input_channels, position))[0]
-        output_size = self.read_reg_data(*self._module_offset(_ModbusCommands.output_size, position))[0]
-        output_channels = self.read_reg_data(*self._module_offset(_ModbusCommands.output_channels, position))[0]
-        hW_version = self.read_reg_data(*self._module_offset(_ModbusCommands.hw_version, position))[0]
+        module_code = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_code, position)), type="int32")
+        module_class = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_class, position)), type="uint8")
+        communication_profiles = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.communication_profiles, position)), type="uint16")
+        input_size = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_size, position)), type="uint16")
+        input_channels = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_channels, position)), type="uint16")
+        output_size = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_size, position)), type="uint16")
+        output_channels = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_channels, position)), type="uint16")
+        hW_version = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.hw_version, position)), type="uint8")
         fW_version = ".".join(str(x) for x in self.read_reg_data(*self._module_offset(_ModbusCommands.fw_version, position)))
-        serial_number = self._decode_serial(self.read_reg_data(*self._module_offset(_ModbusCommands.serial_number, position)))
+        serial_number = self._decode_hex(self.read_reg_data(*self._module_offset(_ModbusCommands.serial_number, position)))
         product_key = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.product_key, position)))
         order_text = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.order_text, position)))
 
@@ -222,6 +241,64 @@ class CpxAp(CpxBase):
             moduleDataBin = bin(moduleData)[2:].zfill(8)
             return {"channels": [bool(int(md)) for md in moduleDataBin[::-1]], "raw": hex(moduleData)}
 
+    def _write_parameter(self, position:int, param_id:int, instance:int, data:list|int) -> None:
+        '''Write parameters via module position, param_id, instance (=channel) and data to write
+        Data must be a list of 16 bit values
+        Returns None if successful or raises "CpxRequestError" if request denied
+        '''
+        if isinstance(data, int):
+            data = [data]
+
+        param_reg =  _ModbusCommands.parameter[0]
+
+        self.write_reg_data(position + 1, param_reg)
+        self.write_reg_data(param_id, param_reg + 1)
+        self.write_reg_data(instance, param_reg + 2)
+        self.write_reg_data(len(data), param_reg + 3)
+
+        self.write_reg_data(data, param_reg + 10, len(data))
+
+        self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
+        
+        exec = 0
+        while exec < 16:
+            exec = self.read_reg_data(param_reg + 3)[0] # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            if exec == 4:
+                raise CpxRequestError
+        
+        # Validation check
+        data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+        ret = self.read_reg_data(param_reg + 10, data_length)
+        if not all(r == d for r, d in zip(ret, data)):
+            raise CpxRequestError("Parameter might not have been written correctly")
+
+
+    def _read_parameter(self, position:int, param_id:int, instance:int) -> list:
+        '''Read parameters via module position, param_id, instance (=channel)
+        Returns data as list if successful or raises "CpxRequestError" if request denied
+        '''
+
+        param_reg =  _ModbusCommands.parameter[0]
+
+        self.write_reg_data(position + 1, param_reg)
+        self.write_reg_data(param_id, param_reg + 1)
+        self.write_reg_data(instance, param_reg + 2)
+        
+        self.write_reg_data(1, param_reg + 3)  # 1=read, 2=write
+        
+        exec = 0
+        while exec < 16:
+            exec = self.read_reg_data(param_reg + 3)[0]  # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            if exec == 4:
+                raise CpxRequestError
+        
+        # data_length from register 10004 is bytewise. 2 bytes = 1 register. But 1 byte also has to read one register
+        # with integer division "//" will lead to rounding down, this needs to be rounded up. Therefore math.ceil() is used
+        data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+        
+        data = self.read_reg_data(param_reg + 10, data_length)
+        return data
+
 
 class _CpxApModule(CpxAp):
     '''Base class for cpx-ap modules
@@ -252,7 +329,48 @@ class CpxApEp(_CpxApModule):
 
         self.base._next_output_register = _ModbusCommands.outputs[0]
         self.base._next_input_register =  _ModbusCommands.inputs[0]
+    
+    @staticmethod
+    def convert_uint32_to_octett(value:int) -> str:
+        return f"{value & 0xFF}.{(value >> 8) & 0xFF}.{(value >> 16) & 0xFF}.{(value) >> 24 & 0xFF}"
+
+    @CpxBase._require_base
+    def read_parameters(self):
         
+        dhcp_enable = self.base._decode_int(self.base._read_parameter(self.position, 12000, 0), type="bool")
+
+        ip_address = self.base._decode_int(self.base._read_parameter(self.position, 12001, 0), type="uint32")
+        ip_address = self.convert_uint32_to_octett(ip_address)
+
+        subnet_mask = self.base._decode_int(self.base._read_parameter(self.position, 12002, 0), type="uint32")
+        subnet_mask = self.convert_uint32_to_octett(subnet_mask)
+
+        gateway_address = self.base._decode_int(self.base._read_parameter(self.position, 12003, 0), type="uint32")
+        gateway_address = self.convert_uint32_to_octett(gateway_address)
+
+        active_ip_address = self.base._decode_int(self.base._read_parameter(self.position, 12004, 0), type="uint32")
+        active_ip_address = self.convert_uint32_to_octett(active_ip_address)
+
+        active_subnet_mask = self.base._decode_int(self.base._read_parameter(self.position, 12005, 0), type="uint32")
+        active_subnet_mask = self.convert_uint32_to_octett(active_subnet_mask)
+
+        active_gateway_address = self.base._decode_int(self.base._read_parameter(self.position, 12006, 0), type="uint32")
+        active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
+
+        mac_address = ':'.join("{:02x}".format(x & 0xFF) + ":{:02x}".format((x >> 8) & 0xFF) for x in self.base._read_parameter(self.position, 12007, 0))
+        
+        setup_monitoring_load_supply = self.base._decode_int(self.base._read_parameter(self.position, 20022, 0), type="uint8")
+
+        return {"dhcp_enable": dhcp_enable, 
+                "ip_address": ip_address,
+                "subnet_mask": subnet_mask,
+                "gateway_address": gateway_address,
+                "active_ip_address": active_ip_address,
+                "active_subnet_mask": active_subnet_mask,
+                "mac_address": mac_address,
+                "setup_monitoring_load_supply": setup_monitoring_load_supply
+                }
+
 
 class CpxAp4Di(_CpxApModule):
     def _initialize(self, *args):
@@ -300,6 +418,20 @@ class CpxAp8Di(_CpxApModule):
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def configure_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed 
+        during switching operations (bouncing of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        id = 20014
+
+        if not 0 <= value <= 3:
+            raise ValueError("Value {value} must be between 0 and 3")
+        
+        self.base._write_parameter(self.position, id, 0, value)
     
 
 class CpxAp4AiUI(_CpxApModule):
@@ -318,8 +450,7 @@ class CpxAp4AiUI(_CpxApModule):
         '''
         # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        signed_integers = [CpxBase.signed16_to_int(x) for x in raw_data]
-        return signed_integers
+        return [self.base._decode_int([i], type="int16") for i in raw_data]
 
     @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
@@ -327,6 +458,98 @@ class CpxAp4AiUI(_CpxApModule):
         '''
         return self.read_channels()[channel]
 
+    @CpxBase._require_base
+    def configure_channel_temp_unit(self, channel: int, unit: str) -> None:
+        '''set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)
+        '''
+        id = 20032
+        value = {
+            "C": 0,
+            "F": 1,
+            "K": 2,
+        }
+        if unit not in value:
+            raise ValueError(f"'{unit}' is not an option. Choose from {value.keys()}")
+        
+        self.base._write_parameter(self.position, id, channel, value[unit])
+
+    @CpxBase._require_base
+    def configure_channel_range(self, channel: int, signalrange: str) -> None:
+        '''set the signal range and type of one channel
+        '''
+        id = 20043
+        value = {
+            "None": 0,
+            "-10-+10V": 1,
+            "-5-+5V": 2,
+            "0-10V": 3,
+            "1-5V": 4,
+            "0-20mA": 5,
+            "4-20mA": 6,
+            "0-500R": 7,
+            "PT100": 8,
+            "NI100": 9,
+        }
+        if signalrange not in value:
+            raise ValueError(f"'{signalrange}' is not an option. Choose from {value.keys()}")
+
+        self.base._write_parameter(self.position, id, channel, value[signalrange])
+
+    @CpxBase._require_base
+    def configure_channel_limits(self, channel: int, upper:int|None=None, lower:int|None=None) -> None:
+        '''Set the channel upper and lower limits (Factory setting -> upper: 32767, lower: -32768)
+        '''
+        upper_id = 20044
+        lower_id = 20045
+
+        if isinstance(lower, int):
+            if not -32768 <= lower <= 32767:
+                raise ValueError("Values for low {low} must be between -32768 and 32767")
+        if isinstance(upper, int):
+            if not -32768 <= upper <= 32767:
+                raise ValueError("Values for high {high} must be between -32768 and 32767")
+
+        if lower == None and isinstance(upper, int):
+            self.base._write_parameter(self.position, upper_id, channel, upper)
+        elif upper == None and isinstance(lower, int):
+            self.base._write_parameter(self.position, lower_id, channel, lower)
+        elif isinstance(upper, int) and isinstance(lower, int):
+            self.base._write_parameter(self.position, upper_id, channel, upper)
+            self.base._write_parameter(self.position, lower_id, channel, lower)
+        else:
+            raise ValueError("Value must be given for upper, lower or both")
+
+
+    @CpxBase._require_base
+    def configure_hysteresis_limit_monitoring(self, channel: int, value:int) -> None:
+        '''Hysteresis for measured value monitoring (Factory setting: 100)
+        Value must be uint16
+        '''
+        id = 20046
+        if not 0 <= value <= 0xFFFF:
+            raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
+
+        self.base._write_parameter(self.position, id, channel, value)
+
+    @CpxBase._require_base
+    def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
+        '''set the signal smoothing of one channel. Smoothing is over 2^n values where n is
+        smoothing_power. Factory setting: 5 (2^5 = 32 values)
+        '''
+        id = 20107
+        if smoothing_power > 15:
+            raise ValueError(f"'{smoothing_power}' is not an option")
+
+        self.base._write_parameter(self.position, id, channel, smoothing_power)
+
+    @CpxBase._require_base
+    def configure_linear_scaling(self, channel: int, active) -> None:
+        '''Set linear scaling (Factory setting "False")
+        '''
+        id = 20111
+
+        self.base._write_parameter(self.position, id, channel, int(active))
+    
 
 class CpxAp4Di4Do(_CpxApModule):
     def _initialize(self, *args):
@@ -396,6 +619,47 @@ class CpxAp4Di4Do(_CpxApModule):
             self.set_channel(channel)
         else:
             raise ValueError
+
+    @CpxBase._require_base
+    def configure_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed 
+        during switching operations (bouncing of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        id = 20014
+
+        if not 0 <= value <= 3:
+            raise ValueError("Value {value} must be between 0 and 3")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+
+    @CpxBase._require_base
+    def configure_monitoring_load_supply(self, value: int) -> None:
+        '''Accepted values are 
+        0: Load supply monitoring inactive
+        1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+        2: Load supply monitoring active
+        '''
+        id = 20022
+
+        if not 0 <= value <= 2:
+            raise ValueError("Value {value} must be between 0 and 2")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+
+    @CpxBase._require_base
+    def configure_behaviour_in_fail_state(self, value: int) -> None:
+        '''Accepted values are 
+        0: Reset Outputs (default)
+        1: Hold last state
+        '''
+        id = 20052
+
+        if not 0 <= value <= 1:
+            raise ValueError("Value {value} must be between 0 and 2")
+        
+        self.base._write_parameter(self.position, id, 0, value)
 
 
 class CpxAp4Iol(_CpxApModule):

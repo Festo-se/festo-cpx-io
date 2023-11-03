@@ -57,6 +57,9 @@ def test_modules(test_cpxap):
 def test_8Di(test_cpxap):
     assert test_cpxap.modules[1].read_channels() == [False] * 8
 
+def test_8Di_configure(test_cpxap):
+    test_cpxap.modules[1].configure_debounce_time(1)
+
 def test_4Di(test_cpxap):
     assert test_cpxap.modules[5].read_channels() == [False] * 4
 
@@ -96,4 +99,33 @@ def test_4Di4Do(test_cpxap):
 
 def test_4AiUI(test_cpxap):
     test_cpxap.modules[3].read_channels() == [0] * 4
+    # TODO: Test analog inputs != 0
+
+def test_ep_param_read(test_cpxap):
+    ep = test_cpxap.modules[0]
+    param = ep.read_parameters()
+
+    assert param["dhcp_enable"] == False
+    assert param["ip_address"] == "172.16.1.41"
+    #assert param["subnet_mask"] == "255.255.255.0"
+    #assert param["gateway_address"] == "172.16.1.1"
+    assert param["active_ip_address"] == "172.16.1.41"
+    assert param["active_subnet_mask"] == "255.255.255.0"
+    #assert param["active_gateway_address"] == "172.16.1.1"
+    assert param["mac_address"] == "00:0e:f0:7d:3b:15"
+    #assert param["setup_monitoring_load_supply"] == 1
+
+    # TODO: Fix broken
     
+def test_4AiUI_configures(test_cpxap):
+    a4aiui = test_cpxap.modules[3]
+
+    a4aiui.configure_channel_temp_unit(0, "F")
+
+    a4aiui.configure_channel_range(0, "-10-+10V")
+    a4aiui.configure_linear_scaling(0, True)
+    # TODO: upper doesn't work!
+    a4aiui.configure_channel_limits(0, upper=20000, lower=100)
+    #a4aiui.configure_channel_range(0, "0-10V")
+    res = a4aiui.read_channel(0)
+

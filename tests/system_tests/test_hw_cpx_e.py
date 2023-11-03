@@ -249,8 +249,8 @@ def test_3modules(test_cpxe):
     assert e4ai.read_status() == [False] * 16 
     assert e4ai.position == 3
     
-    assert e4ai.set_channel_range(3, "0-10V") == None
-    assert e4ai.set_channel_smoothing(3, 2) == None
+    assert e4ai.configure_channel_range(3, "0-10V") == None
+    assert e4ai.configure_channel_smoothing(3, 2) == None
     time.sleep(.1)
     data0 = e4ai.read_channel(3)
     assert -10 < data0 < 10
@@ -495,15 +495,15 @@ def test_analog_io(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
-    e4ao.set_channel_range(0,'0-10V')
-    e4ao.set_channel_range(1,'0-10V')
-    e4ao.set_channel_range(2,'0-10V')
-    e4ao.set_channel_range(3,'0-10V')
+    e4ao.configure_channel_range(0,'0-10V')
+    e4ao.configure_channel_range(1,'0-10V')
+    e4ao.configure_channel_range(2,'0-10V')
+    e4ao.configure_channel_range(3,'0-10V')
 
-    e4ai.set_channel_range(0,'0-10V')
-    e4ai.set_channel_range(1,'0-10V')
-    e4ai.set_channel_range(2,'0-10V')
-    e4ai.set_channel_range(3,'0-10V')
+    e4ai.configure_channel_range(0,'0-10V')
+    e4ai.configure_channel_range(1,'0-10V')
+    e4ai.configure_channel_range(2,'0-10V')
+    e4ai.configure_channel_range(3,'0-10V')
     time.sleep(.1)
 
     values = [0, 1000, 5000, 13000]

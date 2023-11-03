@@ -12,6 +12,13 @@ class CpxInitError(Exception):
     def __init__(self, message="Module must be part of a Cpx class. Use add_module() to add it"):
         super().__init__(message)
 
+class CpxRequestError(Exception):
+    '''Error should be raised if a parameter or register request is denied
+    '''
+    def __init__(self, message="Request failed"):
+        super().__init__(message)
+
+
 class CpxBase:
     """
     A class to connect to the Festo CPX system and read data from IO modules

@@ -409,7 +409,7 @@ class CpxE4AiUI(_CpxEModule):
         return self.read_channels()[channel]
 
     @CpxBase._require_base
-    def set_channel_range(self, channel: int, signalrange: str) -> None:
+    def configure_channel_range(self, channel: int, signalrange: str) -> None:
         '''set the signal range and type of one channel
         '''
         bitmask = {
@@ -451,7 +451,7 @@ class CpxE4AiUI(_CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
 
     @CpxBase._require_base
-    def set_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
+    def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
         '''set the signal smoothing of one channel
         '''
         if smoothing_power > 15:
@@ -595,31 +595,31 @@ class CpxE4AiUI(_CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
 
     @CpxBase._require_base
-    def configure_hysteresis_limit_monitoring(self, low:int|None=None, high:int|None=None) -> None:
+    def configure_hysteresis_limit_monitoring(self, lower:int|None=None, upper:int|None=None) -> None:
         '''The parameter "Hysteresis of limit monitoring" defines the hysteresis value of the limit monitoring for
         all channels.
         The set hysteresis value must not be larger than the difference between the upper and lower limit values.
         The defined value is not checked for validity and incorrect parameterisations will be applied.
         '''
-        if low:
-            if low < 0 or low > 32767 :
+        if lower:
+            if lower < 0 or lower > 32767 :
                 raise ValueError("Values for low {low} must be between 0 and 32767")
-        if high:
-            if high < 0 or high > 32767:
+        if upper:
+            if upper < 0 or upper > 32767:
                 raise ValueError("Values for high {high} must be between 0 and 32767")
 
-        function_number_low = 4828 + 64 * self.position + 7
-        function_number_high = 4828 + 64 * self.position + 8
+        function_number_lower = 4828 + 64 * self.position + 7
+        function_number_upper = 4828 + 64 * self.position + 8
 
-        if low == None and isinstance(high, int):
-            self.base.write_function_number(function_number_high, high)
-        elif high == None and isinstance(low, int):
-            self.base.write_function_number(function_number_low, low)
-        elif isinstance(high, int) and isinstance(low, int):
-            self.base.write_function_number(function_number_high, high)
-            self.base.write_function_number(function_number_low, low)
+        if lower == None and isinstance(upper, int):
+            self.base.write_function_number(function_number_upper, upper)
+        elif upper == None and isinstance(lower, int):
+            self.base.write_function_number(function_number_lower, lower)
+        elif isinstance(upper, int) and isinstance(lower, int):
+            self.base.write_function_number(function_number_upper, upper)
+            self.base.write_function_number(function_number_lower, lower)
         else:
-            raise ValueError("Value must be given for high, low or both")
+            raise ValueError("Value must be given for upper, lower or both")
     
     # TODO: add more functions CPX-E-_AI-U-I_description_2020-01a_8126669g1.pdf chapter 3.3 ff.
 
@@ -675,7 +675,7 @@ class CpxE4AoUI(_CpxEModule):
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
     @CpxBase._require_base
-    def set_channel_range(self, channel: int, signalrange: str):
+    def configure_channel_range(self, channel: int, signalrange: str):
         '''set the signal range and type of one channel
         '''
         bitmask = {
