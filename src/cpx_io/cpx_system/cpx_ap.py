@@ -272,7 +272,6 @@ class CpxAp(CpxBase):
         if not all(r == d for r, d in zip(ret, data)):
             raise CpxRequestError("Parameter might not have been written correctly")
 
-
     def _read_parameter(self, position:int, param_id:int, instance:int) -> list:
         '''Read parameters via module position, param_id, instance (=channel)
         Returns data as list if successful or raises "CpxRequestError" if request denied
@@ -379,8 +378,8 @@ class CpxAp4Di(_CpxApModule):
         self.output_register = None
         self.input_register = self.base._next_input_register
 
-        #self.base._next_output_register += self.information["Output Size"]
-        self.base._next_input_register += self.information["Input Size"]
+        self.base._next_output_register +=  math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
         
     @CpxBase._require_base
     def read_channels(self) -> list[bool]:
@@ -417,8 +416,8 @@ class CpxAp8Di(_CpxApModule):
         self.output_register = None
         self.input_register = self.base._next_input_register
 
-        #self.base._next_output_register += self.information["Output Size"]
-        self.base._next_input_register += self.information["Input Size"]
+        self.base._next_output_register +=  math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
         
     @CpxBase._require_base
     def read_channels(self) -> list[bool]:
@@ -455,8 +454,8 @@ class CpxAp4AiUI(_CpxApModule):
         self.output_register = None
         self.input_register = self.base._next_input_register
 
-        #self.base._next_output_register += self.information["Output Size"]
-        self.base._next_input_register += self.information["Input Size"] // 2
+        self.base._next_output_register +=  math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
 
     @CpxBase._require_base
     def read_channels(self) -> list[int]:
@@ -572,8 +571,8 @@ class CpxAp4Di4Do(_CpxApModule):
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register += self.information["Output Size"]
-        self.base._next_input_register += self.information["Input Size"]
+        self.base._next_output_register += math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
         
     @CpxBase._require_base
     def read_channels(self) -> list[bool]:
@@ -683,6 +682,6 @@ class CpxAp4Iol(_CpxApModule):
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register += self.information["Output Size"] // 2
-        self.base._next_input_register += self.information["Input Size"] // 2
+        self.base._next_output_register += math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
         #raise NotImplementedError("The module CPX-AP-4IOL-M12 has not yet been implemented")

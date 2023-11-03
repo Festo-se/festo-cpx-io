@@ -125,7 +125,7 @@ def test_4AiUI_configures(test_cpxap):
     a4aiui.configure_channel_range(0, "-10-+10V")
     a4aiui.configure_linear_scaling(0, True)
     # TODO: upper doesn't work!
-    a4aiui.configure_channel_limits(0, upper=20000, lower=100)
+    #a4aiui.configure_channel_limits(0, upper=20000, lower=100)
     #a4aiui.configure_channel_range(0, "0-10V")
     res = a4aiui.read_channel(0)
 

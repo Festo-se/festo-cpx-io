@@ -344,32 +344,32 @@ def test_4AI_configure_hysteresis_limit_monitoring(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     time.sleep(.05)
 
-    low = 10
-    high = 20
-    e4ai.configure_hysteresis_limit_monitoring(low=low)
+    lower = 10
+    upper = 20
+    e4ai.configure_hysteresis_limit_monitoring(lower=lower)
     time.sleep(.1)
     assert e4ai.base.read_function_number(4828 + 64*3 + 7) == [10]
 
-    e4ai.configure_hysteresis_limit_monitoring(high=high)
+    e4ai.configure_hysteresis_limit_monitoring(upper=upper)
     time.sleep(.1)
     assert e4ai.base.read_function_number(4828 + 64*3 + 8) == [20]
 
-    e4ai.configure_hysteresis_limit_monitoring(low=0, high=0)
+    e4ai.configure_hysteresis_limit_monitoring(lower=0, upper=0)
     assert e4ai.base.read_function_number(4828 + 64*3 + 7) == [0]
     assert e4ai.base.read_function_number(4828 + 64*3 + 8) == [0]
 
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=-1)
+        e4ai.configure_hysteresis_limit_monitoring(lower=-1)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=32768)
+        e4ai.configure_hysteresis_limit_monitoring(lower=32768)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(high=-1)
+        e4ai.configure_hysteresis_limit_monitoring(upper=-1)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(high=32768)
+        e4ai.configure_hysteresis_limit_monitoring(upper=32768)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=-1, high=-1)
+        e4ai.configure_hysteresis_limit_monitoring(lower=-1, upper=-1)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=32768, high=32768)
+        e4ai.configure_hysteresis_limit_monitoring(lower=32768, upper=32768)
     with pytest.raises(ValueError):
         e4ai.configure_hysteresis_limit_monitoring()
 
