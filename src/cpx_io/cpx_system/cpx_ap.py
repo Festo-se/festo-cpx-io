@@ -394,6 +394,20 @@ class CpxAp4Di(_CpxApModule):
         '''read back the value of one channel
         '''
         return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def configure_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed 
+        during switching operations (bouncing of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        id = 20014
+
+        if not 0 <= value <= 3:
+            raise ValueError("Value {value} must be between 0 and 3")
+        
+        self.base._write_parameter(self.position, id, 0, value)
     
 
 class CpxAp8Di(_CpxApModule):
