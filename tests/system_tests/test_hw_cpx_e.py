@@ -74,7 +74,7 @@ def test_add_module(test_cpxe):
 
 def test_module_not_initialized(test_cpxe):
     e8do = CpxE8Do()
-    with pytest.raises(InitError):
+    with pytest.raises(CpxInitError):
         e8do.set_channel(0)
 
 def test_1module(test_cpxe):
@@ -249,8 +249,8 @@ def test_3modules(test_cpxe):
     assert e4ai.read_status() == [False] * 16 
     assert e4ai.position == 3
     
-    assert e4ai.set_channel_range(3, "0-10V") == None
-    assert e4ai.set_channel_smoothing(3, 2) == None
+    assert e4ai.configure_channel_range(3, "0-10V") == None
+    assert e4ai.configure_channel_smoothing(3, 2) == None
     time.sleep(.1)
     data0 = e4ai.read_channel(3)
     assert -10 < data0 < 10
@@ -344,32 +344,32 @@ def test_4AI_configure_hysteresis_limit_monitoring(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     time.sleep(.05)
 
-    low = 10
-    high = 20
-    e4ai.configure_hysteresis_limit_monitoring(low=low)
+    lower = 10
+    upper = 20
+    e4ai.configure_hysteresis_limit_monitoring(lower=lower)
     time.sleep(.1)
     assert e4ai.base.read_function_number(4828 + 64*3 + 7) == [10]
 
-    e4ai.configure_hysteresis_limit_monitoring(high=high)
+    e4ai.configure_hysteresis_limit_monitoring(upper=upper)
     time.sleep(.1)
     assert e4ai.base.read_function_number(4828 + 64*3 + 8) == [20]
 
-    e4ai.configure_hysteresis_limit_monitoring(low=0, high=0)
+    e4ai.configure_hysteresis_limit_monitoring(lower=0, upper=0)
     assert e4ai.base.read_function_number(4828 + 64*3 + 7) == [0]
     assert e4ai.base.read_function_number(4828 + 64*3 + 8) == [0]
 
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=-1)
+        e4ai.configure_hysteresis_limit_monitoring(lower=-1)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=32768)
+        e4ai.configure_hysteresis_limit_monitoring(lower=32768)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(high=-1)
+        e4ai.configure_hysteresis_limit_monitoring(upper=-1)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(high=32768)
+        e4ai.configure_hysteresis_limit_monitoring(upper=32768)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=-1, high=-1)
+        e4ai.configure_hysteresis_limit_monitoring(lower=-1, upper=-1)
     with pytest.raises(ValueError):
-        e4ai.configure_hysteresis_limit_monitoring(low=32768, high=32768)
+        e4ai.configure_hysteresis_limit_monitoring(lower=32768, upper=32768)
     with pytest.raises(ValueError):
         e4ai.configure_hysteresis_limit_monitoring()
 
@@ -495,15 +495,15 @@ def test_analog_io(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
-    e4ao.set_channel_range(0,'0-10V')
-    e4ao.set_channel_range(1,'0-10V')
-    e4ao.set_channel_range(2,'0-10V')
-    e4ao.set_channel_range(3,'0-10V')
+    e4ao.configure_channel_range(0,'0-10V')
+    e4ao.configure_channel_range(1,'0-10V')
+    e4ao.configure_channel_range(2,'0-10V')
+    e4ao.configure_channel_range(3,'0-10V')
 
-    e4ai.set_channel_range(0,'0-10V')
-    e4ai.set_channel_range(1,'0-10V')
-    e4ai.set_channel_range(2,'0-10V')
-    e4ai.set_channel_range(3,'0-10V')
+    e4ai.configure_channel_range(0,'0-10V')
+    e4ai.configure_channel_range(1,'0-10V')
+    e4ai.configure_channel_range(2,'0-10V')
+    e4ai.configure_channel_range(3,'0-10V')
     time.sleep(.1)
 
     values = [0, 1000, 5000, 13000]

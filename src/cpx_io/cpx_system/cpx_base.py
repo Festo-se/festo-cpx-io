@@ -5,6 +5,19 @@ import logging
 
 from pymodbus.client import ModbusTcpClient
 
+class CpxInitError(Exception):
+    '''Error should be raised if a cpx-... module is instanciated without connecting it to a base module.
+    Connect it to the cpx by adding it with add_module(<object instance>)
+    '''
+    def __init__(self, message="Module must be part of a Cpx class. Use add_module() to add it"):
+        super().__init__(message)
+
+class CpxRequestError(Exception):
+    '''Error should be raised if a parameter or register request is denied
+    '''
+    def __init__(self, message="Request failed"):
+        super().__init__(message)
+
 
 class CpxBase:
     """
@@ -122,6 +135,39 @@ class CpxBase:
         """
         return self.writeMultipleData(register, data)
     '''
+    @staticmethod
+    def _require_base(func):
+        def wrapper(self, *args, **kwargs):
+            if not self.base:
+                raise CpxInitError()
+            return func(self, *args, **kwargs)
+        return wrapper
+    
+    @staticmethod
+    def int_to_signed16(value: int):
+        '''Converts a int to 16 bit register where msb is the sign
+        with checking the range
+        '''
+        if (value <= -2**15) or (value > 2**15):
+            raise ValueError(f"Integer value {value} must be in range -32768...32767 (15 bit)")
+        
+        if value >=0:
+            return value
+        else:
+            return 2**15 | ((value - 2**16) & ((2**16 - 1) // 2))
+    
+    @staticmethod
+    def signed16_to_int(value: int):
+        '''Converts a 16 bit register where msb is the sign to python signed int
+        by computing the two's complement 
+        '''
+        if value > 0xFFFF:
+            raise ValueError(f"Value {value} must not be bigger than 16 bit")
+        
+        if (value & (2**15)) != 0:        # if sign bit is set
+            value = value - 2**16       # compute negative value
+        return value
+    
     def __del__(self):
         self.client.close()
         logging.info("Disconnected")

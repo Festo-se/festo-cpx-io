@@ -1,51 +1,88 @@
+'''TODO: Add module docstring
+'''
+
 import logging
 import struct
+import math
 
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 
-from cpx_base import CPX_BASE
+from .cpx_base import CpxBase, CpxInitError, CpxRequestError
 
-class _ModbusCommands:    
-#input registers
-#holding registers
-    Diagnosis=(11000,100)
-    ModuleCount=(12000,1)
-    ModuleCode=(15000,2) # (+37*n)
-    ModuleClass=(15002,1) # (+37*n)
-    CommunicationProfiles=(15003,1) # (+37*n)
-    InputSize=(15004,1) # (+37*n)
-    InputChannels=(15005,1) # (+37*n)
-    OutputSize=(15006,1) # (+37*n)
-    OutputChanneles=(15007,1) # (+37*n)
-    HWVersion=(15008,1) # (+37*n)
-    FWVersion=(15009,3) # (+37*n)
-    SerialNumber=(15012,2) # (+37*n)
-    ProductKey=(15014,6) # (+37*n)
-    OrderText=(15020,16) # (+37*n)
+class _ModbusCommands:   
+    '''Modbus start adresses used to read and write registers
+    ''' 
+    # holding registers
+    outputs=(0,4096)
+    inputs=(5000,4096)
+    parameter=(10000,1000)
 
-class CPX_AP(CPX_BASE):
-    """
-    A class to connect to the Festo CPX-AP-I-EP-M12 and read data from IO modules
+    diagnosis=(11000,100)
+    module_count=(12000,1)
 
-    Attributes:
-        moduleCount -- Integer representing the IO module count (read on `__init__()` or `readStaticInformation()`)
-        moduleInformation -- List with detail for the modules (read on `__init__()` or `readStaticInformation()`)
+    # module information
+    module_code=(15000,2) # (+37*n)
+    module_class=(15002,1) # (+37*n)
+    communication_profiles=(15003,1) # (+37*n)
+    input_size=(15004,1) # (+37*n)
+    input_channels=(15005,1) # (+37*n)
+    output_size=(15006,1) # (+37*n)
+    output_channels=(15007,1) # (+37*n)
+    hw_version=(15008,1) # (+37*n)
+    fw_version=(15009,3) # (+37*n)
+    serial_number=(15012,2) # (+37*n)
+    product_key=(15014,6) # (+37*n)
+    order_text=(15020,17) # (+37*n)
 
-    Methods:
-        readRegData(self, register, length=1, type="holding_register") -- Reads and returns holding or input register from Modbus server
-        readInputRegData(self, register, length=1) -- Reads and returns input registers from Modbus server
-        readHoldingRegData(self, register, length=1) -- Reads and returns holding registers form Modbus server
-        readModuleCount(self) -- Reads and returns IO module count
-        readModuleInformation(self, module) -- Reads and returns detailed information for a specific IO module
-        readStaticInformation(self) -- Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
-        readModuleData(self, module) -- Reads and returns process data of a specific IO module
-    """
-    def __init__(self):
-        # TODO: Is this really neccessary?
-        self.readStaticInformation()
 
-    def writeData(self, register, val):
+class CpxAp(CpxBase):
+    '''CPX-AP base class
+    '''
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self._next_output_register = None
+        self._next_input_register = None
+        self._modules = []
+
+        module_count = self.read_module_count()
+        for i in range(module_count):
+            self.add_module(information=self.read_module_information(i))
+
+    @property
+    def modules(self):
+        return self._modules
+    
+    def add_module(self, information:dict):
+        '''Adds one module to the base. This is required to use the module.
+        The module must be identified by either the module code {"Module Code": 8323}
+        or the full module order text {"Order Text": "CPX-AP-I-EP-M12"}
+        '''
+        module_code = information.get("Module Code")
+        order_text = information.get("Order Text")
+
+        if module_code == 8323 or order_text == 'CPX-AP-I-EP-M12':
+            module = CpxApEp()
+        elif module_code == 8199 or order_text == 'CPX-AP-I-8DI-M8-3P':
+            module = CpxAp8Di()
+        elif module_code == 8197 or order_text == 'CPX-AP-I-4DI4DO-M12-5P':
+            module = CpxAp4Di4Do()
+        elif module_code == 8202 or order_text == 'CPX-AP-I-4AI-U-I-RTD-M12':
+            module = CpxAp4AiUI()
+        elif module_code == 8201 or order_text == 'CPX-AP-I-4IOL-M12':
+            module = CpxAp4Iol()
+        elif module_code == 8198 or order_text == 'CPX-AP-I-4DI-M8-3P':
+            module = CpxAp4Di()
+        else:
+            raise NotImplementedError("This module is not yet implemented or not available")
+    
+        module._update_information(information)
+        module._initialize(self, len(self._modules))
+        self.modules.append(module)
+        return module
+
+    def write_data(self, register, val):
          #TODO: Not tested yet!!!
          status = object
          print(f"{register}, {val}")
@@ -59,12 +96,12 @@ class CPX_AP(CPX_BASE):
          except Exception as e:
              print("error while writing : ", str(e)) 
 
-    def readModuleCount(self):
-        """Reads and returns IO module count
+    def read_module_count(self) -> int:
+        """Reads and returns IO module count as integer
         """
-        return self.readHoldingRegData(*_ModbusCommands.ModuleCount)
+        return self.read_reg_data(*_ModbusCommands.module_count)[0]
 
-    def _moduleOffset(self, modbusCommand, module):
+    def _module_offset(self, modbusCommand, module):
         register, length = modbusCommand
         return ((register + 37 * module), length)
 
@@ -72,101 +109,97 @@ class CPX_AP(CPX_BASE):
         swapped = []
         for r in registers:
             k = struct.pack('<H', r)
-            k = int.from_bytes(k, 'big', signed=False)
+            k = int.from_bytes(k, byteorder='big', signed=False)
             swapped.append(k)
         return swapped
 
-    def _decodeString(self, registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(self._swap_bytes(registers), byteorder=Endian.Big) #Bug in pymodbus! Byteorder does not work for strings. https://github.com/riptideio/pymodbus/issues/508
+    def _decode_string(self, registers):
+        # _swap_bytes has to be used because of a bug in pymodbus! 
+        # Byteorder does not work for strings. https://github.com/riptideio/pymodbus/issues/508
+        decoder = BinaryPayloadDecoder.fromRegisters(self._swap_bytes(registers), byteorder=Endian.BIG) 
         return decoder.decode_string(34).decode('ascii').strip("\x00")
 
-    def _decodeSerial(self, registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.Big)
-        return format(decoder.decode_16bit_uint(), "#010x")
-
-    def readModuleInformation(self, module):
-        """Reads and returns detailed information for a specific IO module
+    def _decode_int(self, registers, type='uint16'):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers[::-1], byteorder=Endian.BIG)
+        if type == "uint8":
+            return decoder.decode_8bit_uint()
+        elif type == "uint16":
+            return decoder.decode_16bit_uint()
+        elif type == "uint32":
+            return decoder.decode_32bit_uint()
+        if type == "int8":
+            return decoder.decode_8bit_int()
+        elif type == "int16":
+            return decoder.decode_16bit_int()
+        elif type == "int32":
+            return decoder.decode_32bit_int()
+        elif type == "bool":
+            return bool(decoder.decode_bits(0))
+        else:
+            raise NotImplementedError(f"Type {type} not implemented")
+    
+    def _decode_hex(self, registers, type='uint16'):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
+        if type == "uint16":
+            return format(decoder.decode_16bit_uint(), "#010x")
+        else:
+            raise NotImplementedError(f"Type {type} not implemented")
         
-        Arguments:
-        module -- Number of the IO module
+    def read_module_information(self, position):
+        """Reads and returns detailed information for a specific IO module
         """
-        logging.debug("readModuleInformation for module {}".format(module))
+        logging.debug(f"read_module_information for module on position {position}")
 
-        moduleCode = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.ModuleCode, module))[0]
-        moduleClass = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.ModuleClass, module))
-        communicationProfiles = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.CommunicationProfiles, module))
-        inputSize = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.InputSize, module))
-        inputChannels = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.InputChannels, module))
-        outputSize = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.OutputSize, module))
-        outputChanneles = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.OutputChanneles, module))
-        hWVersion = self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.HWVersion, module))
-        fWVersion = ".".join(str(x) for x in self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.FWVersion, module)))
-        serialNumber = self._decodeSerial(self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.SerialNumber, module)))
-        productKey = self._decodeString(self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.ProductKey, module)))
-        orderText = self._decodeString(self.readHoldingRegData(*self._moduleOffset(_ModbusCommands.OrderText, module)))
+        module_code = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_code, position)), type="int32")
+        module_class = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_class, position)), type="uint8")
+        communication_profiles = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.communication_profiles, position)), type="uint16")
+        input_size = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_size, position)), type="uint16")
+        input_channels = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_channels, position)), type="uint16")
+        output_size = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_size, position)), type="uint16")
+        output_channels = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_channels, position)), type="uint16")
+        hW_version = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.hw_version, position)), type="uint8")
+        fW_version = ".".join(str(x) for x in self.read_reg_data(*self._module_offset(_ModbusCommands.fw_version, position)))
+        serial_number = self._decode_hex(self.read_reg_data(*self._module_offset(_ModbusCommands.serial_number, position)))
+        product_key = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.product_key, position)))
+        order_text = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.order_text, position)))
 
         return {
-            "ModuleCode": moduleCode,
-            "ModuleClass": moduleClass,
-            "CommunicationProfiles": communicationProfiles,
-            "InputSize": inputSize,
-            "InputChannels": inputChannels,
-            "OutputSize": outputSize,
-            "OutputChanneles": outputChanneles,
-            "HWVersion": hWVersion,
-            "FWVersion": fWVersion,
-            "SerialNumber": serialNumber,
-            "ProductKey": productKey,
-            "OrderText": orderText,
+            "Module Code": module_code,
+            "Module Class": module_class,
+            "Communication Profiles": communication_profiles,
+            "Input Size": input_size,
+            "Input Channels": input_channels,
+            "Output Size": output_size,
+            "Output Channeles": output_channels,
+            "HW Version": hW_version,
+            "FW Version": fW_version,
+            "Serial Number": serial_number,
+            "Product Key": product_key,
+            "Order Text": order_text,
             }
 
-    def readStaticInformation(self):
-        """Manualy reads and updates the class attributes `moduleCount` and `moduleInformation`
-        """
-        logging.debug("readStaticInformation")
-        self.moduleCount = self.readModuleCount()
-        
-        self.moduleInformation = []
-        for i in range(self.moduleCount):
-            self.moduleInformation.append(self.readModuleInformation(i))
-
-    def _getModuleOffset(self, module):
-        offset = 5000
-        for i in range(module):
-            moduleCode = self.moduleInformation[i]["ModuleCode"]
-            moduleInputSize = self.moduleInformation[i]["InputSize"]
-            if(moduleCode == 8199): #CPX-AP-I-8DI-M8-3P
-                offset += 1
-            else:
-                offset += moduleInputSize//2
-        return (offset)
-    
-    def _decodeHex(self, registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.Big)
-        return format(decoder.decode_16bit_uint(), "#010x")
-
-    def readModuleData(self, module):
+    def read_module_data(self, module):
         """Reads and returns process data of a specific IO module
         
         Arguments:
         module -- Number of the IO module
         """
-        logging.debug("readModuleInformation for module {}".format(module))
+        logging.debug("read_module_information for module {}".format(module))
 
-        moduleCode = self.moduleInformation[module]["ModuleCode"]
-        moduleInputSize = self.moduleInformation[module]["InputSize"]//2
-        moduleOffset = self._getModuleOffset(module)
+        moduleCode = self.information[module]["Module Code"]
+        moduleInputSize = self.information[module]["Input Size"]//2
+        moduleOffset = self._get_module_offset(module)
 
-        logging.info("orderText: {}".format(self.moduleInformation[module]["OrderText"]))
-        logging.info("moduleCode: {}".format(moduleCode))
-        logging.info("moduleInputSize: {}".format(moduleInputSize))
-        logging.info("moduleOffset: {}".format(moduleOffset))
+        logging.info("order Text: {}".format(self.information[module]["Order Text"]))
+        logging.info("module Code: {}".format(moduleCode))
+        logging.info("module InputSize: {}".format(moduleInputSize))
+        logging.info("module Offset: {}".format(moduleOffset))
 
         if(moduleCode == 8323): # CPX-AP-I-EP-M12
             return None
         
         if(moduleCode == 8202): # CPX-AP-I-4AI-U-I-RTD-M12
-            moduleData = self.readHoldingRegData(moduleOffset, moduleInputSize)
+            moduleData = self.read_reg_data(moduleOffset, moduleInputSize)
             logging.debug("moduleData: {}".format(moduleData))
 
             decoder = BinaryPayloadDecoder.fromRegisters(moduleData, byteorder=Endian.Little)
@@ -183,7 +216,7 @@ class CPX_AP(CPX_BASE):
                 }
        
         if(moduleCode == 8212): # CPX-AP-I-4IOL-M12
-            moduleData = self.readHoldingRegData(moduleOffset, moduleInputSize)
+            moduleData = self.read_reg_data(moduleOffset, moduleInputSize)
             logging.debug("moduleData: {}".format(moduleData))
 
             decoder = BinaryPayloadDecoder.fromRegisters(moduleData, byteorder=Endian.Little)
@@ -202,12 +235,453 @@ class CPX_AP(CPX_BASE):
                 }
         
         if(moduleCode == 8199): #CPX-AP-I-8DI-M8-3P
-            moduleData = self.readHoldingRegData(moduleOffset, 1)
+            moduleData = self.read_reg_data(moduleOffset, 1)
             logging.debug("moduleData: {}".format(moduleData))
 
             moduleDataBin = bin(moduleData)[2:].zfill(8)
             return {"channels": [bool(int(md)) for md in moduleDataBin[::-1]], "raw": hex(moduleData)}
 
-    def __del__(self):
-        self.client.close()
-        logging.info("Disconnected")
+    def _write_parameter(self, position:int, param_id:int, instance:int, data:list|int) -> None:
+        '''Write parameters via module position, param_id, instance (=channel) and data to write
+        Data must be a list of 16 bit values
+        Returns None if successful or raises "CpxRequestError" if request denied
+        '''
+        if isinstance(data, int):
+            data = [data]
+
+        param_reg =  _ModbusCommands.parameter[0]
+
+        self.write_reg_data(position + 1, param_reg)
+        self.write_reg_data(param_id, param_reg + 1)
+        self.write_reg_data(instance, param_reg + 2)
+        self.write_reg_data(len(data), param_reg + 3)
+
+        self.write_reg_data(data, param_reg + 10, len(data))
+
+        self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
+        
+        exec = 0
+        while exec < 16:
+            exec = self.read_reg_data(param_reg + 3)[0] # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            if exec == 4:
+                raise CpxRequestError
+        
+        # Validation check
+        data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+        ret = self.read_reg_data(param_reg + 10, data_length)
+        if not all(r == d for r, d in zip(ret, data)):
+            raise CpxRequestError("Parameter might not have been written correctly")
+
+    def _read_parameter(self, position:int, param_id:int, instance:int) -> list:
+        '''Read parameters via module position, param_id, instance (=channel)
+        Returns data as list if successful or raises "CpxRequestError" if request denied
+        '''
+
+        param_reg =  _ModbusCommands.parameter[0]
+
+        self.write_reg_data(position + 1, param_reg)
+        self.write_reg_data(param_id, param_reg + 1)
+        self.write_reg_data(instance, param_reg + 2)
+        
+        self.write_reg_data(1, param_reg + 3)  # 1=read, 2=write
+        
+        exec = 0
+        while exec < 16:
+            exec = self.read_reg_data(param_reg + 3)[0]  # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            if exec == 4:
+                raise CpxRequestError
+        
+        # data_length from register 10004 is bytewise. 2 bytes = 1 register. But 1 byte also has to read one register
+        # with integer division "//" will lead to rounding down, this needs to be rounded up. Therefore math.ceil() is used
+        data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+        
+        data = self.read_reg_data(param_reg + 10, data_length)
+        return data
+
+
+class _CpxApModule(CpxAp):
+    '''Base class for cpx-ap modules
+    '''
+    def __init__(self):
+        self.base = None
+        self.position = None
+        self.information = None
+
+        self.output_register = None
+        self.input_register = None
+
+    def _initialize(self, base, position):
+        self.base = base
+        self.position = position
+
+    def _update_information(self, information):
+        self.information = information
+
+
+class CpxApEp(_CpxApModule):
+    '''Class for CPX-AP-EP module
+    '''
+    def _initialize(self, *args):
+        super()._initialize(*args)
+        self.output_register = None
+        self.input_register = None
+
+        self.base._next_output_register = _ModbusCommands.outputs[0]
+        self.base._next_input_register =  _ModbusCommands.inputs[0]
+    
+    @staticmethod
+    def convert_uint32_to_octett(value:int) -> str:
+        return f"{value & 0xFF}.{(value >> 8) & 0xFF}.{(value >> 16) & 0xFF}.{(value) >> 24 & 0xFF}"
+
+    @CpxBase._require_base
+    def read_parameters(self):
+        
+        dhcp_enable = self.base._decode_int(self.base._read_parameter(self.position, 12000, 0), type="bool")
+
+        ip_address = self.base._decode_int(self.base._read_parameter(self.position, 12001, 0), type="uint32")
+        ip_address = self.convert_uint32_to_octett(ip_address)
+
+        subnet_mask = self.base._decode_int(self.base._read_parameter(self.position, 12002, 0), type="uint32")
+        subnet_mask = self.convert_uint32_to_octett(subnet_mask)
+
+        gateway_address = self.base._decode_int(self.base._read_parameter(self.position, 12003, 0), type="uint32")
+        gateway_address = self.convert_uint32_to_octett(gateway_address)
+
+        active_ip_address = self.base._decode_int(self.base._read_parameter(self.position, 12004, 0), type="uint32")
+        active_ip_address = self.convert_uint32_to_octett(active_ip_address)
+
+        active_subnet_mask = self.base._decode_int(self.base._read_parameter(self.position, 12005, 0), type="uint32")
+        active_subnet_mask = self.convert_uint32_to_octett(active_subnet_mask)
+
+        active_gateway_address = self.base._decode_int(self.base._read_parameter(self.position, 12006, 0), type="uint32")
+        active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
+
+        mac_address = ':'.join("{:02x}".format(x & 0xFF) + ":{:02x}".format((x >> 8) & 0xFF) for x in self.base._read_parameter(self.position, 12007, 0))
+        
+        setup_monitoring_load_supply = self.base._decode_int(self.base._read_parameter(self.position, 20022, 0), type="uint8")
+
+        return {"dhcp_enable": dhcp_enable, 
+                "ip_address": ip_address,
+                "subnet_mask": subnet_mask,
+                "gateway_address": gateway_address,
+                "active_ip_address": active_ip_address,
+                "active_subnet_mask": active_subnet_mask,
+                "mac_address": mac_address,
+                "setup_monitoring_load_supply": setup_monitoring_load_supply
+                }
+
+
+class CpxAp4Di(_CpxApModule):
+    def _initialize(self, *args):
+        super()._initialize(*args)
+
+        self.output_register = None
+        self.input_register = self.base._next_input_register
+
+        self.base._next_output_register +=  math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
+        
+    @CpxBase._require_base
+    def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values
+        '''
+        data = self.base.read_reg_data(self.input_register)[0] & 0xF
+        return [d == "1" for d in bin(data)[2:].zfill(4)[::-1]]
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
+        return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def configure_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed 
+        during switching operations (bouncing of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        id = 20014
+
+        if not 0 <= value <= 3:
+            raise ValueError("Value {value} must be between 0 and 3")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+    
+
+class CpxAp8Di(_CpxApModule):
+    def _initialize(self, *args):
+        super()._initialize(*args)
+
+        self.output_register = None
+        self.input_register = self.base._next_input_register
+
+        self.base._next_output_register +=  math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
+        
+    @CpxBase._require_base
+    def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values
+        '''
+        data = self.base.read_reg_data(self.input_register)[0]
+        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
+        return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def configure_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed 
+        during switching operations (bouncing of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        id = 20014
+
+        if not 0 <= value <= 3:
+            raise ValueError("Value {value} must be between 0 and 3")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+    
+
+class CpxAp4AiUI(_CpxApModule):
+    def _initialize(self, *args):
+        super()._initialize(*args)
+
+        self.output_register = None
+        self.input_register = self.base._next_input_register
+
+        self.base._next_output_register +=  math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
+
+    @CpxBase._require_base
+    def read_channels(self) -> list[int]:
+        '''read all channels as a list of (signed) integers
+        '''
+        # TODO: add signal conversion according to signalrange of the channel
+        raw_data = self.base.read_reg_data(self.input_register, length=4)
+        return [self.base._decode_int([i], type="int16") for i in raw_data]
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int) -> bool:
+        '''read back the value of one channel
+        '''
+        return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def configure_channel_temp_unit(self, channel: int, unit: str) -> None:
+        '''set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)
+        '''
+        id = 20032
+        value = {
+            "C": 0,
+            "F": 1,
+            "K": 2,
+        }
+        if unit not in value:
+            raise ValueError(f"'{unit}' is not an option. Choose from {value.keys()}")
+        
+        self.base._write_parameter(self.position, id, channel, value[unit])
+
+    @CpxBase._require_base
+    def configure_channel_range(self, channel: int, signalrange: str) -> None:
+        '''set the signal range and type of one channel
+        '''
+        id = 20043
+        value = {
+            "None": 0,
+            "-10-+10V": 1,
+            "-5-+5V": 2,
+            "0-10V": 3,
+            "1-5V": 4,
+            "0-20mA": 5,
+            "4-20mA": 6,
+            "0-500R": 7,
+            "PT100": 8,
+            "NI100": 9,
+        }
+        if signalrange not in value:
+            raise ValueError(f"'{signalrange}' is not an option. Choose from {value.keys()}")
+
+        self.base._write_parameter(self.position, id, channel, value[signalrange])
+
+    @CpxBase._require_base
+    def configure_channel_limits(self, channel: int, upper:int|None=None, lower:int|None=None) -> None:
+        '''Set the channel upper and lower limits (Factory setting -> upper: 32767, lower: -32768)
+        '''
+        upper_id = 20044
+        lower_id = 20045
+
+        if isinstance(lower, int):
+            if not -32768 <= lower <= 32767:
+                raise ValueError("Values for low {low} must be between -32768 and 32767")
+        if isinstance(upper, int):
+            if not -32768 <= upper <= 32767:
+                raise ValueError("Values for high {high} must be between -32768 and 32767")
+
+        if lower == None and isinstance(upper, int):
+            self.base._write_parameter(self.position, upper_id, channel, upper)
+        elif upper == None and isinstance(lower, int):
+            self.base._write_parameter(self.position, lower_id, channel, lower)
+        elif isinstance(upper, int) and isinstance(lower, int):
+            self.base._write_parameter(self.position, upper_id, channel, upper)
+            self.base._write_parameter(self.position, lower_id, channel, lower)
+        else:
+            raise ValueError("Value must be given for upper, lower or both")
+
+
+    @CpxBase._require_base
+    def configure_hysteresis_limit_monitoring(self, channel: int, value:int) -> None:
+        '''Hysteresis for measured value monitoring (Factory setting: 100)
+        Value must be uint16
+        '''
+        id = 20046
+        if not 0 <= value <= 0xFFFF:
+            raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
+
+        self.base._write_parameter(self.position, id, channel, value)
+
+    @CpxBase._require_base
+    def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
+        '''set the signal smoothing of one channel. Smoothing is over 2^n values where n is
+        smoothing_power. Factory setting: 5 (2^5 = 32 values)
+        '''
+        id = 20107
+        if smoothing_power > 15:
+            raise ValueError(f"'{smoothing_power}' is not an option")
+
+        self.base._write_parameter(self.position, id, channel, smoothing_power)
+
+    @CpxBase._require_base
+    def configure_linear_scaling(self, channel: int, active) -> None:
+        '''Set linear scaling (Factory setting "False")
+        '''
+        id = 20111
+
+        self.base._write_parameter(self.position, id, channel, int(active))
+    
+
+class CpxAp4Di4Do(_CpxApModule):
+    def _initialize(self, *args):
+        super()._initialize(*args)
+
+        self.output_register = self.base._next_output_register
+        self.input_register = self.base._next_input_register
+
+        self.base._next_output_register += math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
+        
+    @CpxBase._require_base
+    def read_channels(self) -> list[bool]:
+        '''read all channels as a list of bool values. 
+        Returns a list of 8 elements where the first 4 elements are the input channels 0..3
+        and the last 4 elements are the output channels 0..3
+        '''
+        data = self.base.read_reg_data(self.input_register)[0] & 0xF
+        data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 4
+        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int, output_numbering=False) -> bool:
+        '''read back the value of one channel
+        Optional parameter 'output_numbering' defines if the outputs are numbered with the inputs ("True", default), 
+        so the range of output channels is 4..7 (as 0..3 are the input channels). If "False", the outputs are numbered
+        from 0..3, the inputs cannot be accessed this way.
+        '''
+        if output_numbering:
+            channel -= 4
+        return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def write_channels(self, data: list[bool]) -> None:
+        '''write all channels with a list of bool values
+        '''
+        if len(data) != 4:
+            raise ValueError("Data must be list of four elements")
+        # Make binary from list of bools
+        binary_string = ''.join('1' if value else '0' for value in reversed(data))
+        # Convert the binary string to an integer
+        integer_data = int(binary_string, 2)
+        self.base.write_reg_data(integer_data, self.output_register)
+
+    @CpxBase._require_base
+    def set_channel(self, channel: int) -> None:
+        '''set one channel to logic high level
+        '''
+        data = self.base.read_reg_data(self.output_register)[0] & 0xF
+        self.base.write_reg_data(data | 1 << channel , self.output_register)
+
+    @CpxBase._require_base
+    def clear_channel(self, channel: int) -> None:
+        '''set one channel to logic low level
+        '''
+        data = self.base.read_reg_data(self.output_register)[0] & 0xF
+        self.base.write_reg_data(data & ~(1 << channel), self.output_register)
+
+    @CpxBase._require_base
+    def toggle_channel(self, channel: int) -> None:
+        '''set one channel the inverted of current logic level
+        '''
+        data = (self.base.read_reg_data(self.output_register)[0] & 1 << channel) >> channel
+        if data == 1:
+            self.clear_channel(channel)
+        elif data == 0:
+            self.set_channel(channel)
+        else:
+            raise ValueError
+
+    @CpxBase._require_base
+    def configure_debounce_time(self, value: int) -> None:
+        '''The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
+        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed 
+        during switching operations (bouncing of the input signal).
+        Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
+        '''
+        id = 20014
+
+        if not 0 <= value <= 3:
+            raise ValueError("Value {value} must be between 0 and 3")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+
+    @CpxBase._require_base
+    def configure_monitoring_load_supply(self, value: int) -> None:
+        '''Accepted values are 
+        0: Load supply monitoring inactive
+        1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+        2: Load supply monitoring active
+        '''
+        id = 20022
+
+        if not 0 <= value <= 2:
+            raise ValueError("Value {value} must be between 0 and 2")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+
+    @CpxBase._require_base
+    def configure_behaviour_in_fail_state(self, value: int) -> None:
+        '''Accepted values are 
+        0: Reset Outputs (default)
+        1: Hold last state
+        '''
+        id = 20052
+
+        if not 0 <= value <= 1:
+            raise ValueError("Value {value} must be between 0 and 2")
+        
+        self.base._write_parameter(self.position, id, 0, value)
+
+
+class CpxAp4Iol(_CpxApModule):
+    def _initialize(self, *args):
+        super()._initialize(*args)
+
+        self.output_register = self.base._next_output_register
+        self.input_register = self.base._next_input_register
+
+        self.base._next_output_register += math.ceil(self.information["Output Size"] / 2)
+        self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
+        #raise NotImplementedError("The module CPX-AP-4IOL-M12 has not yet been implemented")
