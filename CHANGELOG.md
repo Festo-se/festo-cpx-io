@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
-- [Minor] Added base functionality for CPX-AP-I. Added not implemented modules to CPX-E with Error on init
+- [Minor] Added base functionality for CPX-AP-I. Added not implemented modules to CPX-E with Error on init. Several bugfixes on CPX-E.
 
 ### Changed
 - [Minor] Fixed that registers are read before writing to them instead of saving the values in the object instance
