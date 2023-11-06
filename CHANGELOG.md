@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
-- [Minor] Added context manager functionality to cpx base class. Adapted examples to use
-this context manager
+- [Minor] several bugfixes
+
+### Changed
+- [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager
 
 ### Changed
 - [Minor] Exchanged int_to_signed16 function with built in function
