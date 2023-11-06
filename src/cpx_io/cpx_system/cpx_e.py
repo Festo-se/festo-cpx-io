@@ -1,8 +1,6 @@
 '''TODO: Add module docstring
 '''
 
-import logging
-
 from .cpx_base import CpxBase
 
 
@@ -67,7 +65,6 @@ class CpxE(CpxBase):
 
         data &= ~self._control_bit_value
         data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)[0]
-        logging.info(f"Write Data({value}) to {function_number}: {data} and {data2}")
 
     def read_function_number(self, function_number: int):
         '''Read parameters via function number
@@ -89,7 +86,6 @@ class CpxE(CpxBase):
 
         data &= ~self._control_bit_value
         data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)
-        logging.info(f"Read Data from {function_number}: {data} and {data2}")
         return data2
 
     def module_count(self) -> int:
@@ -397,8 +393,8 @@ class CpxE4AiUI(_CpxEModule):
         '''
         # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        signed_integers = [CpxBase.signed16_to_int(x) for x in raw_data]
-        return signed_integers
+        data = [CpxBase._decode_int([x]) for x in raw_data]
+        return data
 
     @CpxBase._require_base
     def read_status(self) -> list[bool]:
@@ -647,8 +643,8 @@ class CpxE4AoUI(_CpxEModule):
         '''
         # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        signed_integers = [CpxBase.signed16_to_int(x) for x in raw_data]
-        return signed_integers
+        data = [CpxBase._decode_int([x]) for x in raw_data]
+        return data
 
     @CpxBase._require_base
     def read_status(self) -> list[bool]:
@@ -668,7 +664,7 @@ class CpxE4AoUI(_CpxEModule):
         '''write data to module channels in ascending order
         '''
         # TODO: scaling to given signalrange
-        reg_data = [CpxBase.int_to_signed16(x) for x in data]
+        reg_data = [self.base._decode_int([x]) for x in data]
         self.base.write_reg_data(reg_data, self.output_register, length=4)
 
     @CpxBase._require_base
@@ -676,7 +672,7 @@ class CpxE4AoUI(_CpxEModule):
         '''write data to module channel number
         '''
         # TODO: scaling to given signalrange
-        reg_data = CpxBase.int_to_signed16(data)
+        reg_data = self.base._decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
     @CpxBase._require_base

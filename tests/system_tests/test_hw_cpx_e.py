@@ -3,6 +3,7 @@ import pytest
 import time
 
 from cpx_io.cpx_system.cpx_e import *
+from cpx_io.cpx_system.cpx_base import CpxInitError
 
 
 @pytest.fixture(scope="function")
@@ -38,34 +39,6 @@ def test_status_register(test_cpxe):
 def test_device_identification(test_cpxe):
     response = test_cpxe.read_device_identification()
     assert response in range(1,6)
-
-def test_signed16_to_int():
-    module = CpxE8Do()
-
-    assert module.signed16_to_int(0x0000) == 0
-    assert module.signed16_to_int(0x0001) == 1
-    assert module.signed16_to_int(0xFFFF) == -1
-    assert module.signed16_to_int(0xFFFE) == -2
-    assert module.signed16_to_int(0xCAFE) == -13570
-    
-    with pytest.raises(ValueError):
-        module.int_to_signed16(0x1FFFF)
-
-def test_int_to_signed16():
-    module = CpxE8Do()
-
-    assert module.int_to_signed16(0) == 0x0000
-    assert module.int_to_signed16(1) == 0x0001
-    assert module.int_to_signed16(-1) == 0xFFFF
-    assert module.int_to_signed16(-2) == 0xFFFE
-    assert module.int_to_signed16(-13570) == 0xCAFE
-    
-    with pytest.raises(ValueError):
-        module.int_to_signed16(32769)
-
-    with pytest.raises(ValueError):
-        module.int_to_signed16(-32769)
-
 
 def test_add_module(test_cpxe):
     assert isinstance(test_cpxe.modules[0], CpxEEp)

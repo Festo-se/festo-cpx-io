@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
+- [Minor] Exchanged int_to_signed16 function with built in function
+
+### Changed
 - [Minor] Added example.py for cpx-ap and cpx-e, minor bugfixing
 
 ### Changed
