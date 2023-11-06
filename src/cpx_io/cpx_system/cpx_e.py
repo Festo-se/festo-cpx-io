@@ -3,7 +3,7 @@
 
 import logging
 
-from .cpx_base import CpxBase, CpxInitError
+from .cpx_base import CpxBase
 
 
 class _ModbusCommands:
@@ -119,6 +119,11 @@ class CpxE(CpxBase):
         data = self.read_function_number(43)
         return data[0]
 
+    def read_module_count(self) -> int:
+        """Reads and returns IO module count as integer
+        """
+        return len(self._modules)
+    
     def add_module(self, module):
         '''Adds one module to the base. This is required to use the module.
         '''
