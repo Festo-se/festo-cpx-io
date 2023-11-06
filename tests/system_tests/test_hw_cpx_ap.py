@@ -15,6 +15,10 @@ def test_cpxap():
 def test_init(test_cpxap):
     assert test_cpxap
 
+def test_context_manager():
+    with CpxAp(host="172.16.1.41") as cpxap:
+        assert cpxap
+
 def test_module_count(test_cpxap):
     assert test_cpxap.read_module_count() == 6
 
