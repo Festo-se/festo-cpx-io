@@ -7,17 +7,11 @@ from cpx_io.cpx_system.cpx_ap import *
 
 @pytest.fixture(scope="function")
 def test_cpxap():
-    cpxap = CpxAp(host="172.16.1.41", tcp_port=502, timeout=500)
-    yield cpxap
-
-    cpxap.__del__()
+    with CpxAp(host="172.16.1.41", tcp_port=502, timeout=500) as cpxap:
+        yield cpxap
 
 def test_init(test_cpxap):
     assert test_cpxap
-
-def test_context_manager():
-    with CpxAp(host="172.16.1.41") as cpxap:
-        assert cpxap
 
 def test_module_count(test_cpxap):
     assert test_cpxap.read_module_count() == 6

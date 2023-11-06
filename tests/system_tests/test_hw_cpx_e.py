@@ -8,17 +8,11 @@ from cpx_io.cpx_system.cpx_base import CpxInitError
 
 @pytest.fixture(scope="function")
 def test_cpxe():
-    cpxe = CpxE(host="172.16.1.40", tcp_port=502, timeout=500)
-    yield cpxe
-
-    cpxe.__del__()
+    with CpxE(host="172.16.1.40", tcp_port=502, timeout=500) as cpxe:
+        yield cpxe
 
 def test_init(test_cpxe):
     assert test_cpxe
-
-def test_context_manager():
-    with CpxE(host="172.16.1.40") as cpxe:
-        assert cpxe
 
 def test_readFunctionNumber(test_cpxe):
     response = test_cpxe.read_function_number(1)

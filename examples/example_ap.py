@@ -31,6 +31,7 @@ with CpxAp(host="172.16.1.41") as cpxap:
     # third module is 'CPX-AP-I-4AI-U-I-RTD-M12'
     # read analog input
     ap4ai = cpxap.modules[3]
+    ap4ai.configure_channel_range(0, "0-10V")
     one_input = ap4ai.read_channel(0) # returns integer value of one channel
     all_inputs = ap4ai.read_channels() # returns list of integer values for all channels [0,1,2,3]
 

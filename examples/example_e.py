@@ -45,6 +45,7 @@ with CpxE(host="172.16.1.40", modules=modules) as cpxe:
 
     # write analog input
     e4ao = cpxe.modules[4]
+    e4ao.configure_channel_range(0,'0-10V')
     e4ao.write_channel(0, 500) # sets the first channel to the integer value 500, returns none
     e4ao.write_channels([100, 200, 300, 400]) # sets all channels to the integer values, returns none
     one_output = e4ao.read_channel(0) # reads back one channel
