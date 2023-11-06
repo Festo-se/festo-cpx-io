@@ -1,14 +1,10 @@
 '''TODO: Add module docstring
 '''
 
-import logging
-import struct
 import math
 
-from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.constants import Endian
-
 from .cpx_base import CpxBase, CpxRequestError
+
 
 class _ModbusCommands:   
     '''Modbus start adresses used to read and write registers
@@ -105,63 +101,22 @@ class CpxAp(CpxBase):
         register, length = modbusCommand
         return ((register + 37 * module), length)
 
-    def _swap_bytes(self, registers):
-        swapped = []
-        for r in registers:
-            k = struct.pack('<H', r)
-            k = int.from_bytes(k, byteorder='big', signed=False)
-            swapped.append(k)
-        return swapped
-
-    def _decode_string(self, registers):
-        # _swap_bytes has to be used because of a bug in pymodbus! 
-        # Byteorder does not work for strings. https://github.com/riptideio/pymodbus/issues/508
-        decoder = BinaryPayloadDecoder.fromRegisters(self._swap_bytes(registers), byteorder=Endian.BIG) 
-        return decoder.decode_string(34).decode('ascii').strip("\x00")
-
-    def _decode_int(self, registers, type='uint16'):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers[::-1], byteorder=Endian.BIG)
-        if type == "uint8":
-            return decoder.decode_8bit_uint()
-        elif type == "uint16":
-            return decoder.decode_16bit_uint()
-        elif type == "uint32":
-            return decoder.decode_32bit_uint()
-        if type == "int8":
-            return decoder.decode_8bit_int()
-        elif type == "int16":
-            return decoder.decode_16bit_int()
-        elif type == "int32":
-            return decoder.decode_32bit_int()
-        elif type == "bool":
-            return bool(decoder.decode_bits(0))
-        else:
-            raise NotImplementedError(f"Type {type} not implemented")
-    
-    def _decode_hex(self, registers, type='uint16'):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
-        if type == "uint16":
-            return format(decoder.decode_16bit_uint(), "#010x")
-        else:
-            raise NotImplementedError(f"Type {type} not implemented")
-        
     def read_module_information(self, position):
         """Reads and returns detailed information for a specific IO module
         """
-        logging.debug(f"read_module_information for module on position {position}")
 
-        module_code = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_code, position)), type="int32")
-        module_class = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_class, position)), type="uint8")
-        communication_profiles = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.communication_profiles, position)), type="uint16")
-        input_size = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_size, position)), type="uint16")
-        input_channels = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_channels, position)), type="uint16")
-        output_size = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_size, position)), type="uint16")
-        output_channels = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_channels, position)), type="uint16")
-        hW_version = self._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.hw_version, position)), type="uint8")
+        module_code = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_code, position)), type="int32")
+        module_class = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.module_class, position)), type="uint8")
+        communication_profiles = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.communication_profiles, position)), type="uint16")
+        input_size = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_size, position)), type="uint16")
+        input_channels = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.input_channels, position)), type="uint16")
+        output_size = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_size, position)), type="uint16")
+        output_channels = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.output_channels, position)), type="uint16")
+        hW_version = CpxBase._decode_int(self.read_reg_data(*self._module_offset(_ModbusCommands.hw_version, position)), type="uint8")
         fW_version = ".".join(str(x) for x in self.read_reg_data(*self._module_offset(_ModbusCommands.fw_version, position)))
-        serial_number = self._decode_hex(self.read_reg_data(*self._module_offset(_ModbusCommands.serial_number, position)))
-        product_key = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.product_key, position)))
-        order_text = self._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.order_text, position)))
+        serial_number = CpxBase._decode_hex(self.read_reg_data(*self._module_offset(_ModbusCommands.serial_number, position)))
+        product_key = CpxBase._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.product_key, position)))
+        order_text = CpxBase._decode_string(self.read_reg_data(*self._module_offset(_ModbusCommands.order_text, position)))
 
         return {
             "Module Code": module_code,
@@ -177,69 +132,6 @@ class CpxAp(CpxBase):
             "Product Key": product_key,
             "Order Text": order_text,
             }
-
-    def read_module_data(self, module):
-        """Reads and returns process data of a specific IO module
-        
-        Arguments:
-        module -- Number of the IO module
-        """
-        logging.debug("read_module_information for module {}".format(module))
-
-        moduleCode = self.information[module]["Module Code"]
-        moduleInputSize = self.information[module]["Input Size"]//2
-        moduleOffset = self._get_module_offset(module)
-
-        logging.info("order Text: {}".format(self.information[module]["Order Text"]))
-        logging.info("module Code: {}".format(moduleCode))
-        logging.info("module InputSize: {}".format(moduleInputSize))
-        logging.info("module Offset: {}".format(moduleOffset))
-
-        if(moduleCode == 8323): # CPX-AP-I-EP-M12
-            return None
-        
-        if(moduleCode == 8202): # CPX-AP-I-4AI-U-I-RTD-M12
-            moduleData = self.read_reg_data(moduleOffset, moduleInputSize)
-            logging.debug("moduleData: {}".format(moduleData))
-
-            decoder = BinaryPayloadDecoder.fromRegisters(moduleData, byteorder=Endian.Little)
-            moduleDataHex = [hex(decoder.decode_16bit_uint()) for i in range(len(moduleData))]
-            return {
-                "channels": [
-                    moduleData[0], 
-                    moduleData[1], 
-                    moduleData[2], 
-                    moduleData[3]
-                ],
-                "raw": moduleDataHex, 
-                "registers": moduleData
-                }
-       
-        if(moduleCode == 8212): # CPX-AP-I-4IOL-M12
-            moduleData = self.read_reg_data(moduleOffset, moduleInputSize)
-            logging.debug("moduleData: {}".format(moduleData))
-
-            decoder = BinaryPayloadDecoder.fromRegisters(moduleData, byteorder=Endian.Little)
-            moduleDataHex = [hex(decoder.decode_16bit_uint()) for i in range(len(moduleData))]
-
-            channelSize = (moduleInputSize-2)//4
-            return {
-                "channels": [
-                    moduleData[:channelSize*1],
-                    moduleData[channelSize*1:channelSize*2],
-                    moduleData[channelSize*2:channelSize*3],
-                    moduleData[channelSize*3:]
-                ],
-                "raw": moduleDataHex,
-                "registers": moduleData
-                }
-        
-        if(moduleCode == 8199): #CPX-AP-I-8DI-M8-3P
-            moduleData = self.read_reg_data(moduleOffset, 1)
-            logging.debug("moduleData: {}".format(moduleData))
-
-            moduleDataBin = bin(moduleData)[2:].zfill(8)
-            return {"channels": [bool(int(md)) for md in moduleDataBin[::-1]], "raw": hex(moduleData)}
 
     def _write_parameter(self, position:int, param_id:int, instance:int, data:list|int) -> None:
         '''Write parameters via module position, param_id, instance (=channel) and data to write
@@ -336,29 +228,29 @@ class CpxApEp(_CpxApModule):
     @CpxBase._require_base
     def read_parameters(self):
         
-        dhcp_enable = self.base._decode_int(self.base._read_parameter(self.position, 12000, 0), type="bool")
+        dhcp_enable = CpxBase._decode_int(self.base._read_parameter(self.position, 12000, 0), type="bool")
 
-        ip_address = self.base._decode_int(self.base._read_parameter(self.position, 12001, 0), type="uint32")
+        ip_address = CpxBase._decode_int(self.base._read_parameter(self.position, 12001, 0), type="uint32")
         ip_address = self.convert_uint32_to_octett(ip_address)
 
-        subnet_mask = self.base._decode_int(self.base._read_parameter(self.position, 12002, 0), type="uint32")
+        subnet_mask = CpxBase._decode_int(self.base._read_parameter(self.position, 12002, 0), type="uint32")
         subnet_mask = self.convert_uint32_to_octett(subnet_mask)
 
-        gateway_address = self.base._decode_int(self.base._read_parameter(self.position, 12003, 0), type="uint32")
+        gateway_address = CpxBase._decode_int(self.base._read_parameter(self.position, 12003, 0), type="uint32")
         gateway_address = self.convert_uint32_to_octett(gateway_address)
 
-        active_ip_address = self.base._decode_int(self.base._read_parameter(self.position, 12004, 0), type="uint32")
+        active_ip_address = CpxBase._decode_int(self.base._read_parameter(self.position, 12004, 0), type="uint32")
         active_ip_address = self.convert_uint32_to_octett(active_ip_address)
 
-        active_subnet_mask = self.base._decode_int(self.base._read_parameter(self.position, 12005, 0), type="uint32")
+        active_subnet_mask = CpxBase._decode_int(self.base._read_parameter(self.position, 12005, 0), type="uint32")
         active_subnet_mask = self.convert_uint32_to_octett(active_subnet_mask)
 
-        active_gateway_address = self.base._decode_int(self.base._read_parameter(self.position, 12006, 0), type="uint32")
+        active_gateway_address = CpxBase._decode_int(self.base._read_parameter(self.position, 12006, 0), type="uint32")
         active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
 
         mac_address = ':'.join("{:02x}".format(x & 0xFF) + ":{:02x}".format((x >> 8) & 0xFF) for x in self.base._read_parameter(self.position, 12007, 0))
         
-        setup_monitoring_load_supply = self.base._decode_int(self.base._read_parameter(self.position, 20022, 0), type="uint8")
+        setup_monitoring_load_supply = CpxBase._decode_int(self.base._read_parameter(self.position, 20022, 0), type="uint8")
 
         return {"dhcp_enable": dhcp_enable, 
                 "ip_address": ip_address,
@@ -463,7 +355,7 @@ class CpxAp4AiUI(_CpxApModule):
         '''
         # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        return [self.base._decode_int([i], type="int16") for i in raw_data]
+        return [CpxBase._decode_int([i], type="int16") for i in raw_data]
 
     @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
