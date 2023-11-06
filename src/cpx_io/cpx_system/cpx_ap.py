@@ -8,7 +8,7 @@ import math
 from pymodbus.payload import BinaryPayloadDecoder
 from pymodbus.constants import Endian
 
-from .cpx_base import CpxBase, CpxInitError, CpxRequestError
+from .cpx_base import CpxBase, CpxRequestError
 
 class _ModbusCommands:   
     '''Modbus start adresses used to read and write registers
