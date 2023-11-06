@@ -5,7 +5,7 @@ import logging
 import struct
 
 from pymodbus.client import ModbusTcpClient
-from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
 from pymodbus.constants import Endian
 
 
@@ -95,6 +95,26 @@ class CpxBase:
             k = int.from_bytes(k, byteorder='big', signed=False)
             swapped.append(k)
         return swapped
+    
+    @staticmethod
+    def _encode_int(data: int, type='int16'):
+        builder = BinaryPayloadBuilder(byteorder=Endian.BIG)
+        if type == "uint8":
+            builder.add_8bit_uint(data)
+        elif type == "uint16":
+            builder.add_16bit_uint(data)
+        elif type == "uint32":
+            builder.add_32bit_uint(data)
+        elif type == "int8":
+            builder.add_8bit_int(data)
+        elif type == "int16":
+            builder.add_16bit_int(data)
+        elif type == "int32":
+            builder.add_32bit_int(data)
+        else:
+            raise NotImplementedError(f"Type {type} not implemented")
+        
+        return builder.to_registers()
 
     @staticmethod
     def _decode_string(registers):
@@ -112,7 +132,7 @@ class CpxBase:
             return decoder.decode_16bit_uint()
         elif type == "uint32":
             return decoder.decode_32bit_uint()
-        if type == "int8":
+        elif type == "int8":
             return decoder.decode_8bit_int()
         elif type == "int16":
             return decoder.decode_16bit_int()

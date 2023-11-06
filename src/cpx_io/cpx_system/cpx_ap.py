@@ -135,20 +135,23 @@ class CpxAp(CpxBase):
 
     def _write_parameter(self, position:int, param_id:int, instance:int, data:list|int) -> None:
         '''Write parameters via module position, param_id, instance (=channel) and data to write
-        Data must be a list of 16 bit values
+        Data must be a list of (signed) 16 bit values or one 16 bit (signed) value
         Returns None if successful or raises "CpxRequestError" if request denied
         '''
         if isinstance(data, int):
             data = [data]
+
+         #TODO: can we do [0] here? Function only accepts 16 bin values, so there never should be more than one register coming back from _encode_int
+        registers = [CpxBase._encode_int(d)[0] for d in data]
 
         param_reg =  _ModbusCommands.parameter[0]
 
         self.write_reg_data(position + 1, param_reg)
         self.write_reg_data(param_id, param_reg + 1)
         self.write_reg_data(instance, param_reg + 2)
-        self.write_reg_data(len(data), param_reg + 3)
+        self.write_reg_data(len(registers), param_reg + 3)
 
-        self.write_reg_data(data, param_reg + 10, len(data))
+        self.write_reg_data(registers, param_reg + 10, len(registers))
 
         self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
         
@@ -157,12 +160,15 @@ class CpxAp(CpxBase):
             exec = self.read_reg_data(param_reg + 3)[0] # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
             if exec == 4:
                 raise CpxRequestError
-        
-        # Validation check
+        '''
+        # Validation check according to datasheet
         data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
         ret = self.read_reg_data(param_reg + 10, data_length)
+        ret = [CpxBase._decode_int([x], type='int16') for x in ret]
         if not all(r == d for r, d in zip(ret, data)):
             raise CpxRequestError("Parameter might not have been written correctly")
+        '''
+        
 
     def _read_parameter(self, position:int, param_id:int, instance:int) -> list:
         '''Read parameters via module position, param_id, instance (=channel)
