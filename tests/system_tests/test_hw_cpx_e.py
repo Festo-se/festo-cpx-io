@@ -16,6 +16,10 @@ def test_cpxe():
 def test_init(test_cpxe):
     assert test_cpxe
 
+def test_context_manager():
+    with CpxE(host="172.16.1.40") as cpxe:
+        assert cpxe
+
 def test_readFunctionNumber(test_cpxe):
     response = test_cpxe.read_function_number(1)
     assert response == [0]
@@ -80,6 +84,7 @@ def test_2modules(test_cpxe):
 
     assert e8do.read_channels() == [False] * 8 
     assert e8do.read_channel(0) == False
+    time.sleep(.1)
     
     # set up channel 0 to True on 8DO, 
     # this is routed to channel 0 16DI.
@@ -112,6 +117,7 @@ def test_2modules(test_cpxe):
     time.sleep(.1)
     assert e16di.read_channel(0) == False
 
+    time.sleep(.1)
     assert e8do.read_channels() == [False] * 8
     
     assert all(isinstance(item, CpxE) for item in test_cpxe.modules)
