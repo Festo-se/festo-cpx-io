@@ -1,7 +1,25 @@
 """TODO: Add module docstring"""
 
-from typing import List
-from .cpx_base import CpxBase
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
+
+
+def module_list_from_typecode(typecode: str) -> list:
+    module_id_dict = {
+        "EP": CpxEEp,
+        "M": CpxE16Di,
+        "L": CpxE8Do,
+        "NI": CpxE4AiUI,
+        "NO": CpxE4AoUI,
+    }
+
+    module_list = []
+    for i in range(len(typecode)):
+        substring = typecode[i:]
+        for key, value in module_id_dict.items():
+            if substring.startswith(key):
+                module_list.append(value())
+
+    return module_list
 
 
 class _ModbusCommands:
@@ -32,6 +50,7 @@ class CpxE(CpxBase):
 
         self._next_output_register = None
         self._next_input_register = None
+
         self.modules = modules
 
     @property
@@ -42,11 +61,17 @@ class CpxE(CpxBase):
     def modules(self, modules_value):
         self._modules = []
 
-        if modules_value:
-            for m in modules_value:
-                self.add_module(m)
+        if modules_value == None:
+            module_list = [CpxEEp()]
+        elif isinstance(modules_value, list):
+            module_list = modules_value
+        elif isinstance(modules_value, str):
+            module_list = module_list_from_typecode(modules_value)
         else:
-            self.add_module(CpxEEp())
+            raise CpxInitError
+
+        for m in module_list:
+            self.add_module(m)
 
     def write_function_number(self, function_number: int, value: int):
         """Write parameters via function number"""
