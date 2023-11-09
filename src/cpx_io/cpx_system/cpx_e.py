@@ -50,6 +50,7 @@ class CpxE(CpxBase):
 
         self._next_output_register = None
         self._next_input_register = None
+        self._modules = []
 
         self.modules = modules
 
@@ -59,6 +60,8 @@ class CpxE(CpxBase):
 
     @modules.setter
     def modules(self, modules_value):
+        for m in self._modules:
+            self.__delattr__(m.name)
         self._modules = []
 
         if modules_value == None:
@@ -150,13 +153,19 @@ class CpxE(CpxBase):
         """Adds one module to the base. This is required to use the module."""
         module._initialize(self, len(self._modules))
         self._modules.append(module)
+        self.__setattr__(module.name, module)
         return module
 
 
 class _CpxEModule(CpxE):
     """Base class for cpx-e modules"""
 
-    def __init__(self):
+    def __init__(self, name=None):
+        if name:
+            self.name = name
+        else:
+            # Use class name (lower cased) as default value
+            self.name = type(self).__name__.lower()
         self.base = None
         self.position = None
 
