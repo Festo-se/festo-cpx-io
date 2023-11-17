@@ -248,7 +248,7 @@ class CpxApEp(_CpxApModule):
     @CpxBase._require_base
     def read_parameters(self):
         
-        dhcp_enable = CpxBase._decode_int(self.base._read_parameter(self.position, 12000, 0), type="bool")
+        dhcp_enable = CpxBase._decode_bool(self.base._read_parameter(self.position, 12000, 0))
 
         ip_address = CpxBase._decode_int(self.base._read_parameter(self.position, 12001, 0), type="uint32")
         ip_address = self.convert_uint32_to_octett(ip_address)

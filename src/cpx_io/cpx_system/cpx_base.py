@@ -138,10 +138,13 @@ class CpxBase:
             return decoder.decode_16bit_int()
         elif type == "int32":
             return decoder.decode_32bit_int()
-        elif type == "bool":
-            return bool(decoder.decode_bits(0))
         else:
             raise NotImplementedError(f"Type {type} not implemented")
+        
+    @staticmethod
+    def _decode_bool(registers):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers[::-1], byteorder=Endian.BIG)
+        return bool(decoder.decode_bits(0))
         
     @staticmethod
     def _decode_hex(registers, type='uint16'):
