@@ -423,7 +423,11 @@ class CpxAp4AiUI(_CpxApModule):
     @CpxBase._require_base
     def configure_channel_limits(self, channel: int, upper:int|None=None, lower:int|None=None) -> None:
         '''Set the channel upper and lower limits (Factory setting -> upper: 32767, lower: -32768)
+        This will immediately set linear scaling to true because otherwise the limits are not stored.
         '''
+
+        self.configure_linear_scaling(channel, True)
+        
         upper_id = 20044
         lower_id = 20045
 

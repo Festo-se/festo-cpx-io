@@ -95,9 +95,30 @@ def test_4Di4Do(test_cpxap):
 
     test_cpxap.modules[2].clear_channel(0)
 
-def test_4AiUI(test_cpxap):
-    test_cpxap.modules[3].read_channels() == [0] * 4
-    # TODO: Test analog inputs != 0
+def test_4AiUI_None(test_cpxap):
+    a4aiui = test_cpxap.modules[3]
+    assert a4aiui.read_channels() == [0] * 4
+
+def test_4AiUI_5V_CH1(test_cpxap):
+    a4aiui = test_cpxap.modules[3]
+    a4aiui.configure_channel_range(1, "0-10V")
+    time.sleep(.05)
+    a4aiui.configure_linear_scaling(1, False)
+    time.sleep(.05)
+
+    assert 15900 < test_cpxap.modules[3].read_channel(1) < 16100
+
+def test_4AiUI_5V_CH1_with_scaling(test_cpxap):
+    a4aiui = test_cpxap.modules[3]
+    a4aiui.configure_channel_range(1, "0-10V")
+    a4aiui.configure_channel_limits(1, upper=10000)
+    a4aiui.configure_channel_limits(1, lower=0)
+    time.sleep(.05)
+    
+    assert 4900 < test_cpxap.modules[3].read_channel(1) < 5100
+
+    a4aiui.configure_channel_limits(1, upper=32767, lower=-32768)
+    a4aiui.configure_linear_scaling(1, False)
 
 def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
@@ -134,6 +155,13 @@ def test_4AiUI_configures_channel_unit(test_cpxap):
     a4aiui.configure_channel_temp_unit(3, "F")
     time.sleep(.05)
     assert a4aiui.base._read_parameter(3, 20032, 3) == [1]
+    
+    # reset
+    a4aiui.configure_channel_temp_unit(0, "C")
+    a4aiui.configure_channel_temp_unit(1, "C")
+    a4aiui.configure_channel_temp_unit(2, "C")
+    a4aiui.configure_channel_temp_unit(3, "C")
+    
 
 def test_4AiUI_configures_channel_range(test_cpxap):
     a4aiui = test_cpxap.modules[3]
@@ -155,6 +183,12 @@ def test_4AiUI_configures_channel_range(test_cpxap):
     time.sleep(.05)
     assert a4aiui.base._read_parameter(3, 20043, 3) == [4]
 
+    # reset
+    a4aiui.configure_channel_range(0, "None")
+    a4aiui.configure_channel_range(1, "None")
+    a4aiui.configure_channel_range(2, "None")
+    a4aiui.configure_channel_range(3, "None")
+
 def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     assert isinstance(a4aiui, CpxAp4AiUI)
@@ -174,6 +208,12 @@ def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
     a4aiui.configure_hysteresis_limit_monitoring(3, 404)
     time.sleep(.05)
     assert a4aiui.base._read_parameter(3, 20046, 3) == [404]
+
+    # reset
+    a4aiui.configure_hysteresis_limit_monitoring(0, 100)
+    a4aiui.configure_hysteresis_limit_monitoring(1, 100)
+    a4aiui.configure_hysteresis_limit_monitoring(2, 100)
+    a4aiui.configure_hysteresis_limit_monitoring(3, 100)
 
 def test_4AiUI_configures_channel_smoothing(test_cpxap):
     a4aiui = test_cpxap.modules[3]
@@ -195,6 +235,13 @@ def test_4AiUI_configures_channel_smoothing(test_cpxap):
     time.sleep(.05)
     assert a4aiui.base._read_parameter(3, 20107, 3) == [4]
 
+    # reset
+    a4aiui.configure_channel_smoothing(0, 5)
+    a4aiui.configure_channel_smoothing(1, 5)
+    a4aiui.configure_channel_smoothing(2, 5)
+    a4aiui.configure_channel_smoothing(3, 5)
+
+
 def test_4AiUI_configures_linear_scaling(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     assert isinstance(a4aiui, CpxAp4AiUI)
@@ -215,10 +262,12 @@ def test_4AiUI_configures_linear_scaling(test_cpxap):
     time.sleep(.05)
     assert a4aiui.base._read_parameter(3, 20111, 3) == [0]
 
+    # reset
     a4aiui.configure_linear_scaling(0, False)
-    time.sleep(.05)
+    a4aiui.configure_linear_scaling(1, False)
     a4aiui.configure_linear_scaling(2, False)
-    time.sleep(.05)
+    a4aiui.configure_linear_scaling(3, False)
+    
 
 def test_4AiUI_configures_channel_limits(test_cpxap):
     a4aiui = test_cpxap.modules[3]
@@ -244,6 +293,13 @@ def test_4AiUI_configures_channel_limits(test_cpxap):
     assert  CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 3), type='int16') == 4444
     assert  CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 3), type='int16') == -4444
     
+    # reset
+    a4aiui.configure_channel_limits(0, upper=32767, lower=-32768)
+    a4aiui.configure_channel_limits(1, upper=32767, lower=-32768)
+    a4aiui.configure_channel_limits(2, upper=32767, lower=-32768)
+    a4aiui.configure_channel_limits(3, upper=32767, lower=-32768)
+
+
 def test_4Di4Do_configures(test_cpxap):
     a4di4do = test_cpxap.modules[2]
     assert isinstance(a4di4do, CpxAp4Di4Do)
