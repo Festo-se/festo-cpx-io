@@ -133,41 +133,55 @@ class CpxAp(CpxBase):
             "Order Text": order_text,
             }
 
-    def _write_parameter(self, position:int, param_id:int, instance:int, data:list|int) -> None:
+    def _write_parameter(self, position:int, param_id:int, instance:int, data:list|int|bool) -> None:
         '''Write parameters via module position, param_id, instance (=channel) and data to write
         Data must be a list of (signed) 16 bit values or one 16 bit (signed) value
         Returns None if successful or raises "CpxRequestError" if request denied
         '''
-        if isinstance(data, int):
-            data = [data]
+        if isinstance(data, list):
+            #TODO: can we do [0] here? Function only accepts 16 bit values, so there never should be more than one register coming back from _encode_int
+            registers = [CpxBase._encode_int(d)[0] for d in data]
 
-         #TODO: can we do [0] here? Function only accepts 16 bin values, so there never should be more than one register coming back from _encode_int
-        registers = [CpxBase._encode_int(d)[0] for d in data]
+        elif isinstance(data, int):
+            registers = [CpxBase._encode_int(data)[0]]
+            data = [data]  # needed for validation check
 
+        elif isinstance(data, bool):
+            registers = [CpxBase._encode_int(data, type='bool')[0]]
+            data = [int(data)]  # needed for validation check
+
+        else:
+            raise ValueError("Data must be of type list, int or bool")
+         
         param_reg =  _ModbusCommands.parameter[0]
 
-        self.write_reg_data(position + 1, param_reg)
-        self.write_reg_data(param_id, param_reg + 1)
-        self.write_reg_data(instance, param_reg + 2)
-        self.write_reg_data(len(registers), param_reg + 3)
+        #TODO: Strangely this sending has to be repeated several times, actually it is tried up to 10 times. This seems to work but it's not good
+        for i in range(10):
+            self.write_reg_data(position + 1, param_reg)
+            self.write_reg_data(param_id, param_reg + 1)
+            self.write_reg_data(instance, param_reg + 2)
+            self.write_reg_data(len(registers), param_reg + 3)
 
-        self.write_reg_data(registers, param_reg + 10, len(registers))
+            self.write_reg_data(registers, param_reg + 10, len(registers))
 
-        self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
-        
-        exec = 0
-        while exec < 16:
-            exec = self.read_reg_data(param_reg + 3)[0] # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-            if exec == 4:
-                raise CpxRequestError
-        '''
-        # Validation check according to datasheet
-        data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
-        ret = self.read_reg_data(param_reg + 10, data_length)
-        ret = [CpxBase._decode_int([x], type='int16') for x in ret]
-        if not all(r == d for r, d in zip(ret, data)):
-            raise CpxRequestError("Parameter might not have been written correctly")
-        '''
+            self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
+            
+            exec = 0
+            while exec < 16:
+                exec = self.read_reg_data(param_reg + 3)[0] # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+                if exec == 4:
+                    raise CpxRequestError
+            
+            # Validation check according to datasheet
+            data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+            ret = self.read_reg_data(param_reg + 10, data_length)
+            ret = [CpxBase._decode_int([x], type='int16') for x in ret]
+                            
+            if all(r == d for r, d in zip(ret, data)):
+                break
+
+        if i >=9:
+            raise CpxRequestError("Parameter might not have been written correctly after 10 tries")
         
 
     def _read_parameter(self, position:int, param_id:int, instance:int) -> list:
@@ -454,12 +468,12 @@ class CpxAp4AiUI(_CpxApModule):
         self.base._write_parameter(self.position, id, channel, smoothing_power)
 
     @CpxBase._require_base
-    def configure_linear_scaling(self, channel: int, active) -> None:
+    def configure_linear_scaling(self, channel: int, state: bool) -> None:
         '''Set linear scaling (Factory setting "False")
         '''
         id = 20111
 
-        self.base._write_parameter(self.position, id, channel, int(active))
+        self.base._write_parameter(self.position, id, channel, int(state))
     
 
 class CpxAp4Di4Do(_CpxApModule):

@@ -118,15 +118,14 @@ def test_ep_param_read(test_cpxap):
 def test_4AiUI_configures(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     assert isinstance(a4aiui, CpxAp4AiUI)
-
-    # TODO: Channel 0 doesn't work every time with every function
-    a4aiui.configure_channel_temp_unit(0, "F")
+    
+    a4aiui.configure_channel_temp_unit(0, "C")
     time.sleep(.05)
-    a4aiui.configure_channel_temp_unit(1, "K")
+    a4aiui.configure_channel_temp_unit(1, "F")
     time.sleep(.05)
-    a4aiui.configure_channel_temp_unit(2, "C")
+    a4aiui.configure_channel_temp_unit(2, "K")
     time.sleep(.05)
-    a4aiui.configure_channel_temp_unit(3, "K")
+    a4aiui.configure_channel_temp_unit(3, "F")
     time.sleep(.05)
 
     a4aiui.configure_channel_range(0, "-10-+10V")
@@ -138,24 +137,24 @@ def test_4AiUI_configures(test_cpxap):
     a4aiui.configure_channel_range(3, "1-5V")
     time.sleep(.05)
     
-    a4aiui.configure_hysteresis_limit_monitoring(0, 0)
+    a4aiui.configure_hysteresis_limit_monitoring(0, 101)
     time.sleep(.05)
-    a4aiui.configure_hysteresis_limit_monitoring(1, 100)
+    a4aiui.configure_hysteresis_limit_monitoring(1, 202)
     time.sleep(.05)
-    a4aiui.configure_hysteresis_limit_monitoring(2, 200)
+    a4aiui.configure_hysteresis_limit_monitoring(2, 303)
     time.sleep(.05)
-    a4aiui.configure_hysteresis_limit_monitoring(3, 300)
-    time.sleep(.05)
-
-    a4aiui.configure_channel_smoothing(0, 0)
-    time.sleep(.05)
-    a4aiui.configure_channel_smoothing(1, 1)
-    time.sleep(.05)
-    a4aiui.configure_channel_smoothing(2, 2)
-    time.sleep(.05)
-    a4aiui.configure_channel_smoothing(3, 3)
+    a4aiui.configure_hysteresis_limit_monitoring(3, 404)
     time.sleep(.05)
 
+    a4aiui.configure_channel_smoothing(0, 1)
+    time.sleep(.05)
+    a4aiui.configure_channel_smoothing(1, 2)
+    time.sleep(.05)
+    a4aiui.configure_channel_smoothing(2, 3)
+    time.sleep(.05)
+    a4aiui.configure_channel_smoothing(3, 4)
+    time.sleep(.05)
+    
     a4aiui.configure_linear_scaling(0, True)
     time.sleep(.05)
     a4aiui.configure_linear_scaling(1, False)
@@ -178,5 +177,5 @@ def test_4AiUI_configures(test_cpxap):
     time.sleep(.05)
     a4aiui.configure_channel_limits(3, upper=4444, lower=-4444)
     time.sleep(.05)
-    res = a4aiui.read_channel(0)
+    
 
