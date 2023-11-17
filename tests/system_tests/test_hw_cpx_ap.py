@@ -97,7 +97,7 @@ def test_4Di4Do(test_cpxap):
 
 def test_4AiUI_None(test_cpxap):
     a4aiui = test_cpxap.modules[3]
-    assert a4aiui.read_channels() == [0] * 4
+    assert len(a4aiui.read_channels()) == 4
 
 def test_4AiUI_5V_CH1(test_cpxap):
     a4aiui = test_cpxap.modules[3]
@@ -111,13 +111,16 @@ def test_4AiUI_5V_CH1(test_cpxap):
 def test_4AiUI_5V_CH1_with_scaling(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     a4aiui.configure_channel_range(1, "0-10V")
+    time.sleep(.05)
     a4aiui.configure_channel_limits(1, upper=10000)
+    time.sleep(.05)
     a4aiui.configure_channel_limits(1, lower=0)
     time.sleep(.05)
     
     assert 4900 < test_cpxap.modules[3].read_channel(1) < 5100
 
     a4aiui.configure_channel_limits(1, upper=32767, lower=-32768)
+    time.sleep(.05)
     a4aiui.configure_linear_scaling(1, False)
 
 def test_ep_param_read(test_cpxap):

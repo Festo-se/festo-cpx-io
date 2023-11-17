@@ -391,7 +391,6 @@ class CpxE4AiUI(_CpxEModule):
     def read_channels(self) -> list[int]:
         '''read all channels as a list of (signed) integers
         '''
-        # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase._decode_int([x]) for x in raw_data]
         return data
@@ -641,7 +640,6 @@ class CpxE4AoUI(_CpxEModule):
     def read_channels(self) -> list[int]:
         '''read all channels as a list of integer values
         '''
-        # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase._decode_int([x]) for x in raw_data]
         return data
@@ -663,7 +661,6 @@ class CpxE4AoUI(_CpxEModule):
     def write_channels(self, data: list[int]) -> None:
         '''write data to module channels in ascending order
         '''
-        # TODO: scaling to given signalrange
         reg_data = [self.base._decode_int([x]) for x in data]
         self.base.write_reg_data(reg_data, self.output_register, length=4)
 
@@ -671,7 +668,6 @@ class CpxE4AoUI(_CpxEModule):
     def write_channel(self, channel: int, data: int) -> None:
         '''write data to module channel number
         '''
-        # TODO: scaling to given signalrange
         reg_data = self.base._decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 

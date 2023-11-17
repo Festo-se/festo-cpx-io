@@ -1,6 +1,6 @@
+'''CPX Base
 '''
-# TODO: Add Docstring
-'''
+
 import logging
 import struct
 
@@ -50,7 +50,7 @@ class CpxBase:
         logging.info("Disconnected")
         return False
 
-    def read_reg_data(self, register:int, length=1) -> list:
+    def read_reg_data(self, register: int, length=1) -> list:
         """Reads and returns register from Modbus server
 
         Arguments:
@@ -66,7 +66,8 @@ class CpxBase:
         return data.registers
 
     def write_reg_data(self, data: int|list, register: int, length=1):
-        """Todo
+        """Write data to registers. If data is int, writes one register.
+        If data is list, list content is written to given register address and following registers
 
         """
         if isinstance(data, int):
@@ -154,49 +155,3 @@ class CpxBase:
         else:
             raise NotImplementedError(f"Type {type} not implemented")
         
-
-    # TODO: Check if needed here
-    '''
-    def readInputRegData(self, register, length=1):
-        """Reads and returns input registers from Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        """
-        return self.readRegData(register, length, "input_register")
-
-    def readHoldingRegData(self, register, length=1):
-        """Reads and returns holding registers form Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        """
-        return self.readRegData(register, length, "holding_register")
-    '''
-    
-    # TODO: Check if needed here
-    '''
-    def writeMultipleData(self, register, data):
-        """Todo
-
-        """
-        try:
-            self.client.write_registers(register, data)
-        except Exception as e:
-            print("Error while writing: ", str(e))
-
-
-    def writeOutputRegData(self, register, data):
-        """Todo
-
-        """
-        return self.writeData(register, data)
-
-    def writeOutputMultiRegData(self, register, data):
-        """Todo
-
-        """
-        return self.writeMultipleData(register, data)
-    '''

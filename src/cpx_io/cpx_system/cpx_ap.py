@@ -1,4 +1,4 @@
-'''TODO: Add module docstring
+'''CPX AP
 '''
 
 import math
@@ -78,20 +78,6 @@ class CpxAp(CpxBase):
         self.modules.append(module)
         return module
 
-    def write_data(self, register, val):
-         #TODO: Not tested yet!!!
-         status = object
-         print(f"{register}, {val}")
-         try:
-             if val < 0:
-                 val = val + 2**16
-             self.client.write_register(register, val, unit=self.deviceConfig['modbusSlave'])
-             status = self.client.read_input_registers(_ModbusCommands.StatusWord, count=1, unit=self.deviceConfig['modbusSlave']) 
-             while (status.registers[0] & 1) == 1:
-                 status = self.client.read_input_registers(_ModbusCommands.StatusWord, 1, unit=self.deviceConfig['modbusSlave'])
-         except Exception as e:
-             print("error while writing : ", str(e)) 
-
     def read_module_count(self) -> int:
         """Reads and returns IO module count as integer
         """
@@ -139,7 +125,6 @@ class CpxAp(CpxBase):
         Returns None if successful or raises "CpxRequestError" if request denied
         '''
         if isinstance(data, list):
-            #TODO: can we do [0] here? Function only accepts 16 bit values, so there never should be more than one register coming back from _encode_int
             registers = [CpxBase._encode_int(d)[0] for d in data]
 
         elif isinstance(data, int):
@@ -155,7 +140,7 @@ class CpxAp(CpxBase):
          
         param_reg =  _ModbusCommands.parameter[0]
 
-        #TODO: Strangely this sending has to be repeated several times, actually it is tried up to 10 times. This seems to work but it's not good
+        # Strangely this sending has to be repeated several times, actually it is tried up to 10 times. This seems to work but it's not good
         for i in range(10):
             self.write_reg_data(position + 1, param_reg)
             self.write_reg_data(param_id, param_reg + 1)
@@ -183,7 +168,6 @@ class CpxAp(CpxBase):
         if i >=9:
             raise CpxRequestError("Parameter might not have been written correctly after 10 tries")
         
-
     def _read_parameter(self, position:int, param_id:int, instance:int) -> list:
         '''Read parameters via module position, param_id, instance (=channel)
         Returns data as list if successful or raises "CpxRequestError" if request denied
@@ -373,7 +357,6 @@ class CpxAp4AiUI(_CpxApModule):
     def read_channels(self) -> list[int]:
         '''read all channels as a list of (signed) integers
         '''
-        # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         return [CpxBase._decode_int([i], type="int16") for i in raw_data]
 
@@ -427,7 +410,7 @@ class CpxAp4AiUI(_CpxApModule):
         '''
 
         self.configure_linear_scaling(channel, True)
-        
+
         upper_id = 20044
         lower_id = 20045
 
