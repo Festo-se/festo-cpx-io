@@ -531,3 +531,38 @@ def test_analog_io(test_cpxe):
 
     for i, v in enumerate(values):
         assert v - 50 < result[i] < v + 50
+
+
+def test_getter(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    assert e16di[0] == e16di.read_channel(0)
+    assert e8do[0] == e8do.read_channel(0)
+    assert e4ai[0] == e4ai.read_channel(0)
+    assert e4ao[0] == e4ao.read_channel(0)
+
+
+def test_setter(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e8do[0] = True
+    time.sleep(0.05)
+    assert e8do[0] == True
+
+    e8do[0] = False
+    time.sleep(0.05)
+    assert e8do[0] == False
+
+    e4ao[0] = 5
+    time.sleep(0.05)
+    assert e4ao[0] == 5
+
+    e4ao[0] = 0
+    time.sleep(0.05)
+    assert e4ao[0] == 0

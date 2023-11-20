@@ -364,3 +364,28 @@ def test_4Di4Do_configures(test_cpxap):
     a4di4do.configure_monitoring_load_supply(1)
     time.sleep(0.05)
     a4di4do.configure_behaviour_in_fail_state(0)
+
+
+def test_getter(test_cpxap):
+    a8di = test_cpxap.modules[1]
+    a4di4do = test_cpxap.modules[2]
+    a4ai = test_cpxap.modules[3]
+
+    assert a8di[0] == a8di.read_channel(0)
+    assert a4di4do[0] == a4di4do.read_channel(0)
+    assert a4di4do[4] == a4di4do.read_channel(4)
+    assert a4ai[0] == a4ai.read_channel(0)
+
+
+def test_setter(test_cpxap):
+    a4di4do = test_cpxap.modules[2]
+
+    a4di4do[0] = True
+    time.sleep(0.05)
+    # read back the first output channel (it's on index 4)
+    assert a4di4do[4] == True
+
+    a4di4do[0] = False
+    time.sleep(0.05)
+    # read back the first output channel (it's on index 4)
+    assert a4di4do[4] == False
