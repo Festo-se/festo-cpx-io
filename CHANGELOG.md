@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] CpxE: Added property setter / getter for more modules.
 - [Minor] CpxE: Added access-by-name for modules of CpxE.
 - [Minor] CpxE: Added construction from typecode.
 - [Minor] CpxE: Added property setter for modules.

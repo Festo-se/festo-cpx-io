@@ -328,6 +328,9 @@ class CpxE8Do(_CpxEModule):
 class CpxE16Di(_CpxEModule):
     """Class for CPX-E-16DI module"""
 
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -439,6 +442,9 @@ class CpxE16Di(_CpxEModule):
 
 class CpxE4AiUI(_CpxEModule):
     """Class for CPX-E-4AI-UI module"""
+
+    def __getitem__(self, key):
+        return self.read_channel(key)
 
     def _initialize(self, *args):
         super()._initialize(*args)
@@ -704,6 +710,12 @@ class CpxE4AiUI(_CpxEModule):
 
 class CpxE4AoUI(_CpxEModule):
     """Class for CPX-E-4AO-UI module"""
+
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
+    def __setitem__(self, key, value):
+        self.write_channel(key, value)
 
     def _initialize(self, *args):
         super()._initialize(*args)
