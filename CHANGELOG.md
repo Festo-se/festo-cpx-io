@@ -14,9 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - [Minor] several bugfixes
-- [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager
 - [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager.
-- [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager
 - [Minor] Exchanged int_to_signed16 function with built in function
 - [Minor] Added example.py for cpx-ap and cpx-e, minor bugfixing
 - [Minor] Added base functionality for CPX-AP-I. Added not implemented modules to CPX-E with Error on init. Several bugfixes on CPX-E.
