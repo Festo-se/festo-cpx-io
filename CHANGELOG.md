@@ -10,10 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] CpxE: Added access-by-name for modules of CpxE.
 - [Minor] CpxE: Added construction from typecode.
 - [Minor] CpxE: Added property setter for modules.
+- [Minor] CpxE8Do: Added access-by-index-operator to channels
 
 ### Changed
 - [Minor] several bugfixes
-- [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager
 - [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager.
 - [Minor] Exchanged int_to_signed16 function with built in function
 - [Minor] Added example.py for cpx-ap and cpx-e, minor bugfixing

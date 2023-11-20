@@ -84,8 +84,8 @@ class CpxAp(CpxBase):
         """Reads and returns IO module count as integer"""
         return self.read_reg_data(*_ModbusCommands.module_count)[0]
 
-    def _module_offset(self, modbusCommand, module):
-        register, length = modbusCommand
+    def _module_offset(self, modbus_command, module):
+        register, length = modbus_command
         return ((register + 37 * module), length)
 
     def read_module_information(self, position):
@@ -95,51 +95,51 @@ class CpxAp(CpxBase):
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.module_code, position)
             ),
-            type="int32",
+            data_type="int32",
         )
         module_class = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.module_class, position)
             ),
-            type="uint8",
+            data_type="uint8",
         )
         communication_profiles = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.communication_profiles, position)
             ),
-            type="uint16",
+            data_type="uint16",
         )
         input_size = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.input_size, position)
             ),
-            type="uint16",
+            data_type="uint16",
         )
         input_channels = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.input_channels, position)
             ),
-            type="uint16",
+            data_type="uint16",
         )
         output_size = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.output_size, position)
             ),
-            type="uint16",
+            data_type="uint16",
         )
         output_channels = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.output_channels, position)
             ),
-            type="uint16",
+            data_type="uint16",
         )
-        hW_version = CpxBase._decode_int(
+        hw_version = CpxBase._decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.hw_version, position)
             ),
-            type="uint8",
+            data_type="uint8",
         )
-        fW_version = ".".join(
+        fw_version = ".".join(
             str(x)
             for x in self.read_reg_data(
                 *self._module_offset(_ModbusCommands.fw_version, position)
@@ -191,7 +191,7 @@ class CpxAp(CpxBase):
             data = [data]  # needed for validation check
 
         elif isinstance(data, bool):
-            registers = [CpxBase._encode_int(data, type="bool")[0]]
+            registers = [CpxBase._encode_int(data, data_type="bool")[0]]
             data = [int(data)]  # needed for validation check
 
         else:
@@ -199,7 +199,9 @@ class CpxAp(CpxBase):
 
         param_reg = _ModbusCommands.parameter[0]
 
-        # Strangely this sending has to be repeated several times, actually it is tried up to 10 times. This seems to work but it's not good
+        # Strangely this sending has to be repeated several times,
+        # actually it is tried up to 10 times.
+        # This seems to work but it's not good
         for i in range(10):
             self.write_reg_data(position + 1, param_reg)
             self.write_reg_data(param_id, param_reg + 1)
@@ -210,18 +212,17 @@ class CpxAp(CpxBase):
 
             self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
 
-            exec = 0
-            while exec < 16:
-                exec = self.read_reg_data(param_reg + 3)[
-                    0
-                ]  # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-                if exec == 4:
+            exe_code = 0
+            while exe_code < 16:
+                exe_code = self.read_reg_data(param_reg + 3)[0]
+                # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+                if exe_code == 4:
                     raise CpxRequestError
 
             # Validation check according to datasheet
             data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
             ret = self.read_reg_data(param_reg + 10, data_length)
-            ret = [CpxBase._decode_int([x], type="int16") for x in ret]
+            ret = [CpxBase._decode_int([x], data_type="int16") for x in ret]
 
             if all(r == d for r, d in zip(ret, data)):
                 break
@@ -246,16 +247,18 @@ class CpxAp(CpxBase):
 
         self.write_reg_data(1, param_reg + 3)  # 1=read, 2=write
 
-        exec = 0
-        while exec < 16:
-            exec = self.read_reg_data(param_reg + 3)[
+        exe_code = 0
+        while exe_code < 16:
+            exe_code = self.read_reg_data(param_reg + 3)[
                 0
             ]  # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-            if exec == 4:
+            if exe_code == 4:
                 raise CpxRequestError
 
-        # data_length from register 10004 is bytewise. 2 bytes = 1 register. But 1 byte also has to read one register
-        # with integer division "//" will lead to rounding down, this needs to be rounded up. Therefore math.ceil() is used
+        # data_length from register 10004 is bytewise. 2 bytes = 1 register.
+        # But 1 byte also has to read one register with integer division "//"
+        # will lead to rounding down, this needs to be rounded up.
+        # Therefore math.ceil() is used
         data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
 
         data = self.read_reg_data(param_reg + 10, data_length)
@@ -378,17 +381,19 @@ class CpxAp4Di(_CpxApModule):
 
     @CpxBase._require_base
     def configure_debounce_time(self, value: int) -> None:
-        """The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
-        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed
+        """
+        The "Input debounce time" parameter defines
+        when an edge change of the sensor signal shall be assumed as a logical input signal.
+        In this way, unwanted signal edge changes can be suppressed
         during switching operations (bouncing of the input signal).
         Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
         """
-        id = 20014
+        uid = 20014
 
         if not 0 <= value <= 3:
             raise ValueError("Value {value} must be between 0 and 3")
 
-        self.base._write_parameter(self.position, id, 0, value)
+        self.base._write_parameter(self.position, uid, 0, value)
 
 
 class CpxAp8Di(_CpxApModule):
@@ -416,17 +421,18 @@ class CpxAp8Di(_CpxApModule):
 
     @CpxBase._require_base
     def configure_debounce_time(self, value: int) -> None:
-        """The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
-        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed
+        """The "Input debounce time" parameter defines
+        when an edge change of the sensor signal shall be assumed as a logical input signal.
+        In this way, unwanted signal edge changes can be suppressed
         during switching operations (bouncing of the input signal).
         Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
         """
-        id = 20014
+        uid = 20014
 
         if not 0 <= value <= 3:
             raise ValueError("Value {value} must be between 0 and 3")
 
-        self.base._write_parameter(self.position, id, 0, value)
+        self.base._write_parameter(self.position, uid, 0, value)
 
 
 class CpxAp4AiUI(_CpxApModule):
@@ -454,8 +460,10 @@ class CpxAp4AiUI(_CpxApModule):
 
     @CpxBase._require_base
     def configure_channel_temp_unit(self, channel: int, unit: str) -> None:
-        """set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)"""
-        id = 20032
+        """
+        set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)
+        """
+        uid = 20032
         value = {
             "C": 0,
             "F": 1,
@@ -464,7 +472,7 @@ class CpxAp4AiUI(_CpxApModule):
         if unit not in value:
             raise ValueError(f"'{unit}' is not an option. Choose from {value.keys()}")
 
-        self.base._write_parameter(self.position, id, channel, value[unit])
+        self.base._write_parameter(self.position, uid, channel, value[unit])
 
     @CpxBase._require_base
     def configure_channel_range(self, channel: int, signalrange: str) -> None:
@@ -493,8 +501,10 @@ class CpxAp4AiUI(_CpxApModule):
     def configure_channel_limits(
         self, channel: int, upper: int | None = None, lower: int | None = None
     ) -> None:
-        """Set the channel upper and lower limits (Factory setting -> upper: 32767, lower: -32768)
-        This will immediately set linear scaling to true because otherwise the limits are not stored.
+        """
+        Set the channel upper and lower limits (Factory setting -> upper: 32767, lower: -32768)
+        This will immediately set linear scaling to true
+        because otherwise the limits are not stored.
         """
 
         self.configure_linear_scaling(channel, True)
@@ -528,29 +538,29 @@ class CpxAp4AiUI(_CpxApModule):
         """Hysteresis for measured value monitoring (Factory setting: 100)
         Value must be uint16
         """
-        id = 20046
+        uid = 20046
         if not 0 <= value <= 0xFFFF:
             raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
 
-        self.base._write_parameter(self.position, id, channel, value)
+        self.base._write_parameter(self.position, uid, channel, value)
 
     @CpxBase._require_base
     def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
         """set the signal smoothing of one channel. Smoothing is over 2^n values where n is
         smoothing_power. Factory setting: 5 (2^5 = 32 values)
         """
-        id = 20107
+        uid = 20107
         if smoothing_power > 15:
             raise ValueError(f"'{smoothing_power}' is not an option")
 
-        self.base._write_parameter(self.position, id, channel, smoothing_power)
+        self.base._write_parameter(self.position, uid, channel, smoothing_power)
 
     @CpxBase._require_base
     def configure_linear_scaling(self, channel: int, state: bool) -> None:
         """Set linear scaling (Factory setting "False")"""
-        id = 20111
+        uid = 20111
 
-        self.base._write_parameter(self.position, id, channel, int(state))
+        self.base._write_parameter(self.position, uid, channel, int(state))
 
 
 class CpxAp4Di4Do(_CpxApModule):
@@ -578,9 +588,10 @@ class CpxAp4Di4Do(_CpxApModule):
     @CpxBase._require_base
     def read_channel(self, channel: int, output_numbering=False) -> bool:
         """read back the value of one channel
-        Optional parameter 'output_numbering' defines if the outputs are numbered with the inputs ("True", default),
-        so the range of output channels is 4..7 (as 0..3 are the input channels). If "False", the outputs are numbered
-        from 0..3, the inputs cannot be accessed this way.
+        Optional parameter 'output_numbering' defines
+        if the outputs are numbered with the inputs ("True", default),
+        so the range of output channels is 4..7 (as 0..3 are the input channels).
+        If "False", the outputs are numbered from 0..3, the inputs cannot be accessed this way.
         """
         if output_numbering:
             channel -= 4
@@ -624,17 +635,18 @@ class CpxAp4Di4Do(_CpxApModule):
 
     @CpxBase._require_base
     def configure_debounce_time(self, value: int) -> None:
-        """The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
-        assumed as a logical input signal. In this way, unwanted signal edge changes can be suppressed
-        during switching operations (bouncing of the input signal).
+        """The "Input debounce time" parameter defines
+        when an edge change of the sensor signal shall be assumed as a logical input signal.
+        In this way, unwanted signal edge changes can be suppressed during switching operations
+        (bouncing of the input signal).
         Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
         """
-        id = 20014
+        uid = 20014
 
         if not 0 <= value <= 3:
             raise ValueError("Value {value} must be between 0 and 3")
 
-        self.base._write_parameter(self.position, id, 0, value)
+        self.base._write_parameter(self.position, uid, 0, value)
 
     @CpxBase._require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
@@ -643,12 +655,12 @@ class CpxAp4Di4Do(_CpxApModule):
         1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
         2: Load supply monitoring active
         """
-        id = 20022
+        uid = 20022
 
         if not 0 <= value <= 2:
             raise ValueError("Value {value} must be between 0 and 2")
 
-        self.base._write_parameter(self.position, id, 0, value)
+        self.base._write_parameter(self.position, uid, 0, value)
 
     @CpxBase._require_base
     def configure_behaviour_in_fail_state(self, value: int) -> None:
@@ -656,12 +668,12 @@ class CpxAp4Di4Do(_CpxApModule):
         0: Reset Outputs (default)
         1: Hold last state
         """
-        id = 20052
+        uid = 20052
 
         if not 0 <= value <= 1:
             raise ValueError("Value {value} must be between 0 and 2")
 
-        self.base._write_parameter(self.position, id, 0, value)
+        self.base._write_parameter(self.position, uid, 0, value)
 
 
 class CpxAp4Iol(_CpxApModule):
