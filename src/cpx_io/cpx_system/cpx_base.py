@@ -1,5 +1,5 @@
-'''CPX Base
-'''
+"""CPX Base
+"""
 
 import logging
 import struct
@@ -10,7 +10,9 @@ from pymodbus.constants import Endian
 
 
 class CpxInitError(Exception):
-    """Error should be raised if a cpx-... module is instanciated without connecting it to a base module.
+    """
+    Error should be raised if a cpx-... module
+    is instanciated without connecting it to a base module.
     Connect it to the cpx by adding it with add_module(<object instance>)
     """
 
@@ -31,7 +33,7 @@ class CpxBase:
     """A class to connect to the Festo CPX system and read data from IO modules"""
 
     def __init__(self, ip_address=None, port=502, timeout=1):
-        if ip_address == None:
+        if ip_address is None:
             logging.info("Not connected since no IP address was provided")
             return
 
@@ -67,7 +69,7 @@ class CpxBase:
 
         return data.registers
 
-    def write_reg_data(self, data: int|list, register: int, length=1):
+    def write_reg_data(self, data: int | list, register: int, length=1):
         """Write data to registers. If data is int, writes one register.
         If data is list, list content is written to given register address and following registers
 
@@ -77,8 +79,8 @@ class CpxBase:
                 self.client.write_register(register + i, data)
 
         elif isinstance(data, list):
-            for i, d in enumerate(data):
-                self.client.write_register(register + i, d)
+            for i, data_item in enumerate(data):
+                self.client.write_register(register + i, data_item)
         else:
             raise TypeError("data must be of type int or list")
 
@@ -94,30 +96,30 @@ class CpxBase:
     @staticmethod
     def _swap_bytes(registers):
         swapped = []
-        for r in registers:
-            k = struct.pack("<H", r)
+        for reg_item in registers:
+            k = struct.pack("<H", reg_item)
             k = int.from_bytes(k, byteorder="big", signed=False)
             swapped.append(k)
         return swapped
-    
+
     @staticmethod
-    def _encode_int(data: int, type='int16'):
+    def _encode_int(data: int, data_type="int16"):
         builder = BinaryPayloadBuilder(byteorder=Endian.BIG)
-        if type == "uint8":
+        if data_type == "uint8":
             builder.add_8bit_uint(data)
-        elif type == "uint16":
+        elif data_type == "uint16":
             builder.add_16bit_uint(data)
-        elif type == "uint32":
+        elif data_type == "uint32":
             builder.add_32bit_uint(data)
-        elif type == "int8":
+        elif data_type == "int8":
             builder.add_8bit_int(data)
-        elif type == "int16":
+        elif data_type == "int16":
             builder.add_16bit_int(data)
-        elif type == "int32":
+        elif data_type == "int32":
             builder.add_32bit_int(data)
         else:
-            raise NotImplementedError(f"Type {type} not implemented")
-        
+            raise NotImplementedError(f"Type {data_type} not implemented")
+
         return builder.to_registers()
 
     @staticmethod
@@ -130,35 +132,34 @@ class CpxBase:
         return decoder.decode_string(34).decode("ascii").strip("\x00")
 
     @staticmethod
-    def _decode_int(registers, type="uint16"):
+    def _decode_int(registers, data_type="uint16"):
         decoder = BinaryPayloadDecoder.fromRegisters(
             registers[::-1], byteorder=Endian.BIG
         )
-        if type == "uint8":
+        if data_type == "uint8":
             return decoder.decode_8bit_uint()
-        elif type == "uint16":
+        if data_type == "uint16":
             return decoder.decode_16bit_uint()
-        elif type == "uint32":
+        if data_type == "uint32":
             return decoder.decode_32bit_uint()
-        elif type == "int8":
+        if data_type == "int8":
             return decoder.decode_8bit_int()
-        elif type == "int16":
+        if data_type == "int16":
             return decoder.decode_16bit_int()
-        elif type == "int32":
+        if data_type == "int32":
             return decoder.decode_32bit_int()
-        else:
-            raise NotImplementedError(f"Type {type} not implemented")
+        raise NotImplementedError(f"Type {data_type} not implemented")
 
     @staticmethod
     def _decode_bool(registers):
-        decoder = BinaryPayloadDecoder.fromRegisters(registers[::-1], byteorder=Endian.BIG)
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            registers[::-1], byteorder=Endian.BIG
+        )
         return bool(decoder.decode_bits(0))
-        
+
     @staticmethod
-    def _decode_hex(registers, type='uint16'):
+    def _decode_hex(registers, data_type="uint16"):
         decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
-        if type == "uint16":
+        if data_type == "uint16":
             return format(decoder.decode_16bit_uint(), "#010x")
-        else:
-            raise NotImplementedError(f"Type {type} not implemented")
-        
+        raise NotImplementedError(f"Type {data_type} not implemented")
