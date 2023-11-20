@@ -169,8 +169,8 @@ class CpxAp(CpxBase):
             "Input Channels": input_channels,
             "Output Size": output_size,
             "Output Channeles": output_channels,
-            "HW Version": hW_version,
-            "FW Version": fW_version,
+            "HW Version": hw_version,
+            "FW Version": fw_version,
             "Serial Number": serial_number,
             "Product Key": product_key,
             "Order Text": order_text,
@@ -306,32 +306,32 @@ class CpxApEp(_CpxApModule):
         )
 
         ip_address = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 12001, 0), type="uint32"
+            self.base._read_parameter(self.position, 12001, 0), data_type="uint32"
         )
         ip_address = self.convert_uint32_to_octett(ip_address)
 
         subnet_mask = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 12002, 0), type="uint32"
+            self.base._read_parameter(self.position, 12002, 0), data_type="uint32"
         )
         subnet_mask = self.convert_uint32_to_octett(subnet_mask)
 
         gateway_address = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 12003, 0), type="uint32"
+            self.base._read_parameter(self.position, 12003, 0), data_type="uint32"
         )
         gateway_address = self.convert_uint32_to_octett(gateway_address)
 
         active_ip_address = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 12004, 0), type="uint32"
+            self.base._read_parameter(self.position, 12004, 0), data_type="uint32"
         )
         active_ip_address = self.convert_uint32_to_octett(active_ip_address)
 
         active_subnet_mask = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 12005, 0), type="uint32"
+            self.base._read_parameter(self.position, 12005, 0), data_type="uint32"
         )
         active_subnet_mask = self.convert_uint32_to_octett(active_subnet_mask)
 
         active_gateway_address = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 12006, 0), type="uint32"
+            self.base._read_parameter(self.position, 12006, 0), data_type="uint32"
         )
         active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
 
@@ -341,7 +341,7 @@ class CpxApEp(_CpxApModule):
         )
 
         setup_monitoring_load_supply = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 20022, 0), type="uint8"
+            self.base._read_parameter(self.position, 20022, 0), data_type="uint8"
         )
 
         return {
@@ -451,7 +451,7 @@ class CpxAp4AiUI(_CpxApModule):
     def read_channels(self) -> list[int]:
         """read all channels as a list of (signed) integers"""
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        return [CpxBase._decode_int([i], type="int16") for i in raw_data]
+        return [CpxBase._decode_int([i], data_type="int16") for i in raw_data]
 
     @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
