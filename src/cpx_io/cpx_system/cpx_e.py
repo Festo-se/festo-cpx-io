@@ -1,4 +1,4 @@
-"""CpxE module implementations."""
+"""CPX-E module implementations"""
 
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
 
@@ -101,11 +101,6 @@ class CpxE(CpxBase):
 
         if its >= 1000:
             raise ConnectionError()
-
-        data &= ~self._control_bit_value
-        data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)[0]
-
-        # TODO(maws): Something should be written here?
 
     def read_function_number(self, function_number: int):
         """Read parameters via function number"""
@@ -294,9 +289,9 @@ class CpxE8Do(_CpxEModule):
         reg = self.base.read_function_number(function_number)[0]
 
         # Fill in the unchanged values from the register
-        if short_circuit == None:
+        if short_circuit is None:
             short_circuit = bool((reg & 0x02) >> 2)
-        if undervoltage == None:
+        if undervoltage is None:
             undervoltage = bool((reg & 0x04) >> 4)
 
         value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2)
@@ -812,11 +807,11 @@ class CpxE4AoUI(_CpxEModule):
         reg = self.base.read_function_number(function_number)[0]
 
         # Fill in the unchanged values from the register
-        if short_circuit == None:
+        if short_circuit is None:
             short_circuit = bool((reg & 0x01) >> 1)
-        if undervoltage == None:
+        if undervoltage is None:
             undervoltage = bool((reg & 0x04) >> 2)
-        if param_error == None:
+        if param_error is None:
             param_error = bool((reg & 0x80) >> 7)
 
         value_to_write = (
@@ -907,12 +902,16 @@ class CpxE4AoUI(_CpxEModule):
 
 
 class CpxE4Iol(_CpxEModule):
+    """Class for CPX-E-4IOL io-link master module"""
+
     # TODO: Add IO-Link module
     def __init__(self):
         raise NotImplementedError("The module CPX-E-4IOL has not yet been implemented")
 
 
-class CpxE1Cl(_CpxEModule):
+class CpxE1Ci(_CpxEModule):
+    """Class for CPX-E-1CI counter module"""
+
     # TODO: Add 1Cl module
     def __init__(self):
-        raise NotImplementedError("The module CPX-E-1Cl has not yet been implemented")
+        raise NotImplementedError("The module CPX-E-1CI has not yet been implemented")

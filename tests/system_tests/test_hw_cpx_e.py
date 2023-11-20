@@ -1,3 +1,5 @@
+"""Tests for cpx-e system"""
+
 import pytest
 
 import time
