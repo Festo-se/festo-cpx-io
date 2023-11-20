@@ -1,7 +1,26 @@
-"""TODO: Add module docstring
-"""
+"""CpxE module implementations."""
 
-from .cpx_base import CpxBase
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
+
+
+def module_list_from_typecode(typecode: str) -> list:
+    """Creates a module list from a provided typecode."""
+    module_id_dict = {
+        "EP": CpxEEp,
+        "M": CpxE16Di,
+        "L": CpxE8Do,
+        "NI": CpxE4AiUI,
+        "NO": CpxE4AoUI,
+    }
+
+    module_list = []
+    for i in range(len(typecode)):
+        substring = typecode[i:]
+        for key, value in module_id_dict.items():
+            if substring.startswith(key):
+                module_list.append(value())
+
+    return module_list
 
 
 class _ModbusCommands:
@@ -34,15 +53,34 @@ class CpxE(CpxBase):
         self._next_input_register = None
         self._modules = []
 
-        if modules:
-            for m in modules:
-                self.add_module(m)
-        else:
-            self.add_module(CpxEEp())
+        self.modules = modules
 
     @property
     def modules(self):
+        """Property getter for modules"""
         return self._modules
+
+    @modules.setter
+    def modules(self, modules_value):
+        """
+        Property setter for modules.
+        Enables overwriting of modules list.
+        """
+        for mod in self._modules:
+            delattr(self, mod.name)
+        self._modules = []
+
+        if modules_value is None:
+            module_list = [CpxEEp()]
+        elif isinstance(modules_value, list):
+            module_list = modules_value
+        elif isinstance(modules_value, str):
+            module_list = module_list_from_typecode(modules_value)
+        else:
+            raise CpxInitError
+
+        for mod in module_list:
+            self.add_module(mod)
 
     def write_function_number(self, function_number: int, value: int):
         """Write parameters via function number"""
@@ -66,6 +104,8 @@ class CpxE(CpxBase):
 
         data &= ~self._control_bit_value
         data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)[0]
+
+        # TODO(maws): Something should be written here?
 
     def read_function_number(self, function_number: int):
         """Read parameters via function number"""
@@ -120,14 +160,20 @@ class CpxE(CpxBase):
     def add_module(self, module):
         """Adds one module to the base. This is required to use the module."""
         module._initialize(self, len(self._modules))
-        self.modules.append(module)
+        self._modules.append(module)
+        setattr(self, module.name, module)
         return module
 
 
 class _CpxEModule(CpxE):
     """Base class for cpx-e modules"""
 
-    def __init__(self):
+    def __init__(self, name=None):
+        if name:
+            self.name = name
+        else:
+            # Use class name (lower cased) as default value
+            self.name = type(self).__name__.lower()
         self.base = None
         self.position = None
 
@@ -234,12 +280,15 @@ class CpxE8Do(_CpxEModule):
 
     @CpxBase._require_base
     def configure_diagnostics(self, short_circuit=None, undervoltage=None):
-        """The "Diagnostics of short circuit at output" parameter defines whether the diagnostics of the outputs
-        in regard to short circuit or overload should be activated or deactivated.
-        The "Diagnostics of undervoltage at load supply" parameter defines if the diagnostics for the load
-        supply must be activated or deactivated with regard to undervoltage.
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED.
+        """
+        The "Diagnostics of short circuit at output" parameter defines whether
+        the diagnostics of the outputs in regard to short circuit or
+        overload should be activated or deactivated.
+        The "Diagnostics of undervoltage at load supply" parameter defines
+        if the diagnostics for the load supply must be activated or
+        deactivated with regard to undervoltage.
+        When the diagnostics are activated,
+        the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
         reg = self.base.read_function_number(function_number)[0]
@@ -256,10 +305,13 @@ class CpxE8Do(_CpxEModule):
 
     @CpxBase._require_base
     def configure_power_reset(self, value: bool):
-        """The "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False", default) or
+        """
+        The "Behaviour after SCO" parameter defines whether
+        the voltage remains switched off ("False", default) or
         automatically switches on ("True") again after a short circuit or overload at the outputs.
-        In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
-        off and on or the corresponding output must be reset and to restore the power.
+        In the case of the "Leave power switched off" setting,
+        the CPX-E automation system must be switched off and on or
+        the corresponding output must be reset and to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
@@ -303,10 +355,12 @@ class CpxE16Di(_CpxEModule):
 
     @CpxBase._require_base
     def configure_diagnostics(self, value: bool) -> None:
-        """The "Diagnostics of sensor supply short circuit" defines whether the diagnostics of the sensor supply
-        in regard to short circuit or overload should be activated ("True", default) or deactivated (False).
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED.
+        """
+        The "Diagnostics of sensor supply short circuit" defines whether
+        the diagnostics of the sensor supply in regard to short circuit or
+        overload should be activated ("True", default) or deactivated (False).
+        When the diagnostics are activated,
+        the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
         reg = self.base.read_function_number(function_number)[0]
@@ -321,10 +375,13 @@ class CpxE16Di(_CpxEModule):
 
     @CpxBase._require_base
     def configure_power_reset(self, value: bool) -> None:
-        """ "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False") or
-        automatically switches on again ("True", default) after a short circuit or overload of the sensor supply.
-        In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
-        off and on to restore the power.
+        """
+        "Behaviour after SCO" parameter defines whether
+        the voltage remains switched off ("False") or
+        automatically switches on again ("True", default)
+        after a short circuit or overload of the sensor supply.
+        In the case of the "Leave power switched off" setting,
+        the CPX-E automation system must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
@@ -339,10 +396,11 @@ class CpxE16Di(_CpxEModule):
 
     @CpxBase._require_base
     def configure_debounce_time(self, value: int) -> None:
-        """The "Input debounce time" parameter defines when an edge change of the sensor signal shall be
-        assumed as a logical input signal.
-        In this way, unwanted signal edge changes can be suppressed during switching operations (bouncing
-        of the input signal).
+        """
+        The "Input debounce time" parameter defines when
+        an edge change of the sensor signal shall be assumed as a logical input signal.
+        In this way, unwanted signal edge changes can be suppressed during switching operations
+        (bouncing of the input signal).
         Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
         """
         if value < 0 or value > 3:
@@ -351,15 +409,18 @@ class CpxE16Di(_CpxEModule):
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
 
-        # Fill in the unchanged values from the register, delete bit 4+5 from it and refill it with value
+        # Fill in the unchanged values from the register, delete bit 4+5 from it
+        # and refill it with value
         value_to_write = (reg & 0xCF) | (value << 4)
 
         self.base.write_function_number(function_number, value_to_write)
 
     @CpxBase._require_base
     def configure_signal_extension_time(self, value: int) -> None:
-        """The "Signal extension time" parameter defines the minimum valid duration of the assumed signal
-        status of the input signal. Edge changes within the signal extension time are ignored.
+        """
+        The "Signal extension time" parameter defines
+        the minimum valid duration of the assumed signal status of the input signal.
+        Edge changes within the signal extension time are ignored.
         Short input signals can also be recorded by defining a signal extension time.
         Accepted values are 0: 0.5 ms; 1: 15 ms (default); 2: 50 ms; 3: 100 ms;
         """
@@ -369,7 +430,8 @@ class CpxE16Di(_CpxEModule):
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
 
-        # Fill in the unchanged values from the register, delete bit 6+7 from it and refill it with value
+        # Fill in the unchanged values from the register, delete bit 6+7 from it
+        # and refill it with value
         value_to_write = (reg & 0x3F) | (value << 6)
 
         self.base.write_function_number(function_number, value_to_write)
@@ -390,7 +452,6 @@ class CpxE4AiUI(_CpxEModule):
     @CpxBase._require_base
     def read_channels(self) -> list[int]:
         """read all channels as a list of (signed) integers"""
-        # TODO: add signal conversion according to signalrange of the channel
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase._decode_int([x]) for x in raw_data]
         return data
@@ -481,15 +542,19 @@ class CpxE4AiUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_diagnostics(self, short_circuit=None, param_error=None):
-        """The "Diagnostics of sensor supply short circuit" defines whether the diagnostics of the sensor supply
-        in regard to short circuit or overload should be activated ("True", default) or deactivated ("False").
-        The parameter "Diagnostics of parameterisation error" defines if the diagnostics for the subsequently
-        listed parameters must be activated ("True", default) or deactivated ("False) with regard to unapproved settings:
+        """
+        The "Diagnostics of sensor supply short circuit" defines whether
+        the diagnostics of the sensor supply in regard to short circuit or
+        overload should be activated ("True", default) or deactivated ("False").
+        The parameter "Diagnostics of parameterisation error" defines
+        if the diagnostics for the
+        subsequently listed parameters must be activated ("True", default) or deactivated ("False)
+        with regard to unapproved settings:
          * Hysteresis < 0
          * Signal range (sensor type)
          * Lower limit > upper limit
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED.
+        When the diagnostics are activated,
+        the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
         reg = self.base.read_function_number(function_number)[0]
@@ -506,10 +571,13 @@ class CpxE4AiUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_power_reset(self, value: bool) -> None:
-        """The "Behaviour after SCO" parameter defines whether the voltage remains switched off ("False") or automatically
-        switches on ("True, default") again after a short circuit or overload of the sensor supply.
-        In the case of the "Leave power switched off" setting, the CPX-E automation system must be switched
-        off and on to restore the power
+        """
+        The "Behaviour after SCO" parameter defines whether
+        the voltage remains switched off ("False") or
+        automatically switches on ("True, default") again
+        after a short circuit or overload of the sensor supply.
+        In the case of the "Leave power switched off" setting,
+        the CPX-E automation system must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
@@ -524,7 +592,8 @@ class CpxE4AiUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_data_format(self, value: bool) -> None:
-        """The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
+        """
+        The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
         * False (default): Sign + 15 bit
         * True: Linear scaled
         """
@@ -541,7 +610,8 @@ class CpxE4AiUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_sensor_supply(self, value: bool) -> None:
-        """The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
+        """
+        The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
         or switched on ("True", default).
         The sensor supply can also be switched off and switched on during operation.
         """
@@ -558,10 +628,13 @@ class CpxE4AiUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_diagnostics_overload(self, value: bool) -> None:
-        """The parameter "Diagnostics of overload at analogue inputs" defines if the diagnostics for the current
-        inputs must be activated ("True", default) or deactivated ("False") with regard to overload.
-        When the diagnostics are activated, the error at an input current of >30 mA will be sent to the bus
-        module and displayed with the error LED on the module.
+        """
+        The parameter "Diagnostics of overload at analogue inputs" defines
+        if the diagnostics for the current inputs
+        must be activated ("True", default) or deactivated ("False") with regard to overload.
+        When the diagnostics are activated,
+        the error at an input current of >30 mA will be sent to the bus module and
+        displayed with the error LED on the module.
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)[0]
@@ -576,10 +649,12 @@ class CpxE4AiUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_behaviour_overload(self, value: bool) -> None:
-        """The parameter "Behaviour after overload at analogue inputs" defines if the power remains switched
-        off ("False") after an overload at the inputs or if it should be switched on again ("True", default) automatically.
-        In the case of the "Leave power switched off" setting, the automation system CPX-E must be switched
-        off and on to restore the power.
+        """
+        The parameter "Behaviour after overload at analogue inputs" defines if
+        the power remains switched off ("False") after an overload at the inputs or
+        if it should be switched on again ("True", default) automatically.
+        In the case of the "Leave power switched off" setting,
+        the automation system CPX-E must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)[0]
@@ -596,10 +671,13 @@ class CpxE4AiUI(_CpxEModule):
     def configure_hysteresis_limit_monitoring(
         self, lower: int | None = None, upper: int | None = None
     ) -> None:
-        """The parameter "Hysteresis of limit monitoring" defines the hysteresis value of the limit monitoring for
-        all channels.
-        The set hysteresis value must not be larger than the difference between the upper and lower limit values.
-        The defined value is not checked for validity and incorrect parameterisations will be applied.
+        """
+        The parameter "Hysteresis of limit monitoring" defines
+        the hysteresis value of the limit monitoring for all channels.
+        The set hysteresis value must not be larger
+        than the difference between the upper and lower limit values.
+        The defined value is not checked for validity and
+        incorrect parameterisations will be applied.
         """
         if lower:
             if lower < 0 or lower > 32767:
@@ -639,7 +717,7 @@ class CpxE4AoUI(_CpxEModule):
     @CpxBase._require_base
     def read_channels(self) -> list[int]:
         """read all channels as a list of integer values"""
-        # TODO: add signal conversion according to signalrange of the channel
+
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase._decode_int([x]) for x in raw_data]
         return data
@@ -658,14 +736,13 @@ class CpxE4AoUI(_CpxEModule):
     @CpxBase._require_base
     def write_channels(self, data: list[int]) -> None:
         """write data to module channels in ascending order"""
-        # TODO: scaling to given signalrange
         reg_data = [self.base._decode_int([x]) for x in data]
         self.base.write_reg_data(reg_data, self.output_register, length=4)
 
     @CpxBase._require_base
     def write_channel(self, channel: int, data: int) -> None:
         """write data to module channel number"""
-        # TODO: scaling to given signalrange
+
         reg_data = self.base._decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
@@ -712,10 +789,12 @@ class CpxE4AoUI(_CpxEModule):
     def configure_diagnostics(
         self, short_circuit=None, undervoltage=None, param_error=None
     ):
-        """The parameter "Diagnostics of short circuit in actuator supply" defines if the diagnostics for the
-        actuator supply with regard to short circuit or overload must be activated ("True", default) or deactivated ("False").
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the module by the
-        error LED.
+        """
+        The parameter "Diagnostics of short circuit in actuator supply" defines if
+        the diagnostics for the actuator supply with regard to short circuit or
+        overload must be activated ("True", default) or deactivated ("False").
+        When the diagnostics are activated,
+        the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
         reg = self.base.read_function_number(function_number)[0]
@@ -738,10 +817,13 @@ class CpxE4AoUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_power_reset(self, value: bool) -> None:
-        """he parameter “Behaviour after SCS actuator supply” defines if the power remains switched off ("False) after a
-        short circuit or overload of the actuator supply or if it should be switched on again automatically ("True", default).
-        In the case of the "Leave power switched off" setting, the automation system CPX-E must be switched
-        off and on to restore the power.
+        """
+        The parameter “Behaviour after SCS actuator supply” defines if
+        the power remains switched off ("False) after a short circuit or
+        overload of the actuator supply or
+        if it should be switched on again automatically ("True", default).
+        In the case of the "Leave power switched off" setting,
+        the automation system CPX-E must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
@@ -756,10 +838,13 @@ class CpxE4AoUI(_CpxEModule):
 
     @CpxBase._require_base
     def configure_behaviour_overload(self, value: bool) -> None:
-        """The parameter “Behaviour after SCS analogue output” defines if the power remains switched off ("False") after
-        a short circuit or overload at the outputs or if it should be switched on again automatically ("True", default). In the case
-        of the "Leave power switched off" setting, the automation system CPX-E must be switched off and on
-        to restore the power.
+        """
+        The parameter “Behaviour after SCS analogue output” defines if
+        the power remains switched off ("False") after a short circuit or
+        overload at the outputs or
+        if it should be switched on again automatically ("True", default).
+        In the case of the "Leave power switched off" setting,
+        the automation system CPX-E must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]

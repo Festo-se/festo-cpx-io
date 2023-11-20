@@ -1,127 +1,105 @@
 """Contains tests for MotionHandler class"""
-from unittest.mock import Mock
+import pytest
+from cpx_io.cpx_system.cpx_e import (
+    CpxE,
+    CpxEEp,
+    CpxE16Di,
+    CpxE8Do,
+    CpxE4AiUI,
+    CpxE4AoUI,
+)
 
-from cpx_io.cpx_system.cpx_e import CpxE, CpxEEp, CpxE8Do
 
+class TestCpxE:
+    def test_default_constructor(self):
+        cpx_e = CpxE()
 
-class TestCpxE8Do:
-    def test_read_channel_0_to_7(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+        assert len(cpx_e.modules) == 1
+        assert type(cpx_e.modules[0]) is CpxEEp
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        cpxe8do.base = mocked_base
+    def test_constructor_with_two_modules(self):
+        cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
-        assert cpxe8do.read_channel(0) == False
-        assert cpxe8do.read_channel(1) == True
-        assert cpxe8do.read_channel(2) == True
-        assert cpxe8do.read_channel(3) == True
-        assert cpxe8do.read_channel(4) == False
-        assert cpxe8do.read_channel(5) == True
-        assert cpxe8do.read_channel(6) == False
-        assert cpxe8do.read_channel(7) == True
-        mocked_base.read_reg_data.assert_called_with(cpxe8do.input_register)
+        assert len(cpx_e.modules) == 2
+        assert type(cpx_e.modules[0]) is CpxEEp
+        assert type(cpx_e.modules[1]) is CpxE16Di
 
-    def test_getitem_0_to_7(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+    def test_default_constructor_modified_modules(self):
+        cpx_e = CpxE()
+        cpx_e.modules = [CpxEEp(), CpxE16Di(), CpxE8Do()]
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        cpxe8do.base = mocked_base
+        assert len(cpx_e.modules) == 3
+        assert type(cpx_e.modules[0]) is CpxEEp
+        assert type(cpx_e.modules[1]) is CpxE16Di
+        assert type(cpx_e.modules[2]) is CpxE8Do
 
-        # Exercise
-        assert cpxe8do[0] == False
-        assert cpxe8do[1] == True
-        assert cpxe8do[2] == True
-        assert cpxe8do[3] == True
-        assert cpxe8do[4] == False
-        assert cpxe8do[5] == True
-        assert cpxe8do[6] == False
-        assert cpxe8do[7] == True
-        mocked_base.read_reg_data.assert_called_with(cpxe8do.input_register)
+    def test_constructor_with_typecode_MLNINO(self):
+        cpx_e = CpxE("60E-EP-MLNINO")
 
-    def test_write_channel_0_true(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+        assert len(cpx_e.modules) == 5
+        assert type(cpx_e.modules[0]) is CpxEEp
+        assert type(cpx_e.modules[1]) is CpxE16Di
+        assert type(cpx_e.modules[2]) is CpxE8Do
+        assert type(cpx_e.modules[3]) is CpxE4AiUI
+        assert type(cpx_e.modules[4]) is CpxE4AoUI
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        mocked_base.write_reg_data = Mock()
-        cpxe8do.base = mocked_base
+    def test_constructor_with_typecode_NIMNOL(self):
+        cpx_e = CpxE("60E-EP-NIMNOL")
 
-        cpxe8do.write_channel(0, True)
-        mocked_base.write_reg_data.assert_called_with(
-            0b10101111, cpxe8do.output_register
-        )
+        assert len(cpx_e.modules) == 5
+        assert type(cpx_e.modules[0]) is CpxEEp
+        assert type(cpx_e.modules[1]) is CpxE4AiUI
+        assert type(cpx_e.modules[2]) is CpxE16Di
+        assert type(cpx_e.modules[3]) is CpxE4AoUI
+        assert type(cpx_e.modules[4]) is CpxE8Do
 
-    def test_write_channel_1_false(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+    def test_constructor_with_typecode_NIMNOL(self):
+        cpx_e = CpxE("60E-EP-NIMNOL")
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        mocked_base.write_reg_data = Mock()
-        cpxe8do.base = mocked_base
+        assert len(cpx_e.modules) == 5
+        assert type(cpx_e.modules[0]) is CpxEEp
+        assert type(cpx_e.modules[1]) is CpxE4AiUI
+        assert type(cpx_e.modules[2]) is CpxE16Di
+        assert type(cpx_e.modules[3]) is CpxE4AoUI
+        assert type(cpx_e.modules[4]) is CpxE8Do
 
-        cpxe8do.write_channel(1, False)
-        mocked_base.write_reg_data.assert_called_with(
-            0b10101100, cpxe8do.output_register
-        )
+    def test_name_access_default(self):
+        cpx_e = CpxE()
 
-    def test_setitem_0_true(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+        assert type(cpx_e.cpxeep) is CpxEEp
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        mocked_base.write_reg_data = Mock()
-        cpxe8do.base = mocked_base
+    def test_name_access_with_two_modules(self):
+        cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
-        cpxe8do[0] = True
-        mocked_base.write_reg_data.assert_called_with(
-            0b10101111, cpxe8do.output_register
-        )
+        assert type(cpx_e.cpxeep) is CpxEEp
+        assert type(cpx_e.cpxe16di) is CpxE16Di
 
-    def test_setitem_1_false(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+    def test_name_access_modified_modules(self):
+        cpx_e = CpxE()
+        cpx_e.modules = [CpxEEp(), CpxE16Di(), CpxE8Do()]
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        mocked_base.write_reg_data = Mock()
-        cpxe8do.base = mocked_base
+        assert type(cpx_e.cpxeep) is CpxEEp
+        assert type(cpx_e.cpxe16di) is CpxE16Di
+        assert type(cpx_e.cpxe8do) is CpxE8Do
 
-        cpxe8do[1] = False
-        mocked_base.write_reg_data.assert_called_with(
-            0b10101100, cpxe8do.output_register
-        )
+    def test_name_access_modified_modules_custom_names(self):
+        cpx_e = CpxE([CpxEEp("m1"), CpxE16Di("m2"), CpxE8Do("m3")])
+        cpx_e.modules = [CpxEEp("m3"), CpxE16Di("m1"), CpxE8Do("m2")]
 
-    def test_set_channel_0(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
+        assert type(cpx_e.m3) is CpxEEp
+        assert type(cpx_e.m1) is CpxE16Di
+        assert type(cpx_e.m2) is CpxE8Do
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        mocked_base.write_reg_data = Mock()
-        cpxe8do.base = mocked_base
+    def test_name_access_modified_modules_custom_names_removed(self):
+        cpx_e = CpxE([CpxEEp("m1"), CpxE16Di("m2"), CpxE8Do("m3")])
+        cpx_e.modules = [CpxEEp("m4"), CpxE16Di("m5"), CpxE8Do("m6")]
 
-        cpxe8do.set_channel(0)
-        mocked_base.write_reg_data.assert_called_with(
-            0b10101111, cpxe8do.output_register
-        )
-
-    def test_clear_channel_1(self):
-        cpx_e = CpxE(modules=[CpxEEp(), CpxE8Do()])
-        cpxe8do = cpx_e.modules[1]
-
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b10101110])
-        mocked_base.write_reg_data = Mock()
-        cpxe8do.base = mocked_base
-
-        cpxe8do.clear_channel(1)
-        mocked_base.write_reg_data.assert_called_with(
-            0b10101100, cpxe8do.output_register
-        )
+        with pytest.raises(AttributeError):
+            cpx_e.m1
+        with pytest.raises(AttributeError):
+            cpx_e.m2
+        with pytest.raises(AttributeError):
+            cpx_e.m3
+        assert type(cpx_e.m4) is CpxEEp
+        assert type(cpx_e.m5) is CpxE16Di
+        assert type(cpx_e.m6) is CpxE8Do
