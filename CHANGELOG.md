@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
 ### Added
 - [Minor] CpxE: Added access-by-name for modules of CpxE.
 - [Minor] CpxE: Added construction from typecode.
 - [Minor] CpxE: Added property setter for modules.
 
 ### Changed
+- [Minor] several bugfixes
+- [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager
 - [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager.
 - [Minor] Exchanged int_to_signed16 function with built in function
 - [Minor] Added example.py for cpx-ap and cpx-e, minor bugfixing

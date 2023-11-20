@@ -1,11 +1,11 @@
-"""
-# TODO: Add Docstring
-"""
+'''CPX Base
+'''
+
 import logging
 import struct
 
 from pymodbus.client import ModbusTcpClient
-from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
 from pymodbus.constants import Endian
 
 
@@ -67,8 +67,11 @@ class CpxBase:
 
         return data.registers
 
-    def write_reg_data(self, data: int | list, register: int, length=1):
-        """Todo"""
+    def write_reg_data(self, data: int|list, register: int, length=1):
+        """Write data to registers. If data is int, writes one register.
+        If data is list, list content is written to given register address and following registers
+
+        """
         if isinstance(data, int):
             for i in range(0, length):
                 self.client.write_register(register + i, data)
@@ -96,6 +99,26 @@ class CpxBase:
             k = int.from_bytes(k, byteorder="big", signed=False)
             swapped.append(k)
         return swapped
+    
+    @staticmethod
+    def _encode_int(data: int, type='int16'):
+        builder = BinaryPayloadBuilder(byteorder=Endian.BIG)
+        if type == "uint8":
+            builder.add_8bit_uint(data)
+        elif type == "uint16":
+            builder.add_16bit_uint(data)
+        elif type == "uint32":
+            builder.add_32bit_uint(data)
+        elif type == "int8":
+            builder.add_8bit_int(data)
+        elif type == "int16":
+            builder.add_16bit_int(data)
+        elif type == "int32":
+            builder.add_32bit_int(data)
+        else:
+            raise NotImplementedError(f"Type {type} not implemented")
+        
+        return builder.to_registers()
 
     @staticmethod
     def _decode_string(registers):
@@ -117,67 +140,25 @@ class CpxBase:
             return decoder.decode_16bit_uint()
         elif type == "uint32":
             return decoder.decode_32bit_uint()
-        if type == "int8":
+        elif type == "int8":
             return decoder.decode_8bit_int()
         elif type == "int16":
             return decoder.decode_16bit_int()
         elif type == "int32":
             return decoder.decode_32bit_int()
-        elif type == "bool":
-            return bool(decoder.decode_bits(0))
         else:
             raise NotImplementedError(f"Type {type} not implemented")
 
     @staticmethod
-    def _decode_hex(registers, type="uint16"):
+    def _decode_bool(registers):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers[::-1], byteorder=Endian.BIG)
+        return bool(decoder.decode_bits(0))
+        
+    @staticmethod
+    def _decode_hex(registers, type='uint16'):
         decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
         if type == "uint16":
             return format(decoder.decode_16bit_uint(), "#010x")
         else:
             raise NotImplementedError(f"Type {type} not implemented")
-
-    # TODO: Check if needed here
-    '''
-    def readInputRegData(self, register, length=1):
-        """Reads and returns input registers from Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        """
-        return self.readRegData(register, length, "input_register")
-
-    def readHoldingRegData(self, register, length=1):
-        """Reads and returns holding registers form Modbus server
-
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
-        """
-        return self.readRegData(register, length, "holding_register")
-    '''
-
-    # TODO: Check if needed here
-    '''
-    def writeMultipleData(self, register, data):
-        """Todo
-
-        """
-        try:
-            self.client.write_registers(register, data)
-        except Exception as e:
-            print("Error while writing: ", str(e))
-
-
-    def writeOutputRegData(self, register, data):
-        """Todo
-
-        """
-        return self.writeData(register, data)
-
-    def writeOutputMultiRegData(self, register, data):
-        """Todo
-
-        """
-        return self.writeMultipleData(register, data)
-    '''
+        
