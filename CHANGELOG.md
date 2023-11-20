@@ -5,37 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+### Added
+- [Minor] CpxE: Added access-by-name for modules of CpxE.
+- [Minor] CpxE: Added construction from typecode.
+- [Minor] CpxE: Added property setter for modules.
+
 ### Changed
 - [Minor] several bugfixes
-
-### Changed
 - [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager
-
-### Changed
+- [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager.
 - [Minor] Exchanged int_to_signed16 function with built in function
-
-### Changed
 - [Minor] Added example.py for cpx-ap and cpx-e, minor bugfixing
-
-### Changed
 - [Minor] Added base functionality for CPX-AP-I. Added not implemented modules to CPX-E with Error on init. Several bugfixes on CPX-E.
-
-### Changed
 - [Minor] Fixed that registers are read before writing to them instead of saving the values in the object instance
-
-### Changed
 - [Minor] Updated modules list so each module can be adressed via the base class
-
-### Changed
 - [Minor] Fixed module functions, fixed process data
-
-### Changed
 - [Minor] Fixed system test issues, Minor Bugfixes
-
-### Changed
 - [Minor] Fixed linting issues
-
-### Changed
 - [Minor] Reworked CPX-E class structure.
 
 ## v0.1.1 - 20.10.23
