@@ -294,44 +294,44 @@ def test_4AiUI_configures_channel_limits(test_cpxap):
     a4aiui.configure_channel_limits(0, upper=1111, lower=-1111)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 0), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 0), data_type="int16")
         == 1111
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 0), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 0), data_type="int16")
         == -1111
     )
 
     a4aiui.configure_channel_limits(1, upper=2222, lower=-2222)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 1), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 1), data_type="int16")
         == 2222
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 1), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 1), data_type="int16")
         == -2222
     )
 
     a4aiui.configure_channel_limits(2, upper=3333, lower=-3333)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 2), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 2), data_type="int16")
         == 3333
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 2), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 2), data_type="int16")
         == -3333
     )
 
     a4aiui.configure_channel_limits(3, upper=4444, lower=-4444)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 3), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 3), data_type="int16")
         == 4444
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 3), type="int16")
+        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 3), data_type="int16")
         == -4444
     )
 

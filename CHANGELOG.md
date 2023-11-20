@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] Reworked CPX-E class structure.
 
 ### Fixed
+- [Patch] Bugfixes after next Merge
 - [Patch] Bugfixes after Merge
 
 ## v0.1.1 - 20.10.23
