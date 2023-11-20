@@ -357,6 +357,9 @@ class CpxApEp(_CpxApModule):
 
 
 class CpxAp4Di(_CpxApModule):
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -397,6 +400,9 @@ class CpxAp4Di(_CpxApModule):
 
 
 class CpxAp8Di(_CpxApModule):
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -436,6 +442,9 @@ class CpxAp8Di(_CpxApModule):
 
 
 class CpxAp4AiUI(_CpxApModule):
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -564,6 +573,12 @@ class CpxAp4AiUI(_CpxApModule):
 
 
 class CpxAp4Di4Do(_CpxApModule):
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
+    def __setitem__(self, key, value):
+        self.write_channel(key, value)
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -609,16 +624,27 @@ class CpxAp4Di4Do(_CpxApModule):
         self.base.write_reg_data(integer_data, self.output_register)
 
     @CpxBase._require_base
+    def write_channel(self, channel: int, value: bool) -> None:
+        """set one channel to logic value"""
+        data = (
+            self.base.read_reg_data(self.output_register)[0] & 0xF
+        )  # read current value
+        mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
+        data &= ~mask  # Clear the bit indicated by the mask
+        if value:
+            data |= mask  # If x was True, set the bit indicated by the mask.
+
+        self.base.write_reg_data(data, self.output_register)
+
+    @CpxBase._require_base
     def set_channel(self, channel: int) -> None:
         """set one channel to logic high level"""
-        data = self.base.read_reg_data(self.output_register)[0] & 0xF
-        self.base.write_reg_data(data | 1 << channel, self.output_register)
+        self.write_channel(channel, True)
 
     @CpxBase._require_base
     def clear_channel(self, channel: int) -> None:
         """set one channel to logic low level"""
-        data = self.base.read_reg_data(self.output_register)[0] & 0xF
-        self.base.write_reg_data(data & ~(1 << channel), self.output_register)
+        self.write_channel(channel, False)
 
     @CpxBase._require_base
     def toggle_channel(self, channel: int) -> None:
