@@ -1,11 +1,10 @@
 """Contains tests for cpx_e8do class"""
-import unittest
 from unittest.mock import Mock
 
 from cpx_io.cpx_system.cpx_e import CpxE, CpxE8Do
 
 
-class TestCpxE8Do(unittest.TestCase):
+class TestCpxE8Do:
     """Test cpx-e-8do"""
 
     def test_initialize(self):
@@ -242,4 +241,4 @@ class TestCpxE8Do(unittest.TestCase):
         mocked_base = Mock()
         cpxe8do.base = mocked_base
 
-        self.assertEqual(repr(cpxe8do), "cpxe8do at position 1")
+        assert repr(cpxe8do) == "cpxe8do (idx: 1, type: CpxE8Do)"
