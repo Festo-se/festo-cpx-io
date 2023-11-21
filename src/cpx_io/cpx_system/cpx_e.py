@@ -82,7 +82,7 @@ class CpxE(CpxBase):
         for mod in module_list:
             self.add_module(mod)
 
-    def write_function_number(self, function_number: int, value: int):
+    def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number"""
         self.write_reg_data(value, *_ModbusCommands.data_system_table_write)
         # need to write 0 first because there might be an
@@ -102,7 +102,7 @@ class CpxE(CpxBase):
         if its >= 1000:
             raise ConnectionError()
 
-    def read_function_number(self, function_number: int):
+    def read_function_number(self, function_number: int) -> int:
         """Read parameters via function number"""
         # need to write 0 first because there might be an
         # old unknown configuration in the register
@@ -122,8 +122,8 @@ class CpxE(CpxBase):
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)
-        return data2
+        value = self.read_reg_data(*_ModbusCommands.data_system_table_read)
+        return value
 
     def module_count(self) -> int:
         """returns the total count of attached modules"""
@@ -174,6 +174,9 @@ class _CpxEModule(CpxE):
 
         self.output_register = None
         self.input_register = None
+
+    def __repr__(self):
+        return f"{self.name} at position {self.position}"
 
     def _initialize(self, base, position):
         self.base = base
@@ -290,11 +293,14 @@ class CpxE8Do(_CpxEModule):
 
         # Fill in the unchanged values from the register
         if short_circuit is None:
-            short_circuit = bool((reg & 0x02) >> 2)
+            short_circuit = bool((reg & 0x02) >> 1)
         if undervoltage is None:
-            undervoltage = bool((reg & 0x04) >> 4)
+            undervoltage = bool((reg & 0x04) >> 2)
 
-        value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2)
+        mask = 0xF9
+        value_to_write = (
+            reg & mask | (int(short_circuit) << 1) | (int(undervoltage) << 2)
+        )
 
         self.base.write_function_number(function_number, value_to_write)
 

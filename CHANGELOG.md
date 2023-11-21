@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] CPXE: Added more unittests
+- [Minor] CpxE and CpxAP: Added __repr__ function
 - [Minor] CpxE: Added property setter / getter for more modules.
 - [Minor] CpxE: Added access-by-name for modules of CpxE.
 - [Minor] CpxE: Added construction from typecode.
@@ -27,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] Reworked CPX-E class structure.
 
 ### Fixed
+- [Patch] Fixed diagnostics function in cpx-e-8do
 - [Patch] Fixed several linter issues
 - [Patch] Bugfixes after Merge
 
