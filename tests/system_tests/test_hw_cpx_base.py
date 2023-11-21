@@ -1,3 +1,4 @@
+"""Tests for cpx base class"""
 import pytest
 
 from cpx_io.cpx_system.cpx_base import CpxBase

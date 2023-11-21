@@ -1,3 +1,5 @@
+"""Tests for cpx-ap system"""
+
 import pytest
 
 import time
@@ -383,9 +385,9 @@ def test_setter(test_cpxap):
     a4di4do[0] = True
     time.sleep(0.05)
     # read back the first output channel (it's on index 4)
-    assert a4di4do[4] == True
+    assert a4di4do[4] is True
 
     a4di4do[0] = False
     time.sleep(0.05)
     # read back the first output channel (it's on index 4)
-    assert a4di4do[4] == False
+    assert a4di4do[4] is False

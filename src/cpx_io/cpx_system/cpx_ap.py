@@ -1,9 +1,8 @@
-"""CPX AP
-"""
+"""CPX-AP module implementations"""
 
 import math
 
-from .cpx_base import CpxBase, CpxRequestError
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 
 
 class _ModbusCommands:
@@ -48,6 +47,7 @@ class CpxAp(CpxBase):
 
     @property
     def modules(self):
+        """Function for private modules property"""
         return self._modules
 
     def add_module(self, information: dict):
@@ -276,6 +276,9 @@ class _CpxApModule(CpxAp):
         self.output_register = None
         self.input_register = None
 
+    def __repr__(self):
+        return f"{self.information.get('Order Text')} at position {self.position}"
+
     def _initialize(self, base, position):
         self.base = base
         self.position = position
@@ -297,10 +300,12 @@ class CpxApEp(_CpxApModule):
 
     @staticmethod
     def convert_uint32_to_octett(value: int) -> str:
+        """Convert one uint32 value to octett. Usually used for displaying ip addresses."""
         return f"{value & 0xFF}.{(value >> 8) & 0xFF}.{(value >> 16) & 0xFF}.{(value) >> 24 & 0xFF}"
 
     @CpxBase._require_base
     def read_parameters(self):
+        """Read parameters from EP module"""
         dhcp_enable = CpxBase._decode_bool(
             self.base._read_parameter(self.position, 12000, 0)
         )
@@ -357,6 +362,8 @@ class CpxApEp(_CpxApModule):
 
 
 class CpxAp4Di(_CpxApModule):
+    """Class for CPX-AP-*-4DI-* module"""
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -400,6 +407,8 @@ class CpxAp4Di(_CpxApModule):
 
 
 class CpxAp8Di(_CpxApModule):
+    """Class for CPX-AP-*-8DI-* module"""
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -442,6 +451,8 @@ class CpxAp8Di(_CpxApModule):
 
 
 class CpxAp4AiUI(_CpxApModule):
+    """Class for CPX-AP-*-4AI-* module"""
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -486,7 +497,7 @@ class CpxAp4AiUI(_CpxApModule):
     @CpxBase._require_base
     def configure_channel_range(self, channel: int, signalrange: str) -> None:
         """set the signal range and type of one channel"""
-        id = 20043
+        reg_id = 20043
         value = {
             "None": 0,
             "-10-+10V": 1,
@@ -504,7 +515,7 @@ class CpxAp4AiUI(_CpxApModule):
                 f"'{signalrange}' is not an option. Choose from {value.keys()}"
             )
 
-        self.base._write_parameter(self.position, id, channel, value[signalrange])
+        self.base._write_parameter(self.position, reg_id, channel, value[signalrange])
 
     @CpxBase._require_base
     def configure_channel_limits(
@@ -573,6 +584,8 @@ class CpxAp4AiUI(_CpxApModule):
 
 
 class CpxAp4Di4Do(_CpxApModule):
+    """Class for CPX-AP-*-4DI4DO-* module"""
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -703,6 +716,8 @@ class CpxAp4Di4Do(_CpxApModule):
 
 
 class CpxAp4Iol(_CpxApModule):
+    """Class for CPX-AP-*-4IOL-* module"""
+
     def _initialize(self, *args):
         super()._initialize(*args)
 

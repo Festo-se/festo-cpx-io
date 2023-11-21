@@ -1,4 +1,4 @@
-"""CpxE module implementations."""
+"""CPX-E module implementations"""
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
@@ -89,7 +89,7 @@ class CpxE(CpxBase):
         for mod in module_list:
             self.add_module(mod)
 
-    def write_function_number(self, function_number: int, value: int):
+    def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number"""
         self.write_reg_data(value, *_ModbusCommands.data_system_table_write)
         # need to write 0 first because there might be an
@@ -109,12 +109,7 @@ class CpxE(CpxBase):
         if its >= 1000:
             raise ConnectionError()
 
-        data &= ~self._control_bit_value
-        data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)[0]
-
-        # TODO(maws): Something should be written here?
-
-    def read_function_number(self, function_number: int):
+    def read_function_number(self, function_number: int) -> int:
         """Read parameters via function number"""
         # need to write 0 first because there might be an
         # old unknown configuration in the register
@@ -134,8 +129,8 @@ class CpxE(CpxBase):
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        data2 = self.read_reg_data(*_ModbusCommands.data_system_table_read)
-        return data2
+        value = self.read_reg_data(*_ModbusCommands.data_system_table_read)
+        return value[0]
 
     def module_count(self) -> int:
         """returns the total count of attached modules"""
@@ -158,7 +153,7 @@ class CpxE(CpxBase):
     def read_device_identification(self) -> int:
         """returns Objects IDO 1,2,3,4,5"""
         data = self.read_function_number(43)
-        return data[0]
+        return data
 
     def read_module_count(self) -> int:
         """Reads and returns IO module count as integer"""
@@ -189,7 +184,7 @@ class _CpxEModule(CpxBase):
         self.input_register = None
 
     def __repr__(self):
-        return f"{self.name} ({type(self).__name__})"
+        return f"{self.name} (idx: {self.position}, type: {type(self).__name__})"
 
     def _initialize(self, base, position):
         self.base = base
@@ -302,15 +297,18 @@ class CpxE8Do(_CpxEModule):
         the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
-        if short_circuit == None:
-            short_circuit = bool((reg & 0x02) >> 2)
-        if undervoltage == None:
-            undervoltage = bool((reg & 0x04) >> 4)
+        if short_circuit is None:
+            short_circuit = bool((reg & 0x02) >> 1)
+        if undervoltage is None:
+            undervoltage = bool((reg & 0x04) >> 2)
 
-        value_to_write = (int(short_circuit) << 1) | (int(undervoltage) << 2)
+        mask = 0xF9
+        value_to_write = (
+            reg & mask | (int(short_circuit) << 1) | (int(undervoltage) << 2)
+        )
 
         self.base.write_function_number(function_number, value_to_write)
 
@@ -325,7 +323,7 @@ class CpxE8Do(_CpxEModule):
         the corresponding output must be reset and to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -377,7 +375,7 @@ class CpxE16Di(_CpxEModule):
         the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -398,7 +396,7 @@ class CpxE16Di(_CpxEModule):
         the CPX-E automation system must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -421,7 +419,7 @@ class CpxE16Di(_CpxEModule):
             raise ValueError(f"Value {value} must be between 0 and 3")
 
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register, delete bit 4+5 from it
         # and refill it with value
@@ -442,7 +440,7 @@ class CpxE16Di(_CpxEModule):
             raise ValueError(f"Value {value} must be between 0 and 3")
 
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register, delete bit 6+7 from it
         # and refill it with value
@@ -507,8 +505,8 @@ class CpxE4AiUI(_CpxEModule):
 
         function_number = 4828 + 64 * self.position
 
-        reg_01 = self.base.read_function_number(function_number + 13)[0]
-        reg_23 = self.base.read_function_number(function_number + 14)[0]
+        reg_01 = self.base.read_function_number(function_number + 13)
+        reg_23 = self.base.read_function_number(function_number + 14)
 
         if channel == 0:
             function_number += 13
@@ -537,8 +535,8 @@ class CpxE4AiUI(_CpxEModule):
 
         function_number = 4828 + 64 * self.position
 
-        reg_01 = self.base.read_function_number(function_number + 15)[0]
-        reg_23 = self.base.read_function_number(function_number + 16)[0]
+        reg_01 = self.base.read_function_number(function_number + 15)
+        reg_23 = self.base.read_function_number(function_number + 16)
 
         if channel == 0:
             function_number += 15
@@ -574,7 +572,7 @@ class CpxE4AiUI(_CpxEModule):
         the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if short_circuit == None:
@@ -597,7 +595,7 @@ class CpxE4AiUI(_CpxEModule):
         the CPX-E automation system must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -615,7 +613,7 @@ class CpxE4AiUI(_CpxEModule):
         * True: Linear scaled
         """
         function_number = 4828 + 64 * self.position + 6
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -633,7 +631,7 @@ class CpxE4AiUI(_CpxEModule):
         The sensor supply can also be switched off and switched on during operation.
         """
         function_number = 4828 + 64 * self.position + 6
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -654,7 +652,7 @@ class CpxE4AiUI(_CpxEModule):
         displayed with the error LED on the module.
         """
         function_number = 4828 + 64 * self.position + 6
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -674,7 +672,7 @@ class CpxE4AiUI(_CpxEModule):
         the automation system CPX-E must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 6
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -788,8 +786,8 @@ class CpxE4AoUI(_CpxEModule):
 
         function_number = 4828 + 64 * self.position
 
-        reg_01 = self.base.read_function_number(function_number + 11)[0]
-        reg_23 = self.base.read_function_number(function_number + 12)[0]
+        reg_01 = self.base.read_function_number(function_number + 11)
+        reg_23 = self.base.read_function_number(function_number + 12)
 
         if channel == 0:
             function_number += 11
@@ -820,14 +818,14 @@ class CpxE4AoUI(_CpxEModule):
         the error will be sent to the bus module and displayed on the module by the error LED.
         """
         function_number = 4828 + 64 * self.position + 0
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
-        if short_circuit == None:
+        if short_circuit is None:
             short_circuit = bool((reg & 0x01) >> 1)
-        if undervoltage == None:
+        if undervoltage is None:
             undervoltage = bool((reg & 0x04) >> 2)
-        if param_error == None:
+        if param_error is None:
             param_error = bool((reg & 0x80) >> 7)
 
         value_to_write = (
@@ -849,7 +847,7 @@ class CpxE4AoUI(_CpxEModule):
         the automation system CPX-E must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -870,7 +868,7 @@ class CpxE4AoUI(_CpxEModule):
         the automation system CPX-E must be switched off and on to restore the power.
         """
         function_number = 4828 + 64 * self.position + 1
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -887,7 +885,7 @@ class CpxE4AoUI(_CpxEModule):
         * True: Linear scaled
         """
         function_number = 4828 + 64 * self.position + 6
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -904,7 +902,7 @@ class CpxE4AoUI(_CpxEModule):
 
         """
         function_number = 4828 + 64 * self.position + 6
-        reg = self.base.read_function_number(function_number)[0]
+        reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
         if value:
@@ -918,12 +916,16 @@ class CpxE4AoUI(_CpxEModule):
 
 
 class CpxE4Iol(_CpxEModule):
+    """Class for CPX-E-4IOL io-link master module"""
+
     # TODO: Add IO-Link module
     def __init__(self):
         raise NotImplementedError("The module CPX-E-4IOL has not yet been implemented")
 
 
-class CpxE1Cl(_CpxEModule):
+class CpxE1Ci(_CpxEModule):
+    """Class for CPX-E-1CI counter module"""
+
     # TODO: Add 1Cl module
     def __init__(self):
-        raise NotImplementedError("The module CPX-E-1Cl has not yet been implemented")
+        raise NotImplementedError("The module CPX-E-1CI has not yet been implemented")
