@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] CpxE8Do: Added access-by-index-operator to channels
 
 ### Changed
+- [Minor] changed return value of read function number to int
 - [Minor] several bugfixes
 - [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager.
 - [Minor] Exchanged int_to_signed16 function with built in function
