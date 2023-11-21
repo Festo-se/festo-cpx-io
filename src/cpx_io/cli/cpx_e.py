@@ -4,14 +4,64 @@ from cpx_io.cpx_system.cpx_e import CpxE
 
 def add_cpx_e_parser(subparsers):
     """Adds arguments to a provided subparsers instance"""
-    parser_position = subparsers.add_parser("cpx-e")
-    parser_position.set_defaults(func=cpx_e_func)
+    parser_cpx_e = subparsers.add_parser("cpx-e")
+    parser_cpx_e.set_defaults(func=cpx_e_func)
 
-    parser_position.add_argument("-r", "--read-channel", help="Channel to be read")
+    parser_cpx_e.add_argument(
+        "-t", "--typecode", type=str, required=True, help="Typecode of the cpx setup"
+    )
+    parser_cpx_e.add_argument(
+        "-m",
+        "--module-index",
+        type=int,
+        default=1,
+        help="Module index to read (default: %(default)s).",
+    )
+
+    subparsers_cpx = parser_cpx_e.add_subparsers(
+        dest="subcommand",
+        required=True,
+        title="action commands",
+        description="Action to perform on the PNU",
+    )
+
+    # Options for reading PNU
+    parser_read = subparsers_cpx.add_parser("read")
+    parser_read.add_argument(
+        "-c", "--channel-index", type=int, help="Channel index to be read"
+    )
+
+    # Options for writing PNU
+    parser_write = subparsers_cpx.add_parser("write")
+    parser_write.add_argument(
+        "-c", "--channel-index", type=int, help="Channel index to be written"
+    )
+    parser_write.add_argument(
+        "value",
+        nargs="+",
+        type=bool,
+        default=True,
+        help="Value to be written (default: %(default)s).",
+    )
 
 
 def cpx_e_func(args):
     """Executes subcommand based on provided arguments"""
-    cpx_e = CpxE(args.ip_address)
-    register_value = cpx_e.modules[0].read_channel(int(args.read_channel))
-    print(f"Value: {register_value}")
+    # module_index = int(args.module_index)
+    # channel_index = int(args.channel_index) if args.channel_index else None
+    cpx_e = CpxE(ip_address=args.ip_address, modules=args.typecode)
+
+    if args.subcommand == "read":
+        print(f"{args.channel_index}")
+        if args.channel_index is not None:
+            value = cpx_e.modules[args.module_index][args.channel_index]
+            print(f"Value: {value}")
+        else:
+            value = cpx_e.modules[args.module_index].read_channels()
+            print(f"Value: {value}")
+
+    elif args.subcommand == "write":
+        if args.channel_index is not None:
+            cpx_e.modules[args.module_index][args.channel_index] = args.value[0]
+        else:
+            value = cpx_e.modules[args.module_index].write_channels(args.value)

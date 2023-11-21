@@ -1,5 +1,6 @@
 """CpxE module implementations."""
 
+from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
 
 
@@ -55,6 +56,11 @@ class CpxE(CpxBase):
 
         self.modules = modules
 
+        Logging.logger.info(f"Created {self}")
+
+    def __repr__(self):
+        return f"{type(self).__name__}: [{', '.join(str(x) for x in self.modules)}]"
+
     @property
     def modules(self):
         """Property getter for modules"""
@@ -75,6 +81,7 @@ class CpxE(CpxBase):
         elif isinstance(modules_value, list):
             module_list = modules_value
         elif isinstance(modules_value, str):
+            Logging.logger.info(f"Use typecode {modules_value} for module setup")
             module_list = module_list_from_typecode(modules_value)
         else:
             raise CpxInitError
@@ -162,10 +169,11 @@ class CpxE(CpxBase):
         module._initialize(self, len(self._modules))
         self._modules.append(module)
         setattr(self, module.name, module)
+        Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
 
 
-class _CpxEModule(CpxE):
+class _CpxEModule(CpxBase):
     """Base class for cpx-e modules"""
 
     def __init__(self, name=None):
@@ -179,6 +187,9 @@ class _CpxEModule(CpxE):
 
         self.output_register = None
         self.input_register = None
+
+    def __repr__(self):
+        return f"{self.name} ({type(self).__name__})"
 
     def _initialize(self, base, position):
         self.base = base
@@ -226,7 +237,7 @@ class CpxE8Do(_CpxEModule):
     def write_channels(self, data: list[bool]) -> None:
         """write all channels with a list of bool values"""
         if len(data) != 8:
-            raise ValueError("Data must be list of eight elements")
+            raise ValueError(f"Data len error: expected: 8, got: {len(data)}")
         # Make binary from list of bools
         binary_string = "".join("1" if value else "0" for value in reversed(data))
         # Convert the binary string to an integer
@@ -276,7 +287,7 @@ class CpxE8Do(_CpxEModule):
         elif data == 0:
             self.set_channel(channel)
         else:
-            raise ValueError
+            raise ValueError(f"Value {data} must be between 0 and 1")
 
     @CpxBase._require_base
     def configure_diagnostics(self, short_circuit=None, undervoltage=None):
@@ -407,7 +418,7 @@ class CpxE16Di(_CpxEModule):
         Accepted values are 0: 0.1 ms; 1: 3 ms (default); 2: 10 ms; 3: 20 ms;
         """
         if value < 0 or value > 3:
-            raise ValueError("Value {value} must be between 0 and 3")
+            raise ValueError(f"Value {value} must be between 0 and 3")
 
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]
@@ -428,7 +439,7 @@ class CpxE16Di(_CpxEModule):
         Accepted values are 0: 0.5 ms; 1: 15 ms (default); 2: 50 ms; 3: 100 ms;
         """
         if value < 0 or value > 3:
-            raise ValueError("Value {value} must be between 0 and 3")
+            raise ValueError(f"Value {value} must be between 0 and 3")
 
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)[0]

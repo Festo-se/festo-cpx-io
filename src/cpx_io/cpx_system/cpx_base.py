@@ -1,12 +1,12 @@
 """CPX Base
 """
 
-import logging
 import struct
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
 from pymodbus.constants import Endian
+from cpx_io.utils.logging import Logging
 
 
 class CpxInitError(Exception):
@@ -34,7 +34,7 @@ class CpxBase:
 
     def __init__(self, ip_address=None, port=502, timeout=1):
         if ip_address is None:
-            logging.info("Not connected since no IP address was provided")
+            Logging.logger.info("Not connected since no IP address was provided")
             return
 
         self.client = ModbusTcpClient(
@@ -44,14 +44,14 @@ class CpxBase:
         )
 
         self.client.connect()
-        logging.info(f"Connected to {ip_address}:{port} (timeout: {timeout})")
+        Logging.logger.info(f"Connected to {ip_address}:{port} (timeout: {timeout})")
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.client.close()
-        logging.info("Disconnected")
+        Logging.logger.info("Disconnected")
         return False
 
     def read_reg_data(self, register: int, length=1) -> list:
