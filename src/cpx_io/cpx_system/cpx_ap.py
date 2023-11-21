@@ -276,6 +276,9 @@ class _CpxApModule(CpxAp):
         self.output_register = None
         self.input_register = None
 
+    def __repr__(self):
+        return f"{self.information.get('Order Text')} at position {self.position}"
+
     def _initialize(self, base, position):
         self.base = base
         self.position = position
