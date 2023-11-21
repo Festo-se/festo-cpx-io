@@ -202,7 +202,7 @@ class TestCpxE8Do(unittest.TestCase):
         cpxe8do = cpx_e.add_module(CpxE8Do())
 
         mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=[0xAA])
+        mocked_base.read_function_number = Mock(return_value=0xAA)
         mocked_base.write_function_number = Mock()
         cpxe8do.base = mocked_base
 
@@ -224,7 +224,7 @@ class TestCpxE8Do(unittest.TestCase):
         cpxe8do = cpx_e.add_module(CpxE8Do())
 
         mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=[0xAA])
+        mocked_base.read_function_number = Mock(return_value=0xAA)
         mocked_base.write_function_number = Mock()
         cpxe8do.base = mocked_base
 
