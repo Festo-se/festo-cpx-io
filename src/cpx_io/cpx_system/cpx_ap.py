@@ -718,6 +718,12 @@ class CpxAp4Di4Do(_CpxApModule):
 class CpxAp4Iol(_CpxApModule):
     """Class for CPX-AP-*-4IOL-* module"""
 
+    def __getitem__(self, key):
+        return self.read_channel(key)
+
+    # def __setitem__(self, key, value):
+    #    self.write_channel(key, value)
+
     def _initialize(self, *args):
         super()._initialize(*args)
 
@@ -729,29 +735,28 @@ class CpxAp4Iol(_CpxApModule):
         )
         self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
 
-    '''
     @CpxBase._require_base
-    def read_channels(self) -> list[bool]:
-        """read all channels as a list of bool values.
-        Returns a list of 8 elements where the first 4 elements are the input channels 0..3
-        and the last 4 elements are the output channels 0..3
-        """
-        data = self.base.read_reg_data(self.input_register)[0] & 0xF
-        data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 4
-        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+    def read_channels(self) -> list[int]:
+        """read all IO-Link input data"""
+        module_input_size = math.ceil(self.information["Input Size"] / 2) - 2
+        data = self.base.read_reg_data(self.input_register, length=module_input_size)
+
+        channel_size = (module_input_size) // 4
+
+        channels = [
+            data[: channel_size * 1],
+            data[channel_size * 1 : channel_size * 2],
+            data[channel_size * 2 : channel_size * 3],
+            data[channel_size * 3 :],
+        ]
+        return channels
 
     @CpxBase._require_base
-    def read_channel(self, channel: int, output_numbering=False) -> bool:
-        """read back the value of one channel
-        Optional parameter 'output_numbering' defines
-        if the outputs are numbered with the inputs ("True", default),
-        so the range of output channels is 4..7 (as 0..3 are the input channels).
-        If "False", the outputs are numbered from 0..3, the inputs cannot be accessed this way.
-        """
-        if output_numbering:
-            channel -= 4
+    def read_channel(self, channel: int) -> bool:
+        """read back the value of one channel"""
         return self.read_channels()[channel]
 
+    '''
     @CpxBase._require_base
     def write_channels(self, data: list[bool]) -> None:
         """write all channels with a list of bool values"""
@@ -847,7 +852,7 @@ class CpxAp4Iol(_CpxApModule):
         - 1: IOL_MANUAL
         - 2: IOL_AUTOSTART
         - 3: DI_CQ
-        - 97: PREOPERATE
+        - 97: PREOPERATE (Only supported in combination with IO-Link V1.1 devices)
         """
 
         uid = 20071
@@ -873,6 +878,7 @@ class CpxAp4Iol(_CpxApModule):
         - 2: device compatible V1.1
         - 3: device compatible V1.1 Data storage Backup+ Restore
         - 4: device compatible V1.1 Data storage Restore
+        Changes only become effective when the port mode is changed (ID 20071).
         """
 
         uid = 20072
@@ -890,7 +896,8 @@ class CpxAp4Iol(_CpxApModule):
     def configure_target_vendor_id(
         self, value: int, channels: int | list = [0, 1, 2, 3]
     ) -> None:
-        """Target Vendor ID"""
+        """Target Vendor ID
+        Changes only become effective when the port mode is changed (ID 20071)."""
 
         uid = 20073
 
@@ -904,7 +911,8 @@ class CpxAp4Iol(_CpxApModule):
     def configure_setpoint_device_id(
         self, value: int, channels: int | list = [0, 1, 2, 3]
     ) -> None:
-        """Setpoint device ID"""
+        """Setpoint device ID
+        Changes only become effective when the port mode is changed (ID 20071)."""
 
         uid = 20080
 
