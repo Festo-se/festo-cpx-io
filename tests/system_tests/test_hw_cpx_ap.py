@@ -391,3 +391,11 @@ def test_setter(test_cpxap):
     time.sleep(0.05)
     # read back the first output channel (it's on index 4)
     assert a4di4do[4] is False
+
+
+def test_iol(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    test = a4iol.read_fieldbus_parameters()
+    pass

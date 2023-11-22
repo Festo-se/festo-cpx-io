@@ -728,4 +728,269 @@ class CpxAp4Iol(_CpxApModule):
             self.information["Output Size"] / 2
         )
         self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
-        # raise NotImplementedError("The module CPX-AP-4IOL-M12 has not yet been implemented")
+
+    '''
+    @CpxBase._require_base
+    def read_channels(self) -> list[bool]:
+        """read all channels as a list of bool values.
+        Returns a list of 8 elements where the first 4 elements are the input channels 0..3
+        and the last 4 elements are the output channels 0..3
+        """
+        data = self.base.read_reg_data(self.input_register)[0] & 0xF
+        data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 4
+        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int, output_numbering=False) -> bool:
+        """read back the value of one channel
+        Optional parameter 'output_numbering' defines
+        if the outputs are numbered with the inputs ("True", default),
+        so the range of output channels is 4..7 (as 0..3 are the input channels).
+        If "False", the outputs are numbered from 0..3, the inputs cannot be accessed this way.
+        """
+        if output_numbering:
+            channel -= 4
+        return self.read_channels()[channel]
+
+    @CpxBase._require_base
+    def write_channels(self, data: list[bool]) -> None:
+        """write all channels with a list of bool values"""
+        if len(data) != 4:
+            raise ValueError("Data must be list of four elements")
+        # Make binary from list of bools
+        binary_string = "".join("1" if value else "0" for value in reversed(data))
+        # Convert the binary string to an integer
+        integer_data = int(binary_string, 2)
+        self.base.write_reg_data(integer_data, self.output_register)
+
+    @CpxBase._require_base
+    def write_channel(self, channel: int, value: bool) -> None:
+        """set one channel to logic value"""
+        data = (
+            self.base.read_reg_data(self.output_register)[0] & 0xF
+        )  # read current value
+        mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
+        data &= ~mask  # Clear the bit indicated by the mask
+        if value:
+            data |= mask  # If x was True, set the bit indicated by the mask.
+
+        self.base.write_reg_data(data, self.output_register)
+    '''
+
+    @CpxBase._require_base
+    def configure_monitoring_load_supply(self, value: int) -> None:
+        """Accepted values are
+        0: Load supply monitoring inactive
+        1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+        2: Load supply monitoring active
+        """
+        uid = 20022
+
+        if not 0 <= value <= 2:
+            raise ValueError("Value {value} must be between 0 and 2")
+
+        self.base._write_parameter(self.position, uid, 0, value)
+
+    @CpxBase._require_base
+    def configure_target_cycle_time(
+        self, value: int, channels: int | list = [0, 1, 2, 3]
+    ) -> None:
+        """Target cycle time in ms for the given channels. If no channel is specified,
+        target cycle time is applied to all channels. Possible cycle time values:
+        -  0: as fast as possible (default)
+        - 16: 1.6 ms
+        - 32: 3.2 ms
+        - 48: 4.8 ms
+        - 68: 8.0 ms
+        - 73: 10.0 ms
+        - 78: 12.0 ms
+        - 88: 16.0 ms
+        - 98: 20.0 ms
+        - 133: 40.0 ms
+        - 158: 80.0 ms
+        - 183: 120.0 ms
+        """
+        uid = 20049
+
+        allowed_values = [0, 16, 32, 48, 68, 73, 78, 88, 98, 133, 158, 183]
+
+        if value not in allowed_values:
+            raise ValueError("Value {value} not valid")
+
+        if isinstance(channels, int):
+            channels = [channels]
+
+        for channel in channels:
+            self.base._write_parameter(self.position, uid, channel, value)
+
+    @CpxBase._require_base
+    def configure_device_lost_diagnostics(
+        self, value: bool, channels: int | list = [0, 1, 2, 3]
+    ) -> None:
+        """Activation of diagnostics for IO-Link device lost (default: True) for given channel. If no
+        channel is provided, value will be written to all channels."""
+
+        uid = 20050
+
+        if isinstance(channels, int):
+            channels = [channels]
+
+        for channel in channels:
+            self.base._write_parameter(self.position, uid, channel, int(value))
+
+    @CpxBase._require_base
+    def configure_port_mode(
+        self, value: int, channels: int | list = [0, 1, 2, 3]
+    ) -> None:
+        """Port mode. Available values:
+        - 0: DEACTIVATED (factory setting)
+        - 1: IOL_MANUAL
+        - 2: IOL_AUTOSTART
+        - 3: DI_CQ
+        - 97: PREOPERATE
+        """
+
+        uid = 20071
+
+        allowed_values = [0, 1, 2, 3, 97]
+
+        if value not in allowed_values:
+            raise ValueError("Value {value} not valid")
+
+        if isinstance(channels, int):
+            channels = [channels]
+
+        for channel in channels:
+            self.base._write_parameter(self.position, uid, channel, value)
+
+    @CpxBase._require_base
+    def configure_review_and_backup(
+        self, value: int, channels: int | list = [0, 1, 2, 3]
+    ) -> None:
+        """Review and backup. Available values:
+        - 0: no test (factory setting)
+        - 1: device compatible V1.0
+        - 2: device compatible V1.1
+        - 3: device compatible V1.1 Data storage Backup+ Restore
+        - 4: device compatible V1.1 Data storage Restore
+        """
+
+        uid = 20072
+
+        if not 0 <= value <= 4:
+            raise ValueError("Value {value} must be between 0 and 4")
+
+        if isinstance(channels, int):
+            channels = [channels]
+
+        for channel in channels:
+            self.base._write_parameter(self.position, uid, channel, value)
+
+    @CpxBase._require_base
+    def configure_target_vendor_id(
+        self, value: int, channels: int | list = [0, 1, 2, 3]
+    ) -> None:
+        """Target Vendor ID"""
+
+        uid = 20073
+
+        if isinstance(channels, int):
+            channels = [channels]
+
+        for channel in channels:
+            self.base._write_parameter(self.position, uid, channel, value)
+
+    @CpxBase._require_base
+    def configure_setpoint_device_id(
+        self, value: int, channels: int | list = [0, 1, 2, 3]
+    ) -> None:
+        """Setpoint device ID"""
+
+        uid = 20080
+
+        if isinstance(channels, int):
+            channels = [channels]
+
+        for channel in channels:
+            self.base._write_parameter(self.position, uid, channel, value)
+
+    @CpxBase._require_base
+    def read_fieldbus_parameters(self) -> list[dict]:
+        """Read all fieldbus parameters (status/information) for all channels
+        Returns a dict of parameters for every channel.
+        """
+
+        channel_params = []
+
+        port_status_dict = {
+            0: "NO_DEVICE",
+            1: "DEACTIVATED",
+            2: "PORT_DIAG",
+            3: "PREOPERATE",
+            4: "OPERATE",
+            5: "DI_CQ",
+            6: "DO_CQ",
+            254: "PORT_POWER_OFF",
+            255: "NOT_AVAILABLE",
+        }
+        transmission_rate_dict = {0: "not detected", 1: "COM1", 2: "COM2", 3: "COM3"}
+
+        for i in range(4):
+            port_status_information = port_status_dict.get(
+                CpxBase._decode_int(
+                    self.base._read_parameter(self.position, 20074, i),
+                    data_type="uint8",
+                )
+            )
+
+            revision_id = CpxBase._decode_int(
+                self.base._read_parameter(self.position, 20075, i),
+                data_type="uint8",
+            )
+
+            transmission_rate = transmission_rate_dict.get(
+                CpxBase._decode_int(
+                    self.base._read_parameter(self.position, 20076, i),
+                    data_type="uint8",
+                )
+            )
+
+            actual_cycle_time = CpxBase._decode_int(
+                self.base._read_parameter(self.position, 20077, i),
+                data_type="uint16",
+            )
+
+            actual_vendor_id = CpxBase._decode_int(
+                self.base._read_parameter(self.position, 20078, i),
+                data_type="uint16",
+            )
+
+            actual_device_id = CpxBase._decode_int(
+                self.base._read_parameter(self.position, 20079, i),
+                data_type="uint32",
+            )
+
+            input_data_length = CpxBase._decode_int(
+                self.base._read_parameter(self.position, 20108, i),
+                data_type="uint8",
+            )
+
+            output_data_length = CpxBase._decode_int(
+                self.base._read_parameter(self.position, 20109, i),
+                data_type="uint8",
+            )
+
+            channel_params.append(
+                {
+                    "Port status information": port_status_information,
+                    "Revision ID": revision_id,
+                    "Transmission rate": transmission_rate,
+                    "Actual cycle time [in 100 us]": actual_cycle_time,
+                    "Actual vendor ID": actual_vendor_id,
+                    "Actual device ID": actual_device_id,
+                    "Input data length": input_data_length,
+                    "Output data length": output_data_length,
+                }
+            )
+
+        return channel_params
