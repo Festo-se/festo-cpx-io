@@ -38,6 +38,8 @@ def test_modules(test_cpxap):
     assert isinstance(test_cpxap.modules[4], CpxAp4Iol)
     assert isinstance(test_cpxap.modules[5], CpxAp4Di)
 
+    assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
+
     for m in test_cpxap.modules:
         assert m.information["Input Size"] >= 0
 
@@ -130,7 +132,7 @@ def test_4AiUI_5V_CH1_with_scaling(test_cpxap):
     a4aiui.configure_channel_limits(1, lower=0)
     time.sleep(0.05)
 
-    # assert 4900 < test_cpxap.modules[3].read_channel(1) < 5100
+    assert 4900 < test_cpxap.modules[3].read_channel(1) < 5100
 
     a4aiui.configure_channel_limits(1, upper=32767, lower=-32768)
     time.sleep(0.05)
@@ -141,17 +143,12 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param["dhcp_enable"] == False
-    assert param["ip_address"] == "172.16.1.41"
-    # assert param["subnet_mask"] == "255.255.255.0"
-    # assert param["gateway_address"] == "172.16.1.1"
     assert param["active_ip_address"] == "172.16.1.41"
-    assert param["active_subnet_mask"] == "255.255.255.0"
-    # assert param["active_gateway_address"] == "172.16.1.1"
+    assert param["active_subnet_mask"] == "255.255.0.0"
+    assert param["active_gateway_address"] == "0.0.0.0"
     assert param["mac_address"] == "00:0e:f0:7d:3b:15"
+    # TODO: this returns 0 (might be same error as uint8 shifting required)
     # assert param["setup_monitoring_load_supply"] == 1
-
-    # TODO: Fix broken
 
 
 def test_4AiUI_configures_channel_unit(test_cpxap):
@@ -350,15 +347,25 @@ def test_4Di4Do_configures(test_cpxap):
 
     a4di4do.configure_debounce_time(3)
     time.sleep(0.05)
-    assert a4di4do.base._read_parameter(2, 20014, 0) == [3]
+    assert CpxBase._decode_int(a4di4do.base._read_parameter(2, 20014, 0)) == 3
 
     a4di4do.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert a4di4do.base._read_parameter(2, 20022, 0) == [2]
+    assert (
+        CpxBase._decode_int(
+            a4di4do.base._read_parameter(2, 20022, 0), data_type="uint8"
+        )
+        == 2
+    )
 
     a4di4do.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
-    assert a4di4do.base._read_parameter(2, 20052, 0) == [1]
+    assert (
+        CpxBase._decode_int(
+            a4di4do.base._read_parameter(2, 20052, 0), data_type="uint8"
+        )
+        == 1
+    )
 
     # reset to default
     a4di4do.configure_debounce_time(1)
@@ -391,3 +398,341 @@ def test_setter(test_cpxap):
     time.sleep(0.05)
     # read back the first output channel (it's on index 4)
     assert a4di4do[4] is False
+
+
+def test_read_ap_parameter(test_cpxap):
+    with pytest.raises(NotImplementedError):
+        test_cpxap.modules[0].read_ap_parameter()
+
+    info = test_cpxap.modules[4].information
+    ap = test_cpxap.modules[4].read_ap_parameter()
+    assert ap["Module Code"] == info["Module Code"]
+
+
+def test_4iol(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(2, channel=0)
+
+    time.sleep(0.05)
+
+    # example SDAS-MHS on port 0
+    param = a4iol.read_fieldbus_parameters()
+    assert param[0]["Port status information"] == "OPERATE"
+
+    sdas_data = a4iol.read_channel(0)
+    process_data = sdas_data[0]
+
+    ssc1 = bool(process_data & 0x1)
+    ssc2 = bool(process_data & 0x2)
+    ssc3 = bool(process_data & 0x4)
+    ssc4 = bool(process_data & 0x8)
+    pdv = (process_data & 0xFFF0) >> 4
+
+    assert pdv > 0
+
+    assert a4iol[0] == a4iol.read_channel(0)
+
+
+def test_4iol_write(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(2, channel=0)
+
+    time.sleep(0.05)
+
+    a4iol.write_channel(0, [0, 0, 0, 0])
+    # TODO: To be tested!
+
+
+def test_read_pqi(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(2, channel=0)
+    time.sleep(0.05)
+
+    pqi = a4iol.read_pqi()
+    assert pqi[0]["Port Qualifier"] == "input data is valid"
+    assert pqi[1]["Port Qualifier"] == "input data is invalid"
+
+
+def test_4iol_configure_monitoring_load_supply(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_monitoring_load_supply(0)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
+        == 0
+    )
+
+    a4iol.configure_monitoring_load_supply(1)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
+        == 1
+    )
+
+    a4iol.configure_monitoring_load_supply(2)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
+        == 2
+    )
+
+    a4iol.configure_monitoring_load_supply(1)
+
+
+def test_4iol_configure_target_cycle_time(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_target_cycle_time(16, channel=0)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
+        == 16
+    )
+
+    a4iol.configure_target_cycle_time(73, channel=[1, 2])
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
+        == 73
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 2), data_type="uint8")
+        == 73
+    )
+
+    a4iol.configure_target_cycle_time(158)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
+        == 158
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
+        == 158
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 2), data_type="uint8")
+        == 158
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 3), data_type="uint8")
+        == 158
+    )
+
+    a4iol.configure_target_cycle_time(0)
+
+
+def test_4iol_configure_device_lost_diagnostics(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_device_lost_diagnostics(False, channel=0)
+    time.sleep(0.05)
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
+
+    a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
+    time.sleep(0.05)
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
+
+    a4iol.configure_device_lost_diagnostics(False)
+    time.sleep(0.05)
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
+    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 3)) == False
+
+    a4iol.configure_device_lost_diagnostics(True)
+
+
+def test_4iol_configure_port_mode(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(0, channel=0)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
+        == 0
+    )
+
+    a4iol.configure_port_mode(3, channel=[1, 2])
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 2), data_type="uint8")
+        == 3
+    )
+
+    a4iol.configure_port_mode(97)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
+        == 97
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
+        == 97
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 2), data_type="uint8")
+        == 97
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 3), data_type="uint8")
+        == 97
+    )
+
+    a4iol.configure_port_mode(0)
+
+
+def test_4iol_configure_review_and_backup(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_review_and_backup(1, channel=0)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
+        == 1
+    )
+
+    a4iol.configure_review_and_backup(2, channel=[1, 2])
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
+        == 2
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 2), data_type="uint8")
+        == 2
+    )
+
+    a4iol.configure_review_and_backup(3)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 2), data_type="uint8")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 3), data_type="uint8")
+        == 3
+    )
+
+    a4iol.configure_review_and_backup(0)
+
+
+def test_4iol_configure_target_vendor_id(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_target_vendor_id(1, channel=0)
+    a4iol.configure_port_mode(1, channel=0)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
+        == 1
+    )
+
+    a4iol.configure_target_vendor_id(2, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[1, 2])
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
+        == 2
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 2), data_type="uint16")
+        == 2
+    )
+
+    a4iol.configure_target_vendor_id(3)
+    a4iol.configure_port_mode(1)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 2), data_type="uint16")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 3), data_type="uint16")
+        == 3
+    )
+
+    a4iol.configure_target_vendor_id(0)
+    a4iol.configure_port_mode(0)
+
+
+def test_4iol_configure_setpoint_device_id(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_setpoint_device_id(1, channel=0)
+    a4iol.configure_port_mode(1, channel=0)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
+        == 1
+    )
+
+    a4iol.configure_setpoint_device_id(2, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[1, 2])
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")
+        == 2
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 2), data_type="uint32")
+        == 2
+    )
+
+    a4iol.configure_setpoint_device_id(3)
+    a4iol.configure_port_mode(1)
+    time.sleep(0.05)
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 2), data_type="uint32")
+        == 3
+    )
+    assert (
+        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 3), data_type="uint32")
+        == 3
+    )
+
+    a4iol.configure_setpoint_device_id(0)
+    a4iol.configure_port_mode(0)

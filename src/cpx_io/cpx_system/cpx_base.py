@@ -133,22 +133,28 @@ class CpxBase:
 
     @staticmethod
     def _decode_int(registers, data_type="uint16"):
+        # on 8 bit types, the data have to be shiftet to MSByte for correct decoding
+        if data_type in ("uint8", "int8"):
+            registers = [(registers[0] & 0xFF) << 8]
+
         decoder = BinaryPayloadDecoder.fromRegisters(
             registers[::-1], byteorder=Endian.BIG
         )
+
         if data_type == "uint8":
             return decoder.decode_8bit_uint()
-        if data_type == "uint16":
+        elif data_type == "uint16":
             return decoder.decode_16bit_uint()
-        if data_type == "uint32":
+        elif data_type == "uint32":
             return decoder.decode_32bit_uint()
-        if data_type == "int8":
+        elif data_type == "int8":
             return decoder.decode_8bit_int()
-        if data_type == "int16":
+        elif data_type == "int16":
             return decoder.decode_16bit_int()
-        if data_type == "int32":
+        elif data_type == "int32":
             return decoder.decode_32bit_int()
-        raise NotImplementedError(f"Type {data_type} not implemented")
+        else:
+            raise NotImplementedError(f"Type {data_type} not implemented")
 
     @staticmethod
     def _decode_bool(registers):
@@ -163,3 +169,8 @@ class CpxBase:
         if data_type == "uint16":
             return format(decoder.decode_16bit_uint(), "#010x")
         raise NotImplementedError(f"Type {data_type} not implemented")
+
+    @staticmethod
+    def _decode_float(registers):
+        decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.LITTLE)
+        return [decoder.decode_32bit_float() for _ in registers]

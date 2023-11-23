@@ -75,7 +75,8 @@ def test_1module(test_cpxe):
     assert e16di.read_channels() == data
     assert e16di.read_channel(0) == False
     assert e16di.read_channel(1) == True
-    assert all(isinstance(item, CpxE) for item in test_cpxe.modules)
+
+    assert all(isinstance(item, CpxEModule) for item in test_cpxe.modules)
     assert isinstance(test_cpxe.modules[1], CpxE16Di)
     assert test_cpxe.modules[1] == e16di
 
@@ -101,33 +102,33 @@ def test_2modules(test_cpxe):
     assert e8do.write_channels(data) == None
     assert e8do.read_channels() == data
     assert e8do.read_channel(0) == True
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.read_channel(0) == True
 
     assert e8do.set_channel(0) == None
     assert e8do.read_channel(0) == True
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.read_channel(0) == True
 
     assert e8do.clear_channel(0) == None
     assert e8do.read_channel(0) == False
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.read_channel(0) == False
 
     assert e8do.toggle_channel(0) == None
     assert e8do.read_channel(0) == True
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.read_channel(0) == True
 
     assert e8do.clear_channel(0) == None
     assert e8do.read_channel(0) == False
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.read_channel(0) == False
 
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e8do.read_channels() == [False] * 8
 
-    assert all(isinstance(item, CpxE) for item in test_cpxe.modules)
+    assert all(isinstance(item, CpxEModule) for item in test_cpxe.modules)
     assert isinstance(test_cpxe.modules[2], CpxE8Do)
     assert test_cpxe.modules[2] == e8do
 
@@ -249,7 +250,7 @@ def test_3modules(test_cpxe):
     # assert -10 < data0 < 10
     # assert -10 < e4ai.read_channels()[3] < 10
 
-    assert all(isinstance(item, CpxE) for item in test_cpxe.modules)
+    assert all(isinstance(item, CpxEModule) for item in test_cpxe.modules)
     assert isinstance(test_cpxe.modules[3], CpxE4AiUI)
     assert test_cpxe.modules[3] == e4ai
 
@@ -398,14 +399,9 @@ def test_4modules(test_cpxe):
     assert e4ao.write_channel(0, 40) == None
     assert e4ao.read_channel(0) == 40
 
-    assert all(isinstance(item, CpxE) for item in test_cpxe.modules)
+    assert all(isinstance(item, CpxEModule) for item in test_cpxe.modules)
     assert isinstance(test_cpxe.modules[4], CpxE4AoUI)
     assert test_cpxe.modules[4] == e4ao
-
-
-def test_5modules(test_cpxe):
-    # TODO: IO-LINK master
-    pass
 
 
 def test_modules_with_init():
@@ -413,7 +409,7 @@ def test_modules_with_init():
 
     cpxe = CpxE(ip_address="172.16.1.40", modules=modules)
 
-    assert all(isinstance(item, CpxE) for item in cpxe.modules)
+    assert all(isinstance(item, CpxEModule) for item in cpxe.modules)
     assert all([cpxe.modules[i] == modules[i] for i in range(len(modules))])
 
 
@@ -560,3 +556,35 @@ def test_setter(test_cpxe):
     e4ao[0] = 0
     time.sleep(0.05)
     assert e4ao[0] == 0
+
+
+def test_4iol(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+    assert e4iol.read_status() == [False] * 16
+
+    e4iol.configure_operating_mode(3, 0)
+
+    time.sleep(0.05)
+    assert e4iol.read_line_state()[0] == "Operate"
+    assert e4iol.read_line_state()[1] == "Inactive"
+
+    sdas_data = e4iol.read_channel(0)
+    process_data = sdas_data[0]
+
+    ssc1 = bool(process_data & 0x1)
+    ssc2 = bool(process_data & 0x2)
+    ssc3 = bool(process_data & 0x4)
+    ssc4 = bool(process_data & 0x8)
+    pdv = (process_data & 0xFFF0) >> 4
+
+    assert pdv > 0
+
+    # assert e4iol[0] == e4iol.read_channel(0) # here a delta is needed
+
+    assert e4iol.read_device_error(0) == ("0x0", "0x0")

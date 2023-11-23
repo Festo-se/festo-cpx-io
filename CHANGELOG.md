@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] CPXAP: Added read function for AP parameters
+- [Minor] CPXAP: Functionality for IO-Link module
 - [Minor] CPXE: Added more unittests
 - [Minor] CpxE and CpxAP: Added __repr__ function
 - [Minor] CpxE: Added property setter / getter for more modules.
@@ -16,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] CpxE8Do: Added access-by-index-operator to channels
 - [Minor] CpxE: Added CLI for writing and reading values.
 ### Changed
+- [Minor] fixed inheritance for AP and E modules
 - [Minor] changed return value of read function number to int
 - [Minor] several bugfixes
 - [Minor] Added context manager functionality to cpx base class. Adapted examples to use this context manager.
