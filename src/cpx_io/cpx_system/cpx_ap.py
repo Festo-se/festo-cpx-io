@@ -310,10 +310,9 @@ class CpxApModule(CpxBase):
         load_voltage = CpxBase._decode_int(
             self.base._read_parameter(self.position, 20088, 0), data_type="uint16"
         )
-        #
-        # hw_version = CpxBase._decode_int(
-        #    self.base._read_parameter(self.position, 20093, 0), data_type="uint8"
-        # )
+        hw_version = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 20093, 0), data_type="uint8"
+        )
 
         return {
             "Fieldbus serial number": fieldbus_serial_number,
@@ -323,7 +322,7 @@ class CpxApModule(CpxBase):
             "Measured value of temperature AP-ASIC [°C]": temp_asic,
             "Current measured value of logic supply PS [mV]": logic_voltage,
             "Current measured value of load supply PL [mV]": load_voltage,
-            # "Hardware Version": hw_version,
+            "Hardware Version": hw_version,
         }
 
 
@@ -905,7 +904,7 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase._require_base
     def configure_target_cycle_time(
-        self, value: int, channels: int | list | None = None
+        self, value: int, channel: int | list | None = None
     ) -> None:
         """Target cycle time in ms for the given channels. If no channel is specified,
         target cycle time is applied to all channels. Possible cycle time values:
@@ -925,22 +924,22 @@ class CpxAp4Iol(CpxApModule):
         uid = 20049
 
         if channel is None:
-            channel = [1, 2, 3, 4]
+            channel = [0, 1, 2, 3]
 
         allowed_values = [0, 16, 32, 48, 68, 73, 78, 88, 98, 133, 158, 183]
 
         if value not in allowed_values:
             raise ValueError("Value {value} not valid")
 
-        if isinstance(channels, int):
-            channels = [channels]
+        if isinstance(channel, int):
+            channel = [channel]
 
-        for channel in channels:
-            self.base._write_parameter(self.position, uid, channel, value)
+        for ch in channel:
+            self.base._write_parameter(self.position, uid, ch, value)
 
     @CpxBase._require_base
     def configure_device_lost_diagnostics(
-        self, value: bool, channels: int | list | None = None
+        self, value: bool, channel: int | list | None = None
     ) -> None:
         """Activation of diagnostics for IO-Link device lost (default: True) for given channel. If no
         channel is provided, value will be written to all channels."""
@@ -948,17 +947,17 @@ class CpxAp4Iol(CpxApModule):
         uid = 20050
 
         if channel is None:
-            channel = [1, 2, 3, 4]
+            channel = [0, 1, 2, 3]
 
-        if isinstance(channels, int):
-            channels = [channels]
+        if isinstance(channel, int):
+            channel = [channel]
 
-        for channel in channels:
-            self.base._write_parameter(self.position, uid, channel, int(value))
+        for ch in channel:
+            self.base._write_parameter(self.position, uid, ch, int(value))
 
     @CpxBase._require_base
     def configure_port_mode(
-        self, value: int, channels: int | list | None = None
+        self, value: int, channel: int | list | None = None
     ) -> None:
         """Port mode. Available values:
         - 0: DEACTIVATED (factory setting)
@@ -971,22 +970,22 @@ class CpxAp4Iol(CpxApModule):
         uid = 20071
 
         if channel is None:
-            channel = [1, 2, 3, 4]
+            channel = [0, 1, 2, 3]
 
         allowed_values = [0, 1, 2, 3, 97]
 
         if value not in allowed_values:
             raise ValueError("Value {value} not valid")
 
-        if isinstance(channels, int):
-            channels = [channels]
+        if isinstance(channel, int):
+            channel = [channel]
 
-        for channel in channels:
-            self.base._write_parameter(self.position, uid, channel, value)
+        for ch in channel:
+            self.base._write_parameter(self.position, uid, ch, value)
 
     @CpxBase._require_base
     def configure_review_and_backup(
-        self, value: int, channels: int | list | None = None
+        self, value: int, channel: int | list | None = None
     ) -> None:
         """Review and backup. Available values:
         - 0: no test (factory setting)
@@ -1000,20 +999,20 @@ class CpxAp4Iol(CpxApModule):
         uid = 20072
 
         if channel is None:
-            channel = [1, 2, 3, 4]
+            channel = [0, 1, 2, 3]
 
         if not 0 <= value <= 4:
             raise ValueError("Value {value} must be between 0 and 4")
 
-        if isinstance(channels, int):
-            channels = [channels]
+        if isinstance(channel, int):
+            channel = [channel]
 
-        for channel in channels:
-            self.base._write_parameter(self.position, uid, channel, value)
+        for ch in channel:
+            self.base._write_parameter(self.position, uid, ch, value)
 
     @CpxBase._require_base
     def configure_target_vendor_id(
-        self, value: int, channels: int | list | None = None
+        self, value: int, channel: int | list | None = None
     ) -> None:
         """Target Vendor ID
         Changes only become effective when the port mode is changed (ID 20071)."""
@@ -1021,17 +1020,17 @@ class CpxAp4Iol(CpxApModule):
         uid = 20073
 
         if channel is None:
-            channel = [1, 2, 3, 4]
+            channel = [0, 1, 2, 3]
 
-        if isinstance(channels, int):
-            channels = [channels]
+        if isinstance(channel, int):
+            channel = [channel]
 
-        for channel in channels:
-            self.base._write_parameter(self.position, uid, channel, value)
+        for ch in channel:
+            self.base._write_parameter(self.position, uid, ch, value)
 
     @CpxBase._require_base
     def configure_setpoint_device_id(
-        self, value: int, channels: int | list | None = None
+        self, value: int, channel: int | list | None = None
     ) -> None:
         """Setpoint device ID
         Changes only become effective when the port mode is changed (ID 20071)."""
@@ -1039,13 +1038,13 @@ class CpxAp4Iol(CpxApModule):
         uid = 20080
 
         if channel is None:
-            channel = [1, 2, 3, 4]
+            channel = [0, 1, 2, 3]
 
-        if isinstance(channels, int):
-            channels = [channels]
+        if isinstance(channel, int):
+            channel = [channel]
 
-        for channel in channels:
-            self.base._write_parameter(self.position, uid, channel, value)
+        for ch in channel:
+            self.base._write_parameter(self.position, uid, ch, value)
 
     @CpxBase._require_base
     def read_fieldbus_parameters(self) -> list[dict]:

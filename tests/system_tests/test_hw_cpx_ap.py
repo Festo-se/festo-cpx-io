@@ -406,15 +406,14 @@ def test_read_ap_parameter(test_cpxap):
 
     info = test_cpxap.modules[4].information
     ap = test_cpxap.modules[4].read_ap_parameter()
-    # TODO: some modules return uint8 on msbyte, some on lsbyte
-    # assert ap["Module Code"] == info["Module Code"]
+    assert ap["Module Code"] == info["Module Code"]
 
 
 def test_4iol(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_port_mode(2, channels=0)
+    a4iol.configure_port_mode(2, channel=0)
 
     time.sleep(0.05)
 
@@ -440,7 +439,7 @@ def test_4iol_write(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_port_mode(2, channels=0)
+    a4iol.configure_port_mode(2, channel=0)
 
     time.sleep(0.05)
 
@@ -452,7 +451,7 @@ def test_read_pqi(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_port_mode(2, channels=0)
+    a4iol.configure_port_mode(2, channel=0)
     time.sleep(0.05)
 
     pqi = a4iol.read_pqi()
@@ -492,14 +491,14 @@ def test_4iol_configure_target_cycle_time(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_target_cycle_time(16, channels=0)
+    a4iol.configure_target_cycle_time(16, channel=0)
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
         == 16
     )
 
-    a4iol.configure_target_cycle_time(73, channels=[1, 2])
+    a4iol.configure_target_cycle_time(73, channel=[1, 2])
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
@@ -536,11 +535,11 @@ def test_4iol_configure_device_lost_diagnostics(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_device_lost_diagnostics(False, channels=0)
+    a4iol.configure_device_lost_diagnostics(False, channel=0)
     time.sleep(0.05)
     assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
 
-    a4iol.configure_device_lost_diagnostics(False, channels=[1, 2])
+    a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
     time.sleep(0.05)
     assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
     assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
@@ -559,14 +558,14 @@ def test_4iol_configure_port_mode(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_port_mode(0, channels=0)
+    a4iol.configure_port_mode(0, channel=0)
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
         == 0
     )
 
-    a4iol.configure_port_mode(3, channels=[1, 2])
+    a4iol.configure_port_mode(3, channel=[1, 2])
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
@@ -603,14 +602,14 @@ def test_4iol_configure_review_and_backup(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_review_and_backup(1, channels=0)
+    a4iol.configure_review_and_backup(1, channel=0)
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
         == 1
     )
 
-    a4iol.configure_review_and_backup(2, channels=[1, 2])
+    a4iol.configure_review_and_backup(2, channel=[1, 2])
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
@@ -647,16 +646,16 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_target_vendor_id(1, channels=0)
-    a4iol.configure_port_mode(1, channels=0)
+    a4iol.configure_target_vendor_id(1, channel=0)
+    a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
         == 1
     )
 
-    a4iol.configure_target_vendor_id(2, channels=[1, 2])
-    a4iol.configure_port_mode(1, channels=[1, 2])
+    a4iol.configure_target_vendor_id(2, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
@@ -695,16 +694,16 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
-    a4iol.configure_setpoint_device_id(1, channels=0)
-    a4iol.configure_port_mode(1, channels=0)
+    a4iol.configure_setpoint_device_id(1, channel=0)
+    a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
         == 1
     )
 
-    a4iol.configure_setpoint_device_id(2, channels=[1, 2])
-    a4iol.configure_port_mode(1, channels=[1, 2])
+    a4iol.configure_setpoint_device_id(2, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
     assert (
         CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")

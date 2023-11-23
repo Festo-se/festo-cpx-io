@@ -133,14 +133,13 @@ class CpxBase:
 
     @staticmethod
     def _decode_int(registers, data_type="uint16"):
-        if data_type == "uint8" or data_type == "int8":
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                [registers[-1] << 8], byteorder=Endian.BIG
-            )  # 8 bit values are stored in the most significant byte in the register
-        else:
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                registers[::-1], byteorder=Endian.BIG
-            )
+        # on 8 bit types, the data have to be shiftet to MSByte for correct decoding
+        if data_type in ("uint8", "int8"):
+            registers = [(registers[0] & 0xFF) << 8]
+
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            registers[::-1], byteorder=Endian.BIG
+        )
 
         if data_type == "uint8":
             return decoder.decode_8bit_uint()
