@@ -168,7 +168,7 @@ class CpxE(CpxBase):
         return module
 
 
-class _CpxEModule(CpxBase):
+class CpxEModule(CpxBase):
     """Base class for cpx-e modules"""
 
     def __init__(self, name=None):
@@ -191,7 +191,7 @@ class _CpxEModule(CpxBase):
         self.position = position
 
 
-class CpxEEp(_CpxEModule):
+class CpxEEp(CpxEModule):
     """Class for CPX-E-EP module"""
 
     def _initialize(self, *args):
@@ -204,7 +204,7 @@ class CpxEEp(_CpxEModule):
         self.base._next_input_register = self.input_register + 3
 
 
-class CpxE8Do(_CpxEModule):
+class CpxE8Do(CpxEModule):
     """Class for CPX-E-8DO module"""
 
     def __getitem__(self, key):
@@ -334,7 +334,7 @@ class CpxE8Do(_CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
 
 
-class CpxE16Di(_CpxEModule):
+class CpxE16Di(CpxEModule):
     """Class for CPX-E-16DI module"""
 
     def __getitem__(self, key):
@@ -449,7 +449,7 @@ class CpxE16Di(_CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
 
 
-class CpxE4AiUI(_CpxEModule):
+class CpxE4AiUI(CpxEModule):
     """Class for CPX-E-4AI-UI module"""
 
     def __getitem__(self, key):
@@ -717,7 +717,7 @@ class CpxE4AiUI(_CpxEModule):
     # TODO: add more functions CPX-E-_AI-U-I_description_2020-01a_8126669g1.pdf chapter 3.3 ff.
 
 
-class CpxE4AoUI(_CpxEModule):
+class CpxE4AoUI(CpxEModule):
     """Class for CPX-E-4AO-UI module"""
 
     def __getitem__(self, key):
@@ -915,7 +915,7 @@ class CpxE4AoUI(_CpxEModule):
     # TODO: add more functions CPX-E-_AO-U-I_description_2020-01a_8126651g1.pdf chapter 3.3 ff.
 
 
-class CpxE4Iol(_CpxEModule):
+class CpxE4Iol(CpxEModule):
     """Class for CPX-E-4IOL io-link master module"""
 
     # TODO: Add IO-Link module
@@ -923,7 +923,7 @@ class CpxE4Iol(_CpxEModule):
         raise NotImplementedError("The module CPX-E-4IOL has not yet been implemented")
 
 
-class CpxE1Ci(_CpxEModule):
+class CpxE1Ci(CpxEModule):
     """Class for CPX-E-1CI counter module"""
 
     # TODO: Add 1Cl module

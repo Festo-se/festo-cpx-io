@@ -434,9 +434,24 @@ def test_4iol(test_cpxap):
     assert a4iol[0] == a4iol.read_channel(0)
 
 
+def test_4iol_write(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(2, channels=0)
+
+    time.sleep(0.05)
+
+    a4iol.write_channel(0, [0, 0, 0, 0])
+    # TODO: To be tested!
+
+
 def test_read_pqi(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(2, channels=0)
+    time.sleep(0.05)
 
     pqi = a4iol.read_pqi()
     assert pqi[0]["Port Qualifier"] == "input data is valid"

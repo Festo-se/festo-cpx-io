@@ -769,9 +769,8 @@ class CpxAp4Iol(_CpxApModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
-    # TODO: Write function
-    # def __setitem__(self, key, value):
-    #    self.write_channel(key, value)
+    def __setitem__(self, key, value):
+        self.write_channel(key, value)
 
     def _initialize(self, *args):
         super()._initialize(*args)
@@ -835,31 +834,16 @@ class CpxAp4Iol(_CpxApModule):
         """read back the value of one channel"""
         return self.read_channels()[channel]
 
-    '''
     @CpxBase._require_base
-    def write_channels(self, data: list[bool]) -> None:
-        """write all channels with a list of bool values"""
-        if len(data) != 4:
-            raise ValueError("Data must be list of four elements")
-        # Make binary from list of bools
-        binary_string = "".join("1" if value else "0" for value in reversed(data))
-        # Convert the binary string to an integer
-        integer_data = int(binary_string, 2)
-        self.base.write_reg_data(integer_data, self.output_register)
+    def write_channel(self, channel: int, data: list[int]) -> None:
+        """set one channel to list of uint16 values"""
+        module_output_size = math.ceil(self.information["Output Size"] / 2)
+        channel_size = (module_output_size) // 4
 
-    @CpxBase._require_base
-    def write_channel(self, channel: int, value: bool) -> None:
-        """set one channel to logic value"""
-        data = (
-            self.base.read_reg_data(self.output_register)[0] & 0xF
-        )  # read current value
-        mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
-        data &= ~mask  # Clear the bit indicated by the mask
-        if value:
-            data |= mask  # If x was True, set the bit indicated by the mask.
-
-        self.base.write_reg_data(data, self.output_register)
-    '''
+        register_data = [CpxBase._encode_int(d, data_type="uint16")[0] for d in data]
+        self.base.write_reg_data(
+            register_data, self.output_register + channel_size * channel
+        )
 
     @CpxBase._require_base
     def read_pqi(self, channel: int | None = None) -> dict | list[dict]:
