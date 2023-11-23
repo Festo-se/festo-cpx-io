@@ -286,6 +286,46 @@ class _CpxApModule(CpxAp):
     def _update_information(self, information):
         self.information = information
 
+    @CpxBase._require_base
+    def read_ap_parameter(self) -> dict:
+        """Read AP parameters"""
+        fieldbus_serial_number = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 246, 0), data_type="uint32"
+        )
+        product_key = CpxBase._decode_string(
+            self.base._read_parameter(self.position, 791, 0)
+        )
+        firmware_version = CpxBase._decode_string(
+            self.base._read_parameter(self.position, 960, 0)
+        )
+        module_code = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 20000, 0), data_type="uint32"
+        )
+        temp_asic = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 20085, 0), data_type="int16"
+        )
+        logic_voltage = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 20087, 0), data_type="uint16"
+        )
+        load_voltage = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 20088, 0), data_type="uint16"
+        )
+        #
+        # hw_version = CpxBase._decode_int(
+        #    self.base._read_parameter(self.position, 20093, 0), data_type="uint8"
+        # )
+
+        return {
+            "Fieldbus serial number": fieldbus_serial_number,
+            "Product Key": product_key,
+            "Firmware Version": firmware_version,
+            "Module Code": module_code,
+            "Measured value of temperature AP-ASIC [°C]": temp_asic,
+            "Current measured value of logic supply PS [mV]": logic_voltage,
+            "Current measured value of load supply PL [mV]": load_voltage,
+            # "Hardware Version": hw_version,
+        }
+
 
 class CpxApEp(_CpxApModule):
     """Class for CPX-AP-EP module"""
@@ -302,6 +342,12 @@ class CpxApEp(_CpxApModule):
     def convert_uint32_to_octett(value: int) -> str:
         """Convert one uint32 value to octett. Usually used for displaying ip addresses."""
         return f"{value & 0xFF}.{(value >> 8) & 0xFF}.{(value >> 16) & 0xFF}.{(value) >> 24 & 0xFF}"
+
+    @CpxBase._require_base
+    def read_ap_parameter(self) -> dict:
+        raise NotImplementedError(
+            "CPX-AP-EP module has no AP parameters. Use 'read_parameters()' instead"
+        )
 
     @CpxBase._require_base
     def read_parameters(self):
@@ -346,8 +392,9 @@ class CpxApEp(_CpxApModule):
         )
 
         setup_monitoring_load_supply = CpxBase._decode_int(
-            self.base._read_parameter(self.position, 20022, 0), data_type="uint8"
-        )
+            [(self.base._read_parameter(self.position, 20022, 0)[0] << 8) & 0xFF],
+            data_type="uint8",
+        )  # TODO: shifting should not be required
 
         return {
             "dhcp_enable": dhcp_enable,
@@ -356,6 +403,7 @@ class CpxApEp(_CpxApModule):
             "gateway_address": gateway_address,
             "active_ip_address": active_ip_address,
             "active_subnet_mask": active_subnet_mask,
+            "active_gateway_address": active_gateway_address,
             "mac_address": mac_address,
             "setup_monitoring_load_supply": setup_monitoring_load_supply,
         }
@@ -721,6 +769,7 @@ class CpxAp4Iol(_CpxApModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
+    # TODO: Write function
     # def __setitem__(self, key, value):
     #    self.write_channel(key, value)
 
@@ -734,6 +783,36 @@ class CpxAp4Iol(_CpxApModule):
             self.information["Output Size"] / 2
         )
         self.base._next_input_register += math.ceil(self.information["Input Size"] / 2)
+
+    @CpxBase._require_base
+    def read_ap_parameter(self) -> dict:
+        """Read AP parameters"""
+        ap_dict = super().read_ap_parameter()
+
+        variant_dict = {
+            8201: "variant 8",
+            8205: "variant 8 OE",
+            8206: "variant 2",
+            8207: "variant 2 OE",
+            8208: "variant 4",
+            8209: "variant 4 OE",
+            8210: "variant 16",
+            8211: "variant 16 OE",
+            8212: "variant 23",
+            8213: "variant 32 OE",
+        }
+        # TODO: Why is this UINT16 stored in the second byte of the parameter?
+        io_link_variant = CpxBase._decode_int(
+            self.base._read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
+        )
+
+        activation_operating_voltage = CpxBase._decode_bool(
+            self.base._read_parameter(self.position, 20097, 0)
+        )
+
+        ap_dict["IO-Link variant"] = variant_dict[io_link_variant]
+        ap_dict["Operating Supply"] = activation_operating_voltage
+        return ap_dict
 
     @CpxBase._require_base
     def read_channels(self) -> list[int]:

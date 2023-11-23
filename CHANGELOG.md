@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] CPXAP: Added read function for AP parameters
 - [Minor] CPXAP: Functionality for IO-Link module
 - [Minor] CPXE: Added more unittests
 - [Minor] CpxE and CpxAP: Added __repr__ function

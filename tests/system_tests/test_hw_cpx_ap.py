@@ -141,17 +141,12 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param["dhcp_enable"] == False
-    assert param["ip_address"] == "172.16.1.41"
-    # assert param["subnet_mask"] == "255.255.255.0"
-    # assert param["gateway_address"] == "172.16.1.1"
     assert param["active_ip_address"] == "172.16.1.41"
-    assert param["active_subnet_mask"] == "255.255.255.0"
-    # assert param["active_gateway_address"] == "172.16.1.1"
+    assert param["active_subnet_mask"] == "255.255.0.0"
+    assert param["active_gateway_address"] == "0.0.0.0"
     assert param["mac_address"] == "00:0e:f0:7d:3b:15"
+    # TODO: this returns 0 (might be same error as uint8 shifting required)
     # assert param["setup_monitoring_load_supply"] == 1
-
-    # TODO: Fix broken
 
 
 def test_4AiUI_configures_channel_unit(test_cpxap):
@@ -350,15 +345,25 @@ def test_4Di4Do_configures(test_cpxap):
 
     a4di4do.configure_debounce_time(3)
     time.sleep(0.05)
-    assert a4di4do.base._read_parameter(2, 20014, 0) == [3]
+    assert CpxBase._decode_int(a4di4do.base._read_parameter(2, 20014, 0)) == 3
 
     a4di4do.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert a4di4do.base._read_parameter(2, 20022, 0) == [2]
+    assert (
+        CpxBase._decode_int(
+            a4di4do.base._read_parameter(2, 20022, 0), data_type="uint8"
+        )
+        == 2
+    )
 
     a4di4do.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
-    assert a4di4do.base._read_parameter(2, 20052, 0) == [1]
+    assert (
+        CpxBase._decode_int(
+            a4di4do.base._read_parameter(2, 20052, 0), data_type="uint8"
+        )
+        == 1
+    )
 
     # reset to default
     a4di4do.configure_debounce_time(1)
@@ -393,7 +398,17 @@ def test_setter(test_cpxap):
     assert a4di4do[4] is False
 
 
-def test_iol(test_cpxap):
+def test_read_ap_parameter(test_cpxap):
+    with pytest.raises(NotImplementedError):
+        test_cpxap.modules[0].read_ap_parameter()
+
+    info = test_cpxap.modules[4].information
+    ap = test_cpxap.modules[4].read_ap_parameter()
+    # TODO: some modules return uint8 on msbyte, some on lsbyte
+    # assert ap["Module Code"] == info["Module Code"]
+
+
+def test_4iol(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 

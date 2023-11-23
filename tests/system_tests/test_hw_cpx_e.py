@@ -403,11 +403,6 @@ def test_4modules(test_cpxe):
     assert test_cpxe.modules[4] == e4ao
 
 
-def test_5modules(test_cpxe):
-    # TODO: IO-LINK master
-    pass
-
-
 def test_modules_with_init():
     modules = [CpxEEp(), CpxE16Di(), CpxE8Do(), CpxE4AiUI(), CpxE4AoUI()]
 
