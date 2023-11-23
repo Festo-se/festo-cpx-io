@@ -265,7 +265,7 @@ class CpxAp(CpxBase):
         return data
 
 
-class _CpxApModule(CpxAp):
+class CpxApModule(CpxBase):
     """Base class for cpx-ap modules"""
 
     def __init__(self):
@@ -327,7 +327,7 @@ class _CpxApModule(CpxAp):
         }
 
 
-class CpxApEp(_CpxApModule):
+class CpxApEp(CpxApModule):
     """Class for CPX-AP-EP module"""
 
     def _initialize(self, *args):
@@ -409,7 +409,7 @@ class CpxApEp(_CpxApModule):
         }
 
 
-class CpxAp4Di(_CpxApModule):
+class CpxAp4Di(CpxApModule):
     """Class for CPX-AP-*-4DI-* module"""
 
     def __getitem__(self, key):
@@ -454,7 +454,7 @@ class CpxAp4Di(_CpxApModule):
         self.base._write_parameter(self.position, uid, 0, value)
 
 
-class CpxAp8Di(_CpxApModule):
+class CpxAp8Di(CpxApModule):
     """Class for CPX-AP-*-8DI-* module"""
 
     def __getitem__(self, key):
@@ -498,7 +498,7 @@ class CpxAp8Di(_CpxApModule):
         self.base._write_parameter(self.position, uid, 0, value)
 
 
-class CpxAp4AiUI(_CpxApModule):
+class CpxAp4AiUI(CpxApModule):
     """Class for CPX-AP-*-4AI-* module"""
 
     def __getitem__(self, key):
@@ -631,7 +631,7 @@ class CpxAp4AiUI(_CpxApModule):
         self.base._write_parameter(self.position, uid, channel, int(state))
 
 
-class CpxAp4Di4Do(_CpxApModule):
+class CpxAp4Di4Do(CpxApModule):
     """Class for CPX-AP-*-4DI4DO-* module"""
 
     def __getitem__(self, key):
@@ -763,7 +763,7 @@ class CpxAp4Di4Do(_CpxApModule):
         self.base._write_parameter(self.position, uid, 0, value)
 
 
-class CpxAp4Iol(_CpxApModule):
+class CpxAp4Iol(CpxApModule):
     """Class for CPX-AP-*-4IOL-* module"""
 
     def __getitem__(self, key):
