@@ -556,3 +556,35 @@ def test_setter(test_cpxe):
     e4ao[0] = 0
     time.sleep(0.05)
     assert e4ao[0] == 0
+
+
+def test_4iol(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+    assert e4iol.read_status() == [False] * 16
+
+    e4iol.configure_operating_mode(3, 0)
+
+    time.sleep(0.05)
+    assert e4iol.read_line_state()[0] == "Operate"
+    assert e4iol.read_line_state()[1] == "Inactive"
+
+    sdas_data = e4iol.read_channel(0)
+    process_data = sdas_data[0]
+
+    ssc1 = bool(process_data & 0x1)
+    ssc2 = bool(process_data & 0x2)
+    ssc3 = bool(process_data & 0x4)
+    ssc4 = bool(process_data & 0x8)
+    pdv = (process_data & 0xFFF0) >> 4
+
+    assert pdv > 0
+
+    # assert e4iol[0] == e4iol.read_channel(0) # here a delta is needed
+
+    assert e4iol.read_device_error(0) == ("0x0", "0x0")
