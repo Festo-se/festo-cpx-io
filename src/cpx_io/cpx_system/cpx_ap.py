@@ -862,6 +862,50 @@ class CpxAp4Iol(_CpxApModule):
     '''
 
     @CpxBase._require_base
+    def read_pqi(self, channel: int | None = None) -> dict | list[dict]:
+        """Returns Port Qualifier Information for each channel. If no channel is given,
+        returns a list of PQI dict for all channels"""
+        data45 = self.base.read_reg_data(self.input_register + 16)[0]
+        data67 = self.base.read_reg_data(self.input_register + 17)[0]
+        data = [
+            data45 & 0xFF,
+            (data45 & 0xFF00) >> 8,
+            data67 & 0xFF,
+            (data67 & 0xFF00) >> 8,
+        ]
+
+        channels_pqi = []
+
+        for d in data:
+            port_qualifier = (
+                "input data is valid"
+                if (d & 0b10000000) >> 7
+                else "input data is invalid"
+            )
+            device_error = (
+                "there is at least one error or warning on the device or port"
+                if (d & 0b01000000) >> 6
+                else "there are no errors or warnings on the device or port"
+            )
+            dev_com = (
+                "device is in status PREOPERATE or OPERATE"
+                if (d & 0b00100000) >> 5
+                else "device is not connected or not yet in operation"
+            )
+
+            channels_pqi.append(
+                {
+                    "Port Qualifier": port_qualifier,
+                    "Device Error": device_error,
+                    "DevCOM": dev_com,
+                }
+            )
+        if channel is None:
+            return channels_pqi
+
+        return channels_pqi[channel]
+
+    @CpxBase._require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
         """Accepted values are
         0: Load supply monitoring inactive
