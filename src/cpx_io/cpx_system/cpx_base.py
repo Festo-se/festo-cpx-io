@@ -133,7 +133,7 @@ class CpxBase:
 
     @staticmethod
     def _decode_int(registers, data_type="uint16"):
-        # on 8 bit types, the data have to be shiftet to MSByte for correct decoding
+        # on 8 bit types, the data have to be shifted to MSByte for correct decoding
         if data_type in ("uint8", "int8"):
             registers = [(registers[0] & 0xFF) << 8]
 
