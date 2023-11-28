@@ -510,16 +510,16 @@ class CpxE4AiUI(CpxEModule):
 
         if channel == 0:
             function_number += 13
-            value_to_write = reg_01 | bitmask[signalrange]
+            value_to_write = (reg_01 & 0xF0) | bitmask[signalrange]
         elif channel == 1:
             function_number += 13
-            value_to_write = reg_01 | bitmask[signalrange] << 4
+            value_to_write = (reg_01 & 0x0F) | bitmask[signalrange] << 4
         elif channel == 2:
             function_number += 14
-            value_to_write = reg_23 | bitmask[signalrange]
+            value_to_write = (reg_23 & 0xF0) | bitmask[signalrange]
         elif channel == 3:
             function_number += 14
-            value_to_write = reg_23 | bitmask[signalrange] << 4
+            value_to_write = (reg_23 & 0x0F) | bitmask[signalrange] << 4
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 
@@ -540,16 +540,16 @@ class CpxE4AiUI(CpxEModule):
 
         if channel == 0:
             function_number += 15
-            value_to_write = reg_01 | bitmask
+            value_to_write = (reg_01 & 0xF0) | bitmask
         elif channel == 1:
             function_number += 15
-            value_to_write = reg_01 | bitmask << 4
+            value_to_write = (reg_01 & 0x0F) | bitmask << 4
         elif channel == 2:
             function_number += 16
-            value_to_write = reg_23 | bitmask
+            value_to_write = (reg_23 & 0xF0) | bitmask
         elif channel == 3:
             function_number += 16
-            value_to_write = reg_23 | bitmask << 4
+            value_to_write = (reg_23 & 0x0F) | bitmask << 4
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 
@@ -575,12 +575,14 @@ class CpxE4AiUI(CpxEModule):
         reg = self.base.read_function_number(function_number)
 
         # Fill in the unchanged values from the register
-        if short_circuit == None:
+        if short_circuit is None:
             short_circuit = bool((reg & 0x01) >> 0)
-        if param_error == None:
+        if param_error is None:
             param_error = bool((reg & 0x80) >> 7)
 
-        value_to_write = (int(short_circuit) << 0) | (int(param_error) << 7)
+        value_to_write = (
+            (reg & 0x7E) | (int(short_circuit) << 0) | (int(param_error) << 7)
+        )
 
         self.base.write_function_number(function_number, value_to_write)
 
@@ -704,9 +706,9 @@ class CpxE4AiUI(CpxEModule):
         function_number_lower = 4828 + 64 * self.position + 7
         function_number_upper = 4828 + 64 * self.position + 8
 
-        if lower == None and isinstance(upper, int):
+        if lower is None and isinstance(upper, int):
             self.base.write_function_number(function_number_upper, upper)
-        elif upper == None and isinstance(lower, int):
+        elif upper is None and isinstance(lower, int):
             self.base.write_function_number(function_number_lower, lower)
         elif isinstance(upper, int) and isinstance(lower, int):
             self.base.write_function_number(function_number_upper, upper)
