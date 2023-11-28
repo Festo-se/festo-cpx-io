@@ -1,4 +1,4 @@
-"""Contains tests for MotionHandler class"""
+"""Contains tests for CpxE class"""
 import pytest
 from cpx_io.cpx_system.cpx_e import (
     CpxE,
