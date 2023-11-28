@@ -68,7 +68,7 @@ class TestCpxE4AiUI:
         assert cpxe4aiui.read_channel(3) == 3000
         mocked_base.read_reg_data.assert_called_with(cpxe4aiui.input_register, length=4)
 
-    def test_getitem_0_to_4(self):
+    def test_getitem_0_to_3(self):
         """Test get item"""
         cpx_e = CpxE()
         cpxe4aiui = cpx_e.add_module(CpxE4AiUI())

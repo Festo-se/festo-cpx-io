@@ -81,7 +81,7 @@ class CpxE(CpxBase):
         elif isinstance(modules_value, list):
             module_list = modules_value
         elif isinstance(modules_value, str):
-            Logging.logger.info(f"Use typecode {modules_value} for module setup")
+            Logging.logger.info("Use typecode %s for module setup", modules_value)
             module_list = module_list_from_typecode(modules_value)
         else:
             raise CpxInitError
@@ -164,7 +164,7 @@ class CpxE(CpxBase):
         module._initialize(self, len(self._modules))
         self._modules.append(module)
         setattr(self, module.name, module)
-        Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
+        Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
         return module
 
 
@@ -759,14 +759,14 @@ class CpxE4AoUI(CpxEModule):
     @CpxBase._require_base
     def write_channels(self, data: list[int]) -> None:
         """write data to module channels in ascending order"""
-        reg_data = [self.base._decode_int([x]) for x in data]
+        reg_data = [CpxBase._decode_int([x]) for x in data]
         self.base.write_reg_data(reg_data, self.output_register, length=4)
 
     @CpxBase._require_base
     def write_channel(self, channel: int, data: int) -> None:
         """write data to module channel number"""
 
-        reg_data = self.base._decode_int([data])
+        reg_data = CpxBase._decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
     @CpxBase._require_base
@@ -793,16 +793,16 @@ class CpxE4AoUI(CpxEModule):
 
         if channel == 0:
             function_number += 11
-            value_to_write = reg_01 | bitmask[signalrange]
+            value_to_write = (reg_01 & 0xF0) | bitmask[signalrange]
         elif channel == 1:
             function_number += 11
-            value_to_write = reg_01 | bitmask[signalrange] << 4
+            value_to_write = (reg_01 & 0x0F) | bitmask[signalrange] << 4
         elif channel == 2:
             function_number += 12
-            value_to_write = reg_23 | bitmask[signalrange]
+            value_to_write = (reg_23 & 0xF0) | bitmask[signalrange]
         elif channel == 3:
             function_number += 12
-            value_to_write = reg_23 | bitmask[signalrange] << 4
+            value_to_write = (reg_23 & 0x0F) | bitmask[signalrange] << 4
         else:
             raise ValueError(f"'{channel}' is not in range 0...3")
 
@@ -824,14 +824,15 @@ class CpxE4AoUI(CpxEModule):
 
         # Fill in the unchanged values from the register
         if short_circuit is None:
-            short_circuit = bool((reg & 0x01) >> 1)
+            short_circuit = bool(reg & 0x02)
         if undervoltage is None:
-            undervoltage = bool((reg & 0x04) >> 2)
+            undervoltage = bool(reg & 0x04)
         if param_error is None:
-            param_error = bool((reg & 0x80) >> 7)
+            param_error = bool(reg & 0x80)
 
         value_to_write = (
-            (int(short_circuit) << 1)
+            (reg & 0x79)
+            | (int(short_circuit) << 1)
             | (int(undervoltage) << 2)
             | (int(param_error) << 7)
         )
