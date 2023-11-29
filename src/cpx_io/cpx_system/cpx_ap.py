@@ -818,7 +818,7 @@ class CpxAp4Iol(CpxApModule):
         module_input_size = math.ceil(self.information["Input Size"] / 2) - 2
 
         data = self.base.read_reg_data(self.input_register, length=module_input_size)
-        data = [CpxBase._decode_int([d]) for d in data]
+        data = [CpxBase._decode_int([d], data_type="uint16") for d in data]
 
         channel_size = (module_input_size) // 4
 
