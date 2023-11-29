@@ -539,8 +539,11 @@ def test_4iol_ehps(test_cpxap):
     # Init: 0x 0001 4600 0000 0300
     # after cold start, initial data latch is required = Control Word = 1
     # data = process_data_out
+
     data = [0x0001, 0x6400, 0x03E8, 0x030A]
-    a4iol.write_channel(ehps_channel, data)
+    data_swapped = CpxBase._swap_bytes(data)
+    data_invers = data_swapped[::-1]
+    a4iol.write_channel(ehps_channel, data_invers)
 
     time.sleep(0.05)
     # Open command: 0x 0100 4600 0000 0300
