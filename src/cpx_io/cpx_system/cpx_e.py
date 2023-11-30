@@ -1117,6 +1117,7 @@ class CpxE4Iol(CpxEModule):
         Values are tuple of (low, high) 16 bit in us unit. Default is 0 (minimum supported cycle time).
         If no channels are specified, all channels are set to the given value.
         """
+
         if channel is None:
             channel = [0, 1, 2, 3]
 
@@ -1129,6 +1130,9 @@ class CpxE4Iol(CpxEModule):
 
         if isinstance(channel, int):
             channel = [channel]
+
+        if any([c not in range(4) for c in channel]):
+            raise ValueError("Channel must be between 0 and 3")
 
         for ch in channel:
             self.base.write_function_number(function_number[ch], value[0])
@@ -1154,6 +1158,9 @@ class CpxE4Iol(CpxEModule):
 
         if isinstance(channel, int):
             channel = [channel]
+
+        if any([c not in range(4) for c in channel]):
+            raise ValueError("Channel must be between 0 and 3")
 
         for ch in channel:
             reg = self.base.read_function_number(function_number[ch])
@@ -1194,6 +1201,9 @@ class CpxE4Iol(CpxEModule):
         if isinstance(channel, int):
             channel = [channel]
 
+        if any([c not in range(4) for c in channel]):
+            raise ValueError("Channel must be between 0 and 3")
+
         for ch in channel:
             # delete two lsb from register to write the new value there
             reg = self.base.read_function_number(function_number[ch]) & 0xFC
@@ -1207,6 +1217,11 @@ class CpxE4Iol(CpxEModule):
         """Line state for all channels. If no channel is provided, list of all channels is returned."""
         if channel is None:
             channel = [0, 1, 2, 3]
+
+        if isinstance(channel, int) and channel not in range(4):
+            raise ValueError("Channel must be between 0 and 3")
+        elif isinstance(channel, list) and any([c not in range(4) for c in channel]):
+            raise ValueError("All channel numbers must be between 0 and 3")
 
         function_number = [
             4828 + 64 * self.position + 24,
@@ -1236,10 +1251,10 @@ class CpxE4Iol(CpxEModule):
                 raise ValueError(f"Read unknown linestate {reg} for channel {ch}")
             line_state.append(state)
 
-        if isinstance(channel, int):
+        if isinstance(channel, int) and channel in range(4):
             return line_state[channel]
 
-        return line_state
+        return [line_state[c] for c in channel]
 
     @CpxBase._require_base
     def read_device_error(self, channel: int | list | None = None) -> tuple[int] | int:
@@ -1251,6 +1266,11 @@ class CpxE4Iol(CpxEModule):
         if channel is None:
             channel = [0, 1, 2, 3]
 
+        if isinstance(channel, int) and channel not in range(4):
+            raise ValueError("Channel must be between 0 and 3")
+        elif isinstance(channel, list) and any([c not in range(4) for c in channel]):
+            raise ValueError("All channel numbers must be between 0 and 3")
+
         function_number = [
             4828 + 64 * self.position + 25,
             4828 + 64 * self.position + 28,
@@ -1260,14 +1280,14 @@ class CpxE4Iol(CpxEModule):
 
         device_error = [0, 0, 0, 0]
         for ch in range(4):
-            low = self.base.read_function_number(function_number[ch])
-            high = self.base.read_function_number(function_number[ch] + 1)
+            low = self.base.read_function_number(function_number[ch]) & 0x0F
+            high = self.base.read_function_number(function_number[ch] + 1) & 0x0F
             device_error[ch] = (hex(low), hex(high))
 
-        if isinstance(channel, int):
+        if isinstance(channel, int) and channel in range(4):
             return device_error[channel]
 
-        return device_error
+        return [device_error[c] for c in channel]
 
 
 class CpxE1Ci(CpxEModule):

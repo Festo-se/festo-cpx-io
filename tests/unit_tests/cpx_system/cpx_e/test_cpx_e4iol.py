@@ -1,5 +1,5 @@
 """Contains tests for cpx_e4iol class"""
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 
 import pytest
 
@@ -259,18 +259,218 @@ class TestCpxE4Iol:
         mocked_base.write_function_number = Mock()
         cpxe4iol.base = mocked_base
 
+        expected_calls = [
+            call(4892 + 8, 10),
+            call(4892 + 9, 20),
+            call(4892 + 12, 10),
+            call(4892 + 13, 20),
+            call(4892 + 16, 10),
+            call(4892 + 17, 20),
+            call(4892 + 20, 10),
+            call(4892 + 21, 20),
+        ]
+
         cpxe4iol.configure_cycle_time((10, 20))
-        mocked_base.write_function_number.assert_called_with(4892 + 8, 10)
-        mocked_base.write_function_number.assert_called_with(4892 + 9, 20)
-        mocked_base.write_function_number.assert_called_with(4892 + 12, 10)
-        mocked_base.write_function_number.assert_called_with(4892 + 13, 20)
-        mocked_base.write_function_number.assert_called_with(4892 + 16, 10)
-        mocked_base.write_function_number.assert_called_with(4892 + 17, 20)
-        mocked_base.write_function_number.assert_called_with(4892 + 20, 10)
-        mocked_base.write_function_number.assert_called_with(4892 + 21, 20)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls, any_order=False
+        )
 
         cpxe4iol.configure_cycle_time((10, 20), 0)
-        mocked_base.write_function_number.assert_called_with(4892 + 6, 0xAA)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls[:2], any_order=False
+        )
 
         cpxe4iol.configure_cycle_time((10, 20), [1, 2])
-        mocked_base.write_function_number.assert_called_with(4892 + 6, 0xAA)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls[2:6], any_order=False
+        )
+
+        with pytest.raises(ValueError):
+            cpxe4iol.configure_operating_mode(True, -1)
+            cpxe4iol.configure_operating_mode(True, 4)
+
+    def test_configure_pl_supply(self):
+        """Test configure_cycle_time per channel"""
+        cpx_e = CpxE()
+        cpxe4iol = cpx_e.add_module(CpxE4Iol())
+
+        mocked_base = Mock()
+        mocked_base.write_function_number = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAA)
+        cpxe4iol.base = mocked_base
+
+        expected_calls_true = [
+            call(4892 + 10, 0xAB),
+            call(4892 + 14, 0xAB),
+            call(4892 + 18, 0xAB),
+            call(4892 + 22, 0xAB),
+        ]
+
+        expected_calls_false = [
+            call(4892 + 10, 0xAA),
+            call(4892 + 14, 0xAA),
+            call(4892 + 18, 0xAA),
+            call(4892 + 22, 0xAA),
+        ]
+
+        cpxe4iol.configure_pl_supply(True)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls_true, any_order=False
+        )
+
+        cpxe4iol.configure_pl_supply(False)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls_false, any_order=False
+        )
+
+        cpxe4iol.configure_pl_supply(True, 0)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls_true[:1], any_order=False
+        )
+
+        cpxe4iol.configure_pl_supply(True, 0)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls_false[:1], any_order=False
+        )
+
+        cpxe4iol.configure_pl_supply(True, [1, 2])
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls_true[1:3], any_order=False
+        )
+
+        cpxe4iol.configure_pl_supply(True, [1, 2])
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls_false[1:3], any_order=False
+        )
+
+        with pytest.raises(ValueError):
+            cpxe4iol.configure_operating_mode(True, -1)
+            cpxe4iol.configure_operating_mode(True, 4)
+
+    def test_configure_operating_mode(self):
+        """Test configure_cycle_time per channel"""
+        cpx_e = CpxE()
+        cpxe4iol = cpx_e.add_module(CpxE4Iol())
+
+        mocked_base = Mock()
+        mocked_base.write_function_number = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAA)
+        cpxe4iol.base = mocked_base
+
+        expected_calls = [
+            call(4892 + 11, 0xAB),
+            call(4892 + 15, 0xAB),
+            call(4892 + 19, 0xAB),
+            call(4892 + 23, 0xAB),
+        ]
+
+        cpxe4iol.configure_operating_mode(3)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls, any_order=False
+        )
+
+        cpxe4iol.configure_operating_mode(3, 0)
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls[:1], any_order=False
+        )
+
+        cpxe4iol.configure_operating_mode(3, [1, 2])
+        mocked_base.write_function_number.assert_has_calls(
+            expected_calls[1:3], any_order=False
+        )
+
+        with pytest.raises(ValueError):
+            cpxe4iol.configure_operating_mode(4, 0)
+            cpxe4iol.configure_operating_mode(-1, 0)
+            cpxe4iol.configure_operating_mode(0, [-1])
+            cpxe4iol.configure_operating_mode(0, [4])
+            cpxe4iol.configure_operating_mode(0, -1)
+            cpxe4iol.configure_operating_mode(0, 4)
+
+    def test_read_line_state(self):
+        """Test read_line_state per channel"""
+        cpx_e = CpxE()
+        cpxe4iol = cpx_e.add_module(CpxE4Iol())
+
+        mocked_base = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAD)
+        cpxe4iol.base = mocked_base
+
+        expected_calls = [
+            call(4892 + 24),
+            call(4892 + 27),
+            call(4892 + 30),
+            call(4892 + 33),
+        ]
+
+        state = cpxe4iol.read_line_state()
+        mocked_base.read_function_number.assert_has_calls(
+            expected_calls, any_order=False
+        )
+        assert state == ["OPERATE"] * 4
+
+        state = cpxe4iol.read_line_state(0)
+        mocked_base.read_function_number.assert_has_calls(
+            expected_calls, any_order=False
+        )
+
+        assert state == "OPERATE"
+
+        state = cpxe4iol.read_line_state([1, 2])
+        mocked_base.read_function_number.assert_has_calls(
+            expected_calls[1:3], any_order=False
+        )
+
+        assert state == ["OPERATE"] * 2
+
+        with pytest.raises(ValueError):
+            cpxe4iol.read_line_state([4])
+            cpxe4iol.read_line_state([-1])
+            cpxe4iol.read_line_state(4)
+            cpxe4iol.read_line_state(-1)
+
+    def test_read_device_error(self):
+        """Test read_device_error per channel"""
+        cpx_e = CpxE()
+        cpxe4iol = cpx_e.add_module(CpxE4Iol())
+
+        mocked_base = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAB)
+        cpxe4iol.base = mocked_base
+
+        expected_calls = [
+            call(4892 + 25),
+            call(4892 + 26),
+            call(4892 + 28),
+            call(4892 + 29),
+            call(4892 + 31),
+            call(4892 + 32),
+            call(4892 + 34),
+            call(4892 + 35),
+        ]
+
+        state = cpxe4iol.read_device_error()
+        mocked_base.read_function_number.assert_has_calls(
+            expected_calls, any_order=False
+        )
+        assert state == [("0xb", "0xb")] * 4
+
+        state = cpxe4iol.read_device_error(0)
+        mocked_base.read_function_number.assert_has_calls(
+            expected_calls, any_order=False
+        )
+
+        assert state == ("0xb", "0xb")
+
+        state = cpxe4iol.read_device_error([1, 2])
+        mocked_base.read_function_number.assert_has_calls(
+            expected_calls[1:3], any_order=False
+        )
+
+        assert state == [("0xb", "0xb")] * 2
+
+        with pytest.raises(ValueError):
+            cpxe4iol.read_line_state([4])
+            cpxe4iol.read_line_state([-1])
+            cpxe4iol.read_line_state(4)
+            cpxe4iol.read_line_state(-1)
