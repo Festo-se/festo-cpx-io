@@ -552,21 +552,19 @@ def test_4iol_ethrottle(test_cpxap):
     process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
     if not process_input_data["Homing Valid"]:
-        send_data = [0, 0, 0, 1]
-        a4iol.write_channel(ethrottle_channel, CpxBase._swap_bytes(send_data))
+        process_output_data = [0, 0, 0, 1]
+        a4iol.write_channel(ethrottle_channel, process_output_data)
 
         while not process_input_data["Homing Valid"]:
             process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
-    send_data = [0, 0, 0, 0x0F00]  # setpoint 0x0F
-    a4iol.write_channel(ethrottle_channel, CpxBase._swap_bytes(send_data))
+    process_output_data = [0, 0, 0, 0x0F00]  # setpoint 0x0F
+    a4iol.write_channel(ethrottle_channel, process_output_data)
 
     time.sleep(0.1)
 
     while not process_input_data["Motion Complete"]:
         process_input_data = read_process_data_in(a4iol, ethrottle_channel)
-
-    pass
 
 
 def test_4iol_write(test_cpxap):
