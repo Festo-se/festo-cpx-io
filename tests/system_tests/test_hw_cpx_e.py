@@ -558,7 +558,7 @@ def test_setter(test_cpxe):
     assert e4ao[0] == 0
 
 
-def test_4iol(test_cpxe):
+def test_4iol_sdas(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -566,13 +566,11 @@ def test_4iol(test_cpxe):
     e4iol = test_cpxe.add_module(CpxE4Iol())
 
     assert isinstance(e4iol, CpxE4Iol)
-    assert e4iol.read_status() == [False] * 16
 
     e4iol.configure_operating_mode(3, 0)
 
     time.sleep(0.05)
-    assert e4iol.read_line_state()[0] == "Operate"
-    assert e4iol.read_line_state()[1] == "Inactive"
+    assert e4iol.read_line_state()[0] == "OPERATE"
 
     sdas_data = e4iol.read_channel(0)
     process_data = sdas_data[0]
@@ -588,3 +586,88 @@ def test_4iol(test_cpxe):
     # assert e4iol[0] == e4iol.read_channel(0) # here a delta is needed
 
     assert e4iol.read_device_error(0) == ("0x0", "0x0")
+
+
+def test_4iol_ehps(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    def read_process_data_in(module, channel):
+        # ehps provides 3 x 16bit "process data in".
+        ehps_data = module.read_channel(channel)
+        assert ehps_data[3] == 0
+
+        process_data_in = {}
+
+        process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
+        process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
+        process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
+        process_data_in["LatchDataOk"] = bool((ehps_data[0] >> 12) & 1)
+        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[0] >> 11) & 1)
+        process_data_in["ClosedPositionFlag"] = bool((ehps_data[0] >> 10) & 1)
+        process_data_in["GrippedPositionFlag"] = bool((ehps_data[0] >> 9) & 1)
+        process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
+
+        process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
+
+        process_data_in["ErrorNumber"] = ehps_data[1]
+        process_data_in["ActualPosition"] = ehps_data[2]
+
+        return process_data_in
+
+    ehps_channel = 1
+    e4iol.configure_operating_mode(3, channel=ehps_channel)
+
+    time.sleep(0.05)
+
+    # example EHPS-20-A-LK on port 1
+    param = e4iol.read_line_state()
+    assert param[ehps_channel] == "OPERATE"
+
+    process_data_in = read_process_data_in(e4iol, ehps_channel)
+    assert process_data_in["Ready"] is True
+
+    # demo of process data out
+    control_word_msb = 0x00
+    control_word_lsb = 0x01  # latch
+    gripping_mode = 0x46  # universal
+    workpiece_no = 0x00
+    gripping_position = 0x03E8
+    gripping_force = 0x03  # ca. 85%
+    gripping_tolerance = 0x0A
+
+    process_data_out = [
+        control_word_lsb + (control_word_msb << 8),
+        workpiece_no + (gripping_mode << 8),
+        gripping_position,
+        gripping_tolerance + (gripping_force << 8),
+    ]
+
+    # init
+    e4iol.write_channel(ehps_channel, process_data_out)
+    time.sleep(0.05)
+
+    # Open command: 0x0100
+    process_data_out[0] = 0x0100
+    e4iol.write_channel(ehps_channel, process_data_out)
+
+    while not process_data_in["OpenedPositionFlag"]:
+        process_data_in = read_process_data_in(e4iol, ehps_channel)
+        time.sleep(0.05)
+
+    # Close command 0x 0200
+    process_data_out[0] = 0x0200
+    e4iol.write_channel(ehps_channel, process_data_out)
+
+    while not process_data_in["ClosedPositionFlag"]:
+        process_data_in = read_process_data_in(e4iol, ehps_channel)
+        time.sleep(0.05)
+
+    assert process_data_in["Error"] is False
+    assert process_data_in["ClosedPositionFlag"] is True
+    assert process_data_in["OpenedPositionFlag"] is False

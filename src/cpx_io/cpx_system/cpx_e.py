@@ -921,6 +921,21 @@ class CpxE4AoUI(CpxEModule):
 class CpxE4Iol(CpxEModule):
     """Class for CPX-E-4IOL io-link master module"""
 
+    def __init__(self, address_space: int = 2, **kwargs):
+        """The address space (inputs/outputs) provided by the module is set using DIL switches (see Datasheet CPX-E-4IOL-...)
+        Accepted values are:
+        * 2: Per port: 2 E / 2 A  Module: 8 E / 8 A (default)
+        * 4: Per port: 4 E / 4 A  Module: 16 E / 16 A
+        * 8: Per port: 8 E / 8 A  Module: 32 E / 32 A
+        * 16: Per port: 16 E / 16 A  Module: 32 E /32 A
+        * 32: Per port: 32 E / 32 A  Module: 32 E / 32 A
+        """
+        super().__init__(**kwargs)
+        if address_space not in [2, 4, 8, 16, 32]:
+            raise ValueError("address_space must be 2, 4, 8, 16 or 32")
+        self.module_input_size = address_space // 2
+        self.module_output_size = address_space // 2
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -933,17 +948,13 @@ class CpxE4Iol(CpxEModule):
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
 
-        self.base._next_output_register = self.output_register + 8
-        self.base._next_input_register = self.input_register + 4
-
-    @CpxBase._require_base
-    def read_channels(self) -> list[int]:
-        """read all channels as a list of integer values"""
-        channel_data = [0, 0, 0, 0]
-        for ch in range(4):
-            raw_data = self.base.read_reg_data(self.input_register + ch, length=4)
-            channel_data[ch] = [CpxBase._decode_int([x]) for x in raw_data]
-        return channel_data
+        # double the address space for echo output registers, 4 channels
+        self.base._next_output_register = (
+            self.output_register + self.module_input_size
+        ) * 8
+        self.base._next_input_register = (
+            self.input_register + self.module_input_size
+        ) * 4
 
     @CpxBase._require_base
     def read_status(self) -> list[bool]:
@@ -952,34 +963,75 @@ class CpxE4Iol(CpxEModule):
         return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
 
     @CpxBase._require_base
-    def read_channel(self, channel: int) -> int:
+    def read_channels(self) -> list[list[int]]:
+        """read all channels as a list of integer values"""
+        channel_size = self.module_input_size
+
+        # read all channels
+        data = self.base.read_reg_data(self.input_register, length=channel_size * 4)
+
+        data = [
+            CpxBase._decode_int([d], data_type="uint16", byteorder="little")
+            for d in data
+        ]
+
+        channels = [
+            data[: channel_size * 1],
+            data[channel_size * 1 : channel_size * 2],
+            data[channel_size * 2 : channel_size * 3],
+            data[channel_size * 3 :],
+        ]
+
+        return channels
+
+    @CpxBase._require_base
+    def read_channel(self, channel: int) -> list[int]:
         """read back the value of one channel"""
         return self.read_channels()[channel]
 
     @CpxBase._require_base
-    def read_outputs(self) -> int:
-        """read back the value of one output channel"""
-        raw_data = self.base.read_reg_data(self.input_register + 4, length=4)
-        data = [CpxBase._decode_int([x]) for x in raw_data]
-        return data
+    def read_outputs(self) -> list[list[int]]:
+        """read back the values of all output channel"""
+        channel_size = self.module_input_size
+
+        # read all channels
+        data = self.base.read_reg_data(
+            self.input_register + channel_size * 4, length=channel_size * 4
+        )
+
+        data = [
+            CpxBase._decode_int([d], data_type="uint16", byteorder="little")
+            for d in data
+        ]
+
+        channels = [
+            data[: channel_size * 1],
+            data[channel_size * 1 : channel_size * 2],
+            data[channel_size * 2 : channel_size * 3],
+            data[channel_size * 3 :],
+        ]
+
+        return channels
 
     @CpxBase._require_base
-    def read_output_channel(self, channel: int) -> int:
+    def read_output_channel(self, channel: list[int]) -> int:
         """read back the value of one channel"""
         return self.read_outputs()[channel]
 
     @CpxBase._require_base
-    def write_channels(self, data: list[int]) -> None:
-        """write data to module channels in ascending order"""
-        reg_data = [self.base._decode_int([x]) for x in data]
-        self.base.write_reg_data(reg_data, self.output_register, length=4)
+    def write_channel(self, channel: int, data: list[int]) -> None:
+        """write data to module channel number
+        channel order is [0, 1, 2, 3]
+        """
+        channel_size = self.module_output_size
 
-    @CpxBase._require_base
-    def write_channel(self, channel: int, data: int) -> None:
-        """write data to module channel number"""
-
-        reg_data = self.base._decode_int([data])
-        self.base.write_reg_data(reg_data, self.output_register + channel)
+        register_data = [
+            CpxBase._encode_int(d, data_type="uint16", byteorder="little")[0]
+            for d in data
+        ]
+        self.base.write_reg_data(
+            register_data, self.output_register + channel_size * channel
+        )
 
     @CpxBase._require_base
     def configure_monitoring_uload(self, value: bool) -> None:
@@ -993,7 +1045,7 @@ class CpxE4Iol(CpxEModule):
 
         # Fill in the unchanged values from the register
         if value:
-            value_to_write = reg | 0x40
+            value_to_write = reg | 0x04
         else:
             value_to_write = reg & 0xFB
 
@@ -1062,7 +1114,7 @@ class CpxE4Iol(CpxEModule):
         The value becomes effective at the start of the IO-Link connection by setting the "Operating mode"
         parameter to "IO-Link". Changes during IO-Link operation are not made until the connection
         has been deactivated and then reactivated again.
-        Values are 16 bit in us unit. Default is 0 (minimum supported cycle time) for both low and high.
+        Values are tuple of (low, high) 16 bit in us unit. Default is 0 (minimum supported cycle time).
         If no channels are specified, all channels are set to the given value.
         """
         if channel is None:
@@ -1167,19 +1219,19 @@ class CpxE4Iol(CpxEModule):
         for ch in range(4):
             reg = self.base.read_function_number(function_number[ch]) & 0x07
             if reg == 0b000:
-                state = "Inactive"
+                state = "INACTIVE"
             elif reg == 0b001:
                 state = "DI"
             elif reg == 0b011:
-                state = "CheckFault"
+                state = "CHECKFAULT"
             elif reg == 0b100:
-                state = "Preoperate"
+                state = "PREOPERATE"
             elif reg == 0b101:
-                state = "Operate"
+                state = "OPERATE"
             elif reg == 0b110:
-                state = "Scanning"
+                state = "SCANNING"
             elif reg == 0b111:
-                state = "DeviceLost"
+                state = "DEVICELOST"
             else:
                 raise ValueError(f"Read unknown linestate {reg} for channel {ch}")
             line_state.append(state)
