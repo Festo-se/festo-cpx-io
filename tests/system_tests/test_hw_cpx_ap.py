@@ -454,9 +454,7 @@ def test_4iol_ehps(test_cpxap):
         assert ehps_data[3] == 0
 
         process_data_in = {}
-        # The register ordering is inverted to the information in the datasheet
-        # also the byteorder is inverted
-        ehps_data = CpxBase._swap_bytes(ehps_data)
+
         process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
         process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
         process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
@@ -473,40 +471,6 @@ def test_4iol_ehps(test_cpxap):
 
         return process_data_in
 
-    def write_process_data_out(module, channel, data):
-        # Handhake: First control word = 0x00
-        data[0] &= 0xFFFE
-        module.write_channel(channel, data)
-
-        for i in range(100):
-            process_data_in = read_process_data_in(module, channel)
-            if process_data_in["LatchDataOk"] is False:
-                break
-            time.sleep(0.02)
-        assert i < 99
-
-        # Handshake: Second control word = 0x01
-        data[0] |= 0x0001
-        module.write_channel(channel, data)
-
-        for i in range(100):
-            process_data_in = read_process_data_in(module, channel)
-            if process_data_in["LatchDataOk"] is True:
-                break
-            time.sleep(0.02)
-        assert i < 99
-
-        # Handshake: Third: Control word = 0x00
-        data[0] &= 0xFFFE
-        module.write_channel(channel, data)
-
-        for i in range(100):
-            process_data_in = read_process_data_in(module, channel)
-            if process_data_in["LatchDataOk"] is False:
-                break
-            time.sleep(0.02)
-        assert i < 99
-
     ehps_channel = 1
     a4iol.configure_port_mode(2, channel=ehps_channel)
 
@@ -521,12 +485,12 @@ def test_4iol_ehps(test_cpxap):
 
     # demo of process data out
     control_word_msb = 0x00
-    control_word_lsb = 0x01
+    control_word_lsb = 0x01  # latch
     gripping_mode = 0x46  # universal
     workpiece_no = 0x00
-    gripping_position = 0x0000
+    gripping_position = 0x03E8
     gripping_force = 0x03  # ca. 85%
-    gripping_tolerance = 0xF0
+    gripping_tolerance = 0x0A
 
     process_data_out = [
         control_word_lsb + (control_word_msb << 8),
@@ -534,59 +498,30 @@ def test_4iol_ehps(test_cpxap):
         gripping_position,
         gripping_tolerance + (gripping_force << 8),
     ]
-    holding_registers = a4iol.base.read_reg_data(5, length=4)
 
-    # Init: 0x 0001 4600 0000 0300
-    # after cold start, initial data latch is required = Control Word = 1
-    # data = process_data_out
-
-    data = [0x0001, 0x6400, 0x03E8, 0x030A]
-    data_swapped = CpxBase._swap_bytes(data)
-    data_invers = data_swapped[::-1]
-    a4iol.write_channel(ehps_channel, data_invers)
-
+    # init
+    a4iol.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
-    # Open command: 0x 0100 4600 0000 0300
-    # data = [0x0100, 0x4600, 0x03E8, 0x030A]
-    # write_process_data_out(a4iol, ehps_channel, data)
 
-    # time.sleep(0.05)
-    process_data_in = read_process_data_in(a4iol, ehps_channel)
+    # Open command: 0x0100
+    process_data_out[0] = 0x0100
+    a4iol.write_channel(ehps_channel, process_data_out)
 
-    holding_registers = a4iol.base.read_reg_data(5, length=4)
-
-    # Close command 0x 0200 4600 0000 0300
-    data = [0x0200, 0x4600, 0x0000, 0x03F0]
-    write_process_data_out(a4iol, ehps_channel, data)
-
-    for _ in range(10):
-        a4iol.read_channel(1)
+    while not process_data_in["OpenedPositionFlag"]:
+        process_data_in = read_process_data_in(a4iol, ehps_channel)
         time.sleep(0.05)
-    pass
 
+    # Close command 0x 0200
+    process_data_out[0] = 0x0200
+    a4iol.write_channel(ehps_channel, process_data_out)
 
-def test_4iol_vppm(test_cpxap):
-    a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    while not process_data_in["ClosedPositionFlag"]:
+        process_data_in = read_process_data_in(a4iol, ehps_channel)
+        time.sleep(0.05)
 
-    vppm_channel = 2
-
-    a4iol.configure_port_mode(2, channel=vppm_channel)
-
-    time.sleep(0.05)
-
-    param = a4iol.read_fieldbus_parameters()
-    assert param[vppm_channel]["Port status information"] == "OPERATE"
-
-    data = a4iol.read_channel(vppm_channel)
-
-    a4iol.write_channel(vppm_channel, [1, 0, 0, 0])
-
-    time.sleep(0.05)
-
-    data = a4iol.read_channel(vppm_channel)
-
-    pass
+    assert process_data_in["Error"] is False
+    assert process_data_in["ClosedPositionFlag"] is True
+    assert process_data_in["OpenedPositionFlag"] is False
 
 
 def test_4iol_ethrottle(test_cpxap):
@@ -595,16 +530,13 @@ def test_4iol_ethrottle(test_cpxap):
 
     def read_process_data_in(module, channel):
         data = module.read_channel(channel)
-
-        data_swapped = CpxBase._swap_bytes(data)
-        data_invers = data_swapped[::-1]
-
+        # register order is [msb, ... , ... , lsb]
         process_input_data = {
-            "Actual Position": data_invers[0],
-            "Homing Valid": bool(data_invers[0] & 0b1000),
-            "Motion Complete": bool(data_invers[0] & 0b100),
-            "Proximity Switch": bool(data_invers[0] & 0b10),
-            "Reduced Speed": bool(data_invers[0] & 0b1000),
+            "Actual Position": data[3],
+            "Homing Valid": bool(data[3] & 0b1000),
+            "Motion Complete": bool(data[3] & 0b100),
+            "Proximity Switch": bool(data[3] & 0b10),
+            "Reduced Speed": bool(data[3] & 0b1000),
         }
         return process_input_data
 
@@ -620,14 +552,14 @@ def test_4iol_ethrottle(test_cpxap):
     process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
     if not process_input_data["Homing Valid"]:
-        send_data = [1, 0, 0, 0]
-        a4iol.write_channel(ethrottle_channel, CpxBase._swap_bytes(send_data[::-1]))
+        send_data = [0, 0, 0, 1]
+        a4iol.write_channel(ethrottle_channel, CpxBase._swap_bytes(send_data))
 
         while not process_input_data["Homing Valid"]:
             process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
-    send_data = [0xFF00, 0, 0, 0]  # setpoint 0xFF
-    a4iol.write_channel(ethrottle_channel, CpxBase._swap_bytes(send_data[::-1]))
+    send_data = [0, 0, 0, 0x0F00]  # setpoint 0x0F
+    a4iol.write_channel(ethrottle_channel, CpxBase._swap_bytes(send_data))
 
     time.sleep(0.1)
 

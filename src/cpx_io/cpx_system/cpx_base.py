@@ -103,8 +103,13 @@ class CpxBase:
         return swapped
 
     @staticmethod
-    def _encode_int(data: int, data_type="int16"):
-        builder = BinaryPayloadBuilder(byteorder=Endian.BIG)
+    def _encode_int(data: int, data_type="int16", byteorder="big"):
+        if byteorder == "little":
+            byteorder = Endian.LITTLE
+        else:
+            byteorder = Endian.BIG
+
+        builder = BinaryPayloadBuilder(byteorder=byteorder)
         if data_type == "uint8":
             builder.add_8bit_uint(data)
         elif data_type == "uint16":
@@ -132,13 +137,18 @@ class CpxBase:
         return decoder.decode_string(34).decode("ascii").strip("\x00")
 
     @staticmethod
-    def _decode_int(registers, data_type="uint16"):
+    def _decode_int(registers, data_type="uint16", byteorder="big"):
+        if byteorder == "little":
+            byteorder = Endian.LITTLE
+        else:
+            byteorder = Endian.BIG
+
         # on 8 bit types, the data have to be shifted to MSByte for correct decoding
         if data_type in ("uint8", "int8"):
             registers = [(registers[0] & 0xFF) << 8]
 
         decoder = BinaryPayloadDecoder.fromRegisters(
-            registers[::-1], byteorder=Endian.BIG
+            registers[::-1], byteorder=byteorder
         )
 
         if data_type == "uint8":
