@@ -814,9 +814,16 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase._require_base
     def read_channels(self) -> list[int]:
-        """read all IO-Link input data"""
+        """read all IO-Link input data
+        register order is [msb, ... , ... , lsb]
+        """
         module_input_size = math.ceil(self.information["Input Size"] / 2) - 2
+
         data = self.base.read_reg_data(self.input_register, length=module_input_size)
+        data = [
+            CpxBase._decode_int([d], data_type="uint16", byteorder="little")
+            for d in data
+        ]
 
         channel_size = (module_input_size) // 4
 
@@ -830,16 +837,24 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
-        """read back the value of one channel"""
+        """read back the register values of one channel
+        register order is [msb, ... , ... , lsb]
+        channel order is [0, 1, 2, 3]
+        """
         return self.read_channels()[channel]
 
     @CpxBase._require_base
     def write_channel(self, channel: int, data: list[int]) -> None:
-        """set one channel to list of uint16 values"""
+        """set one channel to list of uint16 values
+        channel order is [0, 1, 2, 3]
+        """
         module_output_size = math.ceil(self.information["Output Size"] / 2)
         channel_size = (module_output_size) // 4
 
-        register_data = [CpxBase._encode_int(d, data_type="uint16")[0] for d in data]
+        register_data = [
+            CpxBase._encode_int(d, data_type="uint16", byteorder="little")[0]
+            for d in data
+        ]
         self.base.write_reg_data(
             register_data, self.output_register + channel_size * channel
         )

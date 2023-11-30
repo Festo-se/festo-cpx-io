@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] Reworked CPX-E class structure.
 
 ### Fixed
+- [Patch] Bugfixes for IO-Link modules
 - [Patch] Fixed bug in cpx-e-4ai-ui and 4ao configure functions
 - [Patch] Fixed diagnostics function in cpx-e-8do
 - [Patch] Fixed several linter issues
