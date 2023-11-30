@@ -409,7 +409,7 @@ def test_read_ap_parameter(test_cpxap):
     assert ap["Module Code"] == info["Module Code"]
 
 
-def test_4iol(test_cpxap):
+def test_4iol_sdas(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
@@ -424,15 +424,147 @@ def test_4iol(test_cpxap):
     sdas_data = a4iol.read_channel(0)
     process_data = sdas_data[0]
 
+    assert sdas_data[1] == 0
+    assert sdas_data[2] == 0
+    assert sdas_data[3] == 0
+
     ssc1 = bool(process_data & 0x1)
     ssc2 = bool(process_data & 0x2)
     ssc3 = bool(process_data & 0x4)
     ssc4 = bool(process_data & 0x8)
     pdv = (process_data & 0xFFF0) >> 4
 
-    assert pdv > 0
+    assert 0 <= pdv <= 4095
 
     assert a4iol[0] == a4iol.read_channel(0)
+
+
+def test__swap_bytes():
+    assert CpxBase._swap_bytes([0xABCD]) == [0xCDAB]
+    assert CpxBase._swap_bytes([0xABCD, 0xCAFE]) == [0xCDAB, 0xFECA]
+
+
+def test_4iol_ehps(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    def read_process_data_in(module, channel):
+        # ehps provides 3 x 16bit "process data in".
+        ehps_data = module.read_channel(channel)
+        assert ehps_data[3] == 0
+
+        process_data_in = {}
+
+        process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
+        process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
+        process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
+        process_data_in["LatchDataOk"] = bool((ehps_data[0] >> 12) & 1)
+        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[0] >> 11) & 1)
+        process_data_in["ClosedPositionFlag"] = bool((ehps_data[0] >> 10) & 1)
+        process_data_in["GrippedPositionFlag"] = bool((ehps_data[0] >> 9) & 1)
+        process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
+
+        process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
+
+        process_data_in["ErrorNumber"] = ehps_data[1]
+        process_data_in["ActualPosition"] = ehps_data[2]
+
+        return process_data_in
+
+    ehps_channel = 1
+    a4iol.configure_port_mode(2, channel=ehps_channel)
+
+    time.sleep(0.05)
+
+    # example EHPS-20-A-LK on port 1
+    param = a4iol.read_fieldbus_parameters()
+    assert param[ehps_channel]["Port status information"] == "OPERATE"
+
+    process_data_in = read_process_data_in(a4iol, ehps_channel)
+    assert process_data_in["Ready"] is True
+
+    # demo of process data out
+    control_word_msb = 0x00
+    control_word_lsb = 0x01  # latch
+    gripping_mode = 0x46  # universal
+    workpiece_no = 0x00
+    gripping_position = 0x03E8
+    gripping_force = 0x03  # ca. 85%
+    gripping_tolerance = 0x0A
+
+    process_data_out = [
+        control_word_lsb + (control_word_msb << 8),
+        workpiece_no + (gripping_mode << 8),
+        gripping_position,
+        gripping_tolerance + (gripping_force << 8),
+    ]
+
+    # init
+    a4iol.write_channel(ehps_channel, process_data_out)
+    time.sleep(0.05)
+
+    # Open command: 0x0100
+    process_data_out[0] = 0x0100
+    a4iol.write_channel(ehps_channel, process_data_out)
+
+    while not process_data_in["OpenedPositionFlag"]:
+        process_data_in = read_process_data_in(a4iol, ehps_channel)
+        time.sleep(0.05)
+
+    # Close command 0x 0200
+    process_data_out[0] = 0x0200
+    a4iol.write_channel(ehps_channel, process_data_out)
+
+    while not process_data_in["ClosedPositionFlag"]:
+        process_data_in = read_process_data_in(a4iol, ehps_channel)
+        time.sleep(0.05)
+
+    assert process_data_in["Error"] is False
+    assert process_data_in["ClosedPositionFlag"] is True
+    assert process_data_in["OpenedPositionFlag"] is False
+
+
+def test_4iol_ethrottle(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    def read_process_data_in(module, channel):
+        data = module.read_channel(channel)
+        # register order is [msb, ... , ... , lsb]
+        process_input_data = {
+            "Actual Position": data[3],
+            "Homing Valid": bool(data[3] & 0b1000),
+            "Motion Complete": bool(data[3] & 0b100),
+            "Proximity Switch": bool(data[3] & 0b10),
+            "Reduced Speed": bool(data[3] & 0b1000),
+        }
+        return process_input_data
+
+    ethrottle_channel = 3
+
+    a4iol.configure_port_mode(2, channel=ethrottle_channel)
+
+    time.sleep(0.05)
+
+    param = a4iol.read_fieldbus_parameters()
+    assert param[ethrottle_channel]["Port status information"] == "OPERATE"
+
+    process_input_data = read_process_data_in(a4iol, ethrottle_channel)
+
+    if not process_input_data["Homing Valid"]:
+        process_output_data = [0, 0, 0, 1]
+        a4iol.write_channel(ethrottle_channel, process_output_data)
+
+        while not process_input_data["Homing Valid"]:
+            process_input_data = read_process_data_in(a4iol, ethrottle_channel)
+
+    process_output_data = [0, 0, 0, 0x0F00]  # setpoint 0x0F
+    a4iol.write_channel(ethrottle_channel, process_output_data)
+
+    time.sleep(0.1)
+
+    while not process_input_data["Motion Complete"]:
+        process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
 
 def test_4iol_write(test_cpxap):
