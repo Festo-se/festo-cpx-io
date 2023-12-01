@@ -27,7 +27,7 @@ class TestCpxE4Iol:
         assert cpxe4iol.module_input_size == 1
         assert cpxe4iol.module_output_size == 1
 
-    def test_initialize_8AE(self):
+    def test_initialize_8ae(self):
         """Test initialize function"""
         cpx_e = CpxE()
         cpxe4iol = CpxE4Iol(8)
@@ -47,10 +47,9 @@ class TestCpxE4Iol:
 
     def test_initialize_wrong(self):
         """Test initialize function"""
-        cpx_e = CpxE()
 
         with pytest.raises(ValueError):
-            cpxe4iol = CpxE4Iol(3)
+            CpxE4Iol(3)
 
     def test_read_status(self):
         """Test read channels"""
