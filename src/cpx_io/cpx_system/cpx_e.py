@@ -161,14 +161,14 @@ class CpxE(CpxBase):
 
     def add_module(self, module):
         """Adds one module to the base. This is required to use the module."""
-        module._initialize(self, len(self._modules))
+        module.configure(self, len(self._modules))
         self._modules.append(module)
         setattr(self, module.name, module)
         Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
         return module
 
 
-class CpxEModule(CpxBase):
+class CpxEModule:
     """Base class for cpx-e modules"""
 
     def __init__(self, name=None):
@@ -186,7 +186,7 @@ class CpxEModule(CpxBase):
     def __repr__(self):
         return f"{self.name} (idx: {self.position}, type: {type(self).__name__})"
 
-    def _initialize(self, base, position):
+    def configure(self, base, position):
         self.base = base
         self.position = position
 
@@ -194,8 +194,8 @@ class CpxEModule(CpxBase):
 class CpxEEp(CpxEModule):
     """Class for CPX-E-EP module"""
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = _ModbusCommands.process_data_outputs[0]
         self.input_register = _ModbusCommands.process_data_inputs[0]
@@ -213,8 +213,8 @@ class CpxE8Do(CpxEModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -340,8 +340,8 @@ class CpxE16Di(CpxEModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -455,8 +455,8 @@ class CpxE4AiUI(CpxEModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -468,7 +468,7 @@ class CpxE4AiUI(CpxEModule):
     def read_channels(self) -> list[int]:
         """read all channels as a list of (signed) integers"""
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        data = [CpxBase._decode_int([x]) for x in raw_data]
+        data = [CpxBase.decode_int([x]) for x in raw_data]
         return data
 
     @CpxBase._require_base
@@ -728,8 +728,8 @@ class CpxE4AoUI(CpxEModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -742,7 +742,7 @@ class CpxE4AoUI(CpxEModule):
         """read all channels as a list of integer values"""
 
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        data = [CpxBase._decode_int([x]) for x in raw_data]
+        data = [CpxBase.decode_int([x]) for x in raw_data]
         return data
 
     @CpxBase._require_base
@@ -759,14 +759,14 @@ class CpxE4AoUI(CpxEModule):
     @CpxBase._require_base
     def write_channels(self, data: list[int]) -> None:
         """write data to module channels in ascending order"""
-        reg_data = [CpxBase._decode_int([x]) for x in data]
+        reg_data = [CpxBase.decode_int([x]) for x in data]
         self.base.write_reg_data(reg_data, self.output_register, length=4)
 
     @CpxBase._require_base
     def write_channel(self, channel: int, data: int) -> None:
         """write data to module channel number"""
 
-        reg_data = CpxBase._decode_int([data])
+        reg_data = CpxBase.decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
     @CpxBase._require_base
@@ -942,8 +942,8 @@ class CpxE4Iol(CpxEModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -1026,7 +1026,7 @@ class CpxE4Iol(CpxEModule):
         channel_size = self.module_output_size
 
         register_data = [
-            CpxBase._encode_int(d, data_type="uint16", byteorder="little")[0]
+            CpxBase.encode_int(d, data_type="uint16", byteorder="little")[0]
             for d in data
         ]
         self.base.write_reg_data(

@@ -293,44 +293,44 @@ def test_4AiUI_configures_channel_limits(test_cpxap):
     a4aiui.configure_channel_limits(0, upper=1111, lower=-1111)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 0), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20044, 0), data_type="int16")
         == 1111
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 0), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20045, 0), data_type="int16")
         == -1111
     )
 
     a4aiui.configure_channel_limits(1, upper=2222, lower=-2222)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 1), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20044, 1), data_type="int16")
         == 2222
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 1), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20045, 1), data_type="int16")
         == -2222
     )
 
     a4aiui.configure_channel_limits(2, upper=3333, lower=-3333)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 2), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20044, 2), data_type="int16")
         == 3333
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 2), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20045, 2), data_type="int16")
         == -3333
     )
 
     a4aiui.configure_channel_limits(3, upper=4444, lower=-4444)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20044, 3), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20044, 3), data_type="int16")
         == 4444
     )
     assert (
-        CpxBase._decode_int(a4aiui.base._read_parameter(3, 20045, 3), data_type="int16")
+        CpxBase.decode_int(a4aiui.base._read_parameter(3, 20045, 3), data_type="int16")
         == -4444
     )
 
@@ -347,23 +347,19 @@ def test_4Di4Do_configures(test_cpxap):
 
     a4di4do.configure_debounce_time(3)
     time.sleep(0.05)
-    assert CpxBase._decode_int(a4di4do.base._read_parameter(2, 20014, 0)) == 3
+    assert CpxBase.decode_int(a4di4do.base._read_parameter(2, 20014, 0)) == 3
 
     a4di4do.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(
-            a4di4do.base._read_parameter(2, 20022, 0), data_type="uint8"
-        )
+        CpxBase.decode_int(a4di4do.base._read_parameter(2, 20022, 0), data_type="uint8")
         == 2
     )
 
     a4di4do.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(
-            a4di4do.base._read_parameter(2, 20052, 0), data_type="uint8"
-        )
+        CpxBase.decode_int(a4di4do.base._read_parameter(2, 20052, 0), data_type="uint8")
         == 1
     )
 
@@ -439,9 +435,9 @@ def test_4iol_sdas(test_cpxap):
     assert a4iol[0] == a4iol.read_channel(0)
 
 
-def test__swap_bytes():
-    assert CpxBase._swap_bytes([0xABCD]) == [0xCDAB]
-    assert CpxBase._swap_bytes([0xABCD, 0xCAFE]) == [0xCDAB, 0xFECA]
+def test_swap_bytes():
+    assert CpxBase.swap_bytes([0xABCD]) == [0xCDAB]
+    assert CpxBase.swap_bytes([0xABCD, 0xCAFE]) == [0xCDAB, 0xFECA]
 
 
 def test_4iol_ehps(test_cpxap):
@@ -586,21 +582,21 @@ def test_4iol_configure_monitoring_load_supply(test_cpxap):
     a4iol.configure_monitoring_load_supply(0)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
         == 0
     )
 
     a4iol.configure_monitoring_load_supply(1)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
         == 1
     )
 
     a4iol.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20022, 0), data_type="uint8")
         == 2
     )
 
@@ -614,37 +610,37 @@ def test_4iol_configure_target_cycle_time(test_cpxap):
     a4iol.configure_target_cycle_time(16, channel=0)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
         == 16
     )
 
     a4iol.configure_target_cycle_time(73, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
         == 73
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 2), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 2), data_type="uint8")
         == 73
     )
 
     a4iol.configure_target_cycle_time(158)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 0), data_type="uint8")
         == 158
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 1), data_type="uint8")
         == 158
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 2), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 2), data_type="uint8")
         == 158
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20049, 3), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20049, 3), data_type="uint8")
         == 158
     )
 
@@ -657,19 +653,19 @@ def test_4iol_configure_device_lost_diagnostics(test_cpxap):
 
     a4iol.configure_device_lost_diagnostics(False, channel=0)
     time.sleep(0.05)
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
 
     a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
     time.sleep(0.05)
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
 
     a4iol.configure_device_lost_diagnostics(False)
     time.sleep(0.05)
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
-    assert CpxBase._decode_bool(a4iol.base._read_parameter(4, 20050, 3)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 0)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 1)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 2)) == False
+    assert CpxBase.decode_bool(a4iol.base._read_parameter(4, 20050, 3)) == False
 
     a4iol.configure_device_lost_diagnostics(True)
 
@@ -681,37 +677,37 @@ def test_4iol_configure_port_mode(test_cpxap):
     a4iol.configure_port_mode(0, channel=0)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
         == 0
     )
 
     a4iol.configure_port_mode(3, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 2), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 2), data_type="uint8")
         == 3
     )
 
     a4iol.configure_port_mode(97)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 0), data_type="uint8")
         == 97
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 1), data_type="uint8")
         == 97
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 2), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 2), data_type="uint8")
         == 97
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20071, 3), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20071, 3), data_type="uint8")
         == 97
     )
 
@@ -725,37 +721,37 @@ def test_4iol_configure_review_and_backup(test_cpxap):
     a4iol.configure_review_and_backup(1, channel=0)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
         == 1
     )
 
     a4iol.configure_review_and_backup(2, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
         == 2
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 2), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 2), data_type="uint8")
         == 2
     )
 
     a4iol.configure_review_and_backup(3)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 0), data_type="uint8")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 1), data_type="uint8")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 2), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 2), data_type="uint8")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20072, 3), data_type="uint8")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20072, 3), data_type="uint8")
         == 3
     )
 
@@ -770,7 +766,7 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
         == 1
     )
 
@@ -778,11 +774,11 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
         == 2
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 2), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 2), data_type="uint16")
         == 2
     )
 
@@ -790,19 +786,19 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 0), data_type="uint16")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 1), data_type="uint16")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 2), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 2), data_type="uint16")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20073, 3), data_type="uint16")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20073, 3), data_type="uint16")
         == 3
     )
 
@@ -818,7 +814,7 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
         == 1
     )
 
@@ -826,11 +822,11 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")
         == 2
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 2), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 2), data_type="uint32")
         == 2
     )
 
@@ -838,19 +834,19 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 0), data_type="uint32")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 1), data_type="uint32")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 2), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 2), data_type="uint32")
         == 3
     )
     assert (
-        CpxBase._decode_int(a4iol.base._read_parameter(4, 20080, 3), data_type="uint32")
+        CpxBase.decode_int(a4iol.base._read_parameter(4, 20080, 3), data_type="uint32")
         == 3
     )
 

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - [Minor] Unittests for modules
+- [Minor] Added pylintrc file to disable f-string highlighting
 - [Minor] CPXAP: Added read function for AP parameters
 - [Minor] CPXAP: Functionality for IO-Link module
 - [Minor] CPXE: Added more unittests
@@ -36,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - [Patch] Bugfix in CPX-E-4IOL read/write and configure functions
+- [Patch] Fixed access to protected members of cpx_base
 - [Patch] Bugfixes for IO-Link modules
 - [Patch] Fixed bug in cpx-e-4ai-ui and 4ao configure functions
 - [Patch] Fixed diagnostics function in cpx-e-8do
