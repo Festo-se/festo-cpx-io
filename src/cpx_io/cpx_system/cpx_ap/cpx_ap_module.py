@@ -22,7 +22,7 @@ class CpxApModule:
         self.base = base
         self.position = position
 
-    def _update_information(self, information):
+    def update_information(self, information):
         self.information = information
 
     @CpxBase.require_base
