@@ -7,7 +7,7 @@ from cpx_io.cpx_system.cpx_e import CpxE, CpxE8Do
 class TestCpxE8Do:
     """Test cpx-e-8do"""
 
-    def test_initialize(self):
+    def test_configure(self):
         """Test initialize function"""
         cpx_e = CpxE()
         cpxe8do = CpxE8Do()

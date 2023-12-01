@@ -94,7 +94,7 @@ class CpxBase:
         return wrapper
 
     @staticmethod
-    def _swap_bytes(registers):
+    def swap_bytes(registers):
         swapped = []
         for reg_item in registers:
             k = struct.pack("<H", reg_item)
@@ -103,7 +103,7 @@ class CpxBase:
         return swapped
 
     @staticmethod
-    def _encode_int(data: int, data_type="int16", byteorder="big"):
+    def encode_int(data: int, data_type="int16", byteorder="big"):
         if byteorder == "little":
             byteorder = Endian.LITTLE
         else:
@@ -128,16 +128,16 @@ class CpxBase:
         return builder.to_registers()
 
     @staticmethod
-    def _decode_string(registers):
-        # _swap_bytes has to be used because of a bug in pymodbus!
+    def decode_string(registers):
+        # swap_bytes has to be used because of a bug in pymodbus!
         # Byteorder does not work for strings. https://github.com/riptideio/pymodbus/issues/508
         decoder = BinaryPayloadDecoder.fromRegisters(
-            CpxBase._swap_bytes(registers), byteorder=Endian.BIG
+            CpxBase.swap_bytes(registers), byteorder=Endian.BIG
         )
         return decoder.decode_string(34).decode("ascii").strip("\x00")
 
     @staticmethod
-    def _decode_int(registers, data_type="uint16", byteorder="big"):
+    def decode_int(registers, data_type="uint16", byteorder="big"):
         if byteorder == "little":
             byteorder = Endian.LITTLE
         else:
@@ -167,20 +167,22 @@ class CpxBase:
             raise NotImplementedError(f"Type {data_type} not implemented")
 
     @staticmethod
-    def _decode_bool(registers):
+    def decode_bool(registers):
         decoder = BinaryPayloadDecoder.fromRegisters(
             registers[::-1], byteorder=Endian.BIG
         )
         return bool(decoder.decode_bits(0))
 
     @staticmethod
-    def _decode_hex(registers, data_type="uint16"):
+    def decode_hex(registers, data_type="uint16"):
         decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.BIG)
         if data_type == "uint16":
             return format(decoder.decode_16bit_uint(), "#010x")
         raise NotImplementedError(f"Type {data_type} not implemented")
 
+    """not needed?
     @staticmethod
-    def _decode_float(registers):
+    def decode_float(registers):
         decoder = BinaryPayloadDecoder.fromRegisters(registers, byteorder=Endian.LITTLE)
         return [decoder.decode_32bit_float() for _ in registers]
+    """
