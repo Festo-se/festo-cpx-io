@@ -1,7 +1,7 @@
 """Example code for CPX-E"""
 
 # import the library
-from cpx_io.cpx_system.cpx_e import (
+from cpx_io.cpx_system.cpx_e.cpx_e import (
     CpxE,
     CpxEEp,
     CpxE16Di,

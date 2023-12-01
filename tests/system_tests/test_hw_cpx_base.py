@@ -9,8 +9,6 @@ def test_cpx_base():
     base = CpxBase(ip_address="172.16.1.40", port=502, timeout=1)
     yield base
 
-    base.__del__()
-
 
 def test_init(test_cpx_base):
     assert test_cpx_base

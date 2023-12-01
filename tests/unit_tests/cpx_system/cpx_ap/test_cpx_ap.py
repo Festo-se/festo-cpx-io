@@ -1,27 +1,21 @@
 """Contains tests for CpxAp class"""
 from unittest.mock import Mock, patch
 import pytest
-from cpx_io.cpx_system.cpx_ap import (
-    CpxAp,
-    CpxApEp,
-    CpxAp4Di,
-    CpxAp8Di,
-    CpxAp4AiUI,
-    CpxAp4Di4Do,
-    CpxAp4Iol,
-)
+
+from cpx_io.cpx_system.cpx_ap.apep import CpxApEp  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp  # pylint: disable=E0611
 
 
 class TestCpxAp:
     "Test CpxAp"
 
-    @patch("cpx_io.cpx_system.cpx_ap.CpxAp.read_module_count", return_value=1)
+    @patch("cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count", return_value=1)
     @patch(
-        "cpx_io.cpx_system.cpx_ap.CpxAp.add_module",
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.add_module",
         return_value=[CpxApEp()],
     )
     @patch(
-        "cpx_io.cpx_system.cpx_ap.CpxAp.read_module_information",
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_information",
         return_value={"Module Code": 8323, "Order Text": "CPX-AP-I-EP-M12"},
     )
     def test_constructor_one_module(

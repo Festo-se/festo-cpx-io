@@ -1,7 +1,7 @@
 """Example code for CPX-AP"""
 
 # import the library
-from cpx_io.cpx_system.cpx_ap import CpxAp
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 
 # for cpx_ap, the attached modules are found automatically
 with CpxAp(ip_address="172.16.1.41") as cpx_ap:

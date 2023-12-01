@@ -2,7 +2,9 @@
 from unittest.mock import Mock
 import pytest
 
-from cpx_io.cpx_system.cpx_e import CpxE, CpxE16Di
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+
+from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 
 
 class TestCpxE16Di:

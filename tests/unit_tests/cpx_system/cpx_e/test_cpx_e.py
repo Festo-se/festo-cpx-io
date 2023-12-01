@@ -1,13 +1,12 @@
 """Contains tests for CpxE class"""
 import pytest
-from cpx_io.cpx_system.cpx_e import (
-    CpxE,
-    CpxEEp,
-    CpxE16Di,
-    CpxE8Do,
-    CpxE4AiUI,
-    CpxE4AoUI,
-)
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE  # pylint: disable=E0611
+
+from cpx_io.cpx_system.cpx_e.eep import CpxEEp  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
 
 
 class TestCpxE:
@@ -108,11 +107,11 @@ class TestCpxE:
         cpx_e.modules = [CpxEEp("m4"), CpxE16Di("m5"), CpxE8Do("m6")]
 
         with pytest.raises(AttributeError):
-            cpx_e.m1
+            cpx_e.m1  # pylint: disable=E1101
         with pytest.raises(AttributeError):
-            cpx_e.m2
+            cpx_e.m2  # pylint: disable=E1101
         with pytest.raises(AttributeError):
-            cpx_e.m3
+            cpx_e.m3  # pylint: disable=E1101
         assert type(cpx_e.m4) is CpxEEp
         assert type(cpx_e.m5) is CpxE16Di
         assert type(cpx_e.m6) is CpxE8Do

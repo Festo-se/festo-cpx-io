@@ -4,8 +4,17 @@ import pytest
 
 import time
 
-from cpx_io.cpx_system.cpx_e import *
 from cpx_io.cpx_system.cpx_base import CpxInitError
+
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+
+from cpx_io.cpx_system.cpx_e.eep import CpxEEp  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol  # pylint: disable=E0611
 
 
 @pytest.fixture(scope="function")
@@ -50,8 +59,8 @@ def test_device_identification(test_cpxe):
 
 def test_add_module(test_cpxe):
     assert isinstance(test_cpxe.modules[0], CpxEEp)
-    assert test_cpxe._next_output_register == 40003
-    assert test_cpxe._next_input_register == 45395
+    assert test_cpxe.next_output_register == 40003
+    assert test_cpxe.next_input_register == 45395
 
 
 def test_module_notconfigured(test_cpxe):
@@ -62,10 +71,10 @@ def test_module_notconfigured(test_cpxe):
 
 def test_1module(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
-    assert e16di.output_register == None
+    assert e16di.output_register is None
     assert e16di.input_register == 45395
-    assert test_cpxe._next_output_register == 40003
-    assert test_cpxe._next_input_register == 45397
+    assert test_cpxe.next_output_register == 40003
+    assert test_cpxe.next_input_register == 45397
 
     assert e16di.position == 1
 
@@ -73,8 +82,8 @@ def test_1module(test_cpxe):
     data = [False] * 16
     data[1] = True
     assert e16di.read_channels() == data
-    assert e16di.read_channel(0) == False
-    assert e16di.read_channel(1) == True
+    assert e16di.read_channel(0) is False
+    assert e16di.read_channel(1) is True
 
     assert all(isinstance(item, CpxEModule) for item in test_cpxe.modules)
     assert isinstance(test_cpxe.modules[1], CpxE16Di)
@@ -86,12 +95,12 @@ def test_2modules(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     assert e8do.output_register == 40003
     assert e8do.input_register == 45397
-    assert test_cpxe._next_output_register == 40004
-    assert test_cpxe._next_input_register == 45399
+    assert test_cpxe.next_output_register == 40004
+    assert test_cpxe.next_input_register == 45399
     assert e8do.position == 2
 
     assert e8do.read_channels() == [False] * 8
-    assert e8do.read_channel(0) == False
+    assert e8do.read_channel(0) is False
     time.sleep(0.1)
 
     # set up channel 0 to True on 8DO,
@@ -237,8 +246,8 @@ def test_3modules(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     assert e4ai.output_register is None
     assert e4ai.input_register == 45399
-    assert test_cpxe._next_output_register == 40004
-    assert test_cpxe._next_input_register == 45404
+    assert test_cpxe.next_output_register == 40004
+    assert test_cpxe.next_input_register == 45404
 
     assert e4ai.read_status() == [False] * 16
     assert e4ai.position == 3
@@ -382,8 +391,8 @@ def test_4modules(test_cpxe):
     e4ao = test_cpxe.add_module(CpxE4AoUI())
     assert e4ao.output_register == 40004
     assert e4ao.input_register == 45404
-    assert test_cpxe._next_output_register == 40008
-    assert test_cpxe._next_input_register == 45409
+    assert test_cpxe.next_output_register == 40008
+    assert test_cpxe.next_input_register == 45409
 
     assert e4ao.read_status() == [False] * 16
     assert e4ao.position == 4
