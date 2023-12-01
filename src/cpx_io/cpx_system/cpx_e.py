@@ -971,7 +971,7 @@ class CpxE4Iol(CpxEModule):
         data = self.base.read_reg_data(self.input_register, length=channel_size * 4)
 
         data = [
-            CpxBase._decode_int([d], data_type="uint16", byteorder="little")
+            CpxBase.decode_int([d], data_type="uint16", byteorder="little")
             for d in data
         ]
 
@@ -1000,7 +1000,7 @@ class CpxE4Iol(CpxEModule):
         )
 
         data = [
-            CpxBase._decode_int([d], data_type="uint16", byteorder="little")
+            CpxBase.decode_int([d], data_type="uint16", byteorder="little")
             for d in data
         ]
 
