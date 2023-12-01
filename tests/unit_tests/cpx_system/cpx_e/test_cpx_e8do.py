@@ -1,7 +1,10 @@
 """Contains tests for cpx_e8do class"""
 from unittest.mock import Mock
 
-from cpx_io.cpx_system.cpx_e import CpxE, CpxE8Do
+
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+
+from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
 
 
 class TestCpxE8Do:

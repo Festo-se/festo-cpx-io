@@ -3,7 +3,10 @@ from unittest.mock import Mock, call
 
 import pytest
 
-from cpx_io.cpx_system.cpx_e import CpxE, CpxE4Iol
+
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+
+from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 
 
 class TestCpxE4Iol:

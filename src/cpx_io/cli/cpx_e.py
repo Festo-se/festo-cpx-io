@@ -1,5 +1,6 @@
 """CLI tool to execute cpx_e tasks."""
-from cpx_io.cpx_system.cpx_e import CpxE
+
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
 
 def add_cpx_e_parser(subparsers):
