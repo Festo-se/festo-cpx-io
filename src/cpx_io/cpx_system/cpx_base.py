@@ -50,9 +50,11 @@ class CpxBase:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.client:
+        if hasattr(self, "client"):
             self.client.close()
-            Logging.logger.info("Disconnected")
+            Logging.logger.info("Connection closed")
+        else:
+            Logging.logger.info("No connection to close")
         return False
 
     def read_reg_data(self, register: int, length=1) -> list:
