@@ -563,18 +563,6 @@ def test_4iol_ethrottle(test_cpxap):
         process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
 
-def test_4iol_write(test_cpxap):
-    a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
-
-    a4iol.configure_port_mode(2, channel=0)
-
-    time.sleep(0.05)
-
-    a4iol.write_channel(0, [0, 0, 0, 0])
-    # TODO: To be tested!
-
-
 def test_read_pqi(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
