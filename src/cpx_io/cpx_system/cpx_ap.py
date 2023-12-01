@@ -76,7 +76,7 @@ class CpxAp(CpxBase):
             )
 
         module._update_information(information)
-        module._initialize(self, len(self._modules))
+        module.configure(self, len(self._modules))
         self.modules.append(module)
         return module
 
@@ -91,49 +91,49 @@ class CpxAp(CpxBase):
     def read_module_information(self, position):
         """Reads and returns detailed information for a specific IO module"""
 
-        module_code = CpxBase._decode_int(
+        module_code = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.module_code, position)
             ),
             data_type="int32",
         )
-        module_class = CpxBase._decode_int(
+        module_class = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.module_class, position)
             ),
             data_type="uint8",
         )
-        communication_profiles = CpxBase._decode_int(
+        communication_profiles = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.communication_profiles, position)
             ),
             data_type="uint16",
         )
-        input_size = CpxBase._decode_int(
+        input_size = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.input_size, position)
             ),
             data_type="uint16",
         )
-        input_channels = CpxBase._decode_int(
+        input_channels = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.input_channels, position)
             ),
             data_type="uint16",
         )
-        output_size = CpxBase._decode_int(
+        output_size = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.output_size, position)
             ),
             data_type="uint16",
         )
-        output_channels = CpxBase._decode_int(
+        output_channels = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.output_channels, position)
             ),
             data_type="uint16",
         )
-        hw_version = CpxBase._decode_int(
+        hw_version = CpxBase.decode_int(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.hw_version, position)
             ),
@@ -145,17 +145,17 @@ class CpxAp(CpxBase):
                 *self._module_offset(_ModbusCommands.fw_version, position)
             )
         )
-        serial_number = CpxBase._decode_hex(
+        serial_number = CpxBase.decode_hex(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.serial_number, position)
             )
         )
-        product_key = CpxBase._decode_string(
+        product_key = CpxBase.decode_string(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.product_key, position)
             )
         )
-        order_text = CpxBase._decode_string(
+        order_text = CpxBase.decode_string(
             self.read_reg_data(
                 *self._module_offset(_ModbusCommands.order_text, position)
             )
@@ -184,14 +184,14 @@ class CpxAp(CpxBase):
         Returns None if successful or raises "CpxRequestError" if request denied
         """
         if isinstance(data, list):
-            registers = [CpxBase._encode_int(d)[0] for d in data]
+            registers = [CpxBase.encode_int(d)[0] for d in data]
 
         elif isinstance(data, int):
-            registers = [CpxBase._encode_int(data)[0]]
+            registers = [CpxBase.encode_int(data)[0]]
             data = [data]  # needed for validation check
 
         elif isinstance(data, bool):
-            registers = [CpxBase._encode_int(data, data_type="bool")[0]]
+            registers = [CpxBase.encode_int(data, data_type="bool")[0]]
             data = [int(data)]  # needed for validation check
 
         else:
@@ -222,7 +222,7 @@ class CpxAp(CpxBase):
             # Validation check according to datasheet
             data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
             ret = self.read_reg_data(param_reg + 10, data_length)
-            ret = [CpxBase._decode_int([x], data_type="int16") for x in ret]
+            ret = [CpxBase.decode_int([x], data_type="int16") for x in ret]
 
             if all(r == d for r, d in zip(ret, data)):
                 break
@@ -265,7 +265,7 @@ class CpxAp(CpxBase):
         return data
 
 
-class CpxApModule(CpxBase):
+class CpxApModule:
     """Base class for cpx-ap modules"""
 
     def __init__(self):
@@ -279,7 +279,7 @@ class CpxApModule(CpxBase):
     def __repr__(self):
         return f"{self.information.get('Order Text')} at position {self.position}"
 
-    def _initialize(self, base, position):
+    def configure(self, base, position):
         self.base = base
         self.position = position
 
@@ -289,28 +289,28 @@ class CpxApModule(CpxBase):
     @CpxBase._require_base
     def read_ap_parameter(self) -> dict:
         """Read AP parameters"""
-        fieldbus_serial_number = CpxBase._decode_int(
+        fieldbus_serial_number = CpxBase.decode_int(
             self.base._read_parameter(self.position, 246, 0), data_type="uint32"
         )
-        product_key = CpxBase._decode_string(
+        product_key = CpxBase.decode_string(
             self.base._read_parameter(self.position, 791, 0)
         )
-        firmware_version = CpxBase._decode_string(
+        firmware_version = CpxBase.decode_string(
             self.base._read_parameter(self.position, 960, 0)
         )
-        module_code = CpxBase._decode_int(
+        module_code = CpxBase.decode_int(
             self.base._read_parameter(self.position, 20000, 0), data_type="uint32"
         )
-        temp_asic = CpxBase._decode_int(
+        temp_asic = CpxBase.decode_int(
             self.base._read_parameter(self.position, 20085, 0), data_type="int16"
         )
-        logic_voltage = CpxBase._decode_int(
+        logic_voltage = CpxBase.decode_int(
             self.base._read_parameter(self.position, 20087, 0), data_type="uint16"
         )
-        load_voltage = CpxBase._decode_int(
+        load_voltage = CpxBase.decode_int(
             self.base._read_parameter(self.position, 20088, 0), data_type="uint16"
         )
-        hw_version = CpxBase._decode_int(
+        hw_version = CpxBase.decode_int(
             self.base._read_parameter(self.position, 20093, 0), data_type="uint8"
         )
 
@@ -329,8 +329,8 @@ class CpxApModule(CpxBase):
 class CpxApEp(CpxApModule):
     """Class for CPX-AP-EP module"""
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
         self.output_register = None
         self.input_register = None
 
@@ -351,36 +351,36 @@ class CpxApEp(CpxApModule):
     @CpxBase._require_base
     def read_parameters(self):
         """Read parameters from EP module"""
-        dhcp_enable = CpxBase._decode_bool(
+        dhcp_enable = CpxBase.decode_bool(
             self.base._read_parameter(self.position, 12000, 0)
         )
 
-        ip_address = CpxBase._decode_int(
+        ip_address = CpxBase.decode_int(
             self.base._read_parameter(self.position, 12001, 0), data_type="uint32"
         )
         ip_address = self.convert_uint32_to_octett(ip_address)
 
-        subnet_mask = CpxBase._decode_int(
+        subnet_mask = CpxBase.decode_int(
             self.base._read_parameter(self.position, 12002, 0), data_type="uint32"
         )
         subnet_mask = self.convert_uint32_to_octett(subnet_mask)
 
-        gateway_address = CpxBase._decode_int(
+        gateway_address = CpxBase.decode_int(
             self.base._read_parameter(self.position, 12003, 0), data_type="uint32"
         )
         gateway_address = self.convert_uint32_to_octett(gateway_address)
 
-        active_ip_address = CpxBase._decode_int(
+        active_ip_address = CpxBase.decode_int(
             self.base._read_parameter(self.position, 12004, 0), data_type="uint32"
         )
         active_ip_address = self.convert_uint32_to_octett(active_ip_address)
 
-        active_subnet_mask = CpxBase._decode_int(
+        active_subnet_mask = CpxBase.decode_int(
             self.base._read_parameter(self.position, 12005, 0), data_type="uint32"
         )
         active_subnet_mask = self.convert_uint32_to_octett(active_subnet_mask)
 
-        active_gateway_address = CpxBase._decode_int(
+        active_gateway_address = CpxBase.decode_int(
             self.base._read_parameter(self.position, 12006, 0), data_type="uint32"
         )
         active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
@@ -390,7 +390,7 @@ class CpxApEp(CpxApModule):
             for x in self.base._read_parameter(self.position, 12007, 0)
         )
 
-        setup_monitoring_load_supply = CpxBase._decode_int(
+        setup_monitoring_load_supply = CpxBase.decode_int(
             [(self.base._read_parameter(self.position, 20022, 0)[0] << 8) & 0xFF],
             data_type="uint8",
         )  # TODO: shifting should not be required
@@ -414,8 +414,8 @@ class CpxAp4Di(CpxApModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -459,8 +459,8 @@ class CpxAp8Di(CpxApModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -503,8 +503,8 @@ class CpxAp4AiUI(CpxApModule):
     def __getitem__(self, key):
         return self.read_channel(key)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = None
         self.input_register = self.base._next_input_register
@@ -518,7 +518,7 @@ class CpxAp4AiUI(CpxApModule):
     def read_channels(self) -> list[int]:
         """read all channels as a list of (signed) integers"""
         raw_data = self.base.read_reg_data(self.input_register, length=4)
-        return [CpxBase._decode_int([i], data_type="int16") for i in raw_data]
+        return [CpxBase.decode_int([i], data_type="int16") for i in raw_data]
 
     @CpxBase._require_base
     def read_channel(self, channel: int) -> bool:
@@ -639,8 +639,8 @@ class CpxAp4Di4Do(CpxApModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -771,8 +771,8 @@ class CpxAp4Iol(CpxApModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def _initialize(self, *args):
-        super()._initialize(*args)
+    def configure(self, *args):
+        super().configure(*args)
 
         self.output_register = self.base._next_output_register
         self.input_register = self.base._next_input_register
@@ -800,11 +800,11 @@ class CpxAp4Iol(CpxApModule):
             8213: "variant 32 OE",
         }
         # TODO: Why is this UINT16 stored in the second byte of the parameter?
-        io_link_variant = CpxBase._decode_int(
+        io_link_variant = CpxBase.decode_int(
             self.base._read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
         )
 
-        activation_operating_voltage = CpxBase._decode_bool(
+        activation_operating_voltage = CpxBase.decode_bool(
             self.base._read_parameter(self.position, 20097, 0)
         )
 
@@ -821,7 +821,7 @@ class CpxAp4Iol(CpxApModule):
 
         data = self.base.read_reg_data(self.input_register, length=module_input_size)
         data = [
-            CpxBase._decode_int([d], data_type="uint16", byteorder="little")
+            CpxBase.decode_int([d], data_type="uint16", byteorder="little")
             for d in data
         ]
 
@@ -852,7 +852,7 @@ class CpxAp4Iol(CpxApModule):
         channel_size = (module_output_size) // 4
 
         register_data = [
-            CpxBase._encode_int(d, data_type="uint16", byteorder="little")[0]
+            CpxBase.encode_int(d, data_type="uint16", byteorder="little")[0]
             for d in data
         ]
         self.base.write_reg_data(
@@ -1084,45 +1084,45 @@ class CpxAp4Iol(CpxApModule):
 
         for i in range(4):
             port_status_information = port_status_dict.get(
-                CpxBase._decode_int(
+                CpxBase.decode_int(
                     self.base._read_parameter(self.position, 20074, i),
                     data_type="uint8",
                 )
             )
 
-            revision_id = CpxBase._decode_int(
+            revision_id = CpxBase.decode_int(
                 self.base._read_parameter(self.position, 20075, i),
                 data_type="uint8",
             )
 
             transmission_rate = transmission_rate_dict.get(
-                CpxBase._decode_int(
+                CpxBase.decode_int(
                     self.base._read_parameter(self.position, 20076, i),
                     data_type="uint8",
                 )
             )
 
-            actual_cycle_time = CpxBase._decode_int(
+            actual_cycle_time = CpxBase.decode_int(
                 self.base._read_parameter(self.position, 20077, i),
                 data_type="uint16",
             )
 
-            actual_vendor_id = CpxBase._decode_int(
+            actual_vendor_id = CpxBase.decode_int(
                 self.base._read_parameter(self.position, 20078, i),
                 data_type="uint16",
             )
 
-            actual_device_id = CpxBase._decode_int(
+            actual_device_id = CpxBase.decode_int(
                 self.base._read_parameter(self.position, 20079, i),
                 data_type="uint32",
             )
 
-            input_data_length = CpxBase._decode_int(
+            input_data_length = CpxBase.decode_int(
                 self.base._read_parameter(self.position, 20108, i),
                 data_type="uint8",
             )
 
-            output_data_length = CpxBase._decode_int(
+            output_data_length = CpxBase.decode_int(
                 self.base._read_parameter(self.position, 20109, i),
                 data_type="uint8",
             )

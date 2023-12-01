@@ -54,7 +54,7 @@ def test_add_module(test_cpxe):
     assert test_cpxe._next_input_register == 45395
 
 
-def test_module_not_initialized(test_cpxe):
+def test_module_notconfigured(test_cpxe):
     e8do = CpxE8Do()
     with pytest.raises(CpxInitError):
         e8do.set_channel(0)

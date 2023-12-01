@@ -1,4 +1,4 @@
-"""Contains tests for MotionHandler class"""
+"""Contains tests for CpxE class"""
 import pytest
 from cpx_io.cpx_system.cpx_e import (
     CpxE,
@@ -11,13 +11,17 @@ from cpx_io.cpx_system.cpx_e import (
 
 
 class TestCpxE:
+    """Test for CpxE"""
+
     def test_default_constructor(self):
+        """Test default constructor"""
         cpx_e = CpxE()
 
         assert len(cpx_e.modules) == 1
         assert type(cpx_e.modules[0]) is CpxEEp
 
     def test_constructor_with_two_modules(self):
+        """Test constructor with two modules"""
         cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
         assert len(cpx_e.modules) == 2
@@ -25,6 +29,7 @@ class TestCpxE:
         assert type(cpx_e.modules[1]) is CpxE16Di
 
     def test_default_constructor_modified_modules(self):
+        """Test default constructor with modified modules"""
         cpx_e = CpxE()
         cpx_e.modules = [CpxEEp(), CpxE16Di(), CpxE8Do()]
 
@@ -34,6 +39,7 @@ class TestCpxE:
         assert type(cpx_e.modules[2]) is CpxE8Do
 
     def test_constructor_with_typecode_MLNINO(self):
+        """Test constructor with typecode"""
         cpx_e = CpxE("60E-EP-MLNINO")
 
         assert len(cpx_e.modules) == 5
@@ -44,6 +50,7 @@ class TestCpxE:
         assert type(cpx_e.modules[4]) is CpxE4AoUI
 
     def test_constructor_with_typecode_NIMNOL(self):
+        """Test constructor with typecode"""
         cpx_e = CpxE("60E-EP-NIMNOL")
 
         assert len(cpx_e.modules) == 5
@@ -54,6 +61,7 @@ class TestCpxE:
         assert type(cpx_e.modules[4]) is CpxE8Do
 
     def test_constructor_with_typecode_NIMNOL(self):
+        """Test constructor with typecode"""
         cpx_e = CpxE("60E-EP-NIMNOL")
 
         assert len(cpx_e.modules) == 5
@@ -64,17 +72,20 @@ class TestCpxE:
         assert type(cpx_e.modules[4]) is CpxE8Do
 
     def test_name_access_default(self):
+        """Test name access"""
         cpx_e = CpxE()
 
         assert type(cpx_e.cpxeep) is CpxEEp
 
     def test_name_access_with_two_modules(self):
+        """Test name access"""
         cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
         assert type(cpx_e.cpxeep) is CpxEEp
         assert type(cpx_e.cpxe16di) is CpxE16Di
 
     def test_name_access_modified_modules(self):
+        """Test name access"""
         cpx_e = CpxE()
         cpx_e.modules = [CpxEEp(), CpxE16Di(), CpxE8Do()]
 
@@ -83,6 +94,7 @@ class TestCpxE:
         assert type(cpx_e.cpxe8do) is CpxE8Do
 
     def test_name_access_modified_modules_custom_names(self):
+        """Test name access"""
         cpx_e = CpxE([CpxEEp("m1"), CpxE16Di("m2"), CpxE8Do("m3")])
         cpx_e.modules = [CpxEEp("m3"), CpxE16Di("m1"), CpxE8Do("m2")]
 
@@ -91,6 +103,7 @@ class TestCpxE:
         assert type(cpx_e.m2) is CpxE8Do
 
     def test_name_access_modified_modules_custom_names_removed(self):
+        """Test name access"""
         cpx_e = CpxE([CpxEEp("m1"), CpxE16Di("m2"), CpxE8Do("m3")])
         cpx_e.modules = [CpxEEp("m4"), CpxE16Di("m5"), CpxE8Do("m6")]
 
