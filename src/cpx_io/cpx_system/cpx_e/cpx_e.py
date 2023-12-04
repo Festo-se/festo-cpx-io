@@ -130,8 +130,8 @@ class CpxE(CpxBase):
 
     def fault_detection(self) -> list[bool]:
         """returns list of bools with Errors (True = Error)"""
-        data = self.read_reg_data(*ModbusCommands.fault_detection)
-        data = data[2] << 16 + data[1] << 8 + data[0]
+        ret = self.read_reg_data(*ModbusCommands.fault_detection)
+        data = ret[2] << 16 | ret[1] << 8 | ret[0]
         return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]]
 
     def status_register(self) -> tuple:
