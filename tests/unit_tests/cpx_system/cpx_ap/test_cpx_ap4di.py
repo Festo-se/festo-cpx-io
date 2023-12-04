@@ -7,8 +7,8 @@ from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp  # pylint: disable=E0611
 
 
-class TestCpxAp:
-    "Test CpxAp"
+class TestCpxAp4Di:
+    "Test CpxAp4Di"
 
     @pytest.fixture
     def patched_functions(self):

@@ -23,6 +23,7 @@ class CpxApModule:
         self.position = position
 
     def update_information(self, information):
+        """Update the module information"""
         self.information = information
 
     @CpxBase.require_base
