@@ -384,6 +384,8 @@ class CpxE4AiUI(CpxEModule):
         on the parameterised data format.
         With the data format "linear scaled", the limits function as scaling end values
         """
+        if channel not in range(4):
+            raise ValueError(f"Channel '{channel}' is not in range 0...3")
 
         function_number_lower = 4828 + 64 * self.position + 17 + channel * 2
         function_number_upper = 4828 + 64 * self.position + 25 + channel * 2
@@ -391,22 +393,26 @@ class CpxE4AiUI(CpxEModule):
         if isinstance(lower, int):
             if (
                 not -32767 <= lower <= 32767
-            ):  # might be wrong. Values are accorind to datasheet
+            ):  # might be wrong. Values are according to datasheet
                 raise ValueError(
                     "Values for low {low} must be between -32767 and 32767"
                 )
         if isinstance(upper, int):
             if (
                 not -32767 <= upper <= 32767
-            ):  # might be wrong. Values are accorind to datasheet
+            ):  # might be wrong. Values are according to datasheet
                 raise ValueError(
                     "Values for high {high} must be between -32767 and 32767"
                 )
 
-        value_lower_low_byte = lower & 0xFF
-        value_lower_high_byte = (lower & 0xFF00) >> 8
-        value_upper_low_byte = upper & 0xFF
-        value_upper_high_byte = (upper & 0xFF00) >> 8
+        if isinstance(lower, int):
+            lower = CpxBase.encode_int(lower, data_type="int16")[0]
+            value_lower_low_byte = lower & 0xFF
+            value_lower_high_byte = (lower & 0xFF00) >> 8
+        if isinstance(upper, int):
+            value_upper_low_byte = upper & 0xFF
+            value_upper_high_byte = (upper & 0xFF00) >> 8
+            upper = CpxBase.encode_int(upper, data_type="int16")[0]
 
         if lower is None and isinstance(upper, int):
             self.base.write_function_number(function_number_upper, value_upper_low_byte)
