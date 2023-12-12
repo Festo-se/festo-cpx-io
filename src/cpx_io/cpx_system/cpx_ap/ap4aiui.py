@@ -1,7 +1,5 @@
 """CPX-AP-4AI-UI module implementation"""
 
-import math
-
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 

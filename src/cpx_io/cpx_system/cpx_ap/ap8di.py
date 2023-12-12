@@ -1,6 +1,5 @@
 """CPX-AP-8DI module implementation"""
 
-
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 

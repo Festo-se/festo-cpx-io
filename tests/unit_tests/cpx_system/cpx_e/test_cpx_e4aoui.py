@@ -3,9 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
-
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 
 
@@ -27,6 +25,16 @@ class TestCpxE4AoUI:
 
         assert cpxe4aoui.base == mocked_base
         assert cpxe4aoui.position == 1
+
+    def test_repr(self):
+        """Test repr"""
+        cpx_e = CpxE()
+        cpxe4aoui = cpx_e.add_module(CpxE4AoUI())
+
+        mocked_base = Mock()
+        cpxe4aoui.base = mocked_base
+
+        assert repr(cpxe4aoui) == "cpxe4aoui (idx: 1, type: CpxE4AoUI)"
 
     def test_read_status(self):
         """Test read channels"""
@@ -132,34 +140,6 @@ class TestCpxE4AoUI:
         cpxe4aoui[0] = 1000
         mocked_base.write_reg_data.assert_called_with(1000, cpxe4aoui.output_register)
 
-    def test_configure_channel_range(self):
-        """Test channel range"""
-        cpx_e = CpxE()
-        cpxe4aoui = cpx_e.add_module(CpxE4AoUI())
-
-        mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=0xAA)
-        mocked_base.write_function_number = Mock()
-        cpxe4aoui.base = mocked_base
-
-        cpxe4aoui.configure_channel_range(0, "0-10V")  # 0001
-        mocked_base.write_function_number.assert_called_with(4892 + 11, 0xA1)
-
-        cpxe4aoui.configure_channel_range(1, "4-20mA")  # 0110
-        mocked_base.write_function_number.assert_called_with(4892 + 11, 0x6A)
-
-        cpxe4aoui.configure_channel_range(2, "1-5V")  # 0100
-        mocked_base.write_function_number.assert_called_with(4892 + 12, 0xA4)
-
-        cpxe4aoui.configure_channel_range(3, "-20-+20mA")  # 0111
-        mocked_base.write_function_number.assert_called_with(4892 + 12, 0x7A)
-
-        with pytest.raises(ValueError):
-            cpxe4aoui.configure_channel_range(0, "not_implemented")
-
-        with pytest.raises(ValueError):
-            cpxe4aoui.configure_channel_range(4, "0-10V")
-
     def test_configure_diagnostics(self):
         """Test diagnostics"""
         cpx_e = CpxE()
@@ -251,12 +231,147 @@ class TestCpxE4AoUI:
         cpxe4aoui.configure_actuator_supply(False)
         mocked_base.write_function_number.assert_called_with(4898, 0x8A)
 
-    def test_repr(self):
-        """Test repr"""
+    def test_configure_channel_diagnostics_wire_break(self):
+        """Test configure_channel_diagnostics_wire_break"""
         cpx_e = CpxE()
         cpxe4aoui = cpx_e.add_module(CpxE4AoUI())
 
         mocked_base = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAA)
+        mocked_base.write_function_number = Mock()
         cpxe4aoui.base = mocked_base
 
-        assert repr(cpxe4aoui) == "cpxe4aoui (idx: 1, type: CpxE4AoUI)"
+        cpxe4aoui.configure_channel_diagnostics_wire_break(0, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 7, 0xAE)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(0, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 7, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(1, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 8, 0xAE)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(1, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 8, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(2, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 9, 0xAE)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(2, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 9, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(3, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 10, 0xAE)
+
+        cpxe4aoui.configure_channel_diagnostics_wire_break(3, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 10, 0xAA)
+
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_diagnostics_wire_break(4, False)
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_diagnostics_wire_break(-1, False)
+
+    def test_configure_channel_diagnostics_overload_short_circuit(self):
+        """Test configure_channel_diagnostics_overload_short_circuit"""
+        cpx_e = CpxE()
+        cpxe4aoui = cpx_e.add_module(CpxE4AoUI())
+
+        mocked_base = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAA)
+        mocked_base.write_function_number = Mock()
+        cpxe4aoui.base = mocked_base
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(0, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 7, 0xBA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(0, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 7, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(1, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 8, 0xBA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(1, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 8, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(2, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 9, 0xBA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(2, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 9, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(3, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 10, 0xBA)
+
+        cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(3, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 10, 0xAA)
+
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(4, False)
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(-1, False)
+
+    def test_configure_channel_diagnostics_parameter_error(self):
+        """Test configure_channel_diagnostics_parameter_error"""
+        cpx_e = CpxE()
+        cpxe4aoui = cpx_e.add_module(CpxE4AoUI())
+
+        mocked_base = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAA)
+        mocked_base.write_function_number = Mock()
+        cpxe4aoui.base = mocked_base
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(0, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 7, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(0, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 7, 0x2A)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(1, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 8, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(1, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 8, 0x2A)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(2, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 9, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(2, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 9, 0x2A)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(3, True)
+        mocked_base.write_function_number.assert_called_with(4892 + 10, 0xAA)
+
+        cpxe4aoui.configure_channel_diagnostics_parameter_error(3, False)
+        mocked_base.write_function_number.assert_called_with(4892 + 10, 0x2A)
+
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_diagnostics_parameter_error(4, False)
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_diagnostics_parameter_error(-1, False)
+
+    def test_configure_channel_range(self):
+        """Test channel range"""
+        cpx_e = CpxE()
+        cpxe4aoui = cpx_e.add_module(CpxE4AoUI())
+
+        mocked_base = Mock()
+        mocked_base.read_function_number = Mock(return_value=0xAA)
+        mocked_base.write_function_number = Mock()
+        cpxe4aoui.base = mocked_base
+
+        cpxe4aoui.configure_channel_range(0, "0-10V")  # 0001
+        mocked_base.write_function_number.assert_called_with(4892 + 11, 0xA1)
+
+        cpxe4aoui.configure_channel_range(1, "4-20mA")  # 0110
+        mocked_base.write_function_number.assert_called_with(4892 + 11, 0x6A)
+
+        cpxe4aoui.configure_channel_range(2, "1-5V")  # 0100
+        mocked_base.write_function_number.assert_called_with(4892 + 12, 0xA4)
+
+        cpxe4aoui.configure_channel_range(3, "-20-+20mA")  # 0111
+        mocked_base.write_function_number.assert_called_with(4892 + 12, 0x7A)
+
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_range(0, "not_implemented")
+
+        with pytest.raises(ValueError):
+            cpxe4aoui.configure_channel_range(4, "0-10V")
