@@ -103,9 +103,9 @@ class CpxAp4AiUI(CpxApModule):
                     "Values for high {high} must be between -32768 and 32767"
                 )
 
-        if lower == None and isinstance(upper, int):
+        if lower is None and isinstance(upper, int):
             self.base.write_parameter(self.position, upper_id, channel, upper)
-        elif upper == None and isinstance(lower, int):
+        elif upper is None and isinstance(lower, int):
             self.base.write_parameter(self.position, lower_id, channel, lower)
         elif isinstance(upper, int) and isinstance(lower, int):
             self.base.write_parameter(self.position, upper_id, channel, upper)

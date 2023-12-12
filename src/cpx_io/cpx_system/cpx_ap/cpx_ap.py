@@ -28,7 +28,8 @@ class CpxAp(CpxBase):
 
         module_count = self.read_module_count()
         for i in range(module_count):
-            self.add_module(information=self.read_module_information(i))
+            module = self.add_module(information=self.read_module_information(i))
+            self.modules.append(module)
 
     @property
     def modules(self):
@@ -60,9 +61,8 @@ class CpxAp(CpxBase):
                 "This module is not yet implemented or not available"
             )
 
-        module._update_information(information)
+        module.update_information(information)
         module.configure(self, len(self._modules))
-        self.modules.append(module)
         return module
 
     def read_module_count(self) -> int:

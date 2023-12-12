@@ -1,4 +1,5 @@
 """Contains tests for CpxE class"""
+from unittest.mock import Mock
 import pytest
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE  # pylint: disable=E0611
 
@@ -7,6 +8,9 @@ from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
+
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxInitError
+from cpx_io.cpx_system.cpx_e.cpx_e_modbus_commands import ModbusCommands
 
 
 class TestCpxE:
@@ -115,3 +119,30 @@ class TestCpxE:
         assert type(cpx_e.m4) is CpxEEp
         assert type(cpx_e.m5) is CpxE16Di
         assert type(cpx_e.m6) is CpxE8Do
+
+    def test_modules_setter_error(self):
+        """Test module setter with incorrect type"""
+        cpx_e = CpxE([CpxEEp(), CpxE16Di(), CpxE8Do()])
+
+        with pytest.raises(CpxInitError):
+            cpx_e.modules = 0
+
+    def test_module_count(self):
+        """Test module count"""
+        cpx_e = CpxE()
+        cpx_e.read_reg_data = Mock(return_value=[0xAA, 0xAA, 0xAA])
+
+        cnt = bin(0xAAAAAA)[2:].count("1")
+
+        assert cpx_e.module_count() == cnt
+        cpx_e.read_reg_data.assert_called_with(*ModbusCommands.module_configuration)
+
+    def test_fault_detection(self):
+        """Test fault detection"""
+
+        cpx_e = CpxE()
+        cpx_e.read_reg_data = Mock(return_value=[0xAA, 0xBB, 0xCC])
+
+        lst = [x == "1" for x in bin(0xCCBBAA)[2:]]
+        assert cpx_e.fault_detection() == lst[::-1]
+        cpx_e.read_reg_data.assert_called_with(*ModbusCommands.fault_detection)
