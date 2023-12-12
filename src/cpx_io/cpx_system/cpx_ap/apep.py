@@ -15,8 +15,6 @@ class CpxApEp(CpxApModule):
 
     def configure(self, *args):
         super().configure(*args)
-        self.output_register = None
-        self.input_register = None
 
         self.base.next_output_register = ModbusCommands.outputs[0]
         self.base.next_input_register = ModbusCommands.inputs[0]

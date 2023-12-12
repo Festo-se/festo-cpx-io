@@ -1,8 +1,7 @@
 """CPX-AP module implementations"""
 
-import math
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-
+from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_modbus_commands import (  # pylint: disable=E0611
     ModbusCommands,
@@ -205,7 +204,7 @@ class CpxAp(CpxBase):
                     raise CpxRequestError
 
             # Validation check according to datasheet
-            data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+            data_length = div_ceil(self.read_reg_data(param_reg + 4)[0], 2)
             ret = self.read_reg_data(param_reg + 10, data_length)
             ret = [CpxBase.decode_int([x], data_type="int16") for x in ret]
 
@@ -241,10 +240,7 @@ class CpxAp(CpxBase):
                 raise CpxRequestError
 
         # data_length from register 10004 is bytewise. 2 bytes = 1 register.
-        # But 1 byte also has to read one register with integer division "//"
-        # will lead to rounding down, this needs to be rounded up.
-        # Therefore math.ceil() is used
-        data_length = math.ceil(self.read_reg_data(param_reg + 4)[0] / 2)
+        data_length = div_ceil(self.read_reg_data(param_reg + 4)[0], 2)
 
         data = self.read_reg_data(param_reg + 10, data_length)
         return data
