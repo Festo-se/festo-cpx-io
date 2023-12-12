@@ -60,45 +60,6 @@ class CpxE4AoUI(CpxEModule):
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
     @CpxBase.require_base
-    def configure_channel_range(self, channel: int, signalrange: str):
-        """set the signal range and type of one channel"""
-        bitmask = {
-            "0-10V": 0b0001,
-            "-10-+10V": 0b0010,
-            "-5-+5V": 0b0011,
-            "1-5V": 0b0100,
-            "0-20mA": 0b0101,
-            "4-20mA": 0b0110,
-            "-20-+20mA": 0b0111,
-        }
-        if signalrange not in bitmask:
-            raise ValueError(
-                f"'{signalrange}' is not an option. Choose from {bitmask.keys()}"
-            )
-
-        function_number = 4828 + 64 * self.position
-
-        reg_01 = self.base.read_function_number(function_number + 11)
-        reg_23 = self.base.read_function_number(function_number + 12)
-
-        if channel == 0:
-            function_number += 11
-            value_to_write = (reg_01 & 0xF0) | bitmask[signalrange]
-        elif channel == 1:
-            function_number += 11
-            value_to_write = (reg_01 & 0x0F) | bitmask[signalrange] << 4
-        elif channel == 2:
-            function_number += 12
-            value_to_write = (reg_23 & 0xF0) | bitmask[signalrange]
-        elif channel == 3:
-            function_number += 12
-            value_to_write = (reg_23 & 0x0F) | bitmask[signalrange] << 4
-        else:
-            raise ValueError(f"'{channel}' is not in range 0...3")
-
-        self.base.write_function_number(function_number, value_to_write)
-
-    @CpxBase.require_base
     def configure_diagnostics(
         self, short_circuit=None, undervoltage=None, param_error=None
     ):
@@ -205,4 +166,101 @@ class CpxE4AoUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
-    # TODO: add more functions CPX-E-_AO-U-I_description_2020-01a_8126651g1.pdf chapter 3.3 ff.
+    @CpxBase.require_base
+    def configure_channel_diagnostics_wire_break(
+        self, channel: int, value: bool
+    ) -> None:
+        """The parameter “Enable wire break / idling diagnostics” defines whether the diagnostics of the outputs
+        with regard to wire break/idling should be activated or deactivated. When the diagnostics are activated,
+        the error will be sent to the bus module and displayed on the module by the error LED
+        """
+
+        if channel not in range(4):
+            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+
+        function_number = 4828 + 64 * self.position + 7 + channel
+
+        reg = self.base.read_function_number(function_number)
+
+        reg_to_write = (reg & 0xFB) | (int(value) << 2)
+
+        self.base.write_function_number(function_number, reg_to_write)
+
+    @CpxBase.require_base
+    def configure_channel_diagnostics_overload_short_circuit(
+        self, channel: int, value: bool
+    ) -> None:
+        """The parameter “Enable overload/short circuit diagnostics” defines if the diagnostics for the outputs
+        with regard to overload/short circuit must be activated or deactivated. When the diagnostics are activated,
+        the error will be sent to the bus module and displayed on the module by the error LED.
+        """
+
+        if channel not in range(4):
+            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+
+        function_number = 4828 + 64 * self.position + 7 + channel
+
+        reg = self.base.read_function_number(function_number)
+
+        reg_to_write = (reg & 0xEF) | (int(value) << 4)
+
+        self.base.write_function_number(function_number, reg_to_write)
+
+    @CpxBase.require_base
+    def configure_channel_diagnostics_parameter_error(
+        self, channel: int, value: bool
+    ) -> None:
+        """The parameter “Enable parameter error diagnostics” defines if the diagnostics for the outputs with
+        regard to parameter errors must be activated or deactivated. When the diagnostics are activated, the
+        error will be sent to the bus node and displayed with the error LED on the module
+        """
+
+        if channel not in range(4):
+            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+
+        function_number = 4828 + 64 * self.position + 7 + channel
+
+        reg = self.base.read_function_number(function_number)
+
+        reg_to_write = (reg & 0x7F) | (int(value) << 7)
+
+        self.base.write_function_number(function_number, reg_to_write)
+
+    @CpxBase.require_base
+    def configure_channel_range(self, channel: int, signalrange: str):
+        """set the signal range and type of one channel"""
+        bitmask = {
+            "0-10V": 0b0001,
+            "-10-+10V": 0b0010,
+            "-5-+5V": 0b0011,
+            "1-5V": 0b0100,
+            "0-20mA": 0b0101,
+            "4-20mA": 0b0110,
+            "-20-+20mA": 0b0111,
+        }
+        if signalrange not in bitmask:
+            raise ValueError(
+                f"'{signalrange}' is not an option. Choose from {bitmask.keys()}"
+            )
+
+        function_number = 4828 + 64 * self.position
+
+        reg_01 = self.base.read_function_number(function_number + 11)
+        reg_23 = self.base.read_function_number(function_number + 12)
+
+        if channel == 0:
+            function_number += 11
+            value_to_write = (reg_01 & 0xF0) | bitmask[signalrange]
+        elif channel == 1:
+            function_number += 11
+            value_to_write = (reg_01 & 0x0F) | bitmask[signalrange] << 4
+        elif channel == 2:
+            function_number += 12
+            value_to_write = (reg_23 & 0xF0) | bitmask[signalrange]
+        elif channel == 3:
+            function_number += 12
+            value_to_write = (reg_23 & 0x0F) | bitmask[signalrange] << 4
+        else:
+            raise ValueError(f"'{channel}' is not in range 0...3")
+
+        self.base.write_function_number(function_number, value_to_write)
