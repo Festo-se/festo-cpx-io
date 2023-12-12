@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] New functions for CPX-E-4AI and 4AO
 - [Minor] Added utils/helpers with ceil function
 - [Minor] Unittests for cpxe and cpxap modules
 - [Minor] Added pylintrc file to disable f-string highlighting
@@ -38,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] Reworked CPX-E class structure.
 
 ### Fixed
+- [Patch] Fixed bug in CPX-E-4AI read_channel
 - [Patch] Fixed access to protected members of cpx_base
 - [Patch] Bugfix in CPX-E-4IOL read/write and configure functions
 - [Patch] Bugfixes for IO-Link modules
