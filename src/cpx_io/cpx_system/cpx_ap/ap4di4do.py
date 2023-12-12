@@ -1,9 +1,9 @@
 """CPX-AP-4DI4DO module implementation"""
 
-import math
-
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
+
+from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule  # pylint: disable=E0611
 
@@ -23,8 +23,8 @@ class CpxAp4Di4Do(CpxApModule):
         self.output_register = self.base.next_output_register
         self.input_register = self.base.next_input_register
 
-        self.base.next_output_register += math.ceil(self.information["Output Size"] / 2)
-        self.base.next_input_register += math.ceil(self.information["Input Size"] / 2)
+        self.base.next_output_register += div_ceil(self.information["Output Size"], 2)
+        self.base.next_input_register += div_ceil(self.information["Input Size"], 2)
 
         Logging.logger.debug(
             f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
