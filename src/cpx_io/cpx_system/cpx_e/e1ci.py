@@ -15,46 +15,46 @@ class CpxE1Ci(CpxEModule):
         self.input_register = self.base.next_input_register
 
         self.base.next_output_register = self.output_register + 1
-        self.base.next_input_register = self.input_register + 7
+        self.base.next_input_register = self.input_register + 8
 
         Logging.logger.debug(
             f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
         )
 
     @CpxBase.require_base
-    def read_counter_value(self) -> int:
-        """Read the counter value"""
-        reg = self.base.read_reg_data(self.input_register, length=4)
+    def read_value(self) -> int:
+        """Read the counter value or speed (if process data "speed_measurement" is set)"""
+        reg = self.base.read_reg_data(self.input_register, length=2)
         value = CpxBase.decode_int(reg, data_type="uint32")
         return value
 
     @CpxBase.require_base
     def read_latching_value(self) -> int:
         """Read the latching value"""
-        reg = self.base.read_reg_data(self.input_register + 4, length=4)
+        reg = self.base.read_reg_data(self.input_register + 2, length=2)
         value = CpxBase.decode_int(reg, data_type="uint32")
         return value
 
     @CpxBase.require_base
     def read_status_word(self) -> dict:
         """Read the status word"""
-        byte8, byte9 = self.base.read_reg_data(self.input_register + 8, length=2)
+        reg = self.base.read_reg_data(self.input_register + 4)[0]
         status_word = {
-            "DI0": bool(byte8 & 0x01),
-            "DI1": bool(byte8 & 0x02),
-            "DI2": bool(byte8 & 0x04),
-            "DI3": bool(byte8 & 0x06),
-            "Latching missed": bool(byte8 & 0x20),
-            "Latching set": bool(byte8 & 0x40),
-            "Latching blocked": bool(byte8 & 0x80),
-            "Lower CL exceeded": bool(byte9 & 0x01),
-            "Upper CL exceeded": bool(byte9 & 0x02),
-            "Counting direction": bool(byte9 & 0x04),
-            "Counter blocked": bool(byte9 & 0x08),
-            "Counter set": bool(byte9 & 0x10),
-            "Enable DI2": bool(byte9 & 0x20),
-            "Enable zero": bool(byte9 & 0x40),
-            "Speed measurement": bool(byte9 & 0x80),
+            "DI0": bool(reg & 0x0001),
+            "DI1": bool(reg & 0x0002),
+            "DI2": bool(reg & 0x0004),
+            "DI3": bool(reg & 0x0006),
+            "Latching missed": bool(reg & 0x0020),
+            "Latching set": bool(reg & 0x0040),
+            "Latching blocked": bool(reg & 0x0080),
+            "Lower CL exceeded": bool(reg & 0x0100),
+            "Upper CL exceeded": bool(reg & 0x0200),
+            "Counting direction": bool(reg & 0x0400),
+            "Counter blocked": bool(reg & 0x0800),
+            "Counter set": bool(reg & 0x1000),
+            "Enable DI2": bool(reg & 0x2000),
+            "Enable zero": bool(reg & 0x4000),
+            "Speed measurement": bool(reg & 0x8000),
         }
         return status_word
 
@@ -89,16 +89,17 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def read_process_data(self) -> dict:
         """Read back the process data"""
-        reg = self.base.read_reg_data(self.output_register)[0]
+        # echo output data bit 0 ... 15
+        reg = self.base.read_reg_data(self.input_register + 6)[0]
         process_data = {
-            "enable_setting_DI2": bool(reg & 0x01),
-            "enable_setting_zero": bool(reg & 0x02),
-            "set_counter": bool(reg & 0x04),
-            "block_counter": bool(reg & 0x08),
-            "overrun_cl_confirm": bool(reg & 0x10),
-            "speed_measurement": bool(reg & 0x20),
-            "confirm_latching": bool(reg & 0x40),
-            "block_latching": bool(reg & 0x80),
+            "enable_setting_DI2": bool(reg & 0x0001),
+            "enable_setting_zero": bool(reg & 0x0002),
+            "set_counter": bool(reg & 0x0004),
+            "block_counter": bool(reg & 0x0008),
+            "overrun_cl_confirm": bool(reg & 0x0010),
+            "speed_measurement": bool(reg & 0x0020),
+            "confirm_latching": bool(reg & 0x0040),
+            "block_latching": bool(reg & 0x0080),
         }
         return process_data
 
@@ -112,10 +113,11 @@ class CpxE1Ci(CpxEModule):
     def configure_signal_type(self, value: int) -> None:
         """The parameter “Signal type/encoder type” defines the encoder supply and connection
         type of the encoder.
-        - 0: Encoder 5 Vdc (differential)
-        - 1: Encoder 5 Vdc (single ended)
-        - 2: Encoder 24 Vdc (single ended)
-        - 3: Invalid setting"""
+        - 0: Encoder 5 Vdc differential (default)
+        - 1: Encoder 5 Vdc single ended
+        - 2: Encoder 24 Vdc single ended
+        - 3: Invalid setting
+        """
         if value in range(4):
             function_number = 4828 + 64 * self.position + 6
             reg = self.base.read_function_number(function_number)
@@ -127,11 +129,11 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def configure_signal_evaluation(self, value: int) -> None:
         """The “Signal evaluation” parameter defines the encoder type and evaluation
-
         - 0: Incremental encoder with single evaluation
         - 1: Incremental encoder with double evaluation
-        - 2: Incremental encoder with quadruple evaluation
-        - 3: Pulse generator with or without direction signal"""
+        - 2: Incremental encoder with quadruple evaluation (default)
+        - 3: Pulse generator with or without direction signal
+        """
         if value in range(4):
             function_number = 4828 + 64 * self.position + 7
             reg = self.base.read_function_number(function_number)
@@ -217,6 +219,8 @@ class CpxE1Ci(CpxEModule):
     def configure_latching_signal(self, value: bool) -> None:
         """The “Latching signal” parameter defines whether the digital input I0 or the zero pulse (track 0) is used
         as signal source to trigger the “Latching” function.
+        - False: Evaluate input I0 (default)
+        - True: Evaluate zero pulse
         """
 
         function_number = 4828 + 64 * self.position + 13
@@ -270,12 +274,12 @@ class CpxE1Ci(CpxEModule):
         function_number = 4828 + 64 * self.position + 16
 
         if value in range(2**32):
-            regs = CpxBase.encode_int(value, data_type="uint8")
+            regs = CpxBase.encode_int(value, data_type="uint32")
 
-            assert len(regs) == 4
-
-            for i, r in enumerate(regs):
-                self.base.write_function_number(function_number + i, r)
+            self.base.write_function_number(function_number + 0, regs[1] & 0xFF)
+            self.base.write_function_number(function_number + 1, regs[1] >> 8)
+            self.base.write_function_number(function_number + 2, regs[0] & 0xFF)
+            self.base.write_function_number(function_number + 3, regs[0] >> 8)
 
         else:
             raise ValueError(f"Value {value} must be in range 0 ... 2^32")
@@ -292,12 +296,12 @@ class CpxE1Ci(CpxEModule):
         function_number = 4828 + 64 * self.position + 20
 
         if value in range(2**32):
-            regs = CpxBase.encode_int(value, data_type="uint8")
+            regs = CpxBase.encode_int(value, data_type="uint32")
 
-            assert len(regs) == 4
-
-            for i, r in enumerate(regs):
-                self.base.write_function_number(function_number + i, r)
+            self.base.write_function_number(function_number + 0, regs[1] & 0xFF)
+            self.base.write_function_number(function_number + 1, regs[1] >> 8)
+            self.base.write_function_number(function_number + 2, regs[0] & 0xFF)
+            self.base.write_function_number(function_number + 3, regs[0] >> 8)
 
         else:
             raise ValueError(f"Value {value} must be in range 0 ... 2^32")
@@ -305,19 +309,19 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def configure_load_value(self, value: int) -> None:
         """The “Load value” parameter defines the value in the value range 0 ... 4,294,967,295 (2^32 - 1) that is
-        adopted as the counter value when the “Set counter” function (è 2.2 "Set Counter" Function) is
-        enabled or during latching with the parameter setting “Latching response = load value”
+        adopted as the counter value when the “Set counter” function is enabled or during latching with the
+        parameter setting “Latching response = load value”
         """
 
         function_number = 4828 + 64 * self.position + 24
 
         if value in range(2**32):
-            regs = CpxBase.encode_int(value, data_type="uint8")
-
-            assert len(regs) == 4
-
-            for i, r in enumerate(regs):
-                self.base.write_function_number(function_number + i, r)
+            regs = CpxBase.encode_int(value, data_type="uint32")
+            # divide in 8 bit registers
+            self.base.write_function_number(function_number + 0, regs[1] & 0xFF)
+            self.base.write_function_number(function_number + 1, regs[1] >> 8)
+            self.base.write_function_number(function_number + 2, regs[0] & 0xFF)
+            self.base.write_function_number(function_number + 3, regs[0] >> 8)
 
         else:
             raise ValueError(f"Value {value} must be in range 0 ... 2^32")

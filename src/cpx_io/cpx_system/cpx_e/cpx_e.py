@@ -11,6 +11,8 @@ from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci  # pylint: disable=E0611
 
 
 def module_list_from_typecode(typecode: str) -> list:
@@ -21,6 +23,8 @@ def module_list_from_typecode(typecode: str) -> list:
         "L": CpxE8Do,
         "NI": CpxE4AiUI,
         "NO": CpxE4AoUI,
+        "T51": CpxE4Iol,
+        "T53": CpxE1Ci,
     }
 
     module_list = []

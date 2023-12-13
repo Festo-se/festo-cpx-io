@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] Reworked CPX-E class structure.
 
 ### Fixed
+- [Patch] Fixed bug in CpxE4Iol address calculation
 - [Patch] Fixed bug in CPX-E-4AI read_channel
 - [Patch] Fixed access to protected members of cpx_base
 - [Patch] Bugfix in CPX-E-4IOL read/write and configure functions

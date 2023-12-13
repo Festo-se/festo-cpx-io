@@ -15,6 +15,7 @@ from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
 from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci  # pylint: disable=E0611
 
 
 @pytest.fixture(scope="function")
@@ -680,3 +681,45 @@ def test_4iol_ehps(test_cpxe):
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
     assert process_data_in["OpenedPositionFlag"] is False
+
+
+def test_1ci_module(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    e1ci = test_cpxe.add_module(CpxE1Ci())
+
+    assert isinstance(e1ci, CpxE1Ci)
+
+    assert e1ci.base.next_input_register == 45450
+    assert e1ci.base.next_output_register == 40025
+
+    status = e1ci.read_status()
+    assert status == [False] * 16
+
+    # ist is recommended to block the counter before configuration
+    e1ci.write_process_data(block_counter=True)
+    test = e1ci.read_process_data()
+
+    e1ci.configure_load_value(0)
+    e1ci.configure_latching_signal(True)
+    e1ci.configure_latching_response(False)
+    e1ci.write_process_data(
+        set_counter=True,
+        enable_setting_DI2=False,
+        enable_setting_zero=True,
+        overrun_cl_confirm=True,
+    )
+
+    # unblock the counter  and reset the status of set_counter after configuration
+    e1ci.write_process_data(
+        block_counter=False, set_counter=False, overrun_cl_confirm=False
+    )
+
+    cnt = e1ci.read_value()
+    lat = e1ci.read_latching_value()
+    stw = e1ci.read_status_word()
+
+    pass

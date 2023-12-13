@@ -35,13 +35,16 @@ class CpxE4Iol(CpxEModule):
         self.output_register = self.base.next_output_register
         self.input_register = self.base.next_input_register
 
-        # double the address space for echo output registers, 4 channels
         self.base.next_output_register = (
-            self.output_register + self.module_input_size
-        ) * 8
+            self.output_register + self.module_input_size * 4
+        )
+        # include echo output registers and one diagnosis register
         self.base.next_input_register = (
-            self.input_register + self.module_input_size
-        ) * 4
+            self.input_register
+            + self.module_input_size * 4
+            + self.module_output_size * 4
+            + 1
+        )
 
         Logging.logger.debug(
             f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
