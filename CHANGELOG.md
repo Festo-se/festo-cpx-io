@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] Implemented CPX-E-1CI module
 - [Minor] New functions for CPX-E-4AI and 4AO
 - [Minor] Added utils/helpers with ceil function
 - [Minor] Unittests for cpxe and cpxap modules
