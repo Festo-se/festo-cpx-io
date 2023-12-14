@@ -73,7 +73,7 @@ class CpxE1Ci(CpxEModule):
         pd = self.read_process_data()
         pd.update(kwargs)
 
-        reg = (
+        data = (
             (int(pd.get("enable_setting_DI2")) << 0)
             | (int(pd.get("enable_setting_zero")) << 1)
             | (int(pd.get("set_counter")) << 2)
@@ -83,14 +83,15 @@ class CpxE1Ci(CpxEModule):
             | (int(pd.get("confirm_latching")) << 6)
             | (int(pd.get("block_latching")) << 7)
         )
-
-        self.base.write_reg_data(self.output_register, reg)
+        reg_data = CpxBase.decode_int([data])
+        self.base.write_reg_data(reg_data, self.output_register)
 
     @CpxBase.require_base
     def read_process_data(self) -> dict:
         """Read back the process data"""
-        # echo output data bit 0 ... 15
+        # echo output data bit 0 ... 15 are in input_register + 6
         reg = self.base.read_reg_data(self.input_register + 6)[0]
+
         process_data = {
             "enable_setting_DI2": bool(reg & 0x0001),
             "enable_setting_zero": bool(reg & 0x0002),
