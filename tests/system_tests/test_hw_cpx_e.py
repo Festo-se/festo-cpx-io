@@ -6,16 +6,16 @@ import time
 
 from cpx_io.cpx_system.cpx_base import CpxInitError
 
-from cpx_io.cpx_system.cpx_e.cpx_e import CpxE  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
-from cpx_io.cpx_system.cpx_e.eep import CpxEEp  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.eep import CpxEEp
+from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
+from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
+from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
+from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
+from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
+from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
 
 
 @pytest.fixture(scope="function")

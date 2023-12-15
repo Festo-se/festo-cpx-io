@@ -35,24 +35,7 @@ class TestCpxE8Do:
         mocked_base.read_reg_data = Mock(return_value=[0xAAAA])
         cpxe8do.base = mocked_base
 
-        assert cpxe8do.read_status() == [
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-        ]
+        assert cpxe8do.read_status() == [False, True] * 8
 
     def test_read_channel_0_to_7(self):
         """Test read channels"""

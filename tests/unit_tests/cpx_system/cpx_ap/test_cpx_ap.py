@@ -2,13 +2,13 @@
 from unittest.mock import Mock, patch
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.apep import CpxApEp  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
+from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
+from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
+from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
+from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
+from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 
 
 class TestCpxAp:

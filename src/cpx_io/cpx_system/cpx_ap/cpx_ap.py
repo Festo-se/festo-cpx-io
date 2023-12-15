@@ -3,16 +3,16 @@
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 
-from cpx_io.cpx_system.cpx_ap.cpx_ap_modbus_commands import (  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_ap.cpx_ap_modbus_commands import (
     ModbusCommands,
 )
 
-from cpx_io.cpx_system.cpx_ap.apep import CpxApEp  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
+from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
+from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
+from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
+from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
+from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 
 
 class CpxAp(CpxBase):

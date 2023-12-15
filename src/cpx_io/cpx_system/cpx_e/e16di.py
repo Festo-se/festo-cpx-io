@@ -2,7 +2,7 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
 
 class CpxE16Di(CpxEModule):

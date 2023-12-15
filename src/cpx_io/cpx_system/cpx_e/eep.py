@@ -1,10 +1,10 @@
 """CPX-E-EP module implementation"""
 
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.cpx_e.cpx_e_modbus_commands import (  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e_modbus_commands import (
     ModbusCommands,
 )
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
 
 class CpxEEp(CpxEModule):

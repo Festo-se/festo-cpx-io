@@ -2,7 +2,7 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
 
 class CpxE4AiUI(CpxEModule):
@@ -95,8 +95,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_data_format(self, value: bool) -> None:
-        """
-        The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
+        """The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
         * False (default): Sign + 15 bit
         * True: Linear scaled
         """

@@ -2,11 +2,13 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
 
 class CpxE1Ci(CpxEModule):
     """Class for CPX-E-1CI counter module"""
+
+    # pylint: disable=too-many-public-methods
 
     def configure(self, *args):
         super().configure(*args)
@@ -43,7 +45,7 @@ class CpxE1Ci(CpxEModule):
             "DI0": bool(reg & 0x0001),
             "DI1": bool(reg & 0x0002),
             "DI2": bool(reg & 0x0004),
-            "DI3": bool(reg & 0x0006),
+            "DI3": bool(reg & 0x0008),
             "Latching missed": bool(reg & 0x0020),
             "Latching set": bool(reg & 0x0040),
             "Latching blocked": bool(reg & 0x0080),
@@ -57,6 +59,24 @@ class CpxE1Ci(CpxEModule):
             "Speed measurement": bool(reg & 0x8000),
         }
         return status_word
+
+    @CpxBase.require_base
+    def read_process_data(self) -> dict:
+        """Read back the process data"""
+        # echo output data bit 0 ... 15 are in input_register + 6
+        reg = self.base.read_reg_data(self.input_register + 6)[0]
+
+        process_data = {
+            "enable_setting_DI2": bool(reg & 0x0001),
+            "enable_setting_zero": bool(reg & 0x0002),
+            "set_counter": bool(reg & 0x0004),
+            "block_counter": bool(reg & 0x0008),
+            "overrun_cl_confirm": bool(reg & 0x0010),
+            "speed_measurement": bool(reg & 0x0020),
+            "confirm_latching": bool(reg & 0x0040),
+            "block_latching": bool(reg & 0x0080),
+        }
+        return process_data
 
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:
@@ -85,24 +105,6 @@ class CpxE1Ci(CpxEModule):
         )
         reg_data = CpxBase.decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register)
-
-    @CpxBase.require_base
-    def read_process_data(self) -> dict:
-        """Read back the process data"""
-        # echo output data bit 0 ... 15 are in input_register + 6
-        reg = self.base.read_reg_data(self.input_register + 6)[0]
-
-        process_data = {
-            "enable_setting_DI2": bool(reg & 0x0001),
-            "enable_setting_zero": bool(reg & 0x0002),
-            "set_counter": bool(reg & 0x0004),
-            "block_counter": bool(reg & 0x0008),
-            "overrun_cl_confirm": bool(reg & 0x0010),
-            "speed_measurement": bool(reg & 0x0020),
-            "confirm_latching": bool(reg & 0x0040),
-            "block_latching": bool(reg & 0x0080),
-        }
-        return process_data
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
@@ -209,7 +211,7 @@ class CpxE1Ci(CpxEModule):
         function_number = 4828 + 64 * self.position + 11
 
         if value in range(65536):
-            regs = CpxBase.encode_int(value, data_type="uint8")
+            regs = [value & 0xFF, value >> 8]
             self.base.write_function_number(function_number, regs[0])
             self.base.write_function_number(function_number + 1, regs[1])
 
@@ -283,7 +285,7 @@ class CpxE1Ci(CpxEModule):
             self.base.write_function_number(function_number + 3, regs[0] >> 8)
 
         else:
-            raise ValueError(f"Value {value} must be in range 0 ... 2^32")
+            raise ValueError(f"Value {value} must be in range 0 ... (2^32 - 1)")
 
     @CpxBase.require_base
     def configure_lower_counter_limit(self, value: int) -> None:
@@ -342,6 +344,8 @@ class CpxE1Ci(CpxEModule):
             reg = self.base.read_function_number(function_number)
             value_to_write = (reg & 0xFC) | value
             self.base.write_function_number(function_number, value_to_write)
+        else:
+            raise ValueError(f"Value {value} must be in range 0 ... 3")
 
     @CpxBase.require_base
     def configure_integration_time_for_speed_measurement(self, value: int) -> None:
@@ -358,3 +362,5 @@ class CpxE1Ci(CpxEModule):
             reg = self.base.read_function_number(function_number)
             value_to_write = (reg & 0xFC) | value
             self.base.write_function_number(function_number, value_to_write)
+        else:
+            raise ValueError(f"Value {value} must be in range 0 ... 3")
