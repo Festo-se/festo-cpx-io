@@ -2,9 +2,9 @@
 from unittest.mock import Mock, patch
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_ap.apep import CpxApEp  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
+from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
+from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 
 
 class TestCpxAp4Di:

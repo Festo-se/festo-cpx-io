@@ -63,24 +63,7 @@ class TestCpxE4Iol:
         mocked_base.read_reg_data = Mock(return_value=[0xAAAA])
         cpxe4iol.base = mocked_base
 
-        assert cpxe4iol.read_status() == [
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-        ]
+        assert cpxe4iol.read_status() == [False, True] * 8
 
     def test_read_2byte_channel_0_to_3(self):
         """Test read channels"""

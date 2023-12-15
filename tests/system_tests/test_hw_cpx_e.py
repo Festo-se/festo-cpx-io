@@ -6,15 +6,16 @@ import time
 
 from cpx_io.cpx_system.cpx_base import CpxInitError
 
-from cpx_io.cpx_system.cpx_e.cpx_e import CpxE  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
-from cpx_io.cpx_system.cpx_e.eep import CpxEEp  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI  # pylint: disable=E0611
-from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_e.eep import CpxEEp
+from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
+from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
+from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
+from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
+from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
+from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
 
 
 @pytest.fixture(scope="function")
@@ -39,7 +40,7 @@ def test_writeFunctionNumber(test_cpxe):
 
 def test_module_count(test_cpxe):
     response = test_cpxe.module_count()
-    assert response == 6
+    assert response == 7
 
 
 def test_fault_detection(test_cpxe):
@@ -101,7 +102,7 @@ def test_2modules(test_cpxe):
 
     assert e8do.read_channels() == [False] * 8
     assert e8do.read_channel(0) is False
-    time.sleep(0.1)
+    time.sleep(0.05)
 
     # set up channel 0 to True on 8DO,
     # this is routed to channel 0 16DI.
@@ -168,11 +169,11 @@ def test_8DO_configure_power_reset(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
 
     e8do.configure_power_reset(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e8do.base.read_function_number(4828 + 64 * 2 + 1) == 2
 
     e8do.configure_power_reset(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e8do.base.read_function_number(4828 + 64 * 2 + 1) == 0
 
 
@@ -180,11 +181,11 @@ def test_16DI_diagnostics(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
 
     e16di.configure_diagnostics(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.base.read_function_number(4828 + 64 * 1) == 0
 
     e16di.configure_diagnostics(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e16di.base.read_function_number(4828 + 64 * 1) == 1
 
 
@@ -192,11 +193,11 @@ def test_16DI_configure_power_reset(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
 
     e16di.configure_power_reset(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e16di.base.read_function_number(4828 + 64 * 1 + 1) & 0x01) == 0
 
     e16di.configure_power_reset(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e16di.base.read_function_number(4828 + 64 * 1 + 1) & 0x01) == 1
 
 
@@ -205,12 +206,12 @@ def test_16DI_configure_debounce_time(test_cpxe):
 
     val = 2
     e16di.configure_debounce_time(val)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e16di.base.read_function_number(4828 + 64 * 1 + 1) & 0b00110000) >> 4 == val
 
     val = 1
     e16di.configure_debounce_time(val)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e16di.base.read_function_number(4828 + 64 * 1 + 1) & 0b00110000) >> 4 == val
 
     with pytest.raises(ValueError):
@@ -225,12 +226,12 @@ def test_16DI_configure_signal_extension_time(test_cpxe):
 
     val = 2
     e16di.configure_signal_extension_time(val)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e16di.base.read_function_number(4828 + 64 * 1 + 1) & 0b11000000) >> 6 == val
 
     val = 1
     e16di.configure_signal_extension_time(val)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e16di.base.read_function_number(4828 + 64 * 1 + 1) & 0b11000000) >> 6 == val
 
     with pytest.raises(ValueError):
@@ -254,7 +255,7 @@ def test_3modules(test_cpxe):
 
     assert e4ai.configure_channel_range(3, "0-10V") == None
     assert e4ai.configure_channel_smoothing(3, 2) == None
-    time.sleep(0.1)
+    time.sleep(0.05)
     data0 = e4ai.read_channel(3)
     # assert -10 < data0 < 10
     # assert -10 < e4ai.read_channels()[3] < 10
@@ -270,11 +271,11 @@ def test_4AI_configure_diagnostics(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
 
     e4ai.configure_diagnostics(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 0) & 0x01) == 0
 
     e4ai.configure_diagnostics(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 0) & 0x01) == 1
 
 
@@ -284,11 +285,11 @@ def test_4AI_configure_power_reset(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
 
     e4ai.configure_power_reset(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 1) & 0x01) == 0
 
     e4ai.configure_power_reset(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 1) & 0x01) == 1
 
 
@@ -298,11 +299,11 @@ def test_4AI_configure_data_format(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
 
     e4ai.configure_data_format(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0x01) == 1
 
     e4ai.configure_data_format(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0x01) == 0
 
 
@@ -312,11 +313,11 @@ def test_4AI_configure_sensor_supply(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
 
     e4ai.configure_sensor_supply(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0b00100000) >> 5 == 0
 
     e4ai.configure_sensor_supply(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0b00100000) >> 5 == 1
 
 
@@ -326,11 +327,11 @@ def test_4AI_configure_diagnostics_overload(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
 
     e4ai.configure_diagnostics_overload(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0b01000000) >> 6 == 0
 
     e4ai.configure_diagnostics_overload(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0b01000000) >> 6 == 1
 
 
@@ -340,11 +341,11 @@ def test_4AI_configure_behaviour_overload(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
 
     e4ai.configure_behaviour_overload(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0b10000000) >> 7 == 0
 
     e4ai.configure_behaviour_overload(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ai.base.read_function_number(4828 + 64 * 3 + 6) & 0b10000000) >> 7 == 1
 
 
@@ -357,11 +358,11 @@ def test_4AI_configure_hysteresis_limit_monitoring(test_cpxe):
     lower = 10
     upper = 20
     e4ai.configure_hysteresis_limit_monitoring(lower=lower)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e4ai.base.read_function_number(4828 + 64 * 3 + 7) == 10
 
     e4ai.configure_hysteresis_limit_monitoring(upper=upper)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert e4ai.base.read_function_number(4828 + 64 * 3 + 8) == 20
 
     e4ai.configure_hysteresis_limit_monitoring(lower=0, upper=0)
@@ -431,11 +432,11 @@ def test_4AO_configure_diagnostics(test_cpxe):
     e4ao.configure_diagnostics(
         short_circuit=False, undervoltage=False, param_error=False
     )
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 0) & 0b10000110) == 0
 
     e4ao.configure_diagnostics(short_circuit=True, undervoltage=True, param_error=True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (
         e4ao.base.read_function_number(4828 + 64 * 4 + 0) & 0b10000110
     ) == 0b10000110
@@ -448,11 +449,11 @@ def test_4AO_configure_power_reset(test_cpxe):
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
     e4ao.configure_power_reset(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 1) & 0x02) >> 1 == 0
 
     e4ao.configure_power_reset(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 1) & 0x02) >> 1 == 1
 
 
@@ -463,11 +464,11 @@ def test_4AO_configure_behaviour_overload(test_cpxe):
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
     e4ao.configure_behaviour_overload(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 1) & 0x08) >> 3 == 0
 
     e4ao.configure_behaviour_overload(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 1) & 0x08) >> 3 == 1
 
 
@@ -478,11 +479,11 @@ def test_4AO_configure_data_format(test_cpxe):
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
     e4ao.configure_data_format(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 6) & 0x01) == 1
 
     e4ao.configure_data_format(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 6) & 0x01) == 0
 
 
@@ -493,11 +494,11 @@ def test_4AO_configure_actuator_supply(test_cpxe):
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
     e4ao.configure_actuator_supply(False)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 6) & 0b00100000) >> 5 == 0
 
     e4ao.configure_actuator_supply(True)
-    time.sleep(0.1)
+    time.sleep(0.05)
     assert (e4ao.base.read_function_number(4828 + 64 * 4 + 6) & 0b00100000) >> 5 == 1
 
 
@@ -516,7 +517,7 @@ def test_analog_io(test_cpxe):
     e4ai.configure_channel_range(1, "0-10V")
     e4ai.configure_channel_range(2, "0-10V")
     e4ai.configure_channel_range(3, "0-10V")
-    time.sleep(0.1)
+    time.sleep(0.05)
 
     values = [0, 1000, 5000, 13000]
 
@@ -524,7 +525,7 @@ def test_analog_io(test_cpxe):
     e4ao.write_channel(1, values[1])
     e4ao.write_channel(2, values[2])
     e4ao.write_channel(3, values[3])
-    time.sleep(0.1)
+    time.sleep(0.05)
 
     result = e4ai.read_channels()
 
@@ -568,6 +569,27 @@ def test_setter(test_cpxe):
 
 
 def test_4iol_sdas(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+
+    e8do[0] = True
+    time.sleep(0.05)
+    assert e8do[0] == True
+
+    e8do[0] = False
+    time.sleep(0.05)
+    assert e8do[0] == False
+
+    e4ao[0] = 5
+    time.sleep(0.05)
+    assert e4ao[0] == 5
+
+    e4ao[0] = 0
+    time.sleep(0.05)
+    assert e4ao[0] == 0
+
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -680,3 +702,37 @@ def test_4iol_ehps(test_cpxe):
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
     assert process_data_in["OpenedPositionFlag"] is False
+
+
+def test_1ci_module(test_cpxe):
+    """Test ci module by toggling do channel 1 on input A and setting input B to 24 V"""
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    e1ci = test_cpxe.add_module(CpxE1Ci())
+
+    assert isinstance(e1ci, CpxE1Ci)
+
+    assert e1ci.base.next_input_register == 45450
+    assert e1ci.base.next_output_register == 40025
+
+    status = e1ci.read_status()
+    assert status == [False] * 16
+
+    e1ci.configure_signal_type(2)
+    e1ci.configure_signal_evaluation(3)
+    e1ci.write_process_data(set_counter=True)
+
+    while not e1ci.read_process_data()["set_counter"]:
+        continue
+    e1ci.write_process_data(set_counter=False)
+    while e1ci.read_process_data()["set_counter"]:
+        continue
+
+    for _ in range(16):
+        e8do.toggle_channel(1)
+        time.sleep(0.05)
+
+    assert e1ci.read_value() == 8

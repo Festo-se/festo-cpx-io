@@ -5,7 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.utils.helpers import div_ceil
 
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule  # pylint: disable=E0611
+from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 
 
 class CpxAp4Iol(CpxApModule):
