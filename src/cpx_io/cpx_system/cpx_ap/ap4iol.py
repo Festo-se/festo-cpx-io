@@ -27,7 +27,10 @@ class CpxAp4Iol(CpxApModule):
         self.base.next_input_register += div_ceil(self.information["Input Size"], 2)
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
+            (
+                f"Configured {self} with output register {self.output_register}"
+                f"and input register {self.input_register}"
+            )
         )
 
     @CpxBase.require_base

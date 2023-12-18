@@ -15,7 +15,7 @@ class CpxApModule:
         self.input_register = None
 
     def __repr__(self):
-        return f"{self.information.get('Order Text')} at position {self.position}"
+        return f"{self.information.get('Modul Code')} (idx: {self.position}, type: {type(self).__name__})"
 
     def configure(self, base, position):
         """Set up postion and base for the module when added to cpx system""" ""

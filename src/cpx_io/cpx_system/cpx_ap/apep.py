@@ -5,9 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 
-from cpx_io.cpx_system.cpx_ap.cpx_ap_modbus_commands import (
-    ModbusCommands,
-)
+import cpx_io.cpx_system.cpx_ap.cpx_ap_registers as cpx_ap_registers
 
 
 class CpxApEp(CpxApModule):
@@ -16,11 +14,14 @@ class CpxApEp(CpxApModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.base.next_output_register = ModbusCommands.outputs[0]
-        self.base.next_input_register = ModbusCommands.inputs[0]
+        self.base.next_output_register = cpx_ap_registers.OUTPUTS[0]
+        self.base.next_input_register = cpx_ap_registers.INPUTS[0]
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
+            (
+                f"Configured {self} with output register {self.output_register}"
+                f"and input register {self.input_register}"
+            )
         )
 
     @staticmethod
@@ -72,14 +73,14 @@ class CpxApEp(CpxApModule):
         active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
 
         mac_address = ":".join(
-            "{:02x}".format(x & 0xFF) + ":{:02x}".format((x >> 8) & 0xFF)
+            f"{x & 0xFF:02x}:{(x >> 8):02x}"
             for x in self.base.read_parameter(self.position, 12007, 0)
         )
 
         setup_monitoring_load_supply = CpxBase.decode_int(
-            [(self.base.read_parameter(self.position, 20022, 0)[0] << 8) & 0xFF],
+            [(self.base.read_parameter(self.position, 20022, 0)[0]) & 0xFF],
             data_type="uint8",
-        )  # TODO: shifting should not be required
+        )
 
         return {
             "dhcp_enable": dhcp_enable,

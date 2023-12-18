@@ -16,15 +16,18 @@ from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 
 @pytest.fixture(scope="function")
 def test_cpxap():
+    """test fixture"""
     with CpxAp(ip_address="172.16.1.41", port=502, timeout=500) as cpxap:
         yield cpxap
 
 
 def test_init(test_cpxap):
+    "test init"
     assert test_cpxap
 
 
 def test_module_count(test_cpxap):
+    "test module_count"
     assert test_cpxap.read_module_count() == 6
 
 
@@ -154,8 +157,7 @@ def test_ep_param_read(test_cpxap):
     assert param["active_subnet_mask"] == "255.255.0.0"
     assert param["active_gateway_address"] == "0.0.0.0"
     assert param["mac_address"] == "00:0e:f0:7d:3b:15"
-    # TODO: this returns 0 (might be same error as uint8 shifting required)
-    # assert param["setup_monitoring_load_supply"] == 1
+    assert param["setup_monitoring_load_supply"] == 1
 
 
 def test_4AiUI_configures_channel_unit(test_cpxap):
@@ -215,6 +217,7 @@ def test_4AiUI_configures_channel_range(test_cpxap):
 def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     assert isinstance(a4aiui, CpxAp4AiUI)
+    time.sleep(0.05)
 
     a4aiui.configure_hysteresis_limit_monitoring(0, 101)
     time.sleep(0.05)
@@ -351,6 +354,7 @@ def test_4AiUI_configures_channel_limits(test_cpxap):
 def test_4Di4Do_configures(test_cpxap):
     a4di4do = test_cpxap.modules[2]
     assert isinstance(a4di4do, CpxAp4Di4Do)
+    time.sleep(0.05)
 
     a4di4do.configure_debounce_time(3)
     time.sleep(0.05)
@@ -370,6 +374,7 @@ def test_4Di4Do_configures(test_cpxap):
         == 1
     )
 
+    time.sleep(0.05)
     # reset to default
     a4di4do.configure_debounce_time(1)
     time.sleep(0.05)
@@ -415,6 +420,7 @@ def test_read_ap_parameter(test_cpxap):
 def test_4iol_sdas(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_port_mode(2, channel=0)
 
@@ -445,6 +451,7 @@ def test_4iol_sdas(test_cpxap):
 def test_4iol_ehps(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     def read_process_data_in(module, channel):
         # ehps provides 3 x 16bit "process data in".
@@ -568,6 +575,7 @@ def test_4iol_ethrottle(test_cpxap):
 def test_read_pqi(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_port_mode(2, channel=0)
     a4iol.configure_port_mode(0, channel=1)
@@ -610,6 +618,7 @@ def test_4iol_configure_target_cycle_time(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
 
+    time.sleep(0.05)
     a4iol.configure_target_cycle_time(16, channel=0)
     time.sleep(0.05)
     assert (
@@ -653,6 +662,7 @@ def test_4iol_configure_target_cycle_time(test_cpxap):
 def test_4iol_configure_device_lost_diagnostics(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_device_lost_diagnostics(False, channel=0)
     time.sleep(0.05)
@@ -676,6 +686,7 @@ def test_4iol_configure_device_lost_diagnostics(test_cpxap):
 def test_4iol_configure_port_mode(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_port_mode(0, channel=0)
     time.sleep(0.05)
@@ -720,6 +731,7 @@ def test_4iol_configure_port_mode(test_cpxap):
 def test_4iol_configure_review_and_backup(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_review_and_backup(1, channel=0)
     time.sleep(0.05)
@@ -764,8 +776,10 @@ def test_4iol_configure_review_and_backup(test_cpxap):
 def test_4iol_configure_target_vendor_id(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_target_vendor_id(1, channel=0)
+    time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
     assert (
@@ -812,8 +826,10 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
 def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
 
     a4iol.configure_setpoint_device_id(1, channel=0)
+    time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
     assert (
@@ -822,6 +838,7 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     )
 
     a4iol.configure_setpoint_device_id(2, channel=[1, 2])
+    time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
     assert (
@@ -834,6 +851,7 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     )
 
     a4iol.configure_setpoint_device_id(3)
+    time.sleep(0.05)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
     assert (
@@ -854,4 +872,5 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     )
 
     a4iol.configure_setpoint_device_id(0)
+    time.sleep(0.05)
     a4iol.configure_port_mode(0)
