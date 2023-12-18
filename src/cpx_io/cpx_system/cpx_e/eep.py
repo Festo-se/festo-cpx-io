@@ -1,9 +1,7 @@
 """CPX-E-EP module implementation"""
 
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.cpx_e.cpx_e_modbus_commands import (
-    ModbusCommands,
-)
+import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 
 
@@ -13,8 +11,8 @@ class CpxEEp(CpxEModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.output_register = ModbusCommands.process_data_outputs[0]
-        self.input_register = ModbusCommands.process_data_inputs[0]
+        self.output_register = cpx_e_registers.PROCESS_DATA_OUTPUTS[0]
+        self.input_register = cpx_e_registers.PROCESS_DATA_INPUTS[0]
 
         self.base.next_output_register = self.output_register + 2
         self.base.next_input_register = self.input_register + 3

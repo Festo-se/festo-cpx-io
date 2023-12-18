@@ -2,9 +2,7 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
-from cpx_io.cpx_system.cpx_e.cpx_e_modbus_commands import (
-    ModbusCommands,
-)
+import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
 
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
@@ -86,19 +84,19 @@ class CpxE(CpxBase):
 
     def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number"""
-        self.write_reg_data(value, *ModbusCommands.data_system_table_write)
+        self.write_reg_data(value, *cpx_e_registers.DATA_SYSTEM_TABLE_WRITE)
         # need to write 0 first because there might be an
         # old unknown configuration in the register
-        self.write_reg_data(0, *ModbusCommands.process_data_outputs)
+        self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
         self.write_reg_data(
             self._control_bit_value | self._write_bit_value | function_number,
-            *ModbusCommands.process_data_outputs,
+            *cpx_e_registers.PROCESS_DATA_OUTPUTS,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*ModbusCommands.process_data_inputs)[0]
+            data = self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS)[0]
             its += 1
 
         if its >= 1000:
@@ -108,33 +106,33 @@ class CpxE(CpxBase):
         """Read parameters via function number"""
         # need to write 0 first because there might be an
         # old unknown configuration in the register
-        self.write_reg_data(0, *ModbusCommands.process_data_outputs)
+        self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
         self.write_reg_data(
             self._control_bit_value | function_number,
-            *ModbusCommands.process_data_outputs,
+            *cpx_e_registers.PROCESS_DATA_OUTPUTS,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*ModbusCommands.process_data_inputs)[0]
+            data = self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        value = self.read_reg_data(*ModbusCommands.data_system_table_read)
+        value = self.read_reg_data(*cpx_e_registers.DATA_SYSTEM_TABLE_READ)
         return value[0]
 
     def module_count(self) -> int:
         """returns the total count of attached modules"""
-        data = self.read_reg_data(*ModbusCommands.module_configuration)
+        data = self.read_reg_data(*cpx_e_registers.MODULE_CONFIGURATION)
         return sum(d.bit_count() for d in data)
 
     def fault_detection(self) -> list[bool]:
         """returns list of bools with Errors (True = Error)"""
-        ret = self.read_reg_data(*ModbusCommands.fault_detection)
+        ret = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
         data = ret[2] << 16 | ret[1] << 8 | ret[0]
         return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]]
 
@@ -142,7 +140,7 @@ class CpxE(CpxBase):
         """returns (Write-protected, Force active)"""
         write_protect_bit = 1 << 11
         force_active_bit = 1 << 15
-        data = self.read_reg_data(*ModbusCommands.status_register)
+        data = self.read_reg_data(*cpx_e_registers.STATUS_REGISTER)
         return (bool(data[0] & write_protect_bit), bool(data[0] & force_active_bit))
 
     def read_device_identification(self) -> int:

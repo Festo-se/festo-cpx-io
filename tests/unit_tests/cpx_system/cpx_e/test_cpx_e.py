@@ -10,7 +10,7 @@ from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxInitError
-from cpx_io.cpx_system.cpx_e.cpx_e_modbus_commands import ModbusCommands
+import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
 
 
 class TestCpxE:
@@ -21,15 +21,15 @@ class TestCpxE:
         cpx_e = CpxE()
 
         assert len(cpx_e.modules) == 1
-        assert type(cpx_e.modules[0]) is CpxEEp
+        assert isinstance(cpx_e.modules[0], CpxEEp)
 
     def test_constructor_with_two_modules(self):
         """Test constructor with two modules"""
         cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
         assert len(cpx_e.modules) == 2
-        assert type(cpx_e.modules[0]) is CpxEEp
-        assert type(cpx_e.modules[1]) is CpxE16Di
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE16Di)
 
     def test_default_constructor_modified_modules(self):
         """Test default constructor with modified modules"""
@@ -37,73 +37,62 @@ class TestCpxE:
         cpx_e.modules = [CpxEEp(), CpxE16Di(), CpxE8Do()]
 
         assert len(cpx_e.modules) == 3
-        assert type(cpx_e.modules[0]) is CpxEEp
-        assert type(cpx_e.modules[1]) is CpxE16Di
-        assert type(cpx_e.modules[2]) is CpxE8Do
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE16Di)
+        assert isinstance(cpx_e.modules[2], CpxE8Do)
 
-    def test_constructor_with_typecode_MLNINO(self):
+    def test_constructor_with_typecode_MLNINO(self):  # pylint: disable="invalid-name"
         """Test constructor with typecode"""
         cpx_e = CpxE("60E-EP-MLNINO")
 
         assert len(cpx_e.modules) == 5
-        assert type(cpx_e.modules[0]) is CpxEEp
-        assert type(cpx_e.modules[1]) is CpxE16Di
-        assert type(cpx_e.modules[2]) is CpxE8Do
-        assert type(cpx_e.modules[3]) is CpxE4AiUI
-        assert type(cpx_e.modules[4]) is CpxE4AoUI
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE16Di)
+        assert isinstance(cpx_e.modules[2], CpxE8Do)
+        assert isinstance(cpx_e.modules[3], CpxE4AiUI)
+        assert isinstance(cpx_e.modules[4], CpxE4AoUI)
 
-    def test_constructor_with_typecode_NIMNOL(self):
+    def test_constructor_with_typecode_NIMNOL(self):  # pylint: disable="invalid-name"
         """Test constructor with typecode"""
         cpx_e = CpxE("60E-EP-NIMNOL")
 
         assert len(cpx_e.modules) == 5
-        assert type(cpx_e.modules[0]) is CpxEEp
-        assert type(cpx_e.modules[1]) is CpxE4AiUI
-        assert type(cpx_e.modules[2]) is CpxE16Di
-        assert type(cpx_e.modules[3]) is CpxE4AoUI
-        assert type(cpx_e.modules[4]) is CpxE8Do
-
-    def test_constructor_with_typecode_NIMNOL(self):
-        """Test constructor with typecode"""
-        cpx_e = CpxE("60E-EP-NIMNOL")
-
-        assert len(cpx_e.modules) == 5
-        assert type(cpx_e.modules[0]) is CpxEEp
-        assert type(cpx_e.modules[1]) is CpxE4AiUI
-        assert type(cpx_e.modules[2]) is CpxE16Di
-        assert type(cpx_e.modules[3]) is CpxE4AoUI
-        assert type(cpx_e.modules[4]) is CpxE8Do
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE4AiUI)
+        assert isinstance(cpx_e.modules[2], CpxE16Di)
+        assert isinstance(cpx_e.modules[3], CpxE4AoUI)
+        assert isinstance(cpx_e.modules[4], CpxE8Do)
 
     def test_name_access_default(self):
         """Test name access"""
         cpx_e = CpxE()
 
-        assert type(cpx_e.cpxeep) is CpxEEp
+        assert isinstance(cpx_e.cpxeep, CpxEEp)  # pylint: disable="no-member"
 
     def test_name_access_with_two_modules(self):
         """Test name access"""
         cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
-        assert type(cpx_e.cpxeep) is CpxEEp
-        assert type(cpx_e.cpxe16di) is CpxE16Di
+        assert isinstance(cpx_e.cpxeep, CpxEEp)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.cpxe16di, CpxE16Di)  # pylint: disable="no-member"
 
     def test_name_access_modified_modules(self):
         """Test name access"""
         cpx_e = CpxE()
         cpx_e.modules = [CpxEEp(), CpxE16Di(), CpxE8Do()]
 
-        assert type(cpx_e.cpxeep) is CpxEEp
-        assert type(cpx_e.cpxe16di) is CpxE16Di
-        assert type(cpx_e.cpxe8do) is CpxE8Do
+        assert isinstance(cpx_e.cpxeep, CpxEEp)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.cpxe16di, CpxE16Di)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.cpxe8do, CpxE8Do)  # pylint: disable="no-member"
 
     def test_name_access_modified_modules_custom_names(self):
         """Test name access"""
         cpx_e = CpxE([CpxEEp("m1"), CpxE16Di("m2"), CpxE8Do("m3")])
         cpx_e.modules = [CpxEEp("m3"), CpxE16Di("m1"), CpxE8Do("m2")]
 
-        assert type(cpx_e.m3) is CpxEEp
-        assert type(cpx_e.m1) is CpxE16Di
-        assert type(cpx_e.m2) is CpxE8Do
+        assert isinstance(cpx_e.m3, CpxEEp)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.m1, CpxE16Di)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.m2, CpxE8Do)  # pylint: disable="no-member"
 
     def test_name_access_modified_modules_custom_names_removed(self):
         """Test name access"""
@@ -111,14 +100,14 @@ class TestCpxE:
         cpx_e.modules = [CpxEEp("m4"), CpxE16Di("m5"), CpxE8Do("m6")]
 
         with pytest.raises(AttributeError):
-            cpx_e.m1  # pylint: disable=E1101
+            _ = cpx_e.m1  # pylint: disable=E1101
         with pytest.raises(AttributeError):
-            cpx_e.m2  # pylint: disable=E1101
+            _ = cpx_e.m2  # pylint: disable=E1101
         with pytest.raises(AttributeError):
-            cpx_e.m3  # pylint: disable=E1101
-        assert type(cpx_e.m4) is CpxEEp
-        assert type(cpx_e.m5) is CpxE16Di
-        assert type(cpx_e.m6) is CpxE8Do
+            _ = cpx_e.m3  # pylint: disable=E1101
+        assert isinstance(cpx_e.m4, CpxEEp)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.m5, CpxE16Di)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.m6, CpxE8Do)  # pylint: disable="no-member"
 
     def test_modules_setter_error(self):
         """Test module setter with incorrect type"""
@@ -135,7 +124,7 @@ class TestCpxE:
         cnt = bin(0xAAAAAA)[2:].count("1")
 
         assert cpx_e.module_count() == cnt
-        cpx_e.read_reg_data.assert_called_with(*ModbusCommands.module_configuration)
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.MODULE_CONFIGURATION)
 
     def test_fault_detection(self):
         """Test fault detection"""
@@ -145,4 +134,4 @@ class TestCpxE:
 
         lst = [x == "1" for x in bin(0xCCBBAA)[2:]]
         assert cpx_e.fault_detection() == lst[::-1]
-        cpx_e.read_reg_data.assert_called_with(*ModbusCommands.fault_detection)
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.FAULT_DETECTION)

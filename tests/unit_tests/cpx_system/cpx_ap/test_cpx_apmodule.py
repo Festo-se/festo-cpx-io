@@ -24,9 +24,11 @@ class TestCpxApModule:
 
         module = CpxApModule()
         module.information = {}
-        module.information["Order Text"] = "test"
+        module.information["Order Text"] = "text"
+        module.information["Modul Code"] = "code"
+
         module.position = 1
-        assert repr(module) == "test at position 1"
+        assert repr(module) == "code (idx: 1, type: CpxApModule)"
 
     def test_configure(self):
         """Test configure"""
