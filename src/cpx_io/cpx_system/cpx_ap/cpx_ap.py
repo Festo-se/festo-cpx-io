@@ -11,6 +11,7 @@ from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
+from cpx_io.cpx_system.cpx_ap.vabx import VabxAP
 
 
 class CpxAp(CpxBase):
@@ -53,6 +54,9 @@ class CpxAp(CpxBase):
             module = CpxAp4Iol()
         elif module_code == 8198 or order_text == "CPX-AP-I-4DI-M8-3P":
             module = CpxAp4Di()
+        elif module_code == 8232 or order_text == "'VABX-A-P-EL-E12-API'":
+            module = VabxAP()
+
         else:
             raise NotImplementedError(
                 "This module is not yet implemented or not available"

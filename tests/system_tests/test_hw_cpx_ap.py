@@ -12,6 +12,7 @@ from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
+from cpx_io.cpx_system.cpx_ap.vabx import VabxAP
 
 
 @pytest.fixture(scope="function")
@@ -19,6 +20,19 @@ def test_cpxap():
     """test fixture"""
     with CpxAp(ip_address="172.16.1.41", port=502, timeout=500) as cpxap:
         yield cpxap
+
+
+def test_vabx_read(test_cpxap):
+    "test"
+    assert isinstance(test_cpxap.modules[5], VabxAP)
+    test_cpxap.modules[5].read_channels()
+
+
+def test_vabx_write(test_cpxap):
+    "test"
+    assert isinstance(test_cpxap.modules[5], VabxAP)
+    # write = [True] * 32
+    test_cpxap.modules[5].write_channel(0, True)
 
 
 def test_init(test_cpxap):
