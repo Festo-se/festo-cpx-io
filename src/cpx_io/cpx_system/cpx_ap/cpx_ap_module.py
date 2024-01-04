@@ -16,7 +16,7 @@ class CpxApModule:
 
     def __repr__(self):
         return (
-            f"{self.information.get('Modul Code')} (idx: {self.position},"
+            f"{self.information.get('Modul Code')} (idx: {self.position}, "
             f"type: {type(self).__name__})"
         )
 
