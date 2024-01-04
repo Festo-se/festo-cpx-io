@@ -25,7 +25,7 @@ class CpxE8Do(CpxEModule):
         self.base.next_input_register = self.input_register + 2
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register}"
+            f"Configured {self} with output register {self.output_register} "
             f"and input register {self.input_register}"
         )
 

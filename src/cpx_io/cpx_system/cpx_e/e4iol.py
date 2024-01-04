@@ -49,7 +49,8 @@ class CpxE4Iol(CpxEModule):
         )
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
+            f"Configured {self} with output register {self.output_register} "
+            f"and input register {self.input_register}"
         )
 
     @CpxBase.require_base
@@ -188,8 +189,8 @@ class CpxE4Iol(CpxEModule):
 
     @CpxBase.require_base
     def configure_ps_supply(self, value: bool) -> None:
-        """The "PS supply" parameter defines whether the operating voltage supply shall be deactivated
-        or activated. The setting applies for all IO-Link interfaces (ports).
+        """The "PS supply" parameter defines whether the operating voltage supply shall be
+        deactivated or activated. The setting applies for all IO-Link interfaces (ports).
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)

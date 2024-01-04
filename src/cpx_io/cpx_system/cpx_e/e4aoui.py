@@ -172,9 +172,10 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_diagnostics_wire_break(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter “Enable wire break / idling diagnostics” defines whether the diagnostics of the outputs
-        with regard to wire break/idling should be activated or deactivated. When the diagnostics are activated,
-        the error will be sent to the bus module and displayed on the module by the error LED
+        """The parameter “Enable wire break / idling diagnostics” defines whether the
+        diagnostics of the outputs with regard to wire break/idling should be activated
+        or deactivated. When the diagnostics are activated, the error will be sent to
+        the bus module and displayed on the module by the error LED
         """
 
         if channel not in range(4):
@@ -192,9 +193,10 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_diagnostics_overload_short_circuit(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter “Enable overload/short circuit diagnostics” defines if the diagnostics for the outputs
-        with regard to overload/short circuit must be activated or deactivated. When the diagnostics are activated,
-        the error will be sent to the bus module and displayed on the module by the error LED.
+        """The parameter “Enable overload/short circuit diagnostics” defines if the
+        diagnostics for the outputs with regard to overload/short circuit must be
+        activated or deactivated. When the diagnostics are activated, the error
+        will be sent to the bus module and displayed on the module by the error LED.
         """
 
         if channel not in range(4):
@@ -212,9 +214,10 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_diagnostics_parameter_error(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter “Enable parameter error diagnostics” defines if the diagnostics for the outputs with
-        regard to parameter errors must be activated or deactivated. When the diagnostics are activated, the
-        error will be sent to the bus node and displayed with the error LED on the module
+        """The parameter “Enable parameter error diagnostics” defines if the diagnostics
+        for the outputs with regard to parameter errors must be activated or deactivated.
+        When the diagnostics are activated, the error will be sent to the bus node and
+        displayed with the error LED on the module
         """
 
         if channel not in range(4):

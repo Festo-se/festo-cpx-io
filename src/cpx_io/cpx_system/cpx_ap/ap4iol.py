@@ -50,7 +50,7 @@ class CpxAp4Iol(CpxApModule):
             8212: "variant 23",
             8213: "variant 32 OE",
         }
-        # TODO: Why is this UINT16 stored in the second byte of the parameter?
+
         io_link_variant = CpxBase.decode_int(
             self.base.read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
         )
@@ -207,8 +207,9 @@ class CpxAp4Iol(CpxApModule):
     def configure_device_lost_diagnostics(
         self, value: bool, channel: int | list | None = None
     ) -> None:
-        """Activation of diagnostics for IO-Link device lost (default: True) for given channel. If no
-        channel is provided, value will be written to all channels."""
+        """Activation of diagnostics for IO-Link device lost (default: True) for
+        given channel. If no channel is provided, value will be written to all channels.
+        """
 
         uid = 20050
 

@@ -206,10 +206,10 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_limits(
         self, channel: int, lower: bool | None = None, upper: bool | None = None
     ) -> None:
-        """The parameter " Diagnostics of lower/upper limit" defines if the diagnostics for the input signals must be
-        activated or deactivated with regard to compliance with the defined lower limits.
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED."""
+        """The parameter " Diagnostics of lower/upper limit" defines if the diagnostics for the
+        input signals must be activated or deactivated with regard to compliance with the
+        defined lower limits. When the diagnostics are activated, the error will be sent to the
+        bus module and displayed on the module by the error LED."""
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -232,10 +232,10 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_wire_break(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter "Wire break diagnostics" defines whether the diagnostics for the input signals must be
-        activated or deactivated with regard to a shortfall of the input current.
-        When the diagnostics are activated, the error at an input current of <1.2 mA will be sent to the bus
-        module and displayed with the error LED on the module.
+        """The parameter "Wire break diagnostics" defines whether the diagnostics for the input
+        signals must be activated or deactivated with regard to a shortfall of the input current.
+        When the diagnostics are activated, the error at an input current of <1.2 mA will be sent
+        to the bus module and displayed with the error LED on the module.
         The parameter is only effective with a defined signal range of 4 … 20 mA"""
 
         if channel not in range(4):
@@ -253,9 +253,10 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_underflow_overflow(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter " Underflow/overflow diagnostics" defines whether the diagnostics of the input signals should be activated or deactivated with regard to compliance with the defined signal ranges.
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED."""
+        """The parameter " Underflow/overflow diagnostics" defines whether the diagnostics of the
+        input signals should be activated or deactivated with regard to compliance with the defined
+        signal ranges. When the diagnostics are activated, the error will be sent to the bus module
+        and displayed on the module by the error LED."""
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -272,13 +273,13 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_parameter_error(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter "Parameter error diagnostics" defines if the diagnostics for the subsequently listed
-        parameters must be activated or deactivated with regard to unapproved settings:
+        """The parameter "Parameter error diagnostics" defines if the diagnostics for the subsequently
+        listed parameters must be activated or deactivated with regard to unapproved settings:
         - Signal range
         - Lower limit
         - Upper limit
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED"""
+        When the diagnostics are activated, the error will be sent to the bus module and displayed
+        on the module by the error LED"""
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -374,15 +375,15 @@ class CpxE4AiUI(CpxEModule):
         self, channel: int, upper: int | None = None, lower: int | None = None
     ) -> None:
         """
-        The parameters "Lower limit" and "Upper limit" define the lower or upper limit of the channels 0 … 3
-        independent from each other.
-        When the input value falls short of or exceeds the parameterised limits, an error will be displayed
-        provided that the relevant parameter Diagnostics of lower/upper limit is activated
-        The limit values are checked for validity during parameterisation. Invalid parameterisations are not
-        accepted and the module uses the last valid parameterisations.
-        The upper limit value must always be greater than the lower limit value. The permitted limits depend
-        on the parameterised data format.
-        With the data format "linear scaled", the limits function as scaling end values
+        The parameters "Lower limit" and "Upper limit" define the lower or upper limit of
+        the channels 0 … 3 independent from each other.
+        When the input value falls short of or exceeds the parameterised limits, an error
+        will be displayed provided that the relevant parameter Diagnostics of lower/upper
+        limit is activated The limit values are checked for validity during
+        parameterisation. Invalid parameterisations are not accepted and the module uses
+        the last valid parameterisations. The upper limit value must always be greater
+        than the lower limit value. The permitted limits depend on the parameterised data
+        format. With the data format "linear scaled", the limits function as scaling end values
         """
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")

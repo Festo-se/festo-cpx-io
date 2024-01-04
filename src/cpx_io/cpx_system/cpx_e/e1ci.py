@@ -63,7 +63,8 @@ class CpxE1Ci(CpxEModule):
         self.base.next_input_register = self.input_register + 8
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
+            f"Configured {self} with output register {self.output_register} "
+            f"and input register {self.input_register}"
         )
 
     @CpxBase.require_base
@@ -102,14 +103,14 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:
         """Write the process data. Available keywordarguments are:
-        - enable_setting_di2: enable setting counter value via input I2 (1 = enabled)
-        - enable_setting_zero: enable setting counter value via zero pulse (1 = enabled)
-        - set_counter: setting the counter to the load value (1 = set)
-        - block_counter: switch counter to inactive (1 = block)
-        - overrun_cl_confirm: confirm overrun of upper and lower count limit (1 = acknowledge overrun)
-        - speed_measurement: speed measurement instead of counter values (1 = active)
-        - confirm_latching:  confirm latching event (1 = acknowledge latching event status bit “Latching set”)
-        - block_latching: switch latching to inactive (1 = block)
+        - enable_setting_di2: enable setting counter value via input I2 (1=enabled)
+        - enable_setting_zero: enable setting counter value via zero pulse (1=enabled)
+        - set_counter: setting the counter to the load value (1=set)
+        - block_counter: switch counter to inactive (1=block)
+        - overrun_cl_confirm: confirm overrun of upper and lower count limit (1=acknowledge overrun)
+        - speed_measurement: speed measurement instead of counter values (1=active)
+        - confirm_latching:  confirm latching event (1=acknowledge latching event)
+        - block_latching: switch latching to inactive (1=block)
         """
         pd = self.read_process_data()
         pd_updated_dict = {**pd.__dict__, **kwargs}
@@ -168,12 +169,12 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_monitoring_of_cable_brake(self, value: bool) -> None:
-        """The “Monitoring of cable break” parameter defines whether a diagnostic message should be output
-        when a cable break of the encoder cable is detected.
+        """The “Monitoring of cable break” parameter defines whether a diagnostic message
+        should be output when a cable break of the encoder cable is detected.
         - False: No diagnostic message (default)
         - True: Diagnostic message active
-        The “Monitoring of cable break” parameter is only relevant for encoder 5 V DC (differential) with
-        tracks A and B offset in phase.
+        The “Monitoring of cable break” parameter is only relevant for encoder 5 V DC
+        (differential) with tracks A and B offset in phase.
         """
 
         function_number = 4828 + 64 * self.position + 8
@@ -186,12 +187,12 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_monitoring_of_tracking_error(self, value: bool) -> None:
-        """The “Monitoring of tracking error” parameter defines whether a diagnostic message should be output
-        when a tracking error is detected.
+        """The “Monitoring of tracking error” parameter defines whether a diagnostic message
+        should be output when a tracking error is detected.
         - False: No diagnostic message (default)
         - True: Diagnostic message active
-        The “Monitoring of cable break” parameter is only relevant for encoders with tracks A and B offset in
-        phase.
+        The “Monitoring of cable break” parameter is only relevant for encoders with tracks
+        A and B offset in phase.
         """
 
         function_number = 4828 + 64 * self.position + 9
@@ -204,13 +205,13 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_monitoring_of_zero_pulse(self, value: bool) -> None:
-        """The “Monitoring of zero pulse” parameter defines whether a diagnostic message should be output
-        when a zero pulse error is detected.
+        """The “Monitoring of zero pulse” parameter defines whether a diagnostic message should be
+        output when a zero pulse error is detected.
         - False: No diagnostic message (default)
         - True: Diagnostic message active
-        The “Monitoring of zero pulse” parameter is only relevant for encoders with zero track (track 0). With
-        this diagnostic function enabled, the number of pulses per zero pulse must be set correctly using the
-        “Pulses per zero pulse” parameter.
+        The “Monitoring of zero pulse” parameter is only relevant for encoders with zero track
+        (track 0). With this diagnostic function enabled, the number of pulses per zero pulse
+        must be set correctly using the “Pulses per zero pulse” parameter.
         """
 
         function_number = 4828 + 64 * self.position + 10
@@ -223,10 +224,10 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_pulses_per_zero_pulse(self, value: int) -> None:
-        """The “Pulses per zero pulse” parameter defines the number of pulses on track A or track B between 2
-        pulses of track 0. Value must be between 0 and 65535
-        The “Pulses per zero pulse” parameter is only relevant for encoders with zero track (track 0) and is
-        required for zero pulse monitoring via the “Monitoring of zero pulse” parameter
+        """The “Pulses per zero pulse” parameter defines the number of pulses on track A or
+        track B between 2 pulses of track 0. Value must be between 0 and 65535 The “Pulses
+        per zero pulse” parameter is only relevant for encoders with zero track (track 0)
+        and is required for zero pulse monitoring via the “Monitoring of zero pulse” parameter
         """
 
         function_number = 4828 + 64 * self.position + 11
@@ -241,8 +242,8 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_latching_signal(self, value: bool) -> None:
-        """The “Latching signal” parameter defines whether the digital input I0 or the zero pulse (track 0) is used
-        as signal source to trigger the “Latching” function.
+        """The “Latching signal” parameter defines whether the digital input I0 or the
+        zero pulse (track 0) is used as signal source to trigger the “Latching” function.
         - False: Evaluate input I0 (default)
         - True: Evaluate zero pulse
         """
@@ -257,8 +258,8 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_latching_event(self, value: int) -> None:
-        """The “Latching event” parameter defines whether the “Latching” function is triggered on a rising
-        and/or falling edge.
+        """The “Latching event” parameter defines whether the “Latching” function is
+        triggered on a rising and/or falling edge.
         - 0: Invalid setting
         - 1: Latching on rising edge (default)
         - 2: Latching on falling edge
@@ -274,8 +275,8 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_latching_response(self, value: bool) -> None:
-        """The “Latching response” parameter defines whether, if there is a latching event, the current counter
-        value is continuous (False, default) or is set to the load value (True).
+        """The “Latching response” parameter defines whether, if there is a latching event,
+        the current counter value is continuous (False, default) or is set to the load value (True).
         """
 
         function_number = 4828 + 64 * self.position + 15
@@ -289,8 +290,8 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def configure_upper_counter_limit(self, value: int) -> None:
         """The “Upper count limit” parameter defines the upper count limit in the value range
-        0 ... 4,294,967,295 (2^32 - 1). If the value set for the upper count limit is lower than the current counter
-        value, the counter value is reduced to the set count limit.
+        0 ... 4,294,967,295 (2^32 - 1). If the value set for the upper count limit is lower than
+        the current counter value, the counter value is reduced to the set count limit.
         The value for the upper count limit must be larger than the value for the lower count limit.
         Invalid values will result in an error (error number 2)
         """
@@ -310,11 +311,11 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_lower_counter_limit(self, value: int) -> None:
-        """The “Lower count limit” parameter defines the lower count limit in the value range 0 ... 4,294,967,295
-        (2^32 - 1). If the value set for the lower count limit is higher than the current counter value, the counter
-        value is increased to the set count limit.
-        The value for the lower count limit must be smaller than the value for the upper count limit. Invalid values
-        will result in an error (error number 29).
+        """The “Lower count limit” parameter defines the lower count limit in the value range
+        0 ... 4,294,967,295 (2^32 - 1). If the value set for the lower count limit is higher than
+        the current counter value, the counter value is increased to the set count limit.
+        The value for the lower count limit must be smaller than the value for the upper count
+        limit. Invalid values will result in an error (error number 29).
         """
 
         function_number = 4828 + 64 * self.position + 20
@@ -332,9 +333,9 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_load_value(self, value: int) -> None:
-        """The “Load value” parameter defines the value in the value range 0 ... 4,294,967,295 (2^32 - 1) that is
-        adopted as the counter value when the “Set counter” function is enabled or during latching with the
-        parameter setting “Latching response = load value”
+        """The “Load value” parameter defines the value in the value range 0 ... 4,294,967,295
+        (2^32 - 1) that is adopted as the counter value when the “Set counter” function is
+        enabled or during latching with the parameter setting “Latching response = load value”
         """
 
         function_number = 4828 + 64 * self.position + 24
@@ -352,8 +353,8 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_debounce_time_for_digital_inputs(self, value: int) -> None:
-        """The parameter “Debounce time for digital inputs” defines the total debounce time for all digital inputs
-        I0 ... I3
+        """The parameter “Debounce time for digital inputs” defines the total debounce time
+        for all digital inputs I0 ... I3
         - 0: 20 us (default)
         - 1: 100 us
         - 2: 3 ms
@@ -370,8 +371,8 @@ class CpxE1Ci(CpxEModule):
 
     @CpxBase.require_base
     def configure_integration_time_for_speed_measurement(self, value: int) -> None:
-        """The parameter “Integration time for speed measurement” defines the length of the measurement
-        cycles for determining the measured value in the “Speed measurement” function
+        """The parameter “Integration time for speed measurement” defines the length of the
+         measurement cycles for determining the measured value in the “Speed measurement” function
         - 0: 1 ms
         - 1: 10 ms (default)
         - 2: 100 ms

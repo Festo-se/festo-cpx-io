@@ -15,7 +15,10 @@ class CpxApModule:
         self.input_register = None
 
     def __repr__(self):
-        return f"{self.information.get('Modul Code')} (idx: {self.position}, type: {type(self).__name__})"
+        return (
+            f"{self.information.get('Modul Code')} (idx: {self.position},"
+            f"type: {type(self).__name__})"
+        )
 
     def configure(self, base, position):
         """Set up postion and base for the module when added to cpx system""" ""

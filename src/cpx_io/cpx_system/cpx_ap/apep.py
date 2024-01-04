@@ -4,8 +4,7 @@ from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-
-import cpx_io.cpx_system.cpx_ap.cpx_ap_registers as cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 
 
 class CpxApEp(CpxApModule):
