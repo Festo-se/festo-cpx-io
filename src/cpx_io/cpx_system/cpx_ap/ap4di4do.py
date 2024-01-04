@@ -6,7 +6,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
 
 
 class CpxAp4Di4Do(CpxApModule):
@@ -61,10 +61,7 @@ class CpxAp4Di4Do(CpxApModule):
         """write all channels with a list of bool values"""
         if len(data) != 4:
             raise ValueError("Data must be list of four elements")
-        # Make binary from list of bools
-        binary_string = "".join("1" if value else "0" for value in reversed(data))
-        # Convert the binary string to an integer
-        integer_data = int(binary_string, 2)
+        integer_data = boollist_to_int(data)
         self.base.write_reg_data(integer_data, self.output_register)
 
     @CpxBase.require_base

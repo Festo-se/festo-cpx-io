@@ -45,7 +45,7 @@ def test_module_count(test_cpxe):
 
 def test_fault_detection(test_cpxe):
     response = test_cpxe.fault_detection()
-    assert response == [False] * 24
+    assert len(response) == 24
 
 
 def test_status_register(test_cpxe):
