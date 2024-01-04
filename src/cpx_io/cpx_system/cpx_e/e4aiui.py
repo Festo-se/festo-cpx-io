@@ -273,8 +273,9 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_parameter_error(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter "Parameter error diagnostics" defines if the diagnostics for the subsequently
-        listed parameters must be activated or deactivated with regard to unapproved settings:
+        """The parameter "Parameter error diagnostics" defines if the diagnostics for the
+        subsequently listed parameters must be activated or deactivated with regard to
+        unapproved settings:
         - Signal range
         - Lower limit
         - Upper limit

@@ -203,18 +203,18 @@ class CpxBase:
 
         if data_type == "uint8":
             return decoder.decode_8bit_uint()
-        elif data_type == "uint16":
+        if data_type == "uint16":
             return decoder.decode_16bit_uint()
-        elif data_type == "uint32":
+        if data_type == "uint32":
             return decoder.decode_32bit_uint()
-        elif data_type == "int8":
+        if data_type == "int8":
             return decoder.decode_8bit_int()
-        elif data_type == "int16":
+        if data_type == "int16":
             return decoder.decode_16bit_int()
-        elif data_type == "int32":
+        if data_type == "int32":
             return decoder.decode_32bit_int()
-        else:
-            raise NotImplementedError(f"Type {data_type} not implemented")
+
+        raise NotImplementedError(f"Type {data_type} not implemented")
 
     @staticmethod
     def decode_bool(registers: list[int]) -> bool:

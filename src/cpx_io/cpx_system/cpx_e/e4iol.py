@@ -258,7 +258,7 @@ class CpxE4Iol(CpxEModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        if any([c not in range(4) for c in channel]):
+        if any(c not in range(4) for c in channel):
             raise ValueError("Channel must be between 0 and 3")
 
         for ch in channel:
@@ -321,7 +321,7 @@ class CpxE4Iol(CpxEModule):
 
         if isinstance(channel, int) and channel not in range(4):
             raise ValueError("Channel must be between 0 and 3")
-        if isinstance(channel, list) and any([c not in range(4) for c in channel]):
+        if isinstance(channel, list) and any(c not in range(4) for c in channel):
             raise ValueError("All channel numbers must be between 0 and 3")
 
         function_number = [
@@ -330,27 +330,26 @@ class CpxE4Iol(CpxEModule):
             4828 + 64 * self.position + 30,
             4828 + 64 * self.position + 33,
         ]
+        states = [
+            "INACTIVE",
+            "DI",
+            "_",
+            "CHECKFAULT",
+            "PREOPERATE",
+            "OPERATE",
+            "SCANNING",
+            "DEVICELOST",
+        ]
 
         line_state = []
         for ch in range(4):
             reg = self.base.read_function_number(function_number[ch]) & 0x07
-            if reg == 0b000:
-                state = "INACTIVE"
-            elif reg == 0b001:
-                state = "DI"
-            elif reg == 0b011:
-                state = "CHECKFAULT"
-            elif reg == 0b100:
-                state = "PREOPERATE"
-            elif reg == 0b101:
-                state = "OPERATE"
-            elif reg == 0b110:
-                state = "SCANNING"
-            elif reg == 0b111:
-                state = "DEVICELOST"
-            else:
-                raise ValueError(f"Read unknown linestate {reg} for channel {ch}")
-            line_state.append(state)
+            try:
+                line_state.append(states[reg])
+            except IndexError as exc:
+                raise ValueError(
+                    f"Read unknown linestate {reg} for channel {ch}"
+                ) from exc
 
         if isinstance(channel, int) and channel in range(4):
             return line_state[channel]
@@ -370,7 +369,7 @@ class CpxE4Iol(CpxEModule):
 
         if isinstance(channel, int) and channel not in range(4):
             raise ValueError("Channel must be between 0 and 3")
-        elif isinstance(channel, list) and any([c not in range(4) for c in channel]):
+        if isinstance(channel, list) and any(c not in range(4) for c in channel):
             raise ValueError("All channel numbers must be between 0 and 3")
 
         function_number = [

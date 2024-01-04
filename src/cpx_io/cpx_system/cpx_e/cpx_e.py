@@ -2,7 +2,7 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
-import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
+from cpx_io.cpx_system.cpx_e import cpx_e_registers
 
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di

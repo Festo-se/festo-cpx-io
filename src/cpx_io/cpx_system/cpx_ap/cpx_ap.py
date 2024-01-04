@@ -3,7 +3,7 @@
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 
-import cpx_io.cpx_system.cpx_ap.cpx_ap_registers as cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
