@@ -35,23 +35,21 @@ class CpxAp(CpxBase):
 
     def add_module(self, information: dict):
         """Adds one module to the base. This is required to use the module.
-        The module must be identified by either the module code {"Module Code": 8323}
-        or the full module order text {"Order Text": "CPX-AP-I-EP-M12"}
+        The module must be identified by the module code {"Module Code": 8323}
         """
-        module_code = information.get("Module Code")
-        order_text = information.get("Order Text")
+        module_code = information["Module Code"]
 
-        if module_code == 8323 or order_text == "CPX-AP-I-EP-M12":
+        if module_code == 8323:
             module = CpxApEp()
-        elif module_code == 8199 or order_text == "CPX-AP-I-8DI-M8-3P":
+        elif module_code == 8199:
             module = CpxAp8Di()
-        elif module_code == 8197 or order_text == "CPX-AP-I-4DI4DO-M12-5P":
+        elif module_code == 8197:
             module = CpxAp4Di4Do()
-        elif module_code == 8202 or order_text == "CPX-AP-I-4AI-U-I-RTD-M12":
+        elif module_code == 8202:
             module = CpxAp4AiUI()
-        elif module_code == 8201 or order_text == "CPX-AP-I-4IOL-M12":
+        elif module_code == 8201 or module_code in range(8205, 8214):
             module = CpxAp4Iol()
-        elif module_code == 8198 or order_text == "CPX-AP-I-4DI-M8-3P":
+        elif module_code == 8198:
             module = CpxAp4Di()
         else:
             raise NotImplementedError(
