@@ -58,7 +58,7 @@ class TestCpxAp4Di:
         cpxap4di = test_cpxap.modules[1]
 
         mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0xAA])
+        mocked_base.read_reg_data = Mock(return_value=[0xFA])
         cpxap4di.base = mocked_base
 
         assert cpxap4di.read_channels() == [False, True, False, True]

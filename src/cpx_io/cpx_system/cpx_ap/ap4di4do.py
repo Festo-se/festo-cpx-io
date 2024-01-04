@@ -6,6 +6,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxAp4Di4Do(CpxApModule):
@@ -41,7 +42,7 @@ class CpxAp4Di4Do(CpxApModule):
         """
         data = self.base.read_reg_data(self.input_register)[0] & 0xF
         data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 4
-        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+        return int_to_boollist(data, 1)
 
     @CpxBase.require_base
     def read_channel(self, channel: int, output_numbering=False) -> bool:

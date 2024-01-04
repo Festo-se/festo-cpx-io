@@ -3,6 +3,7 @@
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxE4AoUI(CpxEModule):
@@ -24,7 +25,8 @@ class CpxE4AoUI(CpxEModule):
         self.base.next_input_register = self.input_register + 5
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
+            f"Configured {self} with output register {self.output_register}"
+            f"and input register {self.input_register}"
         )
 
     @CpxBase.require_base
@@ -39,7 +41,7 @@ class CpxE4AoUI(CpxEModule):
     def read_status(self) -> list[bool]:
         """read module status register. Further information see module datasheet"""
         data = self.base.read_reg_data(self.input_register + 4)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, 2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:
