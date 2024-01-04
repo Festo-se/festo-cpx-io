@@ -1,6 +1,6 @@
 """CPX-E-1CI module implementation"""
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, KW_ONLY
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
@@ -13,13 +13,14 @@ class CpxE1Ci(CpxEModule):
     # pylint: disable=too-many-public-methods
 
     @dataclass
-    class StatusWord:
+    class StatusWord(CpxBase.BitwiseReg16):
         """Statusword dataclass"""
 
         di0: bool
         di1: bool
         di2: bool
         di3: bool
+        _: KW_ONLY
         latchin_missed: bool
         latching_set: bool
         latching_blocked: bool
@@ -33,7 +34,7 @@ class CpxE1Ci(CpxEModule):
         speed_measurement: bool
 
     @dataclass
-    class ProcessData:
+    class ProcessData(CpxBase.BitwiseReg8):
         """Processdata dataclass"""
 
         enable_setting_di2: bool
@@ -78,23 +79,8 @@ class CpxE1Ci(CpxEModule):
         reg = self.base.read_reg_data(self.input_register + 4)[0]
 
         sw = self.StatusWord
-        sw.di0 = bool(reg & 0x0001)
-        sw.di1 = bool(reg & 0x0002)
-        sw.di2 = bool(reg & 0x0004)
-        sw.di3 = bool(reg & 0x0008)
-        sw.latchin_missed = bool(reg & 0x0020)
-        sw.latching_set = bool(reg & 0x0040)
-        sw.latching_blocked = bool(reg & 0x0080)
-        sw.lower_cl_exceeded = bool(reg & 0x0100)
-        sw.upper_cl_exceeded = bool(reg & 0x0200)
-        sw.counting_direction = bool(reg & 0x0400)
-        sw.counter_blocked = bool(reg & 0x0800)
-        sw.counter_set = bool(reg & 0x1000)
-        sw.enable_di2 = bool(reg & 0x2000)
-        sw.enable_zero = bool(reg & 0x4000)
-        sw.speed_measurement = bool(reg & 0x8000)
 
-        return sw
+        return sw.from_int(reg)
 
     @CpxBase.require_base
     def read_process_data(self) -> ProcessData:
@@ -103,16 +89,8 @@ class CpxE1Ci(CpxEModule):
         reg = self.base.read_reg_data(self.input_register + 6)[0]
 
         pd = self.ProcessData
-        pd.enable_setting_di2 = bool(reg & 0x0001)
-        pd.enable_setting_zero = bool(reg & 0x0002)
-        pd.set_counter = bool(reg & 0x0004)
-        pd.block_counter = bool(reg & 0x0008)
-        pd.overrun_cl_confirm = bool(reg & 0x0010)
-        pd.speed_measurement = bool(reg & 0x0020)
-        pd.confirm_latching = bool(reg & 0x0040)
-        pd.block_latching = bool(reg & 0x0080)
 
-        return pd
+        return pd.from_int(reg)
 
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:

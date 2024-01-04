@@ -2,11 +2,13 @@
 """
 
 import struct
+from dataclasses import dataclass, fields
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
 from pymodbus.constants import Endian
 from cpx_io.utils.logging import Logging
+from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
 
 
 class CpxInitError(Exception):
@@ -56,6 +58,41 @@ class CpxBase:
         else:
             Logging.logger.info("No connection to close")
         return False
+
+    @dataclass
+    class BitwiseReg:
+        """Register functions"""
+
+        byte_size = 2
+
+        @classmethod
+        def from_bytes(cls, data: bytes):
+            """Initializes a BitwiseWord from a byte representation"""
+            return cls(*bytes_to_boollist(data))
+
+        @classmethod
+        def from_int(cls, value: int):
+            """Initializes a BitwiseWord from an integer"""
+            return cls.from_bytes(value.to_bytes(cls.byte_size, "little"))
+
+        def to_bytes(self):
+            """Returns the bytes representation"""
+            blist = [getattr(self, v.name) for v in fields(self)]
+            return boollist_to_bytes(blist)
+
+        def __int__(self):
+            """Returns the integer representation"""
+            return int.from_bytes(self.to_bytes(), "little")
+
+    class BitwiseReg8(BitwiseReg):
+        """Half Register"""
+
+        byte_size: int = 1
+
+    class BitwiseReg16(BitwiseReg):
+        """Full Register"""
+
+        byte_size: int = 2
 
     def read_reg_data(self, register: int, length=1) -> list:
         """Reads and returns register from Modbus server
