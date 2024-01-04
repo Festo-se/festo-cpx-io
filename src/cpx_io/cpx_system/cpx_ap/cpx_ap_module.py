@@ -6,7 +6,12 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 class CpxApModule:
     """Base class for cpx-ap modules"""
 
-    def __init__(self):
+    def __init__(self, name=None):
+        if name:
+            self.name = name
+        else:
+            # Use class name (lower cased) as default value
+            self.name = type(self).__name__.lower()
         self.base = None
         self.position = None
         self.information = None
@@ -15,10 +20,7 @@ class CpxApModule:
         self.input_register = None
 
     def __repr__(self):
-        return (
-            f"{self.information.get('Modul Code')} (idx: {self.position}, "
-            f"type: {type(self).__name__})"
-        )
+        return f"{self.name} (idx: {self.position}, type: {type(self).__name__})"
 
     def configure(self, base, position):
         """Set up postion and base for the module when added to cpx system""" ""

@@ -25,7 +25,7 @@ class TestCpxApModule:
         module = CpxApModule()
         module.information = {}
         module.information["Order Text"] = "text"
-        module.information["Modul Code"] = "code"
+        module.name = "code"
 
         module.position = 1
         assert repr(module) == "code (idx: 1, type: CpxApModule)"
