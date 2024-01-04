@@ -72,23 +72,22 @@ class TestCpxE1Ci:
         mocked_base.read_reg_data = Mock(return_value=[0xAAAA])
         cpxe1ci.base = mocked_base
 
-        assert cpxe1ci.read_status_word() == {
-            "DI0": False,
-            "DI1": True,
-            "DI2": False,
-            "DI3": True,
-            "Latching missed": True,
-            "Latching set": False,
-            "Latching blocked": True,
-            "Lower CL exceeded": False,
-            "Upper CL exceeded": True,
-            "Counting direction": False,
-            "Counter blocked": True,
-            "Counter set": False,
-            "Enable DI2": True,
-            "Enable zero": False,
-            "Speed measurement": True,
-        }
+        sw = cpxe1ci.read_status_word()
+        assert sw.di0 is False
+        assert sw.di1 is True
+        assert sw.di2 is False
+        assert sw.di3 is True
+        assert sw.latchin_missed is True
+        assert sw.latching_set is False
+        assert sw.lower_cl_exceeded is False
+        assert sw.upper_cl_exceeded is True
+        assert sw.counting_direction is False
+        assert sw.counter_blocked is True
+        assert sw.counter_set is False
+        assert sw.enable_di2 is True
+        assert sw.enable_zero is False
+        assert sw.speed_measurement is True
+
         mocked_base.read_reg_data.assert_called_with(cpxe1ci.input_register + 4)
 
     def test_read_process_data(self):
@@ -100,16 +99,16 @@ class TestCpxE1Ci:
         mocked_base.read_reg_data = Mock(return_value=[0xAA])
         cpxe1ci.base = mocked_base
 
-        assert cpxe1ci.read_process_data() == {
-            "enable_setting_DI2": False,
-            "enable_setting_zero": True,
-            "set_counter": False,
-            "block_counter": True,
-            "overrun_cl_confirm": False,
-            "speed_measurement": True,
-            "confirm_latching": False,
-            "block_latching": True,
-        }
+        pd = cpxe1ci.read_process_data()
+        assert pd.enable_setting_di2 is False
+        assert pd.enable_setting_zero is True
+        assert pd.set_counter is False
+        assert pd.block_counter is True
+        assert pd.overrun_cl_confirm is False
+        assert pd.speed_measurement is True
+        assert pd.confirm_latching is False
+        assert pd.block_latching is True
+
         mocked_base.read_reg_data.assert_called_with(cpxe1ci.input_register + 6)
 
     def test_write_process_data(self):
@@ -122,7 +121,7 @@ class TestCpxE1Ci:
         mocked_base.write_reg_data = Mock()
         cpxe1ci.base = mocked_base
 
-        cpxe1ci.write_process_data(enable_setting_DI2=True)
+        cpxe1ci.write_process_data(enable_setting_di2=True)
         mocked_base.write_reg_data.assert_called_with(0xAB, cpxe1ci.output_register)
 
         cpxe1ci.write_process_data(block_latching=False)

@@ -60,10 +60,10 @@ class CpxBase:
         return False
 
     @dataclass
-    class BitwiseReg:
+    class _BitwiseReg:
         """Register functions"""
 
-        byte_size = 2
+        byte_size = None
 
         @classmethod
         def from_bytes(cls, data: bytes):
@@ -84,12 +84,12 @@ class CpxBase:
             """Returns the integer representation"""
             return int.from_bytes(self.to_bytes(), "little")
 
-    class BitwiseReg8(BitwiseReg):
+    class BitwiseReg8(_BitwiseReg):
         """Half Register"""
 
         byte_size: int = 1
 
-    class BitwiseReg16(BitwiseReg):
+    class BitwiseReg16(_BitwiseReg):
         """Full Register"""
 
         byte_size: int = 2

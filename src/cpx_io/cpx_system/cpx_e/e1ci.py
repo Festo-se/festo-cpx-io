@@ -1,10 +1,11 @@
 """CPX-E-1CI module implementation"""
 
-from dataclasses import dataclass, KW_ONLY
+from dataclasses import dataclass
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxE1Ci(CpxEModule):
@@ -16,11 +17,14 @@ class CpxE1Ci(CpxEModule):
     class StatusWord(CpxBase.BitwiseReg16):
         """Statusword dataclass"""
 
+        # pylint: disable=too-many-instance-attributes
+        # 16 required
+
         di0: bool
         di1: bool
         di2: bool
         di3: bool
-        _: KW_ONLY
+        _: None
         latchin_missed: bool
         latching_set: bool
         latching_blocked: bool
@@ -36,6 +40,9 @@ class CpxE1Ci(CpxEModule):
     @dataclass
     class ProcessData(CpxBase.BitwiseReg8):
         """Processdata dataclass"""
+
+        # pylint: disable=too-many-instance-attributes
+        # 8 required
 
         enable_setting_di2: bool
         enable_setting_zero: bool
@@ -124,7 +131,7 @@ class CpxE1Ci(CpxEModule):
     def read_status(self) -> list[bool]:
         """Read module status register. Further information see module datasheet"""
         data = self.base.read_reg_data(self.input_register + 7)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, num_bytes=2)
 
     @CpxBase.require_base
     def configure_signal_type(self, value: int) -> None:
