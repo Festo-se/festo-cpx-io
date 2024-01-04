@@ -1,5 +1,7 @@
 """CPX-E-1CI module implementation"""
 
+from dataclasses import dataclass, replace
+
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
@@ -9,6 +11,39 @@ class CpxE1Ci(CpxEModule):
     """Class for CPX-E-1CI counter module"""
 
     # pylint: disable=too-many-public-methods
+
+    @dataclass
+    class StatusWord:
+        """Statusword dataclass"""
+
+        di0: bool
+        di1: bool
+        di2: bool
+        di3: bool
+        latchin_missed: bool
+        latching_set: bool
+        latching_blocked: bool
+        lower_cl_exceeded: bool
+        upper_cl_exceeded: bool
+        counting_direction: bool
+        counter_blocked: bool
+        counter_set: bool
+        enable_di2: bool
+        enable_zero: bool
+        speed_measurement: bool
+
+    @dataclass
+    class ProcessData:
+        """Processdata dataclass"""
+
+        enable_setting_di2: bool
+        enable_setting_zero: bool
+        set_counter: bool
+        block_counter: bool
+        overrun_cl_confirm: bool
+        speed_measurement: bool
+        confirm_latching: bool
+        block_latching: bool
 
     def configure(self, *args):
         super().configure(*args)
@@ -38,50 +73,51 @@ class CpxE1Ci(CpxEModule):
         return value
 
     @CpxBase.require_base
-    def read_status_word(self) -> dict:
+    def read_status_word(self) -> StatusWord:
         """Read the status word"""
         reg = self.base.read_reg_data(self.input_register + 4)[0]
-        status_word = {
-            "DI0": bool(reg & 0x0001),
-            "DI1": bool(reg & 0x0002),
-            "DI2": bool(reg & 0x0004),
-            "DI3": bool(reg & 0x0008),
-            "Latching missed": bool(reg & 0x0020),
-            "Latching set": bool(reg & 0x0040),
-            "Latching blocked": bool(reg & 0x0080),
-            "Lower CL exceeded": bool(reg & 0x0100),
-            "Upper CL exceeded": bool(reg & 0x0200),
-            "Counting direction": bool(reg & 0x0400),
-            "Counter blocked": bool(reg & 0x0800),
-            "Counter set": bool(reg & 0x1000),
-            "Enable DI2": bool(reg & 0x2000),
-            "Enable zero": bool(reg & 0x4000),
-            "Speed measurement": bool(reg & 0x8000),
-        }
-        return status_word
+
+        sw = self.StatusWord
+        sw.di0 = bool(reg & 0x0001)
+        sw.di1 = bool(reg & 0x0002)
+        sw.di2 = bool(reg & 0x0004)
+        sw.di3 = bool(reg & 0x0008)
+        sw.latchin_missed = bool(reg & 0x0020)
+        sw.latching_set = bool(reg & 0x0040)
+        sw.latching_blocked = bool(reg & 0x0080)
+        sw.lower_cl_exceeded = bool(reg & 0x0100)
+        sw.upper_cl_exceeded = bool(reg & 0x0200)
+        sw.counting_direction = bool(reg & 0x0400)
+        sw.counter_blocked = bool(reg & 0x0800)
+        sw.counter_set = bool(reg & 0x1000)
+        sw.enable_di2 = bool(reg & 0x2000)
+        sw.enable_zero = bool(reg & 0x4000)
+        sw.speed_measurement = bool(reg & 0x8000)
+
+        return sw
 
     @CpxBase.require_base
-    def read_process_data(self) -> dict:
+    def read_process_data(self) -> ProcessData:
         """Read back the process data"""
         # echo output data bit 0 ... 15 are in input_register + 6
         reg = self.base.read_reg_data(self.input_register + 6)[0]
 
-        process_data = {
-            "enable_setting_DI2": bool(reg & 0x0001),
-            "enable_setting_zero": bool(reg & 0x0002),
-            "set_counter": bool(reg & 0x0004),
-            "block_counter": bool(reg & 0x0008),
-            "overrun_cl_confirm": bool(reg & 0x0010),
-            "speed_measurement": bool(reg & 0x0020),
-            "confirm_latching": bool(reg & 0x0040),
-            "block_latching": bool(reg & 0x0080),
-        }
-        return process_data
+        pd = self.ProcessData
+        pd.enable_setting_di2 = bool(reg & 0x0001)
+        pd.enable_setting_zero = bool(reg & 0x0002)
+        pd.set_counter = bool(reg & 0x0004)
+        pd.block_counter = bool(reg & 0x0008)
+        pd.overrun_cl_confirm = bool(reg & 0x0010)
+        pd.speed_measurement = bool(reg & 0x0020)
+        pd.confirm_latching = bool(reg & 0x0040)
+        pd.block_latching = bool(reg & 0x0080)
+
+        return pd
 
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:
         """Write the process data. Available keywordarguments are:
-        - enable_setting_DI2: enable setting counter value via input I2 (1 = enabled)
+        - enable_setting_di2: enable setting counter value via input I2 (1 = enabled)
         - enable_setting_zero: enable setting counter value via zero pulse (1 = enabled)
         - set_counter: setting the counter to the load value (1 = set)
         - block_counter: switch counter to inactive (1 = block)
@@ -91,17 +127,17 @@ class CpxE1Ci(CpxEModule):
         - block_latching: switch latching to inactive (1 = block)
         """
         pd = self.read_process_data()
-        pd.update(kwargs)
+        pd_updated_dict = {**pd.__dict__, **kwargs}
 
         data = (
-            (int(pd.get("enable_setting_DI2")) << 0)
-            | (int(pd.get("enable_setting_zero")) << 1)
-            | (int(pd.get("set_counter")) << 2)
-            | (int(pd.get("block_counter")) << 3)
-            | (int(pd.get("overrun_cl_confirm")) << 4)
-            | (int(pd.get("speed_measurement")) << 5)
-            | (int(pd.get("confirm_latching")) << 6)
-            | (int(pd.get("block_latching")) << 7)
+            (int(pd_updated_dict.get("enable_setting_di2")) << 0)
+            | (int(pd_updated_dict.get("enable_setting_zero")) << 1)
+            | (int(pd_updated_dict.get("set_counter")) << 2)
+            | (int(pd_updated_dict.get("block_counter")) << 3)
+            | (int(pd_updated_dict.get("overrun_cl_confirm")) << 4)
+            | (int(pd_updated_dict.get("speed_measurement")) << 5)
+            | (int(pd_updated_dict.get("confirm_latching")) << 6)
+            | (int(pd_updated_dict.get("block_latching")) << 7)
         )
         reg_data = CpxBase.decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register)

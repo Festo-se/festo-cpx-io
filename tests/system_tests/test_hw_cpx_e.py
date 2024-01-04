@@ -725,10 +725,10 @@ def test_1ci_module(test_cpxe):
     e1ci.configure_signal_evaluation(3)
     e1ci.write_process_data(set_counter=True)
 
-    while not e1ci.read_process_data()["set_counter"]:
+    while not e1ci.read_process_data().set_counter:
         continue
     e1ci.write_process_data(set_counter=False)
-    while e1ci.read_process_data()["set_counter"]:
+    while e1ci.read_process_data().set_counter:
         continue
 
     for _ in range(16):
