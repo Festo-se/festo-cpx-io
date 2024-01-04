@@ -10,6 +10,10 @@ from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 class CpxApEp(CpxApModule):
     """Class for CPX-AP-EP module"""
 
+    module_codes = {
+        8323: "default",
+    }
+
     def configure(self, *args):
         super().configure(*args)
 

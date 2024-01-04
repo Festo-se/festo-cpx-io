@@ -11,6 +11,19 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 class CpxAp4Iol(CpxApModule):
     """Class for CPX-AP-*-4IOL-* module"""
 
+    module_codes = {
+        8201: "variant 8",
+        8205: "variant 8 OE",
+        8206: "variant 2",
+        8207: "variant 2 OE",
+        8208: "variant 4",
+        8209: "variant 4 OE",
+        8210: "variant 16",
+        8211: "variant 16 OE",
+        8212: "variant 23",
+        8213: "variant 32 OE",
+    }
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -38,19 +51,6 @@ class CpxAp4Iol(CpxApModule):
         """Read AP parameters"""
         ap_dict = super().read_ap_parameter()
 
-        variant_dict = {
-            8201: "variant 8",
-            8205: "variant 8 OE",
-            8206: "variant 2",
-            8207: "variant 2 OE",
-            8208: "variant 4",
-            8209: "variant 4 OE",
-            8210: "variant 16",
-            8211: "variant 16 OE",
-            8212: "variant 23",
-            8213: "variant 32 OE",
-        }
-
         io_link_variant = CpxBase.decode_int(
             self.base.read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
         )
@@ -59,7 +59,7 @@ class CpxAp4Iol(CpxApModule):
             self.base.read_parameter(self.position, 20097, 0)
         )
 
-        ap_dict["IO-Link variant"] = variant_dict[io_link_variant]
+        ap_dict["IO-Link variant"] = self.__class__.module_codes[io_link_variant]
         ap_dict["Operating Supply"] = activation_operating_voltage
         return ap_dict
 

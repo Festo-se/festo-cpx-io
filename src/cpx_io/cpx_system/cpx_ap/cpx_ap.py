@@ -39,17 +39,17 @@ class CpxAp(CpxBase):
         """
         module_code = information["Module Code"]
 
-        if module_code == 8323:
+        if module_code in CpxApEp.module_codes:
             module = CpxApEp()
-        elif module_code == 8199:
+        elif module_code in CpxAp8Di.module_codes:
             module = CpxAp8Di()
-        elif module_code == 8197:
+        elif module_code in CpxAp4Di4Do.module_codes:
             module = CpxAp4Di4Do()
-        elif module_code == 8202:
+        elif module_code in CpxAp4AiUI.module_codes:
             module = CpxAp4AiUI()
-        elif module_code == 8201 or module_code in range(8205, 8214):
+        elif module_code in CpxAp4Iol.module_codes:
             module = CpxAp4Iol()
-        elif module_code == 8198:
+        elif module_code in CpxAp4Di.module_codes:
             module = CpxAp4Di()
         else:
             raise NotImplementedError(

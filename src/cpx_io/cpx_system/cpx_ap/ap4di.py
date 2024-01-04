@@ -12,6 +12,10 @@ from cpx_io.utils.boollist import int_to_boollist
 class CpxAp4Di(CpxApModule):
     """Class for CPX-AP-*-4DI-* module"""
 
+    module_codes = {
+        8198: "default",
+    }
+
     def __getitem__(self, key):
         return self.read_channel(key)
 

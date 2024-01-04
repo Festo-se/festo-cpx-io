@@ -11,6 +11,10 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 class CpxAp4AiUI(CpxApModule):
     """Class for CPX-AP-*-4AI-* module"""
 
+    module_codes = {
+        8202: "default",
+    }
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
