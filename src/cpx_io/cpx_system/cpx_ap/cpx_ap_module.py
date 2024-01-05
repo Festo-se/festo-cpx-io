@@ -1,10 +1,27 @@
 """CPX-E-AP module implementation"""
 
+from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 
 class CpxApModule:
     """Base class for cpx-ap modules"""
+
+    @dataclass
+    class ApParameters:
+        """AP Parameters of module"""
+
+        # pylint: disable=too-many-instance-attributes
+        fieldbus_serial_number: int
+        product_key: str
+        firmware_version: str
+        module_code: int
+        temp_asic: int
+        logic_voltage: int
+        load_voltage: int
+        hw_version: int
+        io_link_variant: str = "n.a."
+        operating_supply: bool = False
 
     def __init__(self, name=None):
         if name:
@@ -27,45 +44,37 @@ class CpxApModule:
         self.base = base
         self.position = position
 
-    def update_information(self, information):
+    def update_information(self, info):
         """Update the module information"""
-        self.information = information
+        self.information = info
 
     @CpxBase.require_base
     def read_ap_parameter(self) -> dict:
         """Read AP parameters"""
-        fieldbus_serial_number = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 246, 0), data_type="uint32"
+        params = self.ApParameters(
+            fieldbus_serial_number=CpxBase.decode_int(
+                self.base.read_parameter(self.position, 246, 0), data_type="uint32"
+            ),
+            product_key=CpxBase.decode_string(
+                self.base.read_parameter(self.position, 791, 0)
+            ),
+            firmware_version=CpxBase.decode_string(
+                self.base.read_parameter(self.position, 960, 0)
+            ),
+            module_code=CpxBase.decode_int(
+                self.base.read_parameter(self.position, 20000, 0), data_type="uint32"
+            ),
+            temp_asic=CpxBase.decode_int(
+                self.base.read_parameter(self.position, 20085, 0), data_type="int16"
+            ),
+            logic_voltage=CpxBase.decode_int(
+                self.base.read_parameter(self.position, 20087, 0), data_type="uint16"
+            ),
+            load_voltage=CpxBase.decode_int(
+                self.base.read_parameter(self.position, 20088, 0), data_type="uint16"
+            ),
+            hw_version=CpxBase.decode_int(
+                self.base.read_parameter(self.position, 20093, 0), data_type="uint8"
+            ),
         )
-        product_key = CpxBase.decode_string(
-            self.base.read_parameter(self.position, 791, 0)
-        )
-        firmware_version = CpxBase.decode_string(
-            self.base.read_parameter(self.position, 960, 0)
-        )
-        module_code = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 20000, 0), data_type="uint32"
-        )
-        temp_asic = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 20085, 0), data_type="int16"
-        )
-        logic_voltage = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 20087, 0), data_type="uint16"
-        )
-        load_voltage = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 20088, 0), data_type="uint16"
-        )
-        hw_version = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 20093, 0), data_type="uint8"
-        )
-
-        return {
-            "Fieldbus serial number": fieldbus_serial_number,
-            "Product Key": product_key,
-            "Firmware Version": firmware_version,
-            "Module Code": module_code,
-            "Measured value of temperature AP-ASIC [°C]": temp_asic,
-            "Current measured value of logic supply PS [mV]": logic_voltage,
-            "Current measured value of load supply PL [mV]": load_voltage,
-            "Hardware Version": hw_version,
-        }
+        return params

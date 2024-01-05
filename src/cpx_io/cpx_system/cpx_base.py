@@ -48,16 +48,20 @@ class CpxBase:
         self.client.connect()
         Logging.logger.info(f"Connected to {ip_address}:{port} (timeout: {timeout})")
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
+    def shutdown(self):
+        """Shutdown function"""
         if hasattr(self, "client"):
             self.client.close()
             Logging.logger.info("Connection closed")
         else:
             Logging.logger.info("No connection to close")
         return False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.shutdown()
 
     @dataclass
     class _BitwiseReg:

@@ -1,5 +1,6 @@
 """CPX-AP module implementations"""
 
+from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 
@@ -16,6 +17,24 @@ from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 class CpxAp(CpxBase):
     """CPX-AP base class"""
 
+    @dataclass
+    class ModuleInformation:
+        """Information of AP Module"""
+
+        # pylint: disable=too-many-instance-attributes
+        module_code: int
+        module_class: int
+        communication_profiles: int
+        input_size: int
+        input_channels: int
+        output_size: int
+        output_channels: int
+        hw_version: int
+        fw_version: str
+        serial_number: str
+        product_key: str
+        order_text: str
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -25,7 +44,7 @@ class CpxAp(CpxBase):
 
         module_count = self.read_module_count()
         for i in range(module_count):
-            module = self.add_module(information=self.read_module_information(i))
+            module = self.add_module(self.read_module_information(i))
             self.modules.append(module)
 
     @property
@@ -33,11 +52,11 @@ class CpxAp(CpxBase):
         """Function for private modules property"""
         return self._modules
 
-    def add_module(self, information: dict):
+    def add_module(self, info: ModuleInformation):
         """Adds one module to the base. This is required to use the module.
-        The module must be identified by the module code {"Module Code": 8323}
+        The module must be identified by the module code in info.
         """
-        module_code = information["Module Code"]
+        module_code = info.module_code
 
         if module_code in CpxApEp.module_codes:
             module = CpxApEp()
@@ -56,7 +75,7 @@ class CpxAp(CpxBase):
                 "This module is not yet implemented or not available"
             )
 
-        module.update_information(information)
+        module.update_information(info)
         module.configure(self, len(self._modules))
         return module
 
@@ -64,97 +83,87 @@ class CpxAp(CpxBase):
         """Reads and returns IO module count as integer"""
         return self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)[0]
 
-    def _module_offset(self, modbus_command, module):
+    def _module_offset(self, modbus_command: tuple, module: int) -> int:
         register, length = modbus_command
         return ((register + 37 * module), length)
 
-    def read_module_information(self, position):
+    def read_module_information(self, position: int) -> ModuleInformation:
         """Reads and returns detailed information for a specific IO module"""
 
-        module_code = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.MODULE_CODE, position)
+        info = self.ModuleInformation(
+            module_code=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.MODULE_CODE, position)
+                ),
+                data_type="int32",
             ),
-            data_type="int32",
-        )
-        module_class = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.MODULE_CLASS, position)
+            module_class=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.MODULE_CLASS, position)
+                ),
+                data_type="uint8",
             ),
-            data_type="uint8",
-        )
-        communication_profiles = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.COMMUNICATION_PROFILE, position)
+            communication_profiles=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(
+                        cpx_ap_registers.COMMUNICATION_PROFILE, position
+                    )
+                ),
+                data_type="uint16",
             ),
-            data_type="uint16",
-        )
-        input_size = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.INPUT_SIZE, position)
+            input_size=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.INPUT_SIZE, position)
+                ),
+                data_type="uint16",
             ),
-            data_type="uint16",
-        )
-        input_channels = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.INPUT_CHANNELS, position)
+            input_channels=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.INPUT_CHANNELS, position)
+                ),
+                data_type="uint16",
             ),
-            data_type="uint16",
-        )
-        output_size = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.OUTPUT_SIZE, position)
+            output_size=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.OUTPUT_SIZE, position)
+                ),
+                data_type="uint16",
             ),
-            data_type="uint16",
-        )
-        output_channels = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.OUTPUT_CHANNELS, position)
+            output_channels=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.OUTPUT_CHANNELS, position)
+                ),
+                data_type="uint16",
             ),
-            data_type="uint16",
-        )
-        hw_version = CpxBase.decode_int(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.HW_VERSION, position)
+            hw_version=CpxBase.decode_int(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.HW_VERSION, position)
+                ),
+                data_type="uint8",
             ),
-            data_type="uint8",
+            fw_version=".".join(
+                str(x)
+                for x in self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.FW_VERSION, position)
+                )
+            ),
+            serial_number=CpxBase.decode_hex(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.SERIAL_NUMBER, position)
+                )
+            ),
+            product_key=CpxBase.decode_string(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.PRODUCT_KEY, position)
+                )
+            ),
+            order_text=CpxBase.decode_string(
+                self.read_reg_data(
+                    *self._module_offset(cpx_ap_registers.ORDER_TEXT, position)
+                )
+            ),
         )
-        fw_version = ".".join(
-            str(x)
-            for x in self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.FW_VERSION, position)
-            )
-        )
-        serial_number = CpxBase.decode_hex(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.SERIAL_NUMBER, position)
-            )
-        )
-        product_key = CpxBase.decode_string(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.PRODUCT_KEY, position)
-            )
-        )
-        order_text = CpxBase.decode_string(
-            self.read_reg_data(
-                *self._module_offset(cpx_ap_registers.ORDER_TEXT, position)
-            )
-        )
-
-        return {
-            "Module Code": module_code,
-            "Module Class": module_class,
-            "Communication Profiles": communication_profiles,
-            "Input Size": input_size,
-            "Input Channels": input_channels,
-            "Output Size": output_size,
-            "Output Channeles": output_channels,
-            "HW Version": hw_version,
-            "FW Version": fw_version,
-            "Serial Number": serial_number,
-            "Product Key": product_key,
-            "Order Text": order_text,
-        }
+        return info
 
     def write_parameter(
         self, position: int, param_id: int, instance: int, data: list | int | bool

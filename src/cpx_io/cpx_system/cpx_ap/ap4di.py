@@ -1,5 +1,9 @@
 """CPX-AP-4DI module implementation"""
 
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
+
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 
@@ -25,8 +29,8 @@ class CpxAp4Di(CpxApModule):
         self.output_register = None
         self.input_register = self.base.next_input_register
 
-        self.base.next_output_register += div_ceil(self.information["Output Size"], 2)
-        self.base.next_input_register += div_ceil(self.information["Input Size"], 2)
+        self.base.next_output_register += div_ceil(self.information.output_size, 2)
+        self.base.next_input_register += div_ceil(self.information.input_size, 2)
 
         Logging.logger.debug(
             (

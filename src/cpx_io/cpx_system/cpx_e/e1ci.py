@@ -1,5 +1,8 @@
 """CPX-E-1CI module implementation"""
 
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from dataclasses import dataclass
 
 from cpx_io.utils.logging import Logging
