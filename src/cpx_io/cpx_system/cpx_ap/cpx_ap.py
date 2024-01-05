@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 
-from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap import cpx_ap_definitions
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
@@ -56,21 +56,16 @@ class CpxAp(CpxBase):
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
         """
-        module_code = info.module_code
+        module = next(
+            (
+                module_class()
+                for module_class in cpx_ap_definitions.MODULE_ID_DICT.values()
+                if info.module_code in module_class.module_codes
+            ),
+            None,
+        )
 
-        if module_code in CpxApEp.module_codes:
-            module = CpxApEp()
-        elif module_code in CpxAp8Di.module_codes:
-            module = CpxAp8Di()
-        elif module_code in CpxAp4Di4Do.module_codes:
-            module = CpxAp4Di4Do()
-        elif module_code in CpxAp4AiUI.module_codes:
-            module = CpxAp4AiUI()
-        elif module_code in CpxAp4Iol.module_codes:
-            module = CpxAp4Iol()
-        elif module_code in CpxAp4Di.module_codes:
-            module = CpxAp4Di()
-        else:
+        if module is None:
             raise NotImplementedError(
                 "This module is not yet implemented or not available"
             )
@@ -81,7 +76,7 @@ class CpxAp(CpxBase):
 
     def read_module_count(self) -> int:
         """Reads and returns IO module count as integer"""
-        return self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)[0]
+        return self.read_reg_data(*cpx_ap_definitions.MODULE_COUNT)[0]
 
     def _module_offset(self, modbus_command: tuple, module: int) -> int:
         register, length = modbus_command
@@ -93,73 +88,73 @@ class CpxAp(CpxBase):
         info = self.ModuleInformation(
             module_code=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.MODULE_CODE, position)
+                    *self._module_offset(cpx_ap_definitions.MODULE_CODE, position)
                 ),
                 data_type="int32",
             ),
             module_class=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.MODULE_CLASS, position)
+                    *self._module_offset(cpx_ap_definitions.MODULE_CLASS, position)
                 ),
                 data_type="uint8",
             ),
             communication_profiles=CpxBase.decode_int(
                 self.read_reg_data(
                     *self._module_offset(
-                        cpx_ap_registers.COMMUNICATION_PROFILE, position
+                        cpx_ap_definitions.COMMUNICATION_PROFILE, position
                     )
                 ),
                 data_type="uint16",
             ),
             input_size=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.INPUT_SIZE, position)
+                    *self._module_offset(cpx_ap_definitions.INPUT_SIZE, position)
                 ),
                 data_type="uint16",
             ),
             input_channels=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.INPUT_CHANNELS, position)
+                    *self._module_offset(cpx_ap_definitions.INPUT_CHANNELS, position)
                 ),
                 data_type="uint16",
             ),
             output_size=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.OUTPUT_SIZE, position)
+                    *self._module_offset(cpx_ap_definitions.OUTPUT_SIZE, position)
                 ),
                 data_type="uint16",
             ),
             output_channels=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.OUTPUT_CHANNELS, position)
+                    *self._module_offset(cpx_ap_definitions.OUTPUT_CHANNELS, position)
                 ),
                 data_type="uint16",
             ),
             hw_version=CpxBase.decode_int(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.HW_VERSION, position)
+                    *self._module_offset(cpx_ap_definitions.HW_VERSION, position)
                 ),
                 data_type="uint8",
             ),
             fw_version=".".join(
                 str(x)
                 for x in self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.FW_VERSION, position)
+                    *self._module_offset(cpx_ap_definitions.FW_VERSION, position)
                 )
             ),
             serial_number=CpxBase.decode_hex(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.SERIAL_NUMBER, position)
+                    *self._module_offset(cpx_ap_definitions.SERIAL_NUMBER, position)
                 )
             ),
             product_key=CpxBase.decode_string(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.PRODUCT_KEY, position)
+                    *self._module_offset(cpx_ap_definitions.PRODUCT_KEY, position)
                 )
             ),
             order_text=CpxBase.decode_string(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.ORDER_TEXT, position)
+                    *self._module_offset(cpx_ap_definitions.ORDER_TEXT, position)
                 )
             ),
         )
@@ -186,7 +181,7 @@ class CpxAp(CpxBase):
         else:
             raise ValueError("Data must be of type list, int or bool")
 
-        param_reg = cpx_ap_registers.PARAMETERS[0]
+        param_reg = cpx_ap_definitions.PARAMETERS.register_address
 
         # Strangely this sending has to be repeated several times,
         # actually it is tried up to 10 times.
@@ -226,7 +221,7 @@ class CpxAp(CpxBase):
         Returns data as list if successful or raises "CpxRequestError" if request denied
         """
 
-        param_reg = cpx_ap_registers.PARAMETERS[0]
+        param_reg = cpx_ap_definitions.PARAMETERS.register_address
 
         self.write_reg_data(
             position + 1, param_reg

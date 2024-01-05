@@ -10,7 +10,7 @@ from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxInitError
-import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
+import cpx_io.cpx_system.cpx_e.cpx_e_definitions as cpx_e_definitions
 
 
 class TestCpxE:
@@ -124,7 +124,7 @@ class TestCpxE:
         cnt = bin(0xAAAAAA)[2:].count("1")
 
         assert cpx_e.module_count() == cnt
-        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.MODULE_CONFIGURATION)
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_definitions.MODULE_CONFIGURATION)
 
     def test_fault_detection(self):
         """Test fault detection"""
@@ -134,4 +134,4 @@ class TestCpxE:
 
         lst = [x == "1" for x in bin(0xCCBBAA)[2:]]
         assert cpx_e.fault_detection() == lst[::-1]
-        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.FAULT_DETECTION)
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_definitions.FAULT_DETECTION)
