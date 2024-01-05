@@ -5,6 +5,7 @@ class CpxEModule:
     """Base class for cpx-e modules"""
 
     def __init__(self, name=None):
+        # pylint: disable=duplicate-code
         if name:
             self.name = name
         else:

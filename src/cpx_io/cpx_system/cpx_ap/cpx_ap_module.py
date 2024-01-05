@@ -24,6 +24,7 @@ class CpxApModule:
         operating_supply: bool = False
 
     def __init__(self, name=None):
+        # pylint: disable=duplicate-code
         if name:
             self.name = name
         else:
