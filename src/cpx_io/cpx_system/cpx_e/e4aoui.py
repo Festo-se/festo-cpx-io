@@ -31,8 +31,7 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
-        """read all channels as a list of integer values"""
-
+        """read all channels as a list of (signed) integers"""
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase.decode_int([x]) for x in raw_data]
         return data
@@ -57,7 +56,6 @@ class CpxE4AoUI(CpxEModule):
     @CpxBase.require_base
     def write_channel(self, channel: int, data: int) -> None:
         """write data to module channel number"""
-
         reg_data = CpxBase.decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
@@ -65,8 +63,7 @@ class CpxE4AoUI(CpxEModule):
     def configure_diagnostics(
         self, short_circuit=None, undervoltage=None, param_error=None
     ):
-        """
-        The parameter "Diagnostics of short circuit in actuator supply" defines if
+        """The parameter "Diagnostics of short circuit in actuator supply" defines if
         the diagnostics for the actuator supply with regard to short circuit or
         overload must be activated ("True", default) or deactivated ("False").
         When the diagnostics are activated,
@@ -94,8 +91,7 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_power_reset(self, value: bool) -> None:
-        """
-        The parameter “Behaviour after SCS actuator supply” defines if
+        """The parameter “Behaviour after SCS actuator supply” defines if
         the power remains switched off ("False) after a short circuit or
         overload of the actuator supply or
         if it should be switched on again automatically ("True", default).
@@ -115,8 +111,7 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_behaviour_overload(self, value: bool) -> None:
-        """
-        The parameter “Behaviour after SCS analogue output” defines if
+        """The parameter “Behaviour after SCS analogue output” defines if
         the power remains switched off ("False") after a short circuit or
         overload at the outputs or
         if it should be switched on again automatically ("True", default).
@@ -233,7 +228,8 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_channel_range(self, channel: int, signalrange: str):
-        """set the signal range and type of one channel"""
+        """Set the signal range and type of one channel"""
+
         bitmask = {
             "0-10V": 0b0001,
             "-10-+10V": 0b0010,

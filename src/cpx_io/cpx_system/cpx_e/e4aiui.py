@@ -44,8 +44,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_diagnostics(self, short_circuit=None, param_error=None):
-        """
-        The "Diagnostics of sensor supply short circuit" defines whether
+        """The "Diagnostics of sensor supply short circuit" defines whether
         the diagnostics of the sensor supply in regard to short circuit or
         overload should be activated ("True", default) or deactivated ("False").
         The parameter "Diagnostics of parameterisation error" defines
@@ -75,8 +74,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_power_reset(self, value: bool) -> None:
-        """
-        The "Behaviour after SCO" parameter defines whether
+        """The "Behaviour after SCO" parameter defines whether
         the voltage remains switched off ("False") or
         automatically switches on ("True, default") again
         after a short circuit or overload of the sensor supply.
@@ -113,8 +111,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_sensor_supply(self, value: bool) -> None:
-        """
-        The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
+        """The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
         or switched on ("True", default).
         The sensor supply can also be switched off and switched on during operation.
         """
@@ -131,8 +128,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_diagnostics_overload(self, value: bool) -> None:
-        """
-        The parameter "Diagnostics of overload at analogue inputs" defines
+        """The parameter "Diagnostics of overload at analogue inputs" defines
         if the diagnostics for the current inputs
         must be activated ("True", default) or deactivated ("False") with regard to overload.
         When the diagnostics are activated,
@@ -152,8 +148,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_behaviour_overload(self, value: bool) -> None:
-        """
-        The parameter "Behaviour after overload at analogue inputs" defines if
+        """The parameter "Behaviour after overload at analogue inputs" defines if
         the power remains switched off ("False") after an overload at the inputs or
         if it should be switched on again ("True", default) automatically.
         In the case of the "Leave power switched off" setting,
@@ -174,8 +169,7 @@ class CpxE4AiUI(CpxEModule):
     def configure_hysteresis_limit_monitoring(
         self, lower: int | None = None, upper: int | None = None
     ) -> None:
-        """
-        The parameter "Hysteresis of limit monitoring" defines
+        """The parameter "Hysteresis of limit monitoring" defines
         the hysteresis value of the limit monitoring for all channels.
         The set hysteresis value must not be larger
         than the difference between the upper and lower limit values.
@@ -209,7 +203,8 @@ class CpxE4AiUI(CpxEModule):
         """The parameter " Diagnostics of lower/upper limit" defines if the diagnostics for the
         input signals must be activated or deactivated with regard to compliance with the
         defined lower limits. When the diagnostics are activated, the error will be sent to the
-        bus module and displayed on the module by the error LED."""
+        bus module and displayed on the module by the error LED.
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -236,7 +231,8 @@ class CpxE4AiUI(CpxEModule):
         signals must be activated or deactivated with regard to a shortfall of the input current.
         When the diagnostics are activated, the error at an input current of <1.2 mA will be sent
         to the bus module and displayed with the error LED on the module.
-        The parameter is only effective with a defined signal range of 4 … 20 mA"""
+        The parameter is only effective with a defined signal range of 4 … 20 mA
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -256,7 +252,8 @@ class CpxE4AiUI(CpxEModule):
         """The parameter " Underflow/overflow diagnostics" defines whether the diagnostics of the
         input signals should be activated or deactivated with regard to compliance with the defined
         signal ranges. When the diagnostics are activated, the error will be sent to the bus module
-        and displayed on the module by the error LED."""
+        and displayed on the module by the error LED.
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -280,7 +277,8 @@ class CpxE4AiUI(CpxEModule):
         - Lower limit
         - Upper limit
         When the diagnostics are activated, the error will be sent to the bus module and displayed
-        on the module by the error LED"""
+        on the module by the error LED
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -296,7 +294,8 @@ class CpxE4AiUI(CpxEModule):
     @CpxBase.require_base
     def configure_channel_range(self, channel: int, signalrange: str) -> None:
         """The parameter "Signal range" defines the signal range of the channels 0 … 3
-        independently of each other"""
+        independently of each other
+        """
 
         bitmask = {
             "None": 0b0000,
@@ -342,7 +341,8 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
         """The parameter "Smoothing factor" defines the measured value smoothing for
         the channels 0 … 3 independent from each other.
-        The measured value smoothing can be used to suppress interference."""
+        The measured value smoothing can be used to suppress interference.
+        """
 
         if smoothing_power > 15:
             raise ValueError(f"'{smoothing_power}' is not an option")
@@ -375,8 +375,7 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_limits(
         self, channel: int, upper: int | None = None, lower: int | None = None
     ) -> None:
-        """
-        The parameters "Lower limit" and "Upper limit" define the lower or upper limit of
+        """The parameters "Lower limit" and "Upper limit" define the lower or upper limit of
         the channels 0 … 3 independent from each other.
         When the input value falls short of or exceeds the parameterised limits, an error
         will be displayed provided that the relevant parameter Diagnostics of lower/upper

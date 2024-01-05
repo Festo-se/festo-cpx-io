@@ -153,11 +153,12 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param["active_ip_address"] == "172.16.1.41"
-    assert param["active_subnet_mask"] == "255.255.0.0"
-    assert param["active_gateway_address"] == "0.0.0.0"
-    assert param["mac_address"] == "00:0e:f0:7d:3b:15"
-    assert param["setup_monitoring_load_supply"] == 1
+    assert param.dhcp_enable is False
+    assert param.active_ip_address == "172.16.1.41"
+    assert param.active_subnet_mask == "255.255.0.0"
+    assert param.active_gateway_address == "0.0.0.0"
+    assert param.mac_address == "00:0e:f0:7d:3b:15"
+    assert param.setup_monitoring_load_supply == 1
 
 
 def test_4AiUI_configures_channel_unit(test_cpxap):
@@ -409,8 +410,17 @@ def test_setter(test_cpxap):
 
 
 def test_read_ap_parameter(test_cpxap):
-    with pytest.raises(NotImplementedError):
-        test_cpxap.modules[0].read_ap_parameter()
+    info = test_cpxap.modules[1].information
+    ap = test_cpxap.modules[1].read_ap_parameter()
+    assert ap["Module Code"] == info["Module Code"]
+
+    info = test_cpxap.modules[2].information
+    ap = test_cpxap.modules[2].read_ap_parameter()
+    assert ap["Module Code"] == info["Module Code"]
+
+    info = test_cpxap.modules[3].information
+    ap = test_cpxap.modules[3].read_ap_parameter()
+    assert ap["Module Code"] == info["Module Code"]
 
     info = test_cpxap.modules[4].information
     ap = test_cpxap.modules[4].read_ap_parameter()
