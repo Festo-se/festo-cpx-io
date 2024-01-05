@@ -1,4 +1,4 @@
-"""CPX-AP-4AI-UI module implementation"""
+"""CPX-AP-*-4AI-UI module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -11,7 +11,7 @@ class CpxAp4AiUI(CpxApModule):
     """Class for CPX-AP-*-4AI-* module"""
 
     module_codes = {
-        8202: "default",
+        8202: "CPX-AP-I-4AI-U-I-RTD-M12",
     }
 
     def __getitem__(self, key):
