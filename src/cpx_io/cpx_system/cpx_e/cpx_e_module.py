@@ -1,4 +1,5 @@
 """CPX-E module implementation"""
+from cpx_io.utils.logging import Logging
 
 
 class CpxEModule:
@@ -24,3 +25,11 @@ class CpxEModule:
         """Set up postion and base for the module when added to cpx system"""
         self.base = base
         self.position = position
+
+        self.output_register = self.base.next_output_register
+        self.input_register = self.base.next_input_register
+
+        Logging.logger.debug(
+            f"Configured {self} with output register {self.output_register} "
+            f"and input register {self.input_register}"
+        )

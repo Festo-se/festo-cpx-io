@@ -10,8 +10,9 @@ class CpxEEp(CpxEModule):
 
     # pylint: disable=too-few-public-methods
 
-    def configure(self, *args):
-        super().configure(*args)
+    def configure(self, base, position):
+        self.base = base
+        self.position = position
 
         self.output_register = cpx_e_registers.PROCESS_DATA_OUTPUTS[0]
         self.input_register = cpx_e_registers.PROCESS_DATA_INPUTS[0]
