@@ -1,8 +1,11 @@
 """CPX-E-4AO-UI module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxE4AoUI(CpxEModule):
@@ -17,20 +20,12 @@ class CpxE4AoUI(CpxEModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.output_register = self.base.next_output_register
-        self.input_register = self.base.next_input_register
-
         self.base.next_output_register = self.output_register + 4
         self.base.next_input_register = self.input_register + 5
 
-        Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
-        )
-
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
-        """read all channels as a list of integer values"""
-
+        """read all channels as a list of (signed) integers"""
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase.decode_int([x]) for x in raw_data]
         return data
@@ -39,7 +34,7 @@ class CpxE4AoUI(CpxEModule):
     def read_status(self) -> list[bool]:
         """read module status register. Further information see module datasheet"""
         data = self.base.read_reg_data(self.input_register + 4)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, 2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:
@@ -55,7 +50,6 @@ class CpxE4AoUI(CpxEModule):
     @CpxBase.require_base
     def write_channel(self, channel: int, data: int) -> None:
         """write data to module channel number"""
-
         reg_data = CpxBase.decode_int([data])
         self.base.write_reg_data(reg_data, self.output_register + channel)
 
@@ -63,8 +57,7 @@ class CpxE4AoUI(CpxEModule):
     def configure_diagnostics(
         self, short_circuit=None, undervoltage=None, param_error=None
     ):
-        """
-        The parameter "Diagnostics of short circuit in actuator supply" defines if
+        """The parameter "Diagnostics of short circuit in actuator supply" defines if
         the diagnostics for the actuator supply with regard to short circuit or
         overload must be activated ("True", default) or deactivated ("False").
         When the diagnostics are activated,
@@ -92,8 +85,7 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_power_reset(self, value: bool) -> None:
-        """
-        The parameter “Behaviour after SCS actuator supply” defines if
+        """The parameter “Behaviour after SCS actuator supply” defines if
         the power remains switched off ("False) after a short circuit or
         overload of the actuator supply or
         if it should be switched on again automatically ("True", default).
@@ -113,8 +105,7 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_behaviour_overload(self, value: bool) -> None:
-        """
-        The parameter “Behaviour after SCS analogue output” defines if
+        """The parameter “Behaviour after SCS analogue output” defines if
         the power remains switched off ("False") after a short circuit or
         overload at the outputs or
         if it should be switched on again automatically ("True", default).
@@ -170,9 +161,10 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_diagnostics_wire_break(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter “Enable wire break / idling diagnostics” defines whether the diagnostics of the outputs
-        with regard to wire break/idling should be activated or deactivated. When the diagnostics are activated,
-        the error will be sent to the bus module and displayed on the module by the error LED
+        """The parameter “Enable wire break / idling diagnostics” defines whether the
+        diagnostics of the outputs with regard to wire break/idling should be activated
+        or deactivated. When the diagnostics are activated, the error will be sent to
+        the bus module and displayed on the module by the error LED
         """
 
         if channel not in range(4):
@@ -190,9 +182,10 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_diagnostics_overload_short_circuit(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter “Enable overload/short circuit diagnostics” defines if the diagnostics for the outputs
-        with regard to overload/short circuit must be activated or deactivated. When the diagnostics are activated,
-        the error will be sent to the bus module and displayed on the module by the error LED.
+        """The parameter “Enable overload/short circuit diagnostics” defines if the
+        diagnostics for the outputs with regard to overload/short circuit must be
+        activated or deactivated. When the diagnostics are activated, the error
+        will be sent to the bus module and displayed on the module by the error LED.
         """
 
         if channel not in range(4):
@@ -210,9 +203,10 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_diagnostics_parameter_error(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter “Enable parameter error diagnostics” defines if the diagnostics for the outputs with
-        regard to parameter errors must be activated or deactivated. When the diagnostics are activated, the
-        error will be sent to the bus node and displayed with the error LED on the module
+        """The parameter “Enable parameter error diagnostics” defines if the diagnostics
+        for the outputs with regard to parameter errors must be activated or deactivated.
+        When the diagnostics are activated, the error will be sent to the bus node and
+        displayed with the error LED on the module
         """
 
         if channel not in range(4):
@@ -228,7 +222,8 @@ class CpxE4AoUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_channel_range(self, channel: int, signalrange: str):
-        """set the signal range and type of one channel"""
+        """Set the signal range and type of one channel"""
+
         bitmask = {
             "0-10V": 0b0001,
             "-10-+10V": 0b0010,

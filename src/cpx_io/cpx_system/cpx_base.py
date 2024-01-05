@@ -2,11 +2,13 @@
 """
 
 import struct
+from dataclasses import dataclass, fields
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
 from pymodbus.constants import Endian
 from cpx_io.utils.logging import Logging
+from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
 
 
 class CpxInitError(Exception):
@@ -46,16 +48,55 @@ class CpxBase:
         self.client.connect()
         Logging.logger.info(f"Connected to {ip_address}:{port} (timeout: {timeout})")
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
+    def shutdown(self):
+        """Shutdown function"""
         if hasattr(self, "client"):
             self.client.close()
             Logging.logger.info("Connection closed")
         else:
             Logging.logger.info("No connection to close")
         return False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.shutdown()
+
+    @dataclass
+    class _BitwiseReg:
+        """Register functions"""
+
+        byte_size = None
+
+        @classmethod
+        def from_bytes(cls, data: bytes):
+            """Initializes a BitwiseWord from a byte representation"""
+            return cls(*bytes_to_boollist(data))
+
+        @classmethod
+        def from_int(cls, value: int):
+            """Initializes a BitwiseWord from an integer"""
+            return cls.from_bytes(value.to_bytes(cls.byte_size, "little"))
+
+        def to_bytes(self):
+            """Returns the bytes representation"""
+            blist = [getattr(self, v.name) for v in fields(self)]
+            return boollist_to_bytes(blist)
+
+        def __int__(self):
+            """Returns the integer representation"""
+            return int.from_bytes(self.to_bytes(), "little")
+
+    class BitwiseReg8(_BitwiseReg):
+        """Half Register"""
+
+        byte_size: int = 1
+
+    class BitwiseReg16(_BitwiseReg):
+        """Full Register"""
+
+        byte_size: int = 2
 
     def read_reg_data(self, register: int, length=1) -> list:
         """Reads and returns register from Modbus server
@@ -166,18 +207,18 @@ class CpxBase:
 
         if data_type == "uint8":
             return decoder.decode_8bit_uint()
-        elif data_type == "uint16":
+        if data_type == "uint16":
             return decoder.decode_16bit_uint()
-        elif data_type == "uint32":
+        if data_type == "uint32":
             return decoder.decode_32bit_uint()
-        elif data_type == "int8":
+        if data_type == "int8":
             return decoder.decode_8bit_int()
-        elif data_type == "int16":
+        if data_type == "int16":
             return decoder.decode_16bit_int()
-        elif data_type == "int32":
+        if data_type == "int32":
             return decoder.decode_32bit_int()
-        else:
-            raise NotImplementedError(f"Type {data_type} not implemented")
+
+        raise NotImplementedError(f"Type {data_type} not implemented")
 
     @staticmethod
     def decode_bool(registers: list[int]) -> bool:

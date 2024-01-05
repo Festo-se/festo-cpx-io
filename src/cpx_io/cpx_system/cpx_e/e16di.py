@@ -1,8 +1,11 @@
 """CPX-E-16DI module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxE16Di(CpxEModule):
@@ -14,26 +17,19 @@ class CpxE16Di(CpxEModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.output_register = None
-        self.input_register = self.base.next_input_register
-
         self.base.next_input_register = self.input_register + 2
-
-        Logging.logger.debug(
-            f"Configured {self} with input register {self.input_register}"
-        )
 
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
         """read all channels as a list of bool values"""
         data = self.base.read_reg_data(self.input_register)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, num_bytes=2)
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
         """read module status register. Further information see module datasheet"""
         data = self.base.read_reg_data(self.input_register + 1)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, num_bytes=2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:

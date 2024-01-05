@@ -1,8 +1,11 @@
 """CPX-E-4AI-UI module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxE4AiUI(CpxEModule):
@@ -14,14 +17,7 @@ class CpxE4AiUI(CpxEModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.output_register = None
-        self.input_register = self.base.next_input_register
-
         self.base.next_input_register = self.input_register + 5
-
-        Logging.logger.debug(
-            f"Configured {self} with input register {self.input_register}"
-        )
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
@@ -34,7 +30,7 @@ class CpxE4AiUI(CpxEModule):
     def read_status(self) -> list[bool]:
         """read module status register. Further information see module datasheet"""
         data = self.base.read_reg_data(self.input_register + 4)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, 2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> int:
@@ -43,8 +39,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_diagnostics(self, short_circuit=None, param_error=None):
-        """
-        The "Diagnostics of sensor supply short circuit" defines whether
+        """The "Diagnostics of sensor supply short circuit" defines whether
         the diagnostics of the sensor supply in regard to short circuit or
         overload should be activated ("True", default) or deactivated ("False").
         The parameter "Diagnostics of parameterisation error" defines
@@ -74,8 +69,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_power_reset(self, value: bool) -> None:
-        """
-        The "Behaviour after SCO" parameter defines whether
+        """The "Behaviour after SCO" parameter defines whether
         the voltage remains switched off ("False") or
         automatically switches on ("True, default") again
         after a short circuit or overload of the sensor supply.
@@ -112,8 +106,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_sensor_supply(self, value: bool) -> None:
-        """
-        The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
+        """The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
         or switched on ("True", default).
         The sensor supply can also be switched off and switched on during operation.
         """
@@ -130,8 +123,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_diagnostics_overload(self, value: bool) -> None:
-        """
-        The parameter "Diagnostics of overload at analogue inputs" defines
+        """The parameter "Diagnostics of overload at analogue inputs" defines
         if the diagnostics for the current inputs
         must be activated ("True", default) or deactivated ("False") with regard to overload.
         When the diagnostics are activated,
@@ -151,8 +143,7 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def configure_behaviour_overload(self, value: bool) -> None:
-        """
-        The parameter "Behaviour after overload at analogue inputs" defines if
+        """The parameter "Behaviour after overload at analogue inputs" defines if
         the power remains switched off ("False") after an overload at the inputs or
         if it should be switched on again ("True", default) automatically.
         In the case of the "Leave power switched off" setting,
@@ -173,8 +164,7 @@ class CpxE4AiUI(CpxEModule):
     def configure_hysteresis_limit_monitoring(
         self, lower: int | None = None, upper: int | None = None
     ) -> None:
-        """
-        The parameter "Hysteresis of limit monitoring" defines
+        """The parameter "Hysteresis of limit monitoring" defines
         the hysteresis value of the limit monitoring for all channels.
         The set hysteresis value must not be larger
         than the difference between the upper and lower limit values.
@@ -205,10 +195,11 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_limits(
         self, channel: int, lower: bool | None = None, upper: bool | None = None
     ) -> None:
-        """The parameter " Diagnostics of lower/upper limit" defines if the diagnostics for the input signals must be
-        activated or deactivated with regard to compliance with the defined lower limits.
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED."""
+        """The parameter " Diagnostics of lower/upper limit" defines if the diagnostics for the
+        input signals must be activated or deactivated with regard to compliance with the
+        defined lower limits. When the diagnostics are activated, the error will be sent to the
+        bus module and displayed on the module by the error LED.
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -231,11 +222,12 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_wire_break(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter "Wire break diagnostics" defines whether the diagnostics for the input signals must be
-        activated or deactivated with regard to a shortfall of the input current.
-        When the diagnostics are activated, the error at an input current of <1.2 mA will be sent to the bus
-        module and displayed with the error LED on the module.
-        The parameter is only effective with a defined signal range of 4 … 20 mA"""
+        """The parameter "Wire break diagnostics" defines whether the diagnostics for the input
+        signals must be activated or deactivated with regard to a shortfall of the input current.
+        When the diagnostics are activated, the error at an input current of <1.2 mA will be sent
+        to the bus module and displayed with the error LED on the module.
+        The parameter is only effective with a defined signal range of 4 … 20 mA
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -252,9 +244,11 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_underflow_overflow(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter " Underflow/overflow diagnostics" defines whether the diagnostics of the input signals should be activated or deactivated with regard to compliance with the defined signal ranges.
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED."""
+        """The parameter " Underflow/overflow diagnostics" defines whether the diagnostics of the
+        input signals should be activated or deactivated with regard to compliance with the defined
+        signal ranges. When the diagnostics are activated, the error will be sent to the bus module
+        and displayed on the module by the error LED.
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -271,13 +265,15 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_diagnostics_parameter_error(
         self, channel: int, value: bool
     ) -> None:
-        """The parameter "Parameter error diagnostics" defines if the diagnostics for the subsequently listed
-        parameters must be activated or deactivated with regard to unapproved settings:
+        """The parameter "Parameter error diagnostics" defines if the diagnostics for the
+        subsequently listed parameters must be activated or deactivated with regard to
+        unapproved settings:
         - Signal range
         - Lower limit
         - Upper limit
-        When the diagnostics are activated, the error will be sent to the bus module and displayed on the
-        module by the error LED"""
+        When the diagnostics are activated, the error will be sent to the bus module and displayed
+        on the module by the error LED
+        """
 
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
@@ -293,7 +289,8 @@ class CpxE4AiUI(CpxEModule):
     @CpxBase.require_base
     def configure_channel_range(self, channel: int, signalrange: str) -> None:
         """The parameter "Signal range" defines the signal range of the channels 0 … 3
-        independently of each other"""
+        independently of each other
+        """
 
         bitmask = {
             "None": 0b0000,
@@ -339,7 +336,8 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
         """The parameter "Smoothing factor" defines the measured value smoothing for
         the channels 0 … 3 independent from each other.
-        The measured value smoothing can be used to suppress interference."""
+        The measured value smoothing can be used to suppress interference.
+        """
 
         if smoothing_power > 15:
             raise ValueError(f"'{smoothing_power}' is not an option")
@@ -372,16 +370,15 @@ class CpxE4AiUI(CpxEModule):
     def configure_channel_limits(
         self, channel: int, upper: int | None = None, lower: int | None = None
     ) -> None:
-        """
-        The parameters "Lower limit" and "Upper limit" define the lower or upper limit of the channels 0 … 3
-        independent from each other.
-        When the input value falls short of or exceeds the parameterised limits, an error will be displayed
-        provided that the relevant parameter Diagnostics of lower/upper limit is activated
-        The limit values are checked for validity during parameterisation. Invalid parameterisations are not
-        accepted and the module uses the last valid parameterisations.
-        The upper limit value must always be greater than the lower limit value. The permitted limits depend
-        on the parameterised data format.
-        With the data format "linear scaled", the limits function as scaling end values
+        """The parameters "Lower limit" and "Upper limit" define the lower or upper limit of
+        the channels 0 … 3 independent from each other.
+        When the input value falls short of or exceeds the parameterised limits, an error
+        will be displayed provided that the relevant parameter Diagnostics of lower/upper
+        limit is activated The limit values are checked for validity during
+        parameterisation. Invalid parameterisations are not accepted and the module uses
+        the last valid parameterisations. The upper limit value must always be greater
+        than the lower limit value. The permitted limits depend on the parameterised data
+        format. With the data format "linear scaled", the limits function as scaling end values
         """
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")

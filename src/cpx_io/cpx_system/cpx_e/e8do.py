@@ -1,8 +1,11 @@
 """CPX-E-8DO module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
 
 
 class CpxE8Do(CpxEModule):
@@ -17,38 +20,28 @@ class CpxE8Do(CpxEModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.output_register = self.base.next_output_register
-        self.input_register = self.base.next_input_register
-
         self.base.next_output_register = self.output_register + 1
         self.base.next_input_register = self.input_register + 2
-
-        Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} and input register {self.input_register}"
-        )
 
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
         """read all channels as a list of bool values"""
         data = self.base.read_reg_data(self.input_register)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+        return int_to_boollist(data, num_bytes=1)
 
     @CpxBase.require_base
     def write_channels(self, data: list[bool]) -> None:
         """write all channels with a list of bool values"""
         if len(data) != 8:
             raise ValueError(f"Data len error: expected: 8, got: {len(data)}")
-        # Make binary from list of bools
-        binary_string = "".join("1" if value else "0" for value in reversed(data))
-        # Convert the binary string to an integer
-        integer_data = int(binary_string, 2)
+        integer_data = boollist_to_int(data)
         self.base.write_reg_data(integer_data, self.output_register)
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
         """read module status register. Further information see module datasheet"""
         data = self.base.read_reg_data(self.input_register + 1)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(16)[::-1]]
+        return int_to_boollist(data, num_bytes=2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:

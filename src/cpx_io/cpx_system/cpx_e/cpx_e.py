@@ -2,7 +2,7 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
-import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
+from cpx_io.cpx_system.cpx_e import cpx_e_registers
 
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
@@ -11,6 +11,7 @@ from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
+from cpx_io.utils.boollist import int_to_boollist
 
 
 def module_list_from_typecode(typecode: str) -> list:
@@ -134,7 +135,7 @@ class CpxE(CpxBase):
         """returns list of bools with Errors (True = Error)"""
         ret = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
         data = ret[2] << 16 | ret[1] << 8 | ret[0]
-        return [d == "1" for d in bin(data)[2:].zfill(24)[::-1]]
+        return int_to_boollist(data, 3)
 
     def status_register(self) -> tuple:
         """returns (Write-protected, Force active)"""

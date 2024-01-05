@@ -1,40 +1,28 @@
 """CPX-AP-8DI module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
-
-from cpx_io.utils.helpers import div_ceil
-
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxAp8Di(CpxApModule):
     """Class for CPX-AP-*-8DI-* module"""
 
+    module_codes = {
+        8199: "default",
+    }
+
     def __getitem__(self, key):
         return self.read_channel(key)
-
-    def configure(self, *args):
-        super().configure(*args)
-
-        self.output_register = None
-        self.input_register = self.base.next_input_register
-
-        self.base.next_output_register += div_ceil(self.information["Output Size"], 2)
-        self.base.next_input_register += div_ceil(self.information["Input Size"], 2)
-
-        Logging.logger.debug(
-            (
-                f"Configured {self} with output register {self.output_register}"
-                f"and input register {self.input_register}"
-            )
-        )
 
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
         """read all channels as a list of bool values"""
         data = self.base.read_reg_data(self.input_register)[0]
-        return [d == "1" for d in bin(data)[2:].zfill(8)[::-1]]
+        return int_to_boollist(data, 1)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:

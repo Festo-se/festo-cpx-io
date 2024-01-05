@@ -1,18 +1,42 @@
 """CPX-AP-EP module implementation"""
 
+from dataclasses import dataclass
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-
-import cpx_io.cpx_system.cpx_ap.cpx_ap_registers as cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.utils.helpers import convert_uint32_to_octett
 
 
 class CpxApEp(CpxApModule):
     """Class for CPX-AP-EP module"""
 
-    def configure(self, *args):
-        super().configure(*args)
+    module_codes = {
+        8323: "default",
+    }
+
+    @dataclass
+    class Parameters:
+        """System parameters"""
+
+        # pylint: disable=too-many-instance-attributes
+        dhcp_enable: bool
+        ip_address: str
+        subnet_mask: str
+        gateway_address: str
+        active_ip_address: str
+        active_subnet_mask: str
+        active_gateway_address: str
+        mac_address: str
+        setup_monitoring_load_supply: int
+
+    def configure(self, base, position):
+        self.base = base
+        self.position = position
+
+        self.output_register = None
+        self.input_register = None
 
         self.base.next_output_register = cpx_ap_registers.OUTPUTS[0]
         self.base.next_input_register = cpx_ap_registers.INPUTS[0]
@@ -24,72 +48,54 @@ class CpxApEp(CpxApModule):
             )
         )
 
-    @staticmethod
-    def convert_uint32_to_octett(value: int) -> str:
-        """Convert one uint32 value to octett. Usually used for displaying ip addresses."""
-        return f"{value & 0xFF}.{(value >> 8) & 0xFF}.{(value >> 16) & 0xFF}.{(value) >> 24 & 0xFF}"
-
-    @CpxBase.require_base
-    def read_ap_parameter(self) -> dict:
-        raise NotImplementedError(
-            "CPX-AP-EP module has no AP parameters. Use 'read_parameters()' instead"
-        )
-
     @CpxBase.require_base
     def read_parameters(self):
         """Read parameters from EP module"""
-        dhcp_enable = CpxBase.decode_bool(
+
+        params = self.__class__.Parameters
+
+        params.dhcp_enable = CpxBase.decode_bool(
             self.base.read_parameter(self.position, 12000, 0)
         )
 
         ip_address = CpxBase.decode_int(
             self.base.read_parameter(self.position, 12001, 0), data_type="uint32"
         )
-        ip_address = self.convert_uint32_to_octett(ip_address)
+        params.ip_address = convert_uint32_to_octett(ip_address)
 
         subnet_mask = CpxBase.decode_int(
             self.base.read_parameter(self.position, 12002, 0), data_type="uint32"
         )
-        subnet_mask = self.convert_uint32_to_octett(subnet_mask)
+        params.subnet_mask = convert_uint32_to_octett(subnet_mask)
 
         gateway_address = CpxBase.decode_int(
             self.base.read_parameter(self.position, 12003, 0), data_type="uint32"
         )
-        gateway_address = self.convert_uint32_to_octett(gateway_address)
+        params.gateway_address = convert_uint32_to_octett(gateway_address)
 
         active_ip_address = CpxBase.decode_int(
             self.base.read_parameter(self.position, 12004, 0), data_type="uint32"
         )
-        active_ip_address = self.convert_uint32_to_octett(active_ip_address)
+        params.active_ip_address = convert_uint32_to_octett(active_ip_address)
 
         active_subnet_mask = CpxBase.decode_int(
             self.base.read_parameter(self.position, 12005, 0), data_type="uint32"
         )
-        active_subnet_mask = self.convert_uint32_to_octett(active_subnet_mask)
+        params.active_subnet_mask = convert_uint32_to_octett(active_subnet_mask)
 
         active_gateway_address = CpxBase.decode_int(
             self.base.read_parameter(self.position, 12006, 0), data_type="uint32"
         )
-        active_gateway_address = self.convert_uint32_to_octett(active_gateway_address)
+        params.active_gateway_address = convert_uint32_to_octett(active_gateway_address)
 
-        mac_address = ":".join(
+        params.mac_address = ":".join(
             f"{x & 0xFF:02x}:{(x >> 8):02x}"
             for x in self.base.read_parameter(self.position, 12007, 0)
         )
 
-        setup_monitoring_load_supply = CpxBase.decode_int(
+        params.setup_monitoring_load_supply = CpxBase.decode_int(
             [(self.base.read_parameter(self.position, 20022, 0)[0]) & 0xFF],
             data_type="uint8",
         )
 
-        return {
-            "dhcp_enable": dhcp_enable,
-            "ip_address": ip_address,
-            "subnet_mask": subnet_mask,
-            "gateway_address": gateway_address,
-            "active_ip_address": active_ip_address,
-            "active_subnet_mask": active_subnet_mask,
-            "active_gateway_address": active_gateway_address,
-            "mac_address": mac_address,
-            "setup_monitoring_load_supply": setup_monitoring_load_supply,
-        }
+        return params

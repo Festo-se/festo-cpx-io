@@ -1,15 +1,28 @@
 """CPX-AP-4IOL module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
-
-from cpx_io.utils.helpers import div_ceil
-
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.utils.helpers import div_ceil
 
 
 class CpxAp4Iol(CpxApModule):
     """Class for CPX-AP-*-4IOL-* module"""
+
+    module_codes = {
+        8201: "variant 8",
+        8205: "variant 8 OE",
+        8206: "variant 2",
+        8207: "variant 2 OE",
+        8208: "variant 4",
+        8209: "variant 4 OE",
+        8210: "variant 16",
+        8211: "variant 16 OE",
+        8212: "variant 23",
+        8213: "variant 32 OE",
+    }
 
     def __getitem__(self, key):
         return self.read_channel(key)
@@ -17,40 +30,11 @@ class CpxAp4Iol(CpxApModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def configure(self, *args):
-        super().configure(*args)
-
-        self.output_register = self.base.next_output_register
-        self.input_register = self.base.next_input_register
-
-        self.base.next_output_register += div_ceil(self.information["Output Size"], 2)
-        self.base.next_input_register += div_ceil(self.information["Input Size"], 2)
-
-        Logging.logger.debug(
-            (
-                f"Configured {self} with output register {self.output_register}"
-                f"and input register {self.input_register}"
-            )
-        )
-
     @CpxBase.require_base
     def read_ap_parameter(self) -> dict:
         """Read AP parameters"""
-        ap_dict = super().read_ap_parameter()
+        params = super().read_ap_parameter()
 
-        variant_dict = {
-            8201: "variant 8",
-            8205: "variant 8 OE",
-            8206: "variant 2",
-            8207: "variant 2 OE",
-            8208: "variant 4",
-            8209: "variant 4 OE",
-            8210: "variant 16",
-            8211: "variant 16 OE",
-            8212: "variant 23",
-            8213: "variant 32 OE",
-        }
-        # TODO: Why is this UINT16 stored in the second byte of the parameter?
         io_link_variant = CpxBase.decode_int(
             self.base.read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
         )
@@ -59,16 +43,16 @@ class CpxAp4Iol(CpxApModule):
             self.base.read_parameter(self.position, 20097, 0)
         )
 
-        ap_dict["IO-Link variant"] = variant_dict[io_link_variant]
-        ap_dict["Operating Supply"] = activation_operating_voltage
-        return ap_dict
+        params.io_link_variant = self.__class__.module_codes[io_link_variant]
+        params.operating_supply = activation_operating_voltage
+        return params
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
         """read all IO-Link input data
         register order is [msb, ... , ... , lsb]
         """
-        module_input_size = div_ceil(self.information["Input Size"], 2) - 2
+        module_input_size = div_ceil(self.information.input_size, 2) - 2
 
         data = self.base.read_reg_data(self.input_register, length=module_input_size)
         data = [
@@ -99,7 +83,7 @@ class CpxAp4Iol(CpxApModule):
         """set one channel to list of uint16 values
         channel order is [0, 1, 2, 3]
         """
-        module_output_size = div_ceil(self.information["Output Size"], 2)
+        module_output_size = div_ceil(self.information.output_size, 2)
         channel_size = (module_output_size) // 4
 
         register_data = [
@@ -207,8 +191,9 @@ class CpxAp4Iol(CpxApModule):
     def configure_device_lost_diagnostics(
         self, value: bool, channel: int | list | None = None
     ) -> None:
-        """Activation of diagnostics for IO-Link device lost (default: True) for given channel. If no
-        channel is provided, value will be written to all channels."""
+        """Activation of diagnostics for IO-Link device lost (default: True) for
+        given channel. If no channel is provided, value will be written to all channels.
+        """
 
         uid = 20050
 
