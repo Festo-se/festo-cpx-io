@@ -61,11 +61,13 @@ class TestCpxApModule:
 
         ret = module.read_ap_parameter()
 
-        assert ret["Fieldbus serial number"] == 131073
-        assert ret["Product Key"] == "\x01\x00\x02"
-        assert ret["Firmware Version"] == "\x01\x00\x02"
-        assert ret["Module Code"] == 131073
-        assert ret["Measured value of temperature AP-ASIC [°C]"] == 2
-        assert ret["Current measured value of logic supply PS [mV]"] == 2
-        assert ret["Current measured value of load supply PL [mV]"] == 2
-        assert ret["Hardware Version"] == 1
+        assert ret.fieldbus_serial_number == 131073
+        assert ret.product_key == "\x01\x00\x02"
+        assert ret.firmware_version == "\x01\x00\x02"
+        assert ret.module_code == 131073
+        assert ret.temp_asic == 2
+        assert ret.logic_voltage == 2
+        assert ret.load_voltage == 2
+        assert ret.hw_version == 1
+        assert ret.io_link_variant == "n.a."
+        assert ret.operating_supply is False
