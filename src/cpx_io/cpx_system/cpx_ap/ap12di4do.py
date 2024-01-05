@@ -1,4 +1,4 @@
-"""CPX-AP-4DI4DO module implementation"""
+"""CPX-AP-*-12DI4DO module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -8,12 +8,11 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
 
 
-class CpxAp4Di4Do(CpxApModule):
-    """Class for CPX-AP-*-4DI4DO-* module"""
+class CpxAp12Di4Do(CpxApModule):
+    """Class for CPX-AP-*-12DI4DO-* module"""
 
     module_codes = {
-        8196: "CPX-AP-I-4DI4DO-M8-3P",
-        8197: "CPX-AP-I-4DI4DO-M12-5P",
+        12290: "CPX-AP-A-12DI4DO-M12-5P",
     }
 
     def __getitem__(self, key):
@@ -25,23 +24,23 @@ class CpxAp4Di4Do(CpxApModule):
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
         """read all channels as a list of bool values.
-        Returns a list of 8 elements where the first 4 elements are the input channels 0..3
+        Returns a list of 16 elements where the first 12 elements are the input channels 0..11
         and the last 4 elements are the output channels 0..3
         """
-        data = self.base.read_reg_data(self.input_register)[0] & 0xF
-        data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 4
-        return int_to_boollist(data, 1)
+        data = self.base.read_reg_data(self.input_register)[0] & 0xFFF
+        data |= (self.base.read_reg_data(self.output_register)[0] & 0xF) << 12
+        return int_to_boollist(data, 2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int, output_numbering=False) -> bool:
         """read back the value of one channel
         Optional parameter 'output_numbering' defines
         if the outputs are numbered with the inputs ("False", default),
-        so the range of output channels is 4..7 (as 0..3 are the input channels).
+        so the range of output channels is 12..15 (as 0..11 are the input channels).
         If "True", the outputs are numbered from 0..3, the inputs cannot be accessed this way.
         """
         if output_numbering:
-            channel += 4
+            channel += 12
         return self.read_channels()[channel]
 
     @CpxBase.require_base

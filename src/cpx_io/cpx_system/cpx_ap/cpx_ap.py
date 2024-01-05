@@ -8,9 +8,12 @@ from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
+from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
+from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
+from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 
 
@@ -60,16 +63,28 @@ class CpxAp(CpxBase):
 
         if module_code in CpxApEp.module_codes:
             module = CpxApEp()
-        elif module_code in CpxAp8Di.module_codes:
-            module = CpxAp8Di()
+
         elif module_code in CpxAp4Di4Do.module_codes:
             module = CpxAp4Di4Do()
+        elif module_code in CpxAp12Di4Do.module_codes:
+            module = CpxAp12Di4Do()
+
         elif module_code in CpxAp4AiUI.module_codes:
             module = CpxAp4AiUI()
+
         elif module_code in CpxAp4Iol.module_codes:
             module = CpxAp4Iol()
+
         elif module_code in CpxAp4Di.module_codes:
             module = CpxAp4Di()
+        elif module_code in CpxAp8Di.module_codes:
+            module = CpxAp8Di()
+        elif module_code in CpxAp16Di.module_codes:
+            module = CpxAp16Di()
+
+        elif module_code in CpxAp8Do.module_codes:
+            module = CpxAp8Do()
+
         else:
             raise NotImplementedError(
                 "This module is not yet implemented or not available"
