@@ -27,6 +27,7 @@ class CpxApModule:
 
     def __init__(self, name=None):
         # pylint: disable=duplicate-code
+        # intended: cpx-ap and cpx-e have similar functions
         if name:
             self.name = name
         else:
@@ -44,6 +45,8 @@ class CpxApModule:
 
     def configure(self, base, position):
         """Set up module when added to cpx system"""
+        # pylint: disable=duplicate-code
+        # intended: cpx-ap and cpx-e have similar functions
         self.base = base
         self.position = position
 
