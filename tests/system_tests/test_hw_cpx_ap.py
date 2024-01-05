@@ -72,17 +72,17 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[5].position == 5
 
     assert test_cpxap.modules[0].output_register is None  # EP
-    assert test_cpxap.modules[1].output_register is None  # 8DI
-    assert test_cpxap.modules[2].output_register == 0  # 4DI4DO
-    assert test_cpxap.modules[3].output_register is None  # 4AIUI
-    assert test_cpxap.modules[4].output_register == 1  # 4IOL
-    assert test_cpxap.modules[5].output_register is None  # 4Di
+    assert test_cpxap.modules[1].output_register == 0  # 8DI
+    assert test_cpxap.modules[2].output_register == 0  # 4DI4DO, adds 1
+    assert test_cpxap.modules[3].output_register == 1  # 4AIUI
+    assert test_cpxap.modules[4].output_register == 1  # 4IOL, adds 16
+    assert test_cpxap.modules[5].output_register == 17  # 4Di
 
     assert test_cpxap.modules[0].input_register is None  # EP
-    assert test_cpxap.modules[1].input_register == 5000  # 8DI
-    assert test_cpxap.modules[2].input_register == 5001  # 4DI4DO
-    assert test_cpxap.modules[3].input_register == 5002  # 4AIUI
-    assert test_cpxap.modules[4].input_register == 5006  # 4IOL
+    assert test_cpxap.modules[1].input_register == 5000  # 8DI, adds 1
+    assert test_cpxap.modules[2].input_register == 5001  # 4DI4DO, adds 1
+    assert test_cpxap.modules[3].input_register == 5002  # 4AIUI, adds 4
+    assert test_cpxap.modules[4].input_register == 5006  # 4IOL, adds 18
     assert test_cpxap.modules[5].input_register == 5024  # 4Di
 
 

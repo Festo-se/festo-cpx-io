@@ -3,11 +3,7 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
-from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
-
-from cpx_io.utils.helpers import div_ceil
-
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 
 
@@ -20,22 +16,6 @@ class CpxAp4AiUI(CpxApModule):
 
     def __getitem__(self, key):
         return self.read_channel(key)
-
-    def configure(self, *args):
-        super().configure(*args)
-
-        self.output_register = None
-        self.input_register = self.base.next_input_register
-
-        self.base.next_output_register += div_ceil(self.information.output_size, 2)
-        self.base.next_input_register += div_ceil(self.information.input_size, 2)
-
-        Logging.logger.debug(
-            (
-                f"Configured {self} with output register {self.output_register}"
-                f"and input register {self.input_register}"
-            )
-        )
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:

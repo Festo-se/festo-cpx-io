@@ -31,8 +31,12 @@ class CpxApEp(CpxApModule):
         mac_address: str
         setup_monitoring_load_supply: int
 
-    def configure(self, *args):
-        super().configure(*args)
+    def configure(self, base, position):
+        self.base = base
+        self.position = position
+
+        self.output_register = None
+        self.input_register = None
 
         self.base.next_output_register = cpx_ap_registers.OUTPUTS[0]
         self.base.next_input_register = cpx_ap_registers.INPUTS[0]

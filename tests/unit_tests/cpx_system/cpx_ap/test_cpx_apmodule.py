@@ -35,7 +35,23 @@ class TestCpxApModule:
         module = CpxApModule()
 
         mocked_base = Mock()
+        mocked_base.next_output_register = 0
+        mocked_base.next_input_register = 0
         module.base = mocked_base
+        module.information = CpxAp.ModuleInformation(
+            module_code=0,
+            module_class=1,
+            communication_profiles=2,
+            input_size=3,
+            input_channels=4,
+            output_size=5,
+            output_channels=6,
+            hw_version=7,
+            fw_version="fw",
+            serial_number="sn",
+            product_key="pk",
+            order_text="ot",
+        )
 
         module.configure(mocked_base, 1)
 
