@@ -37,7 +37,7 @@ def test_read_module_information(test_cpxap):
     cnt = test_cpxap.read_module_count()
     for i in range(cnt):
         modules.append(test_cpxap.read_module_information(i))
-    assert modules[0].module_code == 8323
+    assert modules[0].module_code in CpxApEp.module_codes
 
 
 def test_modules(test_cpxap):
@@ -117,18 +117,18 @@ def test_4Di4Do(test_cpxap):
 
     test_cpxap.modules[2].set_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == True
-    assert test_cpxap.modules[2].read_channel(4) == True
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is True
+    assert test_cpxap.modules[2].read_channel(4) is True
 
     test_cpxap.modules[2].clear_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == False
-    assert test_cpxap.modules[2].read_channel(4) == False
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is False
+    assert test_cpxap.modules[2].read_channel(4) is False
 
     test_cpxap.modules[2].toggle_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == True
-    assert test_cpxap.modules[2].read_channel(4) == True
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is True
+    assert test_cpxap.modules[2].read_channel(4) is True
 
     test_cpxap.modules[2].clear_channel(0)
 

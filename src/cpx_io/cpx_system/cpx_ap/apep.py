@@ -1,4 +1,4 @@
-"""CPX-AP-EP module implementation"""
+"""CPX-AP-*-EP module implementation"""
 
 from dataclasses import dataclass
 from cpx_io.utils.logging import Logging
@@ -10,10 +10,11 @@ from cpx_io.utils.helpers import convert_uint32_to_octett
 
 
 class CpxApEp(CpxApModule):
-    """Class for CPX-AP-EP module"""
+    """Class for CPX-AP-*-EP module"""
 
     module_codes = {
-        8323: "default",
+        8323: "CPX-AP-I-EP",
+        12421: "CPX-AP-A-EP",
     }
 
     @dataclass

@@ -8,9 +8,12 @@ from cpx_io.cpx_system.cpx_ap import cpx_ap_definitions
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
+from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
+from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
+from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 
 

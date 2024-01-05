@@ -1,4 +1,4 @@
-"""CPX-AP-4IOL module implementation"""
+"""CPX-AP-*-4IOL-* module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -12,16 +12,26 @@ class CpxAp4Iol(CpxApModule):
     """Class for CPX-AP-*-4IOL-* module"""
 
     module_codes = {
-        8201: "variant 8",
-        8205: "variant 8 OE",
-        8206: "variant 2",
-        8207: "variant 2 OE",
-        8208: "variant 4",
-        8209: "variant 4 OE",
-        8210: "variant 16",
-        8211: "variant 16 OE",
-        8212: "variant 23",
-        8213: "variant 32 OE",
+        8201: "CPX-AP-I-4IOL-M12 variant 8",
+        8205: "CPX-AP-I-4IOL-M12 variant 8 OE",
+        8206: "CPX-AP-I-4IOL-M12 variant 2",
+        8207: "CPX-AP-I-4IOL-M12 variant 2 OE",
+        8208: "CPX-AP-I-4IOL-M12 variant 4",
+        8209: "CPX-AP-I-4IOL-M12 variant 4 OE",
+        8210: "CPX-AP-I-4IOL-M12 variant 16",
+        8211: "CPX-AP-I-4IOL-M12 variant 16 OE",
+        8212: "CPX-AP-I-4IOL-M12 variant 23",
+        8213: "CPX-AP-I-4IOL-M12 variant 32 OE",
+        12302: "CPX-AP-A-4IOL-M12 variant 2",
+        12303: "CPX-AP-A-4IOL-M12 variant 2 OE",
+        12304: "CPX-AP-A-4IOL-M12 variant 4",
+        12305: "CPX-AP-A-4IOL-M12 variant 4 OE",
+        12300: "CPX-AP-A-4IOL-M12 variant 8",
+        12301: "CPX-AP-A-4IOL-M12 variant 8 OE",
+        12306: "CPX-AP-A-4IOL-M12 variant 16",
+        12307: "CPX-AP-A-4IOL-M12 variant 16 OE",
+        12308: "CPX-AP-A-4IOL-M12 variant 32",
+        12309: "CPX-AP-A-4IOL-M12 variant 32 OE",
     }
 
     def __getitem__(self, key):
