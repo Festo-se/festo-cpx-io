@@ -23,9 +23,7 @@ class TestCpxAp4Di:
         # Arrange
         cpxap4di = CpxAp4Di()
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0xFA])
-        cpxap4di.base = mocked_base
+        cpxap4di.base = Mock(read_reg_data=Mock(return_value=[0xFA]))
 
         # Act
         channel_values = cpxap4di.read_channels()
@@ -38,9 +36,7 @@ class TestCpxAp4Di:
         # Arrange
         cpxap4di = CpxAp4Di()
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0xAA])
-        cpxap4di.base = mocked_base
+        cpxap4di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
 
         # Act
         channel_values = [cpxap4di.read_channel(idx) for idx in range(4)]
@@ -53,9 +49,7 @@ class TestCpxAp4Di:
         # Arrange
         cpxap4di = CpxAp4Di()
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0xAA])
-        cpxap4di.base = mocked_base
+        cpxap4di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
 
         # Act
         channel_values = [cpxap4di[idx] for idx in range(4)]
@@ -74,16 +68,14 @@ class TestCpxAp4Di:
         cpxap4di = CpxAp4Di()
         cpxap4di.position = MODULE_POSITION
 
-        mocked_base = Mock()
-        mocked_base.write_parameter = Mock()
-        cpxap4di.base = mocked_base
+        cpxap4di.base = Mock(write_parameter=Mock())
 
         # Act
         PARAMETER_ID = 20014
         cpxap4di.configure_debounce_time(input_value)
 
         # Assert
-        mocked_base.write_parameter.assert_called_with(
+        cpxap4di.base.write_parameter.assert_called_with(
             MODULE_POSITION, PARAMETER_ID, 0, expected_value
         )
 
@@ -95,9 +87,7 @@ class TestCpxAp4Di:
         cpxap4di = CpxAp4Di()
         cpxap4di.position = MODULE_POSITION
 
-        mocked_base = Mock()
-        mocked_base.write_parameter = Mock()
-        cpxap4di.base = mocked_base
+        cpxap4di.base = Mock(write_parameter=Mock())
 
         # Act & Assert
         with pytest.raises(ValueError):
