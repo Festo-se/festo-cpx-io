@@ -5,7 +5,7 @@ from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap import cpx_ap_definitions
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.utils.helpers import convert_uint32_to_octett
 
 
@@ -39,8 +39,8 @@ class CpxApEp(CpxApModule):
         self.output_register = None
         self.input_register = None
 
-        self.base.next_output_register = cpx_ap_definitions.OUTPUTS.register_address
-        self.base.next_input_register = cpx_ap_definitions.INPUTS.register_address
+        self.base.next_output_register = cpx_ap_registers.OUTPUTS.register_address
+        self.base.next_input_register = cpx_ap_registers.INPUTS.register_address
 
         Logging.logger.debug(
             (

@@ -119,20 +119,20 @@ class CpxAp4Iol(CpxApModule):
 
         channels_pqi = []
 
-        for d in data:
+        for data_item in data:
             port_qualifier = (
                 "input data is valid"
-                if (d & 0b10000000) >> 7
+                if (data_item & 0b10000000) >> 7
                 else "input data is invalid"
             )
             device_error = (
                 "there is at least one error or warning on the device or port"
-                if (d & 0b01000000) >> 6
+                if (data_item & 0b01000000) >> 6
                 else "there are no errors or warnings on the device or port"
             )
             dev_com = (
                 "device is in status PREOPERATE or OPERATE"
-                if (d & 0b00100000) >> 5
+                if (data_item & 0b00100000) >> 5
                 else "device is not connected or not yet in operation"
             )
 
@@ -194,8 +194,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_device_lost_diagnostics(
@@ -213,8 +213,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, int(value))
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, int(value))
 
     @CpxBase.require_base
     def configure_port_mode(
@@ -241,8 +241,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_review_and_backup(
@@ -268,8 +268,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_target_vendor_id(
@@ -286,8 +286,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_setpoint_device_id(
@@ -304,8 +304,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def read_fieldbus_parameters(self) -> list[dict]:

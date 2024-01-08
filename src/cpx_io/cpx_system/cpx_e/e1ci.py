@@ -106,8 +106,8 @@ class CpxE1Ci(CpxEModule):
         - confirm_latching:  confirm latching event (1=acknowledge latching event)
         - block_latching: switch latching to inactive (1=block)
         """
-        pd = self.read_process_data()
-        pd_updated_dict = {**pd.__dict__, **kwargs}
+        process_data = self.read_process_data()
+        pd_updated_dict = {**process_data.__dict__, **kwargs}
 
         data = (
             (int(pd_updated_dict.get("enable_setting_di2")) << 0)

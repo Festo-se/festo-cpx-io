@@ -3,23 +3,10 @@
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import module_list_from_typecode
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
-from cpx_io.cpx_system.cpx_e import cpx_e_definitions
-
+from cpx_io.cpx_system.cpx_e import cpx_e_registers
+from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DICT
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
-
 from cpx_io.utils.boollist import int_to_boollist
-
-
-def module_list_from_typecode(typecode: str) -> list:
-    """Creates a module list from a provided typecode."""
-    module_list = []
-    for i in range(len(typecode)):
-        substring = typecode[i:]
-        for key, value in cpx_e_definitions.MODULE_ID_DICT.items():
-            if substring.startswith(key):
-                module_list.append(value())
-
-    return module_list
 
 
 class CpxE(CpxBase):
@@ -62,9 +49,7 @@ class CpxE(CpxBase):
             module_list = modules_value
         elif isinstance(modules_value, str):
             Logging.logger.info("Use typecode %s for module setup", modules_value)
-            module_list = module_list_from_typecode(
-                modules_value, cpx_e_definitions.MODULE_ID_DICT
-            )
+            module_list = module_list_from_typecode(modules_value, CPX_E_MODULE_ID_DICT)
         else:
             raise CpxInitError
 
@@ -73,19 +58,19 @@ class CpxE(CpxBase):
 
     def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number"""
-        self.write_reg_data(value, *cpx_e_definitions.DATA_SYSTEM_TABLE_WRITE)
+        self.write_reg_data(value, *cpx_e_registers.DATA_SYSTEM_TABLE_WRITE)
         # need to write 0 first because there might be an
         # old unknown configuration in the register
-        self.write_reg_data(0, *cpx_e_definitions.PROCESS_DATA_OUTPUTS)
+        self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
         self.write_reg_data(
             self._control_bit_value | self._write_bit_value | function_number,
-            *cpx_e_definitions.PROCESS_DATA_OUTPUTS,
+            *cpx_e_registers.PROCESS_DATA_OUTPUTS,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*cpx_e_definitions.PROCESS_DATA_INPUTS)[0]
+            data = self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS)[0]
             its += 1
 
         if its >= 1000:
@@ -95,33 +80,33 @@ class CpxE(CpxBase):
         """Read parameters via function number"""
         # need to write 0 first because there might be an
         # old unknown configuration in the register
-        self.write_reg_data(0, *cpx_e_definitions.PROCESS_DATA_OUTPUTS)
+        self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
         self.write_reg_data(
             self._control_bit_value | function_number,
-            *cpx_e_definitions.PROCESS_DATA_OUTPUTS,
+            *cpx_e_registers.PROCESS_DATA_OUTPUTS,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*cpx_e_definitions.PROCESS_DATA_INPUTS)[0]
+            data = self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS)[0]
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        value = self.read_reg_data(*cpx_e_definitions.DATA_SYSTEM_TABLE_READ)
+        value = self.read_reg_data(*cpx_e_registers.DATA_SYSTEM_TABLE_READ)
         return value[0]
 
     def module_count(self) -> int:
         """returns the total count of attached modules"""
-        data = self.read_reg_data(*cpx_e_definitions.MODULE_CONFIGURATION)
+        data = self.read_reg_data(*cpx_e_registers.MODULE_CONFIGURATION)
         return sum(d.bit_count() for d in data)
 
     def fault_detection(self) -> list[bool]:
         """returns list of bools with Errors (True = Error)"""
-        ret = self.read_reg_data(*cpx_e_definitions.FAULT_DETECTION)
+        ret = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
         data = ret[2] << 16 | ret[1] << 8 | ret[0]
         return int_to_boollist(data, 3)
 
@@ -129,7 +114,7 @@ class CpxE(CpxBase):
         """returns (Write-protected, Force active)"""
         write_protect_bit = 1 << 11
         force_active_bit = 1 << 15
-        data = self.read_reg_data(*cpx_e_definitions.STATUS_REGISTER)
+        data = self.read_reg_data(*cpx_e_registers.STATUS_REGISTER)
         return (bool(data[0] & write_protect_bit), bool(data[0] & force_active_bit))
 
     def read_device_identification(self) -> int:

@@ -1,9 +1,9 @@
 """Helper functions"""
 
 
-def div_ceil(x: int, y: int) -> int:
+def div_ceil(x_val: int, y_val: int) -> int:
     """Divides two integers and returns the ceiled result"""
-    return (x + y - 1) // y
+    return (x_val + y_val - 1) // y_val
 
 
 def convert_uint32_to_octett(value: int) -> str:
