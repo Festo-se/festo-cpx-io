@@ -410,7 +410,7 @@ class CpxAp4Iol(CpxApModule):
 
         stat = 1
         cnt = 0
-        while stat > 0 or cnt > 1000:
+        while stat > 0 and cnt < 1000:
             stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
             cnt += 1
         if cnt >= 1000:
@@ -442,7 +442,7 @@ class CpxAp4Iol(CpxApModule):
 
         stat = 1
         cnt = 0
-        while stat > 0 or cnt > 1000:
+        while stat > 0 and cnt < 1000:
             stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
             cnt += 1
         if cnt >= 1000:
