@@ -14,8 +14,8 @@ class CpxEEp(CpxEModule):
         self.base = base
         self.position = position
 
-        self.output_register = cpx_e_registers.PROCESS_DATA_OUTPUTS[0]
-        self.input_register = cpx_e_registers.PROCESS_DATA_INPUTS[0]
+        self.output_register = cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+        self.input_register = cpx_e_registers.PROCESS_DATA_INPUTS.register_address
 
         self.base.next_output_register = self.output_register + 2
         self.base.next_input_register = self.input_register + 3

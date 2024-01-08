@@ -1,39 +1,12 @@
 """CPX-E module implementations"""
 
 from cpx_io.utils.logging import Logging
+from cpx_io.utils.helpers import module_list_from_typecode
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
 from cpx_io.cpx_system.cpx_e import cpx_e_registers
-
+from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DICT
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
-from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
-from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
-from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
-from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
-from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
-from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
 from cpx_io.utils.boollist import int_to_boollist
-
-
-def module_list_from_typecode(typecode: str) -> list:
-    """Creates a module list from a provided typecode."""
-    module_id_dict = {
-        "EP": CpxEEp,
-        "M": CpxE16Di,
-        "L": CpxE8Do,
-        "NI": CpxE4AiUI,
-        "NO": CpxE4AoUI,
-        "T51": CpxE4Iol,
-        "T53": CpxE1Ci,
-    }
-
-    module_list = []
-    for i in range(len(typecode)):
-        substring = typecode[i:]
-        for key, value in module_id_dict.items():
-            if substring.startswith(key):
-                module_list.append(value())
-
-    return module_list
 
 
 class CpxE(CpxBase):
@@ -76,7 +49,7 @@ class CpxE(CpxBase):
             module_list = modules_value
         elif isinstance(modules_value, str):
             Logging.logger.info("Use typecode %s for module setup", modules_value)
-            module_list = module_list_from_typecode(modules_value)
+            module_list = module_list_from_typecode(modules_value, CPX_E_MODULE_ID_DICT)
         else:
             raise CpxInitError
 

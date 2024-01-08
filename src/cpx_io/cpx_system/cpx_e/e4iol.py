@@ -226,9 +226,9 @@ class CpxE4Iol(CpxEModule):
         if any(c not in range(4) for c in channel):
             raise ValueError("Channel must be between 0 and 3")
 
-        for ch in channel:
-            self.base.write_function_number(function_number[ch], value[0])
-            self.base.write_function_number(function_number[ch] + 1, value[1])
+        for item in channel:
+            self.base.write_function_number(function_number[item], value[0])
+            self.base.write_function_number(function_number[item] + 1, value[1])
 
     @CpxBase.require_base
     def configure_pl_supply(
@@ -255,8 +255,8 @@ class CpxE4Iol(CpxEModule):
         if any(c not in range(4) for c in channel):
             raise ValueError("Channel must be between 0 and 3")
 
-        for ch in channel:
-            reg = self.base.read_function_number(function_number[ch])
+        for item in channel:
+            reg = self.base.read_function_number(function_number[item])
 
             # Fill in the unchanged values from the register
             if value:
@@ -264,7 +264,7 @@ class CpxE4Iol(CpxEModule):
             else:
                 value_to_write = reg & 0xFE
 
-            self.base.write_function_number(function_number[ch], value_to_write)
+            self.base.write_function_number(function_number[item], value_to_write)
 
     @CpxBase.require_base
     def configure_operating_mode(
@@ -298,13 +298,13 @@ class CpxE4Iol(CpxEModule):
         if any(c not in range(4) for c in channel):
             raise ValueError("Channel must be between 0 and 3")
 
-        for ch in channel:
+        for item in channel:
             # delete two lsb from register to write the new value there
-            reg = self.base.read_function_number(function_number[ch]) & 0xFC
+            reg = self.base.read_function_number(function_number[item]) & 0xFC
 
             value_to_write = reg | value
 
-            self.base.write_function_number(function_number[ch], value_to_write)
+            self.base.write_function_number(function_number[item], value_to_write)
 
     @CpxBase.require_base
     def read_line_state(self, channel: int | list | None = None) -> list[str] | str:
@@ -336,13 +336,13 @@ class CpxE4Iol(CpxEModule):
         ]
 
         line_state = []
-        for ch in range(4):
-            reg = self.base.read_function_number(function_number[ch]) & 0x07
+        for item in range(4):
+            reg = self.base.read_function_number(function_number[item]) & 0x07
             try:
                 line_state.append(states[reg])
             except IndexError as exc:
                 raise ValueError(
-                    f"Read unknown linestate {reg} for channel {ch}"
+                    f"Read unknown linestate {reg} for channel {item}"
                 ) from exc
 
         if isinstance(channel, int) and channel in range(4):
@@ -374,10 +374,10 @@ class CpxE4Iol(CpxEModule):
         ]
 
         device_error = [0, 0, 0, 0]
-        for ch in range(4):
-            low = self.base.read_function_number(function_number[ch]) & 0x0F
-            high = self.base.read_function_number(function_number[ch] + 1) & 0x0F
-            device_error[ch] = (hex(low), hex(high))
+        for item in range(4):
+            low = self.base.read_function_number(function_number[item]) & 0x0F
+            high = self.base.read_function_number(function_number[item] + 1) & 0x0F
+            device_error[item] = (hex(low), hex(high))
 
         if isinstance(channel, int) and channel in range(4):
             return device_error[channel]

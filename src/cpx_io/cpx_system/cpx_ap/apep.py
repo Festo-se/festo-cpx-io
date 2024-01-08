@@ -39,8 +39,8 @@ class CpxApEp(CpxApModule):
         self.output_register = None
         self.input_register = None
 
-        self.base.next_output_register = cpx_ap_registers.OUTPUTS[0]
-        self.base.next_input_register = cpx_ap_registers.INPUTS[0]
+        self.base.next_output_register = cpx_ap_registers.OUTPUTS.register_address
+        self.base.next_input_register = cpx_ap_registers.INPUTS.register_address
 
         Logging.logger.debug(
             (

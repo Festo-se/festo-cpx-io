@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] CpxE8Do: Added access-by-index-operator to channels
 - [Minor] CpxE: Added CLI for writing and reading values.
 ### Changed
+- [Minor] Moved typecode ids to cpx_*_definitions.py
 - [Minor] e1ci dicts are now dataclasses
 - [Minor] Modbus Commands are now marked as constants
 - [Minor] Moved modules to individual files

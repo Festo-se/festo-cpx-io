@@ -5,16 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
-
-from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
-from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
-from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
-from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
-from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
-from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
-from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
-from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
-from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
+from cpx_io.cpx_system.cpx_ap.cpx_ap_module_definitions import CPX_AP_MODULE_ID_LIST
 
 
 class CpxAp(CpxBase):
@@ -59,33 +50,16 @@ class CpxAp(CpxBase):
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
         """
-        module_code = info.module_code
+        module = next(
+            (
+                module_class()
+                for module_class in CPX_AP_MODULE_ID_LIST
+                if info.module_code in module_class.module_codes
+            ),
+            None,
+        )
 
-        if module_code in CpxApEp.module_codes:
-            module = CpxApEp()
-
-        elif module_code in CpxAp4Di4Do.module_codes:
-            module = CpxAp4Di4Do()
-        elif module_code in CpxAp12Di4Do.module_codes:
-            module = CpxAp12Di4Do()
-
-        elif module_code in CpxAp4AiUI.module_codes:
-            module = CpxAp4AiUI()
-
-        elif module_code in CpxAp4Iol.module_codes:
-            module = CpxAp4Iol()
-
-        elif module_code in CpxAp4Di.module_codes:
-            module = CpxAp4Di()
-        elif module_code in CpxAp8Di.module_codes:
-            module = CpxAp8Di()
-        elif module_code in CpxAp16Di.module_codes:
-            module = CpxAp16Di()
-
-        elif module_code in CpxAp8Do.module_codes:
-            module = CpxAp8Do()
-
-        else:
+        if module is None:
             raise NotImplementedError(
                 "This module is not yet implemented or not available"
             )
@@ -201,7 +175,7 @@ class CpxAp(CpxBase):
         else:
             raise ValueError("Data must be of type list, int or bool")
 
-        param_reg = cpx_ap_registers.PARAMETERS[0]
+        param_reg = cpx_ap_registers.PARAMETERS.register_address
 
         # Strangely this sending has to be repeated several times,
         # actually it is tried up to 10 times.
@@ -241,7 +215,7 @@ class CpxAp(CpxBase):
         Returns data as list if successful or raises "CpxRequestError" if request denied
         """
 
-        param_reg = cpx_ap_registers.PARAMETERS[0]
+        param_reg = cpx_ap_registers.PARAMETERS.register_address
 
         self.write_reg_data(
             position + 1, param_reg
