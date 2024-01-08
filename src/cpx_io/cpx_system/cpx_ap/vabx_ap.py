@@ -1,4 +1,4 @@
-"""VABX-A-P-EL-E12-API module implementation"""
+"""VABX-A-P-EL-E12-AP* module implementation"""
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
@@ -9,7 +9,12 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 
 
 class VabxAP(CpxApModule):
-    """Class for VABX-A-P-EL-E12-API module"""
+    """Class for VABX-A-P-EL-E12-AP* module"""
+
+    module_codes = {
+        8232: "VABX-A-P-EL-E12-API",
+        8233: "VABX-A-P-EL-E12-APA",
+    }
 
     def __getitem__(self, key):
         return self.read_channel(key)
@@ -106,3 +111,38 @@ class VabxAP(CpxApModule):
             self.set_channel(channel)
         else:
             raise ValueError
+
+    @CpxBase.require_base
+    def configure_diagnosis_for_defect_valve(self, value: bool) -> None:
+        """Enable (True, default) or disable (False) diagnosis for defect valve."""
+        uid = 20021
+
+        self.base.write_parameter(self.position, uid, 0, int(value))
+
+    @CpxBase.require_base
+    def configure_monitoring_load_supply(self, value: int) -> None:
+        """Setup monitoring load supply PL. Accepted values are
+        0: Load supply monitoring inactive
+        1: Load supply monitoring active, undervoltage diagnosis suppressed
+           in case of switch-off (default)
+        2: Load supply monitoring active
+        """
+        uid = 20022
+
+        if not 0 <= value <= 1:
+            raise ValueError("Value {value} must be between 0 and 2")
+
+        self.base.write_parameter(self.position, uid, 0, value)
+
+    @CpxBase.require_base
+    def configure_behaviour_in_fail_state(self, value: int) -> None:
+        """Behaviour in fail state (communication error). Accepted values are
+        0: Reset Outputs (default)
+        1: Hold last state
+        """
+        uid = 20052
+
+        if not 0 <= value <= 1:
+            raise ValueError("Value {value} must be between 0 and 1")
+
+        self.base.write_parameter(self.position, uid, 0, value)

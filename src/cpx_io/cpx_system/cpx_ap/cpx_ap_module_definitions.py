@@ -8,6 +8,7 @@ from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
 from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
+from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
 
 # Dict that maps from module ids to corresponding module classes
 CPX_AP_MODULE_ID_DICT = {
@@ -21,7 +22,12 @@ CPX_AP_MODULE_ID_DICT = {
     "YX": CpxAp4Di4Do,
     "AM": CpxAp12Di4Do,
     "NI": CpxAp4AiUI,
-    "LK4": CpxAp4Iol,
+    "LKA": CpxAp4Iol,
+    "LKS": CpxAp4Iol,
+    "LKM": CpxAp4Iol,
+    "LKC": CpxAp4Iol,
+    "LKB": CpxAp4Iol,
+    "VABX": VabxAP,
 }
 
 CPX_AP_MODULE_ID_LIST = CPX_AP_MODULE_ID_DICT.values()
