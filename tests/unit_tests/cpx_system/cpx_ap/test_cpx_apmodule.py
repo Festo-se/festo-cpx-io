@@ -25,7 +25,7 @@ class TestCpxApModule:
         module = CpxApModule()
         module.information = {}
         module.information["Order Text"] = "text"
-        module.information["Modul Code"] = "code"
+        module.name = "code"
 
         module.position = 1
         assert repr(module) == "code (idx: 1, type: CpxApModule)"
@@ -35,7 +35,23 @@ class TestCpxApModule:
         module = CpxApModule()
 
         mocked_base = Mock()
+        mocked_base.next_output_register = 0
+        mocked_base.next_input_register = 0
         module.base = mocked_base
+        module.information = CpxAp.ModuleInformation(
+            module_code=0,
+            module_class=1,
+            communication_profiles=2,
+            input_size=3,
+            input_channels=4,
+            output_size=5,
+            output_channels=6,
+            hw_version=7,
+            fw_version="fw",
+            serial_number="sn",
+            product_key="pk",
+            order_text="ot",
+        )
 
         module.configure(mocked_base, 1)
 
@@ -61,11 +77,13 @@ class TestCpxApModule:
 
         ret = module.read_ap_parameter()
 
-        assert ret["Fieldbus serial number"] == 131073
-        assert ret["Product Key"] == "\x01\x00\x02"
-        assert ret["Firmware Version"] == "\x01\x00\x02"
-        assert ret["Module Code"] == 131073
-        assert ret["Measured value of temperature AP-ASIC [°C]"] == 2
-        assert ret["Current measured value of logic supply PS [mV]"] == 2
-        assert ret["Current measured value of load supply PL [mV]"] == 2
-        assert ret["Hardware Version"] == 1
+        assert ret.fieldbus_serial_number == 131073
+        assert ret.product_key == "\x01\x00\x02"
+        assert ret.firmware_version == "\x01\x00\x02"
+        assert ret.module_code == 131073
+        assert ret.temp_asic == 2
+        assert ret.logic_voltage == 2
+        assert ret.load_voltage == 2
+        assert ret.hw_version == 1
+        assert ret.io_link_variant == "n.a."
+        assert ret.operating_supply is False

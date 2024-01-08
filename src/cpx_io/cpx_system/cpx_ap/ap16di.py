@@ -1,4 +1,4 @@
-"""CPX-AP-8DI module implementation"""
+"""CPX-AP-*-16DI-* module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -8,13 +8,11 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.utils.boollist import int_to_boollist
 
 
-class CpxAp8Di(CpxApModule):
-    """Class for CPX-AP-*-8DI-* module"""
+class CpxAp16Di(CpxApModule):
+    """Class for CPX-AP-*-16DI-* module"""
 
     module_codes = {
-        8199: "CPX-AP-I-8DI-M8-3P",
-        8200: "CPX-AP-I-8DI-M12-5P",
-        12297: "CPX-AP-A-8DI-M12-5P",
+        12289: "CPX-AP-A-16DI-D-M12-5P",
     }
 
     def __getitem__(self, key):
@@ -24,7 +22,7 @@ class CpxAp8Di(CpxApModule):
     def read_channels(self) -> list[bool]:
         """read all channels as a list of bool values"""
         data = self.base.read_reg_data(self.input_register)[0]
-        return int_to_boollist(data, 1)
+        return int_to_boollist(data, 2)
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:

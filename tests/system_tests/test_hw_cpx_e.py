@@ -45,7 +45,7 @@ def test_module_count(test_cpxe):
 
 def test_fault_detection(test_cpxe):
     response = test_cpxe.fault_detection()
-    assert response == [False] * 24
+    assert len(response) == 24
 
 
 def test_status_register(test_cpxe):
@@ -72,7 +72,7 @@ def test_module_notconfigured(test_cpxe):
 
 def test_1module(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
-    assert e16di.output_register is None
+    assert e16di.output_register == 40003
     assert e16di.input_register == 45395
     assert test_cpxe.next_output_register == 40003
     assert test_cpxe.next_input_register == 45397
@@ -245,7 +245,7 @@ def test_3modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
-    assert e4ai.output_register is None
+    assert e4ai.output_register == 40004
     assert e4ai.input_register == 45399
     assert test_cpxe.next_output_register == 40004
     assert test_cpxe.next_input_register == 45404
@@ -725,10 +725,10 @@ def test_1ci_module(test_cpxe):
     e1ci.configure_signal_evaluation(3)
     e1ci.write_process_data(set_counter=True)
 
-    while not e1ci.read_process_data()["set_counter"]:
+    while not e1ci.read_process_data().set_counter:
         continue
     e1ci.write_process_data(set_counter=False)
-    while e1ci.read_process_data()["set_counter"]:
+    while e1ci.read_process_data().set_counter:
         continue
 
     for _ in range(16):

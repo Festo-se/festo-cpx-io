@@ -1,15 +1,40 @@
-"""CPX-AP-4IOL module implementation"""
+"""CPX-AP-*-4IOL-* module implementation"""
 
-from cpx_io.utils.logging import Logging
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
-
-from cpx_io.utils.helpers import div_ceil
-
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_base import CpxRequestError
+from cpx_io.utils.helpers import div_ceil
 
 
 class CpxAp4Iol(CpxApModule):
     """Class for CPX-AP-*-4IOL-* module"""
+
+    module_codes = {
+        8201: "CPX-AP-I-4IOL-M12 variant 8",
+        8205: "CPX-AP-I-4IOL-M12 variant 8 OE",
+        8206: "CPX-AP-I-4IOL-M12 variant 2",
+        8207: "CPX-AP-I-4IOL-M12 variant 2 OE",
+        8208: "CPX-AP-I-4IOL-M12 variant 4",
+        8209: "CPX-AP-I-4IOL-M12 variant 4 OE",
+        8210: "CPX-AP-I-4IOL-M12 variant 16",
+        8211: "CPX-AP-I-4IOL-M12 variant 16 OE",
+        8212: "CPX-AP-I-4IOL-M12 variant 23",
+        8213: "CPX-AP-I-4IOL-M12 variant 32 OE",
+        12302: "CPX-AP-A-4IOL-M12 variant 2",
+        12303: "CPX-AP-A-4IOL-M12 variant 2 OE",
+        12304: "CPX-AP-A-4IOL-M12 variant 4",
+        12305: "CPX-AP-A-4IOL-M12 variant 4 OE",
+        12300: "CPX-AP-A-4IOL-M12 variant 8",
+        12301: "CPX-AP-A-4IOL-M12 variant 8 OE",
+        12306: "CPX-AP-A-4IOL-M12 variant 16",
+        12307: "CPX-AP-A-4IOL-M12 variant 16 OE",
+        12308: "CPX-AP-A-4IOL-M12 variant 32",
+        12309: "CPX-AP-A-4IOL-M12 variant 32 OE",
+    }
 
     def __getitem__(self, key):
         return self.read_channel(key)
@@ -17,40 +42,11 @@ class CpxAp4Iol(CpxApModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def configure(self, *args):
-        super().configure(*args)
-
-        self.output_register = self.base.next_output_register
-        self.input_register = self.base.next_input_register
-
-        self.base.next_output_register += div_ceil(self.information["Output Size"], 2)
-        self.base.next_input_register += div_ceil(self.information["Input Size"], 2)
-
-        Logging.logger.debug(
-            (
-                f"Configured {self} with output register {self.output_register}"
-                f"and input register {self.input_register}"
-            )
-        )
-
     @CpxBase.require_base
     def read_ap_parameter(self) -> dict:
         """Read AP parameters"""
-        ap_dict = super().read_ap_parameter()
+        params = super().read_ap_parameter()
 
-        variant_dict = {
-            8201: "variant 8",
-            8205: "variant 8 OE",
-            8206: "variant 2",
-            8207: "variant 2 OE",
-            8208: "variant 4",
-            8209: "variant 4 OE",
-            8210: "variant 16",
-            8211: "variant 16 OE",
-            8212: "variant 23",
-            8213: "variant 32 OE",
-        }
-        # TODO: Why is this UINT16 stored in the second byte of the parameter?
         io_link_variant = CpxBase.decode_int(
             self.base.read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
         )
@@ -59,16 +55,16 @@ class CpxAp4Iol(CpxApModule):
             self.base.read_parameter(self.position, 20097, 0)
         )
 
-        ap_dict["IO-Link variant"] = variant_dict[io_link_variant]
-        ap_dict["Operating Supply"] = activation_operating_voltage
-        return ap_dict
+        params.io_link_variant = self.__class__.module_codes[io_link_variant]
+        params.operating_supply = activation_operating_voltage
+        return params
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
         """read all IO-Link input data
         register order is [msb, ... , ... , lsb]
         """
-        module_input_size = div_ceil(self.information["Input Size"], 2) - 2
+        module_input_size = div_ceil(self.information.input_size, 2) - 2
 
         data = self.base.read_reg_data(self.input_register, length=module_input_size)
         data = [
@@ -99,7 +95,7 @@ class CpxAp4Iol(CpxApModule):
         """set one channel to list of uint16 values
         channel order is [0, 1, 2, 3]
         """
-        module_output_size = div_ceil(self.information["Output Size"], 2)
+        module_output_size = div_ceil(self.information.output_size, 2)
         channel_size = (module_output_size) // 4
 
         register_data = [
@@ -125,20 +121,20 @@ class CpxAp4Iol(CpxApModule):
 
         channels_pqi = []
 
-        for d in data:
+        for data_item in data:
             port_qualifier = (
                 "input data is valid"
-                if (d & 0b10000000) >> 7
+                if (data_item & 0b10000000) >> 7
                 else "input data is invalid"
             )
             device_error = (
                 "there is at least one error or warning on the device or port"
-                if (d & 0b01000000) >> 6
+                if (data_item & 0b01000000) >> 6
                 else "there are no errors or warnings on the device or port"
             )
             dev_com = (
                 "device is in status PREOPERATE or OPERATE"
-                if (d & 0b00100000) >> 5
+                if (data_item & 0b00100000) >> 5
                 else "device is not connected or not yet in operation"
             )
 
@@ -200,15 +196,16 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_device_lost_diagnostics(
         self, value: bool, channel: int | list | None = None
     ) -> None:
-        """Activation of diagnostics for IO-Link device lost (default: True) for given channel. If no
-        channel is provided, value will be written to all channels."""
+        """Activation of diagnostics for IO-Link device lost (default: True) for
+        given channel. If no channel is provided, value will be written to all channels.
+        """
 
         uid = 20050
 
@@ -218,8 +215,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, int(value))
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, int(value))
 
     @CpxBase.require_base
     def configure_port_mode(
@@ -246,8 +243,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_review_and_backup(
@@ -273,8 +270,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_target_vendor_id(
@@ -291,8 +288,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def configure_setpoint_device_id(
@@ -309,8 +306,8 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for ch in channel:
-            self.base.write_parameter(self.position, uid, ch, value)
+        for channel_item in channel:
+            self.base.write_parameter(self.position, uid, channel_item, value)
 
     @CpxBase.require_base
     def read_fieldbus_parameters(self) -> list[dict]:
@@ -392,3 +389,61 @@ class CpxAp4Iol(CpxApModule):
             )
 
         return channel_params
+
+    @CpxBase.require_base
+    def read_isdu(self, channel: int, index: int, subindex: int) -> list[int]:
+        """Read isdu (device parameter) from defined channel
+        Raises CpxRequestError when read failed"""
+
+        # select module, starts with 1
+        self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
+        # select channel, starts with 1
+        self.base.write_reg_data(channel + 1, *cpx_ap_registers.ISDU_CHANNEL)
+        # select index
+        self.base.write_reg_data(index, *cpx_ap_registers.ISDU_INDEX)
+        # select subindex
+        self.base.write_reg_data(subindex, *cpx_ap_registers.ISDU_SUBINDEX)
+        # select length of data in bytes, always zero when reading
+        self.base.write_reg_data(0, *cpx_ap_registers.ISDU_LENGTH)
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        self.base.write_reg_data(100, *cpx_ap_registers.ISDU_COMMAND)
+
+        stat = 1
+        cnt = 0
+        while stat > 0 or cnt > 1000:
+            stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
+            cnt += 1
+        if cnt >= 1000:
+            raise CpxRequestError("ISDU data read failed")
+
+        return self.base.read_reg_data(*cpx_ap_registers.ISDU_DATA)
+
+    @CpxBase.require_base
+    def write_isdu(
+        self, data: list[int], channel: int, index: int, subindex: int
+    ) -> None:
+        """Write isdu (device parameter) to defined channel.
+        Raises CpxRequestError when write failed"""
+
+        # select module, starts with 1
+        self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
+        # select channel, starts with 1
+        self.base.write_reg_data(channel + 1, *cpx_ap_registers.ISDU_CHANNEL)
+        # select index
+        self.base.write_reg_data(index, *cpx_ap_registers.ISDU_INDEX)
+        # select subindex
+        self.base.write_reg_data(subindex, *cpx_ap_registers.ISDU_SUBINDEX)
+        # select length of data in bytes, always zero when reading
+        self.base.write_reg_data(len(data) * 2, *cpx_ap_registers.ISDU_LENGTH)
+        # write data to data register
+        self.base.write_reg_data(data, *cpx_ap_registers.ISDU_DATA)
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        self.base.write_reg_data(101, *cpx_ap_registers.ISDU_COMMAND)
+
+        stat = 1
+        cnt = 0
+        while stat > 0 or cnt > 1000:
+            stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
+            cnt += 1
+        if cnt >= 1000:
+            raise CpxRequestError("ISDU data write failed")

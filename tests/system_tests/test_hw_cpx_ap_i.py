@@ -51,7 +51,7 @@ def test_read_module_information(test_cpxap):
     cnt = test_cpxap.read_module_count()
     for i in range(cnt):
         modules.append(test_cpxap.read_module_information(i))
-    assert modules[0]["Module Code"] == 8323
+    assert modules[0].module_code in CpxApEp.module_codes
 
 
 def test_modules(test_cpxap):
@@ -65,23 +65,38 @@ def test_modules(test_cpxap):
     assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
 
     for m in test_cpxap.modules:
-        assert m.information["Input Size"] >= 0
+        assert m.information.input_size >= 0
 
-    assert test_cpxap.modules[0].information["Module Code"] == 8323
+    assert test_cpxap.modules[0].information.module_code in CpxApEp.module_codes
     assert test_cpxap.modules[0].position == 0
 
-    assert test_cpxap.modules[0].output_register == None  # EP
-    assert test_cpxap.modules[1].output_register == None  # 8DI
-    assert test_cpxap.modules[2].output_register == 0  # 4DI4DO
-    assert test_cpxap.modules[3].output_register == None  # 4AIUI
-    assert test_cpxap.modules[4].output_register == 1  # 4IOL
-    assert test_cpxap.modules[5].output_register == None  # 4Di
+    assert test_cpxap.modules[1].information.module_code in CpxAp8Di.module_codes
+    assert test_cpxap.modules[1].position == 1
 
-    assert test_cpxap.modules[0].input_register == None  # EP
-    assert test_cpxap.modules[1].input_register == 5000  # 8DI
-    assert test_cpxap.modules[2].input_register == 5001  # 4DI4DO
-    assert test_cpxap.modules[3].input_register == 5002  # 4AIUI
-    assert test_cpxap.modules[4].input_register == 5006  # 4IOL
+    assert test_cpxap.modules[2].information.module_code in CpxAp4Di4Do.module_codes
+    assert test_cpxap.modules[2].position == 2
+
+    assert test_cpxap.modules[3].information.module_code in CpxAp4AiUI.module_codes
+    assert test_cpxap.modules[3].position == 3
+
+    assert test_cpxap.modules[4].information.module_code in CpxAp4Iol.module_codes
+    assert test_cpxap.modules[4].position == 4
+
+    assert test_cpxap.modules[5].information.module_code in CpxAp4Di.module_codes
+    assert test_cpxap.modules[5].position == 5
+
+    assert test_cpxap.modules[0].output_register is None  # EP
+    assert test_cpxap.modules[1].output_register == 0  # 8DI
+    assert test_cpxap.modules[2].output_register == 0  # 4DI4DO, adds 1
+    assert test_cpxap.modules[3].output_register == 1  # 4AIUI
+    assert test_cpxap.modules[4].output_register == 1  # 4IOL, adds 16
+    assert test_cpxap.modules[5].output_register == 17  # 4Di
+
+    assert test_cpxap.modules[0].input_register is None  # EP
+    assert test_cpxap.modules[1].input_register == 5000  # 8DI, adds 1
+    assert test_cpxap.modules[2].input_register == 5001  # 4DI4DO, adds 1
+    assert test_cpxap.modules[3].input_register == 5002  # 4AIUI, adds 4
+    assert test_cpxap.modules[4].input_register == 5006  # 4IOL, adds 18
     assert test_cpxap.modules[5].input_register == 5024  # 4Di
 
 
@@ -116,18 +131,18 @@ def test_4Di4Do(test_cpxap):
 
     test_cpxap.modules[2].set_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == True
-    assert test_cpxap.modules[2].read_channel(4) == True
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is True
+    assert test_cpxap.modules[2].read_channel(4) is True
 
     test_cpxap.modules[2].clear_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == False
-    assert test_cpxap.modules[2].read_channel(4) == False
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is False
+    assert test_cpxap.modules[2].read_channel(4) is False
 
     test_cpxap.modules[2].toggle_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) == True
-    assert test_cpxap.modules[2].read_channel(4) == True
+    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is True
+    assert test_cpxap.modules[2].read_channel(4) is True
 
     test_cpxap.modules[2].clear_channel(0)
 
@@ -167,11 +182,16 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param["active_ip_address"] == "172.16.1.41"
-    assert param["active_subnet_mask"] == "255.255.0.0"
-    assert param["active_gateway_address"] == "0.0.0.0"
-    assert param["mac_address"] == "00:0e:f0:7d:3b:15"
-    assert param["setup_monitoring_load_supply"] == 1
+    assert param.dhcp_enable is False
+    assert param.active_ip_address == "172.16.1.41"
+    assert param.active_subnet_mask == "255.255.0.0"
+    assert param.active_gateway_address == "0.0.0.0"
+    assert param.mac_address == "00:0e:f0:7d:3b:15"
+    assert param.setup_monitoring_load_supply == 1
+
+    # assert param.subnet_mask == "255.255.255.0"
+    # assert param.gateway_address == "172.16.1.1"
+    # assert param.active_gateway_address == "172.16.1.1"
 
 
 def test_4AiUI_configures_channel_unit(test_cpxap):
@@ -423,12 +443,21 @@ def test_setter(test_cpxap):
 
 
 def test_read_ap_parameter(test_cpxap):
-    with pytest.raises(NotImplementedError):
-        test_cpxap.modules[0].read_ap_parameter()
+    info = test_cpxap.modules[1].information
+    ap = test_cpxap.modules[1].read_ap_parameter()
+    assert ap.module_code == info.module_code
+
+    info = test_cpxap.modules[2].information
+    ap = test_cpxap.modules[2].read_ap_parameter()
+    assert ap.module_code == info.module_code
+
+    info = test_cpxap.modules[3].information
+    ap = test_cpxap.modules[3].read_ap_parameter()
+    assert ap.module_code == info.module_code
 
     info = test_cpxap.modules[4].information
     ap = test_cpxap.modules[4].read_ap_parameter()
-    assert ap["Module Code"] == info["Module Code"]
+    assert ap.module_code == info.module_code
 
 
 def test_4iol_sdas(test_cpxap):
@@ -584,6 +613,27 @@ def test_4iol_ethrottle(test_cpxap):
 
     while not process_input_data["Motion Complete"]:
         process_input_data = read_process_data_in(a4iol, ethrottle_channel)
+
+
+def test_4iol_ethrottle_isdu_read(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+    ethrottle_channel = 3
+
+    assert (
+        CpxBase.decode_string(a4iol.read_isdu(ethrottle_channel, 16, 0)[:32])
+        == "Festo SE & Co. KG"
+    )
+
+
+def test_4iol_ethrottle_isdu_write(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+    ethrottle_channel = 3
+    function_tag_idx = 25
+    a4iol.write_isdu([1, 2, 3, 4], ethrottle_channel, function_tag_idx, 0)
+
+    assert a4iol.read_isdu(ethrottle_channel, function_tag_idx, 0)[:4] == [1, 2, 3, 4]
 
 
 def test_read_pqi(test_cpxap):
