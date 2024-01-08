@@ -1,86 +1,110 @@
-"""Contains tests for CpxAp8Di class"""
+"""Contains tests for CpxAp16Di class"""
 from unittest.mock import Mock
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
+from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
 
 
-class TestCpxAp8Di:
-    "Test CpxAp8Di"
+class TestCpxAp16Di:
+    "Test CpxAp16Di"
 
     def test_constructor_correct_type(self):
         """Test constructor"""
         # Arrange
 
         # Act
-        cpxap8di = CpxAp8Di()
+        cpxap16di = CpxAp16Di()
 
         # Assert
-        assert isinstance(cpxap8di, CpxAp8Di)
+        assert isinstance(cpxap16di, CpxAp16Di)
 
     def test_read_channels_correct_values(self):
         """Test read channels"""
         # Arrange
-        cpxap8di = CpxAp8Di()
+        cpxap16di = CpxAp16Di()
 
-        cpxap8di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
+        cpxap16di.base = Mock(read_reg_data=Mock(return_value=[0xCAFE]))
 
         # Act
-        channel_values = cpxap8di.read_channels()
+        channel_values = cpxap16di.read_channels()
 
         # Assert
         assert channel_values == [
             False,
             True,
-            False,
+            True,
+            True,
+            True,
+            True,
+            True,
             True,
             False,
             True,
             False,
+            True,
+            False,
+            False,
+            True,
             True,
         ]
 
     def test_read_channel_correct_values(self):
         """Test read channel"""
         # Arrange
-        cpxap8di = CpxAp8Di()
+        cpxap16di = CpxAp16Di()
 
-        cpxap8di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
+        cpxap16di.base = Mock(read_reg_data=Mock(return_value=[0xCAFE]))
 
         # Act
-        channel_values = [cpxap8di.read_channel(idx) for idx in range(8)]
+        channel_values = [cpxap16di.read_channel(idx) for idx in range(16)]
 
         # Assert
         assert channel_values == [
             False,
             True,
-            False,
+            True,
+            True,
+            True,
+            True,
+            True,
             True,
             False,
             True,
             False,
+            True,
+            False,
+            False,
+            True,
             True,
         ]
 
     def test_get_item_correct_values(self):
         """Test get item"""
         # Arrange
-        cpxap8di = CpxAp8Di()
+        cpxap16di = CpxAp16Di()
 
-        cpxap8di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
+        cpxap16di.base = Mock(read_reg_data=Mock(return_value=[0xCAFE]))
 
         # Act
-        channel_values = [cpxap8di[idx] for idx in range(8)]
+        channel_values = [cpxap16di[idx] for idx in range(16)]
 
         # Assert
         assert channel_values == [
             False,
             True,
-            False,
+            True,
+            True,
+            True,
+            True,
+            True,
             True,
             False,
             True,
             False,
+            True,
+            False,
+            False,
+            True,
             True,
         ]
 
@@ -92,17 +116,17 @@ class TestCpxAp8Di:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        cpxap8di = CpxAp8Di()
-        cpxap8di.position = MODULE_POSITION
+        cpxap16di = CpxAp16Di()
+        cpxap16di.position = MODULE_POSITION
 
-        cpxap8di.base = Mock(write_parameter=Mock())
+        cpxap16di.base = Mock(write_parameter=Mock())
 
         # Act
         PARAMETER_ID = 20014  # pylint: disable=invalid-name
-        cpxap8di.configure_debounce_time(input_value)
+        cpxap16di.configure_debounce_time(input_value)
 
         # Assert
-        cpxap8di.base.write_parameter.assert_called_with(
+        cpxap16di.base.write_parameter.assert_called_with(
             MODULE_POSITION, PARAMETER_ID, 0, expected_value
         )
 
@@ -112,11 +136,11 @@ class TestCpxAp8Di:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        cpxap8di = CpxAp8Di()
-        cpxap8di.position = MODULE_POSITION
+        cpxap16di = CpxAp16Di()
+        cpxap16di.position = MODULE_POSITION
 
-        cpxap8di.base = Mock(write_parameter=Mock())
+        cpxap16di.base = Mock(write_parameter=Mock())
 
         # Act & Assert
         with pytest.raises(ValueError):
-            cpxap8di.configure_debounce_time(input_value)
+            cpxap16di.configure_debounce_time(input_value)
