@@ -5,6 +5,8 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 
 
@@ -387,3 +389,61 @@ class CpxAp4Iol(CpxApModule):
             )
 
         return channel_params
+
+    @CpxBase.require_base
+    def read_isdu(self, channel: int, index: int, subindex: int) -> list[int]:
+        """Read isdu (device parameter) from defined channel
+        Raises CpxRequestError when read failed"""
+
+        # select module, starts with 1
+        self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
+        # select channel, starts with 1
+        self.base.write_reg_data(channel + 1, *cpx_ap_registers.ISDU_CHANNEL)
+        # select index
+        self.base.write_reg_data(index, *cpx_ap_registers.ISDU_INDEX)
+        # select subindex
+        self.base.write_reg_data(subindex, *cpx_ap_registers.ISDU_SUBINDEX)
+        # select length of data in bytes, always zero when reading
+        self.base.write_reg_data(0, *cpx_ap_registers.ISDU_LENGTH)
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        self.base.write_reg_data(100, *cpx_ap_registers.ISDU_COMMAND)
+
+        stat = 1
+        cnt = 0
+        while stat > 0 or cnt > 1000:
+            stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
+            cnt += 1
+        if cnt >= 1000:
+            raise CpxRequestError("ISDU data read failed")
+
+        return self.base.read_reg_data(*cpx_ap_registers.ISDU_DATA)
+
+    @CpxBase.require_base
+    def write_isdu(
+        self, data: list[int], channel: int, index: int, subindex: int
+    ) -> None:
+        """Write isdu (device parameter) to defined channel.
+        Raises CpxRequestError when write failed"""
+
+        # select module, starts with 1
+        self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
+        # select channel, starts with 1
+        self.base.write_reg_data(channel + 1, *cpx_ap_registers.ISDU_CHANNEL)
+        # select index
+        self.base.write_reg_data(index, *cpx_ap_registers.ISDU_INDEX)
+        # select subindex
+        self.base.write_reg_data(subindex, *cpx_ap_registers.ISDU_SUBINDEX)
+        # select length of data in bytes, always zero when reading
+        self.base.write_reg_data(len(data) * 2, *cpx_ap_registers.ISDU_LENGTH)
+        # write data to data register
+        self.base.write_reg_data(data, *cpx_ap_registers.ISDU_DATA)
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        self.base.write_reg_data(101, *cpx_ap_registers.ISDU_COMMAND)
+
+        stat = 1
+        cnt = 0
+        while stat > 0 or cnt > 1000:
+            stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
+            cnt += 1
+        if cnt >= 1000:
+            raise CpxRequestError("ISDU data write failed")

@@ -601,6 +601,27 @@ def test_4iol_ethrottle(test_cpxap):
         process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
 
+def test_4iol_ethrottle_isdu_read(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+    ethrottle_channel = 3
+
+    assert (
+        CpxBase.decode_string(a4iol.read_isdu(ethrottle_channel, 16, 0)[:32])
+        == "Festo SE & Co. KG"
+    )
+
+
+def test_4iol_ethrottle_isdu_write(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+    ethrottle_channel = 3
+    function_tag_idx = 25
+    a4iol.write_isdu([1, 2, 3, 4], ethrottle_channel, function_tag_idx, 0)
+
+    assert a4iol.read_isdu(ethrottle_channel, function_tag_idx, 0)[:4] == [1, 2, 3, 4]
+
+
 def test_read_pqi(test_cpxap):
     a4iol = test_cpxap.modules[4]
     assert isinstance(a4iol, CpxAp4Iol)
