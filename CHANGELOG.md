@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- [Minor] Added vabx module for vtux access
 - [Minor] ISDU Access for CPX-AP-4IOL
 - [Minor] Added CPX-AP-A modules
 - [Minor] Implemented CPX-E-1CI module

@@ -99,6 +99,6 @@ class CpxAp8Do(CpxApModule):
         uid = 20052
 
         if not 0 <= value <= 1:
-            raise ValueError("Value {value} must be between 0 and 2")
+            raise ValueError("Value {value} must be between 0 and 1")
 
         self.base.write_parameter(self.position, uid, 0, value)
