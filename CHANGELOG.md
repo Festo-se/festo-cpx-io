@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Minor] Reworked CPX-E class structure.
 
 ### Fixed
+- [Patch] Bugfix CPX-AP- Systemtest
 - [Patch] Fixed bug in IDSU access cpx-ap-4iol
 - [Patch] Fixed bug in CpxE4Iol address calculation
 - [Patch] Fixed bug in CPX-E-4AI read_channel
