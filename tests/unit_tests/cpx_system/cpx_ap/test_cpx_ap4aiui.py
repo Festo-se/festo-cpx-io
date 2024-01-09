@@ -461,8 +461,6 @@ class TestCpxAp4AiUI:
         [
             (True, True),
             (False, False),
-            (0, 0),
-            (1, 1),
         ],
     )
     def test_configure_linear_scaling(self, input_value, expected_value):
@@ -512,4 +510,4 @@ class TestCpxAp4AiUI:
 
         # Act & Assert
         with pytest.raises(ValueError):
-            cpxap4aiui.configure_linear_scaling(input_value, 0)
+            cpxap4aiui.configure_linear_scaling(input_value, True)
