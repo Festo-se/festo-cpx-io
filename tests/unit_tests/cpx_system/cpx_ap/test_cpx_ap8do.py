@@ -1,9 +1,9 @@
 """Contains tests for CpxAp8Do class"""
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
-from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
+from cpx_io.utils.boollist import boollist_to_int
 
 
 class TestCpxAp8Do:
@@ -111,6 +111,25 @@ class TestCpxAp8Do:
 
         # Assert
         cpxap8do.base.write_reg_data.assert_called_with(0xBB, 0)
+
+    def test_set_item(self):
+        """Test set item"""
+        # Arange
+        cpxap8do = CpxAp8Do()
+
+        cpxap8do.base = Mock()
+        cpxap8do.write_channel = Mock()
+
+        # Act
+        cpxap8do[0] = True
+        cpxap8do[1] = False
+        cpxap8do[2] = True
+        cpxap8do[3] = False
+
+        # Assert
+        cpxap8do.write_channel.assert_has_calls(
+            [call(0, True), call(1, False), call(2, True), call(3, False)]
+        )
 
     def test_write_channel_false(self):
         """Test write channel"""
