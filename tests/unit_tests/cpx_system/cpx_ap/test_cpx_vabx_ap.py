@@ -204,7 +204,9 @@ class TestVabxAP:
         vabx_ap.write_channels(bool_list)
 
         # Assert
-        vabx_ap.base.write_reg_data.has_calls(call(0xDEAD, 0), call(0xBEEF, 0))
+        vabx_ap.base.write_reg_data.assert_has_calls(
+            [call(0xDEAD, 0), call(0xBEEF, 1)], any_order=True
+        )
 
     def test_write_channels_too_long(self):
         """Test write channels, expect error"""
@@ -252,7 +254,9 @@ class TestVabxAP:
         vabx_ap.write_channel(0, False)
 
         # Assert
-        vabx_ap.base.write_reg_data.has_calls(call(0xDEAC, 0), call(0xBEEF, 1))
+        vabx_ap.base.write_reg_data.assert_has_calls(
+            [call(0xDEAC, 0), call(0xBEEF, 1)], any_order=True
+        )
 
     def test_write_channel_false(self):
         """Test write channel"""
@@ -264,10 +268,12 @@ class TestVabxAP:
         vabx_ap.output_register = 0
 
         # Act
-        vabx_ap.write_channel(1, False)
+        vabx_ap.write_channel(1, True)
 
         # Assert
-        vabx_ap.base.write_reg_data.has_calls(call(0xDEAF, 0), call(0xBEEF, 1))
+        vabx_ap.base.write_reg_data.assert_has_calls(
+            [call(0xDEAF, 0), call(0xBEEF, 1)], any_order=True
+        )
 
     def test_set_item(self):
         """Test set item"""

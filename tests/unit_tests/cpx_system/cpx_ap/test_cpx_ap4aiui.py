@@ -262,9 +262,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.configure_channel_limits(0, upper=input_value, lower=input_value)
 
         # Assert
-        cpxap4aiui.base.write_parameter.has_calls(
-            call(MODULE_POSITION, PARAMETER_ID_UPPER, 0, expected_value),
-            call(MODULE_POSITION, PARAMETER_ID_LOWER, 0, expected_value),
+        cpxap4aiui.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID_UPPER, 0, expected_value),
+                call(MODULE_POSITION, PARAMETER_ID_LOWER, 0, expected_value),
+            ],
             any_order=True,
         )
 

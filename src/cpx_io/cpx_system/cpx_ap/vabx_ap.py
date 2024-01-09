@@ -77,7 +77,7 @@ class VabxAP(CpxApModule):
 
         # read current values
         data0, data1 = self.base.read_reg_data(self.output_register, length=2)
-        data = data1 << 16 + data0
+        data = (data1 << 16) + data0
 
         mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
         data &= ~mask  # Clear the bit indicated by the mask
