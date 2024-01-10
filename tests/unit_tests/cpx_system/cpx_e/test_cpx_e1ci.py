@@ -127,7 +127,7 @@ class TestCpxE1Ci:
 
         cpxe1ci.base.read_reg_data.assert_called_with(cpxe1ci.input_register + 6)
 
-    def test_write_process_data_setting_di2_true(self):
+    def test_write_process_data_setting_di2(self):
         """Test write_process_data"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -142,7 +142,7 @@ class TestCpxE1Ci:
         # Assert
         cpxe1ci.base.write_reg_data.assert_called_with(0xAB, cpxe1ci.output_register)
 
-    def test_write_process_data_block_latching_false(self):
+    def test_write_process_data_block_latching(self):
         """Test write_process_data"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -157,7 +157,11 @@ class TestCpxE1Ci:
         # Assert
         cpxe1ci.base.write_reg_data.assert_called_with(0x2A, cpxe1ci.output_register)
 
-    def test_configure_signal_type_0(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4828 + 64 + 6, 0xA8)), (3, (4828 + 64 + 6, 0xAB))],
+    )
+    def test_configure_signal_type(self, input_value, expected_value):
         """Test configure_signal_type"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -167,25 +171,10 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_signal_type(0)
+        cpxe1ci.configure_signal_type(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 6, 0xA8)
-
-    def test_configure_signal_type_3(self):
-        """Test configure_signal_type"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_signal_type(3)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 6, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_signal_type_raise_error(self, input_value):
@@ -199,7 +188,11 @@ class TestCpxE1Ci:
         with pytest.raises(ValueError):
             cpxe1ci.configure_signal_type(input_value)
 
-    def test_configure_signal_evaluation_0(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4828 + 64 + 7, 0xA8)), (3, (4828 + 64 + 7, 0xAB))],
+    )
+    def test_configure_signal_evaluation(self, input_value, expected_value):
         """Test configure_signal_evaluation"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -209,25 +202,10 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_signal_evaluation(0)
+        cpxe1ci.configure_signal_evaluation(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 7, 0xA8)
-
-    def test_configure_signal_evaluation_3(self):
-        """Test configure_signal_evaluation"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_signal_evaluation(3)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 7, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_signal_evaluation_raise_error(self, input_value):
@@ -240,7 +218,11 @@ class TestCpxE1Ci:
         with pytest.raises(ValueError):
             cpxe1ci.configure_signal_evaluation(input_value)
 
-    def test_configure_monitoring_of_cable_brake_true(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(True, (4828 + 64 + 8, 0xAB)), (False, (4828 + 64 + 8, 0xAA))],
+    )
+    def test_configure_monitoring_of_cable_brake(self, input_value, expected_value):
         """Test configure_monitoring_of_cable_brake"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -250,27 +232,16 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_monitoring_of_cable_brake(True)
+        cpxe1ci.configure_monitoring_of_cable_brake(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 8, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    def test_configure_monitoring_of_cable_brake_false(self):
-        """Test configure_monitoring_of_cable_brake"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_monitoring_of_cable_brake(False)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 8, 0xAA)
-
-    def test_configure_monitoring_of_tracking_error_true(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(True, (4828 + 64 + 9, 0xAB)), (False, (4828 + 64 + 9, 0xAA))],
+    )
+    def test_configure_monitoring_of_tracking_error(self, input_value, expected_value):
         """Test configure_monitoring_of_cable_brake enable"""
         # Arrange
         # Arrange
@@ -281,28 +252,16 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_monitoring_of_tracking_error(False)
+        cpxe1ci.configure_monitoring_of_tracking_error(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 9, 0xAA)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    def test_configure_monitoring_of_tracking_error_false(self):
-        """Test configure_monitoring_of_cable_brake disable"""
-        # Arrange
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_monitoring_of_tracking_error(False)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 9, 0xAA)
-
-    def test_configure_monitoring_of_zero_pulse_true(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(True, (4828 + 64 + 10, 0xAB)), (False, (4828 + 64 + 10, 0xAA))],
+    )
+    def test_configure_monitoring_of_zero_pulse(self, input_value, expected_value):
         """Test configure_monitoring_of_zero_pulse"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -312,67 +271,33 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_monitoring_of_zero_pulse(True)
+        cpxe1ci.configure_monitoring_of_zero_pulse(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 10, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    def test_configure_monitoring_of_zero_pulse_false(self):
-        """Test configure_monitoring_of_zero_pulse"""
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
+            (0, [call(4828 + 64 + 11, 0), call(4828 + 64 + 12, 0)]),
+            (65535, [call(4828 + 64 + 11, 0xFF), call(4828 + 64 + 12, 0xFF)]),
+            (0xCAFE, [call(4828 + 64 + 11, 0xFE), call(4828 + 64 + 12, 0xCA)]),
+        ],
+    )
+    def test_configure_pulses_per_zero_pulse(self, input_value, expected_value):
+        """Test configure_pulses_per_zero_pulse"""
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
+        cpxe1ci.base = Mock()
+
+        # Act
+        cpxe1ci.configure_pulses_per_zero_pulse(input_value)
+
+        # Assert
+        cpxe1ci.base.write_function_number.assert_has_calls(
+            expected_value, any_order=False
         )
-
-        # Act
-        cpxe1ci.configure_monitoring_of_zero_pulse(False)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 10, 0xAA)
-
-    def test_configure_pulses_per_zero_pulse_0(self):
-        """Test configure_pulses_per_zero_pulse"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock()
-
-        # Act
-        cpxe1ci.configure_pulses_per_zero_pulse(0)
-
-        # Assert
-        calls = [call(4828 + 64 + 11, 0), call(4828 + 64 + 12, 0)]
-        cpxe1ci.base.write_function_number.assert_has_calls(calls, any_order=False)
-
-    def test_configure_pulses_per_zero_pulse_65535(self):
-        """Test configure_pulses_per_zero_pulse"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock()
-
-        # Act
-        cpxe1ci.configure_pulses_per_zero_pulse(65535)
-
-        # Assert
-        calls = [call(4828 + 64 + 11, 0xFF), call(4828 + 64 + 12, 0xFF)]
-        cpxe1ci.base.write_function_number.assert_has_calls(calls, any_order=False)
-
-    def test_configure_pulses_per_zero_pulse_0xCAFE(self):
-        """Test configure_pulses_per_zero_pulse"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock()
-
-        # Act
-        cpxe1ci.configure_pulses_per_zero_pulse(0xCAFE)
-
-        # Assert
-        calls = [call(4828 + 64 + 11, 0xFE), call(4828 + 64 + 12, 0xCA)]
-        cpxe1ci.base.write_function_number.assert_has_calls(calls, any_order=False)
 
     @pytest.mark.parametrize("input_value", [-1, 65536])
     def test_configure_pulses_per_zero_pulse_raise_error(self, input_value):
@@ -386,7 +311,11 @@ class TestCpxE1Ci:
         with pytest.raises(ValueError):
             cpxe1ci.configure_pulses_per_zero_pulse(input_value)
 
-    def test_configure_latching_signal_true(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(True, (4828 + 64 + 13, 0xAB)), (False, (4828 + 64 + 13, 0xAA))],
+    )
+    def test_configure_latching_signal(self, input_value, expected_value):
         """Test configure_latching_signal"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -396,27 +325,16 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_latching_signal(True)
+        cpxe1ci.configure_latching_signal(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 13, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    def test_configure_latching_signal_false(self):
-        """Test configure_latching_signal"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_latching_signal(False)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 13, 0xAA)
-
-    def test_configure_latching_event_0(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4828 + 64 + 14, 0xA8)), (3, (4828 + 64 + 14, 0xAB))],
+    )
+    def test_configure_latching_event(self, input_value, expected_value):
         """Test configure_latching_event"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -426,25 +344,10 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_latching_event(0)
+        cpxe1ci.configure_latching_event(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 14, 0xA8)
-
-    def test_configure_latching_event_3(self):
-        """Test configure_latching_event"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_latching_event(3)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 14, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_latching_event_raise_error(self, input_value):
@@ -457,7 +360,11 @@ class TestCpxE1Ci:
         with pytest.raises(ValueError):
             cpxe1ci.configure_latching_event(input_value)
 
-    def test_configure_latching_response_true(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(True, (4828 + 64 + 15, 0xAB)), (False, (4828 + 64 + 15, 0xAA))],
+    )
+    def test_configure_latching_response(self, input_value, expected_value):
         """Test configure_latching_response"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -467,25 +374,10 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_latching_response(True)
+        cpxe1ci.configure_latching_response(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 15, 0xAB)
-
-    def test_configure_latching_response_false(self):
-        """Test configure_latching_response"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_latching_response(False)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 15, 0xAA)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
@@ -664,7 +556,13 @@ class TestCpxE1Ci:
         with pytest.raises(ValueError):
             cpxe1ci.configure_load_value(input_value)
 
-    def test_configure_debounce_time_for_digital_inputs_0(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4828 + 64 + 28, 0xA8)), (3, (4828 + 64 + 28, 0xAB))],
+    )
+    def test_configure_debounce_time_for_digital_inputs(
+        self, input_value, expected_value
+    ):
         """Test configure_debounce_time_for_digital_inputs"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -674,25 +572,10 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_debounce_time_for_digital_inputs(0)
+        cpxe1ci.configure_debounce_time_for_digital_inputs(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 28, 0xA8)
-
-    def test_configure_debounce_time_for_digital_inputs_3(self):
-        """Test configure_debounce_time_for_digital_inputs"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_debounce_time_for_digital_inputs(3)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 28, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_debounce_time_for_digital_inputs_raise_error(self, input_value):
@@ -706,7 +589,13 @@ class TestCpxE1Ci:
         with pytest.raises(ValueError):
             cpxe1ci.configure_debounce_time_for_digital_inputs(input_value)
 
-    def test_configure_integration_time_for_speed_measurement_0(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4828 + 64 + 29, 0xA8)), (3, (4828 + 64 + 29, 0xAB))],
+    )
+    def test_configure_integration_time_for_speed_measurement(
+        self, input_value, expected_value
+    ):
         """Test configure_integration_time_for_speed_measurement"""
         # Arrange
         cpxe1ci = CpxE1Ci()
@@ -716,25 +605,10 @@ class TestCpxE1Ci:
         )
 
         # Act
-        cpxe1ci.configure_integration_time_for_speed_measurement(0)
+        cpxe1ci.configure_integration_time_for_speed_measurement(input_value)
 
         # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 29, 0xA8)
-
-    def test_configure_integration_time_for_speed_measurement_3(self):
-        """Test configure_integration_time_for_speed_measurement"""
-        # Arrange
-        cpxe1ci = CpxE1Ci()
-        cpxe1ci.position = 1
-        cpxe1ci.base = Mock(
-            read_function_number=Mock(return_value=0xAA), write_function_number=Mock()
-        )
-
-        # Act
-        cpxe1ci.configure_integration_time_for_speed_measurement(3)
-
-        # Assert
-        cpxe1ci.base.write_function_number.assert_called_with(4828 + 64 + 29, 0xAB)
+        cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_integration_time_for_speed_measurement_raise_error(

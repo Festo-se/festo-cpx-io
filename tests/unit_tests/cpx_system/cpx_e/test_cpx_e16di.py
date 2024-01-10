@@ -1,8 +1,6 @@
 """Contains tests for cpx_e16di class"""
-from unittest.mock import Mock
 import pytest
-
-from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+from unittest.mock import Mock
 
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 
@@ -10,170 +8,194 @@ from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 class TestCpxE16Di:
     """Test cpx-e-16di"""
 
-    def test_initialize(self):
+    def test_constructor_default(self):
         """Test initialize function"""
-        cpx_e = CpxE()
+        # Arrange
+
+        # Act
         cpxe16di = CpxE16Di()
 
+        # Assert
         assert cpxe16di.base is None
         assert cpxe16di.position is None
 
-        cpxe16di = cpx_e.add_module(cpxe16di)
+    def test_configure(self):
+        # Arrange
+        cpxe16di = CpxE16Di()
+        mocked_base = Mock(next_input_register=0)
 
-        mocked_base = Mock()
-        cpxe16di.base = mocked_base
+        # Act
+        MODULE_POSITION = 1
+        cpxe16di.configure(mocked_base, MODULE_POSITION)
 
+        # Assert
         assert cpxe16di.base == mocked_base
-        assert cpxe16di.position == 1
+        assert cpxe16di.position == MODULE_POSITION
 
     def test_read_status(self):
         """Test read channels"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.input_register = 0
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=[0xAAAA]))
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0xAAAA])
-        cpxe16di.base = mocked_base
+        # Act
+        status = cpxe16di.read_status()
 
-        assert cpxe16di.read_status() == [False, True] * 8
+        # Assert
+        assert status == [False, True] * 8
 
     def test_read_channel_0_to_15(self):
         """Test read channels"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=[0b1100110010101110]))
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b1100110010101110])
-        cpxe16di.base = mocked_base
+        # Act
+        channel_values = [cpxe16di.read_channel(idx) for idx in range(16)]
 
-        assert cpxe16di.read_channel(0) is False
-        assert cpxe16di.read_channel(1) is True
-        assert cpxe16di.read_channel(2) is True
-        assert cpxe16di.read_channel(3) is True
-        assert cpxe16di.read_channel(4) is False
-        assert cpxe16di.read_channel(5) is True
-        assert cpxe16di.read_channel(6) is False
-        assert cpxe16di.read_channel(7) is True
-        assert cpxe16di.read_channel(8) is False
-        assert cpxe16di.read_channel(9) is False
-        assert cpxe16di.read_channel(10) is True
-        assert cpxe16di.read_channel(11) is True
-        assert cpxe16di.read_channel(12) is False
-        assert cpxe16di.read_channel(13) is False
-        assert cpxe16di.read_channel(14) is True
-        assert cpxe16di.read_channel(15) is True
-        mocked_base.read_reg_data.assert_called_with(cpxe16di.input_register)
+        # Assert
+        assert channel_values == [
+            False,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+            False,
+            False,
+            True,
+            True,
+            False,
+            False,
+            True,
+            True,
+        ]
+        cpxe16di.base.read_reg_data.assert_called_with(cpxe16di.input_register)
 
     def test_getitem_0_to_15(self):
         """Test get item"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=[0b1100110010101110]))
 
-        mocked_base = Mock()
-        mocked_base.read_reg_data = Mock(return_value=[0b1100110010101110])
-        cpxe16di.base = mocked_base
+        # Act
+        channel_values = [cpxe16di[idx] for idx in range(16)]
 
-        # Exercise
-        assert cpxe16di[0] is False
-        assert cpxe16di[1] is True
-        assert cpxe16di[2] is True
-        assert cpxe16di[3] is True
-        assert cpxe16di[4] is False
-        assert cpxe16di[5] is True
-        assert cpxe16di[6] is False
-        assert cpxe16di[7] is True
-        assert cpxe16di[8] is False
-        assert cpxe16di[9] is False
-        assert cpxe16di[10] is True
-        assert cpxe16di[11] is True
-        assert cpxe16di[12] is False
-        assert cpxe16di[13] is False
-        assert cpxe16di[14] is True
-        assert cpxe16di[15] is True
-        mocked_base.read_reg_data.assert_called_with(cpxe16di.input_register)
+        # Assert
+        assert channel_values == [
+            False,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+            False,
+            False,
+            True,
+            True,
+            False,
+            False,
+            True,
+            True,
+        ]
+        cpxe16di.base.read_reg_data.assert_called_with(cpxe16di.input_register)
 
-    def test_configure_diagnostics(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(False, (4892, 0xAA)), (True, (4892, 0xAB))],
+    )
+    def test_configure_diagnostics(self, input_value, expected_value):
         """Test diagnostics"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.position = 1
+        cpxe16di.base = Mock(read_function_number=Mock(return_value=0xAA))
 
-        mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=0xAA)
-        mocked_base.write_function_number = Mock()
-        cpxe16di.base = mocked_base
+        cpxe16di.configure_diagnostics(input_value)
+        cpxe16di.base.write_function_number.assert_called_with(*expected_value)
 
-        cpxe16di.configure_diagnostics(False)
-        mocked_base.write_function_number.assert_called_with(4892, 0xAA)
-
-        cpxe16di.configure_diagnostics(True)
-        mocked_base.write_function_number.assert_called_with(4892, 0xAB)
-
-    def test_configure_power_reset(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(False, (4893, 0xAA)), (True, (4893, 0xAB))],
+    )
+    def test_configure_power_reset(self, input_value, expected_value):
         """Test power reset"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.position = 1
+        cpxe16di.base = Mock(read_function_number=Mock(return_value=0xAA))
 
-        mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=0xAA)
-        mocked_base.write_function_number = Mock()
-        cpxe16di.base = mocked_base
+        # Act
+        cpxe16di.configure_power_reset(input_value)
+        cpxe16di.base.write_function_number.assert_called_with(*expected_value)
 
-        cpxe16di.configure_power_reset(False)
-        mocked_base.write_function_number.assert_called_with(4893, 0xAA)
-
-        cpxe16di.configure_power_reset(True)
-        mocked_base.write_function_number.assert_called_with(4893, 0xAB)
-
-    def test_configure_debounce_time(self):
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4893, 0x8A)), (3, (4893, 0xBA))],
+    )
+    def test_configure_debounce_time(self, input_value, expected_value):
         """Test debounce time"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.position = 1
+        cpxe16di.base = Mock(read_function_number=Mock(return_value=0xAA))
 
-        mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=0xAA)
-        mocked_base.write_function_number = Mock()
-        cpxe16di.base = mocked_base
+        # Act
+        cpxe16di.configure_debounce_time(input_value)
 
-        cpxe16di.configure_debounce_time(0)
-        mocked_base.write_function_number.assert_called_with(4893, 0x8A)
+        # Assert
+        cpxe16di.base.write_function_number.assert_called_with(*expected_value)
 
-        cpxe16di.configure_debounce_time(3)
-        mocked_base.write_function_number.assert_called_with(4893, 0xBA)
-
-        with pytest.raises(ValueError):
-            cpxe16di.configure_debounce_time(-1)
-
-        with pytest.raises(ValueError):
-            cpxe16di.configure_debounce_time(4)
-
-    def test_configure_signal_extension_time(self):
+    @pytest.mark.parametrize("input_value", [-1, 4])
+    def test_configure_debounce_time_raise_error(self, input_value):
         """Test debounce time"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.base = Mock()
 
-        mocked_base = Mock()
-        mocked_base.read_function_number = Mock(return_value=0xAA)
-        mocked_base.write_function_number = Mock()
-        cpxe16di.base = mocked_base
-
-        cpxe16di.configure_signal_extension_time(0)
-        mocked_base.write_function_number.assert_called_with(4893, 0x2A)
-
-        cpxe16di.configure_signal_extension_time(3)
-        mocked_base.write_function_number.assert_called_with(4893, 0xEA)
-
+        # Act & Assert
         with pytest.raises(ValueError):
-            cpxe16di.configure_signal_extension_time(-1)
+            cpxe16di.configure_debounce_time(input_value)
 
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, (4893, 0x2A)), (3, (4893, 0xEA))],
+    )
+    def test_configure_signal_extension_time(self, input_value, expected_value):
+        """Test debounce time"""
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.position = 1
+        cpxe16di.base = Mock(read_function_number=Mock(return_value=0xAA))
+
+        # Act
+        cpxe16di.configure_signal_extension_time(input_value)
+        cpxe16di.base.write_function_number.assert_called_with(*expected_value)
+
+    @pytest.mark.parametrize("input_value", [-1, 4])
+    def test_configure_signal_extension_time_raise_error(self, input_value):
+        """Test debounce time"""
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.base = Mock()
+
+        # Act & Assert
         with pytest.raises(ValueError):
-            cpxe16di.configure_signal_extension_time(4)
+            cpxe16di.configure_signal_extension_time(input_value)
 
-    def test_repr(self):
+    def test_repr_correct_string(self):
         """Test repr"""
-        cpx_e = CpxE()
-        cpxe16di = cpx_e.add_module(CpxE16Di())
+        # Arrange
+        cpxe16di = CpxE16Di()
+        cpxe16di.position = 1
 
-        mocked_base = Mock()
-        cpxe16di.base = mocked_base
+        # Act
+        module_repr = repr(cpxe16di)
 
-        assert repr(cpxe16di) == "cpxe16di (idx: 1, type: CpxE16Di)"
+        # Assert
+        assert module_repr == "cpxe16di (idx: 1, type: CpxE16Di)"
