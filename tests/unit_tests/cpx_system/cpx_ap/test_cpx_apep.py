@@ -52,7 +52,7 @@ class TestCpxApEp:
             [0xA8C0, 0x0201],
             [0xFFFF, 0x00FF],
             [0xA8C0, 0x0301],
-            [0xADDE, 0xFFC0, 0xBAEE, 0x00BE],
+            [0xADDE, 0xFFC0, 0xBAEE],
             [0xFF03],
         ]
 
@@ -64,7 +64,7 @@ class TestCpxApEp:
             active_ip_address="192.168.1.2",
             active_subnet_mask="255.255.255.0",
             active_gateway_address="192.168.1.3",
-            mac_address="de:ad:c0:ff:ee:ba:be",
+            mac_address="de:ad:c0:ff:ee:ba",
             setup_monitoring_load_supply=3,
         )
 

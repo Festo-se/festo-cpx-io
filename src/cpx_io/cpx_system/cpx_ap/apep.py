@@ -96,7 +96,7 @@ class CpxApEp(CpxApModule):
             mac_address=":".join(
                 f"{x & 0xFF:02x}:{(x >> 8):02x}"
                 for x in self.base.read_parameter(self.position, 12007, 0)
-            )[:-3],
+            ),
             setup_monitoring_load_supply=CpxBase.decode_int(
                 [(self.base.read_parameter(self.position, 20022, 0)[0]) & 0xFF],
                 data_type="uint8",
