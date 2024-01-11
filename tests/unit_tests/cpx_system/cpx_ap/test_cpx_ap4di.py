@@ -1,6 +1,6 @@
 """Contains tests for CpxAp4Di class"""
-import pytest
 from unittest.mock import Mock
+import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 
@@ -63,7 +63,7 @@ class TestCpxAp4Di:
     ):
         """Test configure_debounce_time and expect success"""
         # Arrange
-        MODULE_POSITION = 1
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
 
         cpxap4di = CpxAp4Di()
         cpxap4di.position = MODULE_POSITION
@@ -71,7 +71,7 @@ class TestCpxAp4Di:
         cpxap4di.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20014
+        PARAMETER_ID = 20014  # pylint: disable=invalid-name
         cpxap4di.configure_debounce_time(input_value)
 
         # Assert
@@ -81,8 +81,9 @@ class TestCpxAp4Di:
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_debounce_time_raise_error(self, input_value):
+        """Test configure_debounce_time and expect error"""
         # Arrange
-        MODULE_POSITION = 1
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
 
         cpxap4di = CpxAp4Di()
         cpxap4di.position = MODULE_POSITION

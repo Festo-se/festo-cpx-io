@@ -60,7 +60,7 @@ class CpxAp4Iol(CpxApModule):
         return params
 
     @CpxBase.require_base
-    def read_channels(self) -> list[int]:
+    def read_channels(self) -> list[list]:
         """read all IO-Link input data
         register order is [msb, ... , ... , lsb]
         """

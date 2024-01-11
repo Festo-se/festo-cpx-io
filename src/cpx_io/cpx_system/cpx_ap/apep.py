@@ -53,50 +53,53 @@ class CpxApEp(CpxApModule):
     def read_parameters(self):
         """Read parameters from EP module"""
 
-        params = self.__class__.Parameters
-
-        params.dhcp_enable = CpxBase.decode_bool(
-            self.base.read_parameter(self.position, 12000, 0)
+        params = self.__class__.Parameters(
+            dhcp_enable=CpxBase.decode_bool(
+                self.base.read_parameter(self.position, 12000, 0)
+            ),
+            ip_address=convert_uint32_to_octett(
+                CpxBase.decode_int(
+                    self.base.read_parameter(self.position, 12001, 0),
+                    data_type="uint32",
+                )
+            ),
+            subnet_mask=convert_uint32_to_octett(
+                CpxBase.decode_int(
+                    self.base.read_parameter(self.position, 12002, 0),
+                    data_type="uint32",
+                )
+            ),
+            gateway_address=convert_uint32_to_octett(
+                CpxBase.decode_int(
+                    self.base.read_parameter(self.position, 12003, 0),
+                    data_type="uint32",
+                )
+            ),
+            active_ip_address=convert_uint32_to_octett(
+                CpxBase.decode_int(
+                    self.base.read_parameter(self.position, 12004, 0),
+                    data_type="uint32",
+                )
+            ),
+            active_subnet_mask=convert_uint32_to_octett(
+                CpxBase.decode_int(
+                    self.base.read_parameter(self.position, 12005, 0),
+                    data_type="uint32",
+                )
+            ),
+            active_gateway_address=convert_uint32_to_octett(
+                CpxBase.decode_int(
+                    self.base.read_parameter(self.position, 12006, 0),
+                    data_type="uint32",
+                )
+            ),
+            mac_address=":".join(
+                f"{x & 0xFF:02x}:{(x >> 8):02x}"
+                for x in self.base.read_parameter(self.position, 12007, 0)
+            )[:-3],
+            setup_monitoring_load_supply=CpxBase.decode_int(
+                [(self.base.read_parameter(self.position, 20022, 0)[0]) & 0xFF],
+                data_type="uint8",
+            ),
         )
-
-        ip_address = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 12001, 0), data_type="uint32"
-        )
-        params.ip_address = convert_uint32_to_octett(ip_address)
-
-        subnet_mask = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 12002, 0), data_type="uint32"
-        )
-        params.subnet_mask = convert_uint32_to_octett(subnet_mask)
-
-        gateway_address = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 12003, 0), data_type="uint32"
-        )
-        params.gateway_address = convert_uint32_to_octett(gateway_address)
-
-        active_ip_address = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 12004, 0), data_type="uint32"
-        )
-        params.active_ip_address = convert_uint32_to_octett(active_ip_address)
-
-        active_subnet_mask = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 12005, 0), data_type="uint32"
-        )
-        params.active_subnet_mask = convert_uint32_to_octett(active_subnet_mask)
-
-        active_gateway_address = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 12006, 0), data_type="uint32"
-        )
-        params.active_gateway_address = convert_uint32_to_octett(active_gateway_address)
-
-        params.mac_address = ":".join(
-            f"{x & 0xFF:02x}:{(x >> 8):02x}"
-            for x in self.base.read_parameter(self.position, 12007, 0)
-        )
-
-        params.setup_monitoring_load_supply = CpxBase.decode_int(
-            [(self.base.read_parameter(self.position, 20022, 0)[0]) & 0xFF],
-            data_type="uint8",
-        )
-
         return params
