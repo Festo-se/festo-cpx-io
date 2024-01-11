@@ -399,5 +399,430 @@ class TestCpxAp4Iol:
             MODULE_POSITION, PARAMETER_ID, 0, expected_value
         )
 
+    @pytest.mark.parametrize(
+        "input_value, expected_value", [(0, 0), (1, 1), (2, 2), (3, 3), (97, 97)]
+    )
+    def test_configure_port_mode_single_channel(self, input_value, expected_value):
+        """Test configure_port_mode and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-#### TODO: Configrue Port mode and following
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20071  # pylint: disable=invalid-name
+        cpxap4iol.configure_port_mode(input_value, 0)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_called_with(
+            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+        )
+
+    def test_configure_port_mode_more_channels(self):
+        """Test configure_port_mode and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20071  # pylint: disable=invalid-name
+        cpxap4iol.configure_port_mode(0, [1, 2, 3])
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+            ]
+        )
+
+    def test_configure_port_mode_all_channels(self):
+        """Test configure_port_mode and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20071  # pylint: disable=invalid-name
+        cpxap4iol.configure_port_mode(97)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 0, 97),
+                call(MODULE_POSITION, PARAMETER_ID, 1, 97),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 97),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 97),
+            ]
+        )
+
+    @pytest.mark.parametrize("input_value", [-1, 4])
+    def test_configure_port_mode_raise_error(self, input_value):
+        """Test configure_port_mode and expect error"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            cpxap4iol.configure_port_mode(input_value, 0)
+
+    @pytest.mark.parametrize(
+        "input_value, expected_value", [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+    )
+    def test_configure_review_and_backup_single_channel(
+        self, input_value, expected_value
+    ):
+        """Test configure_review_and_backup and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20072  # pylint: disable=invalid-name
+        cpxap4iol.configure_review_and_backup(input_value, 0)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_called_with(
+            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+        )
+
+    def test_configure_review_and_backup_more_channels(self):
+        """Test configure_review_and_backup and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20072  # pylint: disable=invalid-name
+        cpxap4iol.configure_review_and_backup(0, [1, 2, 3])
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+            ]
+        )
+
+    def test_configure_review_and_backup_all_channels(self):
+        """Test configure_review_and_backup and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20072  # pylint: disable=invalid-name
+        cpxap4iol.configure_review_and_backup(4)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 0, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 1, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 4),
+            ]
+        )
+
+    @pytest.mark.parametrize("input_value", [-1, 5])
+    def test_configure_review_and_backup_raise_error(self, input_value):
+        """Test configure_review_and_backup and expect error"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            cpxap4iol.configure_review_and_backup(input_value, 0)
+
+    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (10, 10)])
+    def test_configure_target_vendor_id_single_channel(
+        self, input_value, expected_value
+    ):
+        """Test configure_target_vendor_id and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20073  # pylint: disable=invalid-name
+        cpxap4iol.configure_target_vendor_id(input_value, 0)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_called_with(
+            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+        )
+
+    def test_configure_target_vendor_id_more_channels(self):
+        """Test configure_target_vendor_id and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20073  # pylint: disable=invalid-name
+        cpxap4iol.configure_target_vendor_id(0, [1, 2, 3])
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+            ]
+        )
+
+    def test_configure_target_vendor_id_all_channels(self):
+        """Test configure_target_vendor_id and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20073  # pylint: disable=invalid-name
+        cpxap4iol.configure_target_vendor_id(4)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 0, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 1, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 4),
+            ]
+        )
+
+    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (10, 10)])
+    def test_configure_setpoint_device_id_single_channel(
+        self, input_value, expected_value
+    ):
+        """Test configure_setpoint_device_id and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20080  # pylint: disable=invalid-name
+        cpxap4iol.configure_setpoint_device_id(input_value, 0)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_called_with(
+            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+        )
+
+    def testconfigure_setpoint_device_id_more_channels(self):
+        """Test configure_setpoint_device_id and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20080  # pylint: disable=invalid-name
+        cpxap4iol.configure_setpoint_device_id(0, [1, 2, 3])
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+            ]
+        )
+
+    def test_configure_setpoint_device_id_all_channels(self):
+        """Test configure_setpoint_device_id and expect success"""
+        # Arrange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_parameter=Mock())
+
+        # Act
+        PARAMETER_ID = 20080  # pylint: disable=invalid-name
+        cpxap4iol.configure_setpoint_device_id(4)
+
+        # Assert
+        cpxap4iol.base.write_parameter.assert_has_calls(
+            [
+                call(MODULE_POSITION, PARAMETER_ID, 0, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 1, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 2, 4),
+                call(MODULE_POSITION, PARAMETER_ID, 3, 4),
+            ]
+        )
+
+    def test_read_fieldbus_parameters_all_channels(self):
+        """Test read_fieldbus_parameters"""
+        # Arange
+        cpxap4iol = CpxAp4Iol()
+
+        cpxap4iol.base = Mock(read_parameter=Mock())
+        cpxap4iol.base.read_parameter.side_effect = [
+            [0xCAFE],
+            [0xCAFE],
+            [0xCA02],
+            [0xCAFE],
+            [0xCAFE],
+            [0xDEAD, 0xBEEF],
+            [0xDEAD],
+            [0xBEEF],
+        ] * 4
+        cpxap4iol.input_register = 0
+        expected = {
+            "Port status information": "PORT_POWER_OFF",
+            "Revision ID": 0xFE,
+            "Transmission rate": "COM2",
+            "Actual cycle time [in 100 us]": 0xCAFE,
+            "Actual vendor ID": 0xCAFE,
+            "Actual device ID": 0xBEEFDEAD,
+            "Input data length": 0xAD,
+            "Output data length": 0xEF,
+        }
+
+        # Act
+        params = cpxap4iol.read_fieldbus_parameters()
+
+        # Assert
+        assert all(p == expected for p in params)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 10])
+    def test_read_isdu(self, input_value):
+        """Test read_isdu"""
+        # Arange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        ISDU_STATUS = (34000, 1)  # pylint: disable=invalid-name
+        ISDU_COMMAND = (34001, 1)  # pylint: disable=invalid-name
+        ISDU_MODULE_NO = (34002, 1)  # pylint: disable=invalid-name
+        ISDU_CHANNEL = (34003, 1)  # pylint: disable=invalid-name
+        ISDU_INDEX = (34004, 1)  # pylint: disable=invalid-name
+        ISDU_SUBINDEX = (34005, 1)  # pylint: disable=invalid-name
+        ISDU_LENGTH = (34006, 1)  # pylint: disable=invalid-name
+        ISDU_DATA = (34007, 119)  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_reg_data=Mock())
+        cpxap4iol.base.read_reg_data = Mock(return_value=[0])
+
+        # Act
+        isdu = cpxap4iol.read_isdu(input_value, input_value, input_value)
+
+        # Assert
+        cpxap4iol.base.write_reg_data.assert_has_calls(
+            [
+                call(MODULE_POSITION + 1, *ISDU_MODULE_NO),
+                call(input_value + 1, *ISDU_CHANNEL),
+                call(input_value, *ISDU_INDEX),
+                call(input_value, *ISDU_SUBINDEX),
+                call(0, *ISDU_LENGTH),
+                call(100, *ISDU_COMMAND),
+            ]
+        )
+        cpxap4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(*ISDU_STATUS),
+                call(*ISDU_DATA),
+            ]
+        )
+        assert isdu == [0]
+
+    @pytest.mark.parametrize("input_value", [0, 1, 10])
+    def test_write_isdu(self, input_value):
+        """Test write_isdu"""
+        # Arange
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+
+        ISDU_STATUS = (34000, 1)  # pylint: disable=invalid-name
+        ISDU_COMMAND = (34001, 1)  # pylint: disable=invalid-name
+        ISDU_MODULE_NO = (34002, 1)  # pylint: disable=invalid-name
+        ISDU_CHANNEL = (34003, 1)  # pylint: disable=invalid-name
+        ISDU_INDEX = (34004, 1)  # pylint: disable=invalid-name
+        ISDU_SUBINDEX = (34005, 1)  # pylint: disable=invalid-name
+        ISDU_LENGTH = (34006, 1)  # pylint: disable=invalid-name
+        ISDU_DATA = (34007, 119)  # pylint: disable=invalid-name
+
+        cpxap4iol = CpxAp4Iol()
+        cpxap4iol.position = MODULE_POSITION
+
+        cpxap4iol.base = Mock(write_reg_data=Mock())
+        cpxap4iol.base.read_reg_data = Mock(return_value=[0])
+
+        # Act
+        data = [1, 2, 3]
+        cpxap4iol.write_isdu(data, input_value, input_value, input_value)
+
+        # Assert
+        cpxap4iol.base.write_reg_data.assert_has_calls(
+            [
+                call(MODULE_POSITION + 1, *ISDU_MODULE_NO),
+                call(input_value + 1, *ISDU_CHANNEL),
+                call(input_value, *ISDU_INDEX),
+                call(input_value, *ISDU_SUBINDEX),
+                call(len(data) * 2, *ISDU_LENGTH),
+                call(data, *ISDU_DATA),
+                call(101, *ISDU_COMMAND),
+            ]
+        )
+        cpxap4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(*ISDU_STATUS),
+            ]
+        )
