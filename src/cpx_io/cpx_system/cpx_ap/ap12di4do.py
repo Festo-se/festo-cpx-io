@@ -54,9 +54,7 @@ class CpxAp12Di4Do(CpxApModule):
     @CpxBase.require_base
     def write_channel(self, channel: int, value: bool) -> None:
         """set one channel to logic value"""
-        data = (
-            self.base.read_reg_data(self.output_register)[0] & 0xF
-        )  # read current value
+        data = self.base.read_reg_data(self.output_register)[0]  # read current value
         mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
         data &= ~mask  # Clear the bit indicated by the mask
         if value:

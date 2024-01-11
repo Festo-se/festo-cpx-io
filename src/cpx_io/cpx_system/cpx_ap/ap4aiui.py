@@ -34,6 +34,10 @@ class CpxAp4AiUI(CpxApModule):
         set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)
         """
         uid = 20032
+
+        if channel not in range(4):
+            raise ValueError("Channel {channel} must be between 0 and 3")
+
         value = {
             "C": 0,
             "F": 1,
@@ -48,6 +52,10 @@ class CpxAp4AiUI(CpxApModule):
     def configure_channel_range(self, channel: int, signalrange: str) -> None:
         """set the signal range and type of one channel"""
         reg_id = 20043
+
+        if channel not in range(4):
+            raise ValueError("Channel {channel} must be between 0 and 3")
+
         value = {
             "None": 0,
             "-10-+10V": 1,
@@ -82,6 +90,9 @@ class CpxAp4AiUI(CpxApModule):
         upper_id = 20044
         lower_id = 20045
 
+        if channel not in range(4):
+            raise ValueError("Channel {channel} must be between 0 and 3")
+
         if isinstance(lower, int):
             if not -32768 <= lower <= 32767:
                 raise ValueError(
@@ -109,6 +120,10 @@ class CpxAp4AiUI(CpxApModule):
         Value must be uint16
         """
         uid = 20046
+
+        if channel not in range(4):
+            raise ValueError("Channel {channel} must be between 0 and 3")
+
         if not 0 <= value <= 0xFFFF:
             raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
 
@@ -120,7 +135,11 @@ class CpxAp4AiUI(CpxApModule):
         smoothing_power. Factory setting: 5 (2^5 = 32 values)
         """
         uid = 20107
-        if smoothing_power > 15:
+
+        if channel not in range(4):
+            raise ValueError("Channel {channel} must be between 0 and 3")
+
+        if smoothing_power not in range(16):
             raise ValueError(f"'{smoothing_power}' is not an option")
 
         self.base.write_parameter(self.position, uid, channel, smoothing_power)
@@ -129,5 +148,10 @@ class CpxAp4AiUI(CpxApModule):
     def configure_linear_scaling(self, channel: int, state: bool) -> None:
         """Set linear scaling (Factory setting "False")"""
         uid = 20111
+        if not isinstance(state, bool):
+            raise TypeError("State {state} must be of type bool (True or False)")
+
+        if channel not in range(4):
+            raise ValueError("Channel {channel} must be between 0 and 3")
 
         self.base.write_parameter(self.position, uid, channel, int(state))

@@ -45,7 +45,7 @@ class VabxAP(CpxApModule):
         """
 
         data0, data1 = self.base.read_reg_data(self.output_register, length=2)
-        data = data1 << 16 + data0
+        data = (data1 << 16) + data0
 
         return [d == "1" for d in bin(data)[2:].zfill(32)[::-1]]
 
@@ -77,7 +77,7 @@ class VabxAP(CpxApModule):
 
         # read current values
         data0, data1 = self.base.read_reg_data(self.output_register, length=2)
-        data = data1 << 16 + data0
+        data = (data1 << 16) + data0
 
         mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
         data &= ~mask  # Clear the bit indicated by the mask
@@ -129,7 +129,7 @@ class VabxAP(CpxApModule):
         """
         uid = 20022
 
-        if not 0 <= value <= 1:
+        if not 0 <= value <= 2:
             raise ValueError("Value {value} must be between 0 and 2")
 
         self.base.write_parameter(self.position, uid, 0, value)
