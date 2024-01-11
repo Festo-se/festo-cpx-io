@@ -226,7 +226,7 @@ class CpxBase:
         decoder = BinaryPayloadDecoder.fromRegisters(
             registers[::-1], byteorder=Endian.BIG
         )
-        return bool(decoder.decode_bits(0))
+        return bool(decoder.decode_8bit_uint() & 0x01)
 
     @staticmethod
     def decode_hex(registers: list[int], data_type="uint16") -> str:
