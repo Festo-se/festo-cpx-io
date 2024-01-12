@@ -1,5 +1,5 @@
 """Contains tests for CpxE class"""
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import pytest
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
@@ -11,6 +11,8 @@ from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxInitError
 import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
+
+from cpx_io.utils.logging import Logging
 
 
 class TestCpxE:
@@ -41,6 +43,22 @@ class TestCpxE:
         assert isinstance(cpx_e.modules[1], CpxE16Di)
         assert isinstance(cpx_e.cpxeep, CpxEEp)  # pylint: disable="no-member"
         assert isinstance(cpx_e.cpxe16di, CpxE16Di)  # pylint: disable="no-member"
+
+    @patch.object(Logging.logger, "warning")
+    def test_constructor_cpxeep_twice(self, mock_logger_warning):
+        """Test default constructor with modified modules"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE(modules=[CpxEEp(), CpxEEp()])
+
+        # Assert
+        assert len(cpx_e.modules) == 2
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxEEp)
+        mock_logger_warning.assert_called_with(
+            "Module CpxEEp is assigned multiple times. This is most likey incorrect."
+        )
 
     def test_default_constructor_modified_modules(self):
         """Test default constructor with modified modules"""

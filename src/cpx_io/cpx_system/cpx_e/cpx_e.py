@@ -130,6 +130,10 @@ class CpxE(CpxBase):
         """Adds one module to the base. This is required to use the module."""
         module.configure(self, len(self._modules))
         self._modules.append(module)
+        if [type(mod) for mod in self._modules].count(CpxEEp) > 1:
+            Logging.logger.warning(
+                "Module CpxEEp is assigned multiple times. This is most likey incorrect."
+            )
         setattr(self, module.name, module)
         Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
         return module

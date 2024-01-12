@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- Added warning if cpx-e-ep module is added multiple times
 - Added black job to CI/CD
 - Added tests for other CPX-AP modules
 - Added vabx module for vtux access
