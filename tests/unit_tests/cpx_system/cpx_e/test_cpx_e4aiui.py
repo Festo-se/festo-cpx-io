@@ -360,7 +360,7 @@ class TestCpxE4AiUI:
 
         # Act & Assert
         with pytest.raises(ValueError):
-            cpxe4aiui.configure_channel_diagnostics_wire_break(*input_value)
+            cpxe4aiui.configure_channel_diagnostics_underflow_overflow(*input_value)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
