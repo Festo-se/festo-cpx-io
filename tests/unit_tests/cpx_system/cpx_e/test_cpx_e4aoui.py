@@ -22,7 +22,7 @@ class TestCpxE4AoUI:
         """Test configure function"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        mocked_base = Mock(next_input_register=0, next_output_register=0)
+        mocked_base = Mock(next_input_register=0, next_output_register=0, modules=[])
 
         # Act
         MODULE_POSITION = 1

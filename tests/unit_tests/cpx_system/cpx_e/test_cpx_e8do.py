@@ -23,7 +23,7 @@ class TestCpxE8Do:
         """Test configure function"""
         # Arrange
         cpxe8do = CpxE8Do()
-        mocked_base = Mock(next_input_register=0, next_output_register=0)
+        mocked_base = Mock(next_input_register=0, next_output_register=0, modules=[])
 
         # Act
         MODULE_POSITION = 1

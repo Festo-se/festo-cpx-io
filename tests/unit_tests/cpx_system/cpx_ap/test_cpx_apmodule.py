@@ -26,7 +26,7 @@ class TestCpxApModule:
         # Arrange
         module = CpxApModule()
         module.information = Mock(input_size=3, output_size=5)
-        mocked_base = Mock(next_output_register=0, next_input_register=0)
+        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
 
         # Act
         MODULE_POSITION = 1

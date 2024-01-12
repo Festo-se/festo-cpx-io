@@ -35,7 +35,7 @@ class TestCpxE4Iol:
     ):
         # Arrange
         cpxe4iol = CpxE4Iol(address_space)
-        mocked_base = Mock(next_input_register=0, next_output_register=0)
+        mocked_base = Mock(next_input_register=0, next_output_register=0, modules=[])
 
         # Act
         cpxe4iol.configure(mocked_base, module_position)

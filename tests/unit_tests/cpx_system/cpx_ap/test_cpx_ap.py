@@ -8,7 +8,6 @@ from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
-from cpx_io.cpx_system.cpx_ap.cpx_ap import ModuleInformation
 
 
 class TestCpxAp:
@@ -26,7 +25,9 @@ class TestCpxAp:
 
         module_code_list = [8323, 8199, 8197, 8202, 8201, 8198, 8198]
         module_information_list = [
-            ModuleInformation(module_code=module_code, output_size=0, input_size=0)
+            CpxAp.ModuleInformation(
+                module_code=module_code, output_size=0, input_size=0
+            )
             for module_code in module_code_list
         ]
         mock_read_module_information.side_effect = module_information_list

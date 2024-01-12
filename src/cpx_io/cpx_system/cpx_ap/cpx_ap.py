@@ -9,27 +9,26 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module_definitions import CPX_AP_MODULE_ID_
 from cpx_io.utils.logging import Logging
 
 
-@dataclass
-class ModuleInformation:
-    """Information of AP Module"""
-
-    # pylint: disable=too-many-instance-attributes
-    module_code: int = None
-    module_class: int = None
-    communication_profiles: int = None
-    input_size: int = None
-    input_channels: int = None
-    output_size: int = None
-    output_channels: int = None
-    hw_version: int = None
-    fw_version: str = None
-    serial_number: str = None
-    product_key: str = None
-    order_text: str = None
-
-
 class CpxAp(CpxBase):
     """CPX-AP base class"""
+
+    @dataclass
+    class ModuleInformation:
+        """Information of AP Module"""
+
+        # pylint: disable=too-many-instance-attributes
+        module_code: int = None
+        module_class: int = None
+        communication_profiles: int = None
+        input_size: int = None
+        input_channels: int = None
+        output_size: int = None
+        output_channels: int = None
+        hw_version: int = None
+        fw_version: str = None
+        serial_number: str = None
+        product_key: str = None
+        order_text: str = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
