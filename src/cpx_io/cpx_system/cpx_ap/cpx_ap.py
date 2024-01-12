@@ -6,28 +6,30 @@ from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module_definitions import CPX_AP_MODULE_ID_LIST
+from cpx_io.utils.logging import Logging
+
+
+@dataclass
+class ModuleInformation:
+    """Information of AP Module"""
+
+    # pylint: disable=too-many-instance-attributes
+    module_code: int = None
+    module_class: int = None
+    communication_profiles: int = None
+    input_size: int = None
+    input_channels: int = None
+    output_size: int = None
+    output_channels: int = None
+    hw_version: int = None
+    fw_version: str = None
+    serial_number: str = None
+    product_key: str = None
+    order_text: str = None
 
 
 class CpxAp(CpxBase):
     """CPX-AP base class"""
-
-    @dataclass
-    class ModuleInformation:
-        """Information of AP Module"""
-
-        # pylint: disable=too-many-instance-attributes
-        module_code: int
-        module_class: int
-        communication_profiles: int
-        input_size: int
-        input_channels: int
-        output_size: int
-        output_channels: int
-        hw_version: int
-        fw_version: str
-        serial_number: str
-        product_key: str
-        order_text: str
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -38,8 +40,7 @@ class CpxAp(CpxBase):
 
         module_count = self.read_module_count()
         for i in range(module_count):
-            module = self.add_module(self.read_module_information(i))
-            self.modules.append(module)
+            self.add_module(self.read_module_information(i))
 
     @property
     def modules(self):
@@ -66,6 +67,9 @@ class CpxAp(CpxBase):
 
         module.update_information(info)
         module.configure(self, len(self._modules))
+        self._modules.append(module)
+        setattr(self, module.name, module)
+        Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
         return module
 
     def read_module_count(self) -> int:

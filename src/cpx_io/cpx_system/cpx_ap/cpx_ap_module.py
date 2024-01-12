@@ -50,6 +50,11 @@ class CpxApModule:
         self.base = base
         self.position = position
 
+        # if name already exists in module list, add a counter as suffix
+        module_type_list = [type(module) for module in self.base.modules]
+        if type(self) in module_type_list:
+            self.name = f"{self.name}_{module_type_list.count(type(self))}"
+
         self.output_register = self.base.next_output_register
         self.input_register = self.base.next_input_register
 
