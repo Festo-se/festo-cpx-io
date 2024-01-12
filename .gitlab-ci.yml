@@ -113,7 +113,8 @@ release-job:
     - jf rt u --url "$ARTIFACTORY_PYPI_URL" --access-token "$ARTIFACTORY_ACCESS_TOKEN" "*.whl" electricdrives-python-dev-local/festo-cpx-io/
   needs:
     - unit-test-job
-    - lint-test-job
+    - pylint-job
+    - black-job
 
 
 pages:
