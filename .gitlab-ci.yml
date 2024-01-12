@@ -27,18 +27,10 @@ workflow:
 
 # List of stages for jobs, and their order of execution
 stages:          
-  - changelogtest
   - test
   - docs
+  - changelogtest
   - upload
-
-changelog-test-job:
-  stage: changelogtest
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-  script:
-    - git fetch --all
-    - if [ 0 -eq $(git diff --name-only origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}...${CI_COMMIT_SHA} CHANGELOG.md | wc -l) ]; then exit 1; fi
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
@@ -46,24 +38,35 @@ unit-test-job:   # This job runs in the test stage.
     - if: $CI_PIPELINE_SOURCE == 'push'
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
-    - python -m pip install .
     - python -m pip install pytest pytest-cov
+    - python -m pip install .
   script:
     - pytest tests/unit_tests -v --cov=cpx_io
 
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
 
-lint-test-job:   # This job also runs in the test stage.
+pylint-job:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   rules:
     - if: $CI_PIPELINE_SOURCE == 'push'
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
-    - python -m pip install .
     - python -m pip install pylint
+    - python -m pip install .
   script:
-    - pylint src -d=logging-fstring-interpolation
-  
+    - pylint src
+
+black-job:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'push'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  before_script:
+    - python -m pip install black
+    - python -m pip install .
+  script:
+    - black src --check
+
 sphinx-docs:
   stage: docs
   rules:
@@ -88,6 +91,14 @@ sphinx-docs:
     paths:
       - public
 
+changelog-test-job:
+  stage: changelogtest
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - git fetch --all
+    - if [ 0 -eq $(git diff --name-only origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}...${CI_COMMIT_SHA} CHANGELOG.md | wc -l) ]; then exit 1; fi
+
 release-job:
   stage: upload
   rules:
@@ -102,7 +113,8 @@ release-job:
     - jf rt u --url "$ARTIFACTORY_PYPI_URL" --access-token "$ARTIFACTORY_ACCESS_TOKEN" "*.whl" electricdrives-python-dev-local/festo-cpx-io/
   needs:
     - unit-test-job
-    - lint-test-job
+    - pylint-job
+    - black-job
 
 
 pages:
@@ -118,4 +130,3 @@ pages:
         - public
 
   needs: ["sphinx-docs"]
-
