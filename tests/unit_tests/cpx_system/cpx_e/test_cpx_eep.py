@@ -1,37 +1,44 @@
 """Contains tests for cpx_eep class"""
 from unittest.mock import Mock
-
-
-from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
-
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 
 
 class TestCpxEEp:
     """Test cpx-e-ep"""
 
-    def test_initialize(self):
+    def test_constructor_default(self):
         """Test initialize function"""
-        cpx_e = CpxE()
+        # Arrange
+
+        # Act
         cpxeep = CpxEEp()
 
+        # Assert
         assert cpxeep.base is None
         assert cpxeep.position is None
 
-        cpxeep = cpx_e.modules[0]
-
+    def test_configure(self):
+        """Test configure function"""
+        # Arrange
+        cpxeep = CpxEEp()
         mocked_base = Mock()
-        cpxeep.base = mocked_base
 
+        # Act
+        MODULE_POSITION = 0
+        cpxeep.configure(mocked_base, MODULE_POSITION)
+
+        # Assert
         assert cpxeep.base == mocked_base
-        assert cpxeep.position == 0
+        assert cpxeep.position == MODULE_POSITION
 
-    def test_repr(self):
+    def test_repr_correct_string(self):
         """Test repr"""
-        cpx_e = CpxE()
-        cpxeep = cpx_e.modules[0]
+        # Arrange
+        cpxeep = CpxEEp()
+        cpxeep.position = 0
 
-        mocked_base = Mock()
-        cpxeep.base = mocked_base
+        # Act
+        module_repr = repr(cpxeep)
 
-        assert repr(cpxeep) == "cpxeep (idx: 0, type: CpxEEp)"
+        # Assert
+        assert module_repr == "cpxeep (idx: 0, type: CpxEEp)"

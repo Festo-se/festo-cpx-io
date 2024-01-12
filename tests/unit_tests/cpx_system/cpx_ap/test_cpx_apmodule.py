@@ -21,19 +21,6 @@ class TestCpxApModule:
         assert module.output_register is None
         assert module.input_register is None
 
-    def test_repr_correct_string(self):
-        """Test repr"""
-        # Arrange
-        module = CpxApModule()
-        module.name = "code"
-        module.position = 1
-
-        # Act
-        module_repr = repr(module)
-
-        # Assert
-        assert module_repr == "code (idx: 1, type: CpxApModule)"
-
     def test_configure(self):
         """Test configure"""
         # Arrange
@@ -81,3 +68,16 @@ class TestCpxApModule:
         assert ret.hw_version == 1
         assert ret.io_link_variant == "n.a."
         assert ret.operating_supply is False
+
+    def test_repr_correct_string(self):
+        """Test repr"""
+        # Arrange
+        module = CpxApModule()
+        module.name = "code"
+        module.position = 1
+
+        # Act
+        module_repr = repr(module)
+
+        # Assert
+        assert module_repr == "code (idx: 1, type: CpxApModule)"
