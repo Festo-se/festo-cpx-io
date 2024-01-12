@@ -22,6 +22,7 @@ class TestCpxE4AiUI:
         assert cpxe4aiui.position is None
 
     def test_configure(self):
+        """Test configure function"""
         # Arrange
         cpxe4aiui = CpxE4AiUI()
         mocked_base = Mock(next_input_register=0)

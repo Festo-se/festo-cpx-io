@@ -20,6 +20,7 @@ class TestCpxE16Di:
         assert cpxe16di.position is None
 
     def test_configure(self):
+        """Test configure function"""
         # Arrange
         cpxe16di = CpxE16Di()
         mocked_base = Mock(next_input_register=0)

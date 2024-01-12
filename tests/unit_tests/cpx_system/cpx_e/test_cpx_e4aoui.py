@@ -19,6 +19,7 @@ class TestCpxE4AoUI:
         assert cpxe4aoui.position is None
 
     def test_configure(self):
+        """Test configure function"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
         mocked_base = Mock(next_input_register=0, next_output_register=0)
@@ -32,7 +33,7 @@ class TestCpxE4AoUI:
         assert cpxe4aoui.position == MODULE_POSITION
 
     def test_read_status(self):
-        """Test read channels"""
+        """Test read status"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
         cpxe4aoui.input_register = 0

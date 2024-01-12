@@ -18,6 +18,7 @@ class TestCpxEEp:
         assert cpxeep.position is None
 
     def test_configure(self):
+        """Test configure function"""
         # Arrange
         cpxeep = CpxEEp()
         mocked_base = Mock()
