@@ -23,7 +23,7 @@ class TestCpxE16Di:
         """Test configure function"""
         # Arrange
         cpxe16di = CpxE16Di()
-        mocked_base = Mock(next_input_register=0)
+        mocked_base = Mock(next_input_register=0, modules=[])
 
         # Act
         MODULE_POSITION = 1

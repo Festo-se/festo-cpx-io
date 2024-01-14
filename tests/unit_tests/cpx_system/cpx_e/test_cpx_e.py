@@ -77,6 +77,24 @@ class TestCpxE:
         assert isinstance(cpx_e.cpxe16di, CpxE16Di)  # pylint: disable="no-member"
         assert isinstance(cpx_e.cpxe8do, CpxE8Do)  # pylint: disable="no-member"
 
+    def test_default_constructor_same_module_naming(self):
+        """Test default constructor with modified modules"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di(), CpxE16Di(), CpxE16Di()])
+
+        # Assert
+        assert len(cpx_e.modules) == 4
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE16Di)
+        assert isinstance(cpx_e.modules[2], CpxE16Di)
+        assert isinstance(cpx_e.modules[3], CpxE16Di)
+        assert isinstance(cpx_e.cpxeep, CpxEEp)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.cpxe16di, CpxE16Di)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.cpxe16di_1, CpxE16Di)  # pylint: disable="no-member"
+        assert isinstance(cpx_e.cpxe16di_2, CpxE16Di)  # pylint: disable="no-member"
+
     def test_custom_constructor_modified_modules_custom_names(self):
         """Test name access"""
         # Arrange

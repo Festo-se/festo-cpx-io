@@ -25,7 +25,7 @@ class TestCpxE4AiUI:
         """Test configure function"""
         # Arrange
         cpxe4aiui = CpxE4AiUI()
-        mocked_base = Mock(next_input_register=0)
+        mocked_base = Mock(next_input_register=0, modules=[])
 
         # Act
         MODULE_POSITION = 1
