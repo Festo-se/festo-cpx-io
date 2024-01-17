@@ -1,20 +1,10 @@
 """Example code for CPX-E"""
 
 # import the library
-from cpx_io.cpx_system.cpx_e.cpx_e import (
-    CpxE,
-    CpxEEp,
-    CpxE16Di,
-    CpxE8Do,
-    CpxE4AiUI,
-    CpxE4AoUI,
-)
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
-# for cpx_e, the attached modules must be attached manually
-
-modules = [CpxEEp(), CpxE16Di(), CpxE8Do(), CpxE4AiUI(), CpxE4AoUI()]
-
-with CpxE(ip_address="172.16.1.40", modules=modules) as cpx_e:
+# use the typecode to setup all attached modules
+with CpxE("60E-EP-MLNINO", ip_address="172.16.1.40") as cpx_e:
     # modules might be added later by using add_module(module), this will return the object
     # the order of the added modules must be the same as the actual order of the modules.
     # a module can only be added to the end of the module list.
@@ -24,7 +14,7 @@ with CpxE(ip_address="172.16.1.40", modules=modules) as cpx_e:
     module_count = cpx_e.read_module_count()
     module_list = cpx_e.modules
 
-    # to make the reading more easy, the modules are extracted from the cpxe object and renamed
+    # the modules are all named automatically and one can access them by their name or index
 
     # read digital input
     e_16di = cpx_e.cpxe16di

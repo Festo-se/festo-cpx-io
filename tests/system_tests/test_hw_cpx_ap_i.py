@@ -934,3 +934,45 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol.configure_setpoint_device_id(0)
     time.sleep(0.05)
     a4iol.configure_port_mode(0)
+
+
+def test_write_parameter(test_cpxap):
+    """Test write_parameters"""
+    aep = test_cpxap.modules[0]
+    assert isinstance(aep, CpxApEp)
+
+    param = CpxApEp.Parameters(
+        setup_monitoring_load_supply=0,
+    )
+
+    # Act
+    aep.write_parameters(param)
+
+    # Assert
+    time.sleep(0.05)
+    params = aep.read_parameters()
+    assert params.setup_monitoring_load_supply == 0
+
+    # Clean
+    param = CpxApEp.Parameters(
+        setup_monitoring_load_supply=1,
+    )
+
+    aep.write_parameters(param)
+
+
+def test_write_parameters(test_cpxap):
+    """Test write_parameters"""
+    ep = test_cpxap.modules[0]
+    assert isinstance(ep, CpxApEp)
+
+    param = CpxApEp.Parameters(
+        dhcp_enable=False,
+        ip_address="172.16.1.43",
+        subnet_mask="255.255.0.0",
+        gateway_address="172.16.1.0",
+        setup_monitoring_load_supply=1,
+    )
+
+    # Act
+    ep.write_parameters(param)

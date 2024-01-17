@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- Added Parameter write for CPX-AP-*-EP
 - Handling of naming for more modules of one type (CPX-E and -AP)
 - Added warning if cpx-e-ep module is added multiple times
 - Added black job to CI/CD
@@ -52,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reworked CPX-E class structure.
 
 ### Fixed
+- Bugfix encode_int with data_type "bool"
+- Fixed Example code CPX-E
 - Bugfix CPX-AP Parameter
 - Bugfix CPX-AP- Systemtest
 - Fixed bug in IDSU access cpx-ap-4iol
