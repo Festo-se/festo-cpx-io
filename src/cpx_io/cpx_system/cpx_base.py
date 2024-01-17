@@ -161,6 +161,8 @@ class CpxBase:
             builder.add_16bit_int(data)
         elif data_type == "int32":
             builder.add_32bit_int(data)
+        elif data_type == "bool":
+            builder.add_16bit_uint(int(data) << 4)
         else:
             raise NotImplementedError(f"Type {data_type} not implemented")
 
