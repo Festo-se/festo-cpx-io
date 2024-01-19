@@ -1,5 +1,5 @@
 """Contains tests for CpxAp class"""
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
@@ -8,6 +8,7 @@ from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 
 
 class TestCpxAp:
@@ -15,9 +16,15 @@ class TestCpxAp:
 
     @patch.object(CpxAp, "read_module_count")
     @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "write_reg_data")
+    @patch.object(CpxAp, "read_reg_data")
     # @patch.object(CpxAp, "add_module")
     def test_constructor_correct_type(
-        self, mock_read_module_information, mock_read_module_count
+        self,
+        mock_read_reg_data,
+        mock_write_reg_data,
+        mock_read_module_information,
+        mock_read_module_count,
     ):
         "Test constructor"
         # Arrange
@@ -31,11 +38,17 @@ class TestCpxAp:
             for module_code in module_code_list
         ]
         mock_read_module_information.side_effect = module_information_list
+        mock_read_reg_data.return_value = [0x0000, 0x0064]
 
         # Act
         cpxap = CpxAp()
 
         # Assert
+        mock_write_reg_data.assert_called_with(
+            [0x0000, 0x0064], *cpx_ap_registers.TIMEOUT
+        )
+        mock_read_reg_data.assert_called_once()
+
         assert isinstance(cpxap, CpxAp)
         assert len(cpxap.modules) == 7
         assert isinstance(cpxap.modules[0], CpxApEp)

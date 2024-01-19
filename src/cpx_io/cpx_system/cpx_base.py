@@ -34,19 +34,19 @@ class CpxRequestError(Exception):
 class CpxBase:
     """A class to connect to the Festo CPX system and read data from IO modules"""
 
-    def __init__(self, ip_address=None, port=502, timeout=1):
+    def __init__(self, ip_address: str = None):
+        """Constructor of CpxBase class.
+
+        Parameters:
+            ip_address (str): Required IP address as string e.g. ('192.168.1.1')
+        """
         if ip_address is None:
             Logging.logger.info("Not connected since no IP address was provided")
             return
 
-        self.client = ModbusTcpClient(
-            host=ip_address,
-            port=port,
-            timeout=timeout,
-        )
-
+        self.client = ModbusTcpClient(host=ip_address)
         self.client.connect()
-        Logging.logger.info(f"Connected to {ip_address}:{port} (timeout: {timeout})")
+        Logging.logger.info(f"Connected to {ip_address}:502")
 
     def shutdown(self):
         """Shutdown function"""

@@ -6,7 +6,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 
 @pytest.fixture(scope="module")
 def test_cpx_base():
-    base = CpxBase(ip_address="172.16.1.40", port=502, timeout=1)
+    base = CpxBase(ip_address="172.16.1.40")
     yield base
 
 

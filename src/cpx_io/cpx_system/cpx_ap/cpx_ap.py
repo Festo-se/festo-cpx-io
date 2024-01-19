@@ -30,12 +30,19 @@ class CpxAp(CpxBase):
         product_key: str = None
         order_text: str = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, timeout: float = 0.1, **kwargs):
+        """Constructor of the CpxAp class.
+
+        Parameters:
+            timeout (float): Modbus timeout (in s) that should be configured on the slave
+        """
         super().__init__(**kwargs)
 
         self.next_output_register = None
         self.next_input_register = None
         self._modules = []
+
+        self.set_timeout(int(timeout * 1000))
 
         module_count = self.read_module_count()
         for i in range(module_count):
@@ -45,6 +52,18 @@ class CpxAp(CpxBase):
     def modules(self):
         """Function for private modules property"""
         return self._modules
+
+    def set_timeout(self, timeout_ms) -> None:
+        """Sets the modbus timeout to the provided value"""
+        Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
+        registers = self.encode_int(timeout_ms, data_type="uint32")
+        self.write_reg_data(registers, *cpx_ap_registers.TIMEOUT)
+        # Check if it actually succeeded
+        indata = self.decode_int(
+            self.read_reg_data(*cpx_ap_registers.TIMEOUT)[::-1], data_type="uint32"
+        )
+        if indata != timeout_ms:
+            Logging.logger.error("Setting of modbus timeout was not successful")
 
     def add_module(self, info: ModuleInformation):
         """Adds one module to the base. This is required to use the module.
