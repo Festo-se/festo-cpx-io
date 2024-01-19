@@ -44,12 +44,11 @@ pip install .
 ```
 
 ## Usage
-### [CLI](https://festo-research.gitlab.io/remote-io/festo-cpx-io/features/cli.html) - [`cli`](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/cpx_io.cli.html#module-cpx_io.cli.cli)
+### [CLI](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/features/cli.html) - [`cli`](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/cpx_io.cli.html#module-cpx_io.cli.cli)
 `festo-cpx-io` is the main entry point to the CLI.
 It supports various subcommands which execute some basic functions.
 
 For more information use the help flag  (`festo-cpx-io -h`).
 
 #### Subcommands
-- [`cpx-e`](https://festo-research.gitlab.io/remote-io/festo-cpx-io/features/cli.html#cpx-e) is a subcommand to execute commands on CPX-E devices
-
+- [`cpx-e`](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/features/cli.html#cpx-e) is a subcommand to execute commands on CPX-E devices
