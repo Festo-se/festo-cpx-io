@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reworked CPX-E class structure.
 
 ### Fixed
+- Fixed README links
 - Bugfix encode_int with data_type "bool"
 - Fixed Example code CPX-E
 - Bugfix CPX-AP Parameter
