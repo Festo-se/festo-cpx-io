@@ -4,10 +4,14 @@
 .. toctree::
   :maxdepth: 2
   :caption: Features:
-  
+
+  features/cli
+
 .. toctree::
   :maxdepth: 2
   :caption: Examples:
+  
+  examples.rst
 
 .. toctree::
   :maxdepth: 2
