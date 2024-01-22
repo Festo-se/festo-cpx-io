@@ -77,16 +77,16 @@ class CpxAp4AiUI(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         :param signalrange: Channel range. One of
-           * "None",
-           * "-10-+10V",
-           * "-5-+5V",
-           * "0-10V",
-           * "1-5V",
-           * "0-20mA",
-           * "4-20mA",
-           * "0-500R",
-           * "PT100",
-           * "NI100"
+           - "None",
+           - "-10-+10V",
+           - "-5-+5V",
+           - "0-10V",
+           - "1-5V",
+           - "0-20mA",
+           - "4-20mA",
+           - "0-500R",
+           - "PT100",
+           - "NI100"
         :type signalrange: str
         """
         reg_id = 20043

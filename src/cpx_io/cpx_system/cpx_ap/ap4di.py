@@ -49,10 +49,10 @@ class CpxAp4Di(CpxApModule):
         shall be assumed as a logical input signal. In this way, unwanted signal edge changes
         can be suppressed during switching operations (bouncing of the input signal).
         Accepted values are
-        * 0: 0.1 ms
-        * 1: 3 ms (default)
-        * 2: 10 ms
-        * 3: 20 ms
+        - 0: 0.1 ms
+        - 1: 3 ms (default)
+        - 2: 10 ms
+        - 3: 20 ms
 
         :param value: Debounce time for all channels in range 0..3 (see datasheet)
         :type value: int

@@ -8,6 +8,7 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.utils.helpers import div_ceil
+from cpx_io.utils.logging import Logging
 
 
 class CpxAp4Iol(CpxApModule):
@@ -44,7 +45,11 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase.require_base
     def read_ap_parameter(self) -> dict:
-        """Read AP parameters"""
+        """Read AP parameters
+
+        :return: All AP parameters
+        :rtype: dict
+        """
         params = super().read_ap_parameter()
 
         io_link_variant = CpxBase.decode_int(
@@ -57,12 +62,15 @@ class CpxAp4Iol(CpxApModule):
 
         params.io_link_variant = self.__class__.module_codes[io_link_variant]
         params.operating_supply = activation_operating_voltage
+        Logging.logger.info(f"{self.name}: Reading AP parameters")
         return params
 
     @CpxBase.require_base
-    def read_channels(self) -> list[list]:
-        """read all IO-Link input data
-        register order is [msb, ... , ... , lsb]
+    def read_channels(self) -> list[list[int]]:
+        """read all IO-Link input data register order is [msb, ... , lsb]
+
+        :return: All registers from all channels
+        :rtype: list[list[int]]
         """
         module_input_size = div_ceil(self.information.input_size, 2) - 2
 
@@ -80,20 +88,29 @@ class CpxAp4Iol(CpxApModule):
             data[channel_size * 2 : channel_size * 3],
             data[channel_size * 3 :],
         ]
+        Logging.logger.info(f"{self.name}: Reading channels: {channels}")
         return channels
 
     @CpxBase.require_base
-    def read_channel(self, channel: int) -> bool:
+    def read_channel(self, channel: int) -> list[int]:
         """read back the register values of one channel
         register order is [msb, ... , ... , lsb]
-        channel order is [0, 1, 2, 3]
+
+        :parameter channel: Channel number, starting with 0
+        :type channel: int
+        :return: All registers from one channel
+        :rtype: list[int]
         """
         return self.read_channels()[channel]
 
     @CpxBase.require_base
     def write_channel(self, channel: int, data: list[int]) -> None:
         """set one channel to list of uint16 values
-        channel order is [0, 1, 2, 3]
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param data: list of registers to write
+        :type data: list[int]
         """
         module_output_size = div_ceil(self.information.output_size, 2)
         channel_size = (module_output_size) // 4
@@ -105,11 +122,18 @@ class CpxAp4Iol(CpxApModule):
         self.base.write_reg_data(
             register_data, self.output_register + channel_size * channel
         )
+        Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
 
     @CpxBase.require_base
-    def read_pqi(self, channel: int | None = None) -> dict | list[dict]:
+    def read_pqi(self, channel: int = None) -> dict | list[dict]:
         """Returns Port Qualifier Information for each channel. If no channel is given,
-        returns a list of PQI dict for all channels"""
+        returns a list of PQI dict for all channels
+
+        :param channel: Channel number, starting with 0, optional
+        :type channel: int
+        :return: PQI information as dict for one channel or as list of dicts for more channels
+        :rtype: dict | list[dict] depending on param channel
+        """
         data45 = self.base.read_reg_data(self.input_register + 16)[0]
         data67 = self.base.read_reg_data(self.input_register + 17)[0]
         data = [
@@ -148,25 +172,36 @@ class CpxAp4Iol(CpxApModule):
         if channel is None:
             return channels_pqi
 
+        Logging.logger.info(f"{self.name}: Reading PQI of channel(s) {channel}")
         return channels_pqi[channel]
 
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
         """Accepted values are
-        0: Load supply monitoring inactive
-        1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
-        2: Load supply monitoring active
+        - 0: Load supply monitoring inactive
+        - 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+        - 2: Load supply monitoring active
+
+        :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
+        :type value: int
         """
         uid = 20022
 
         if not 0 <= value <= 2:
-            raise ValueError("Value {value} must be between 0 and 2")
+            raise ValueError(f"Value {value} must be between 0 and 2")
 
         self.base.write_parameter(self.position, uid, 0, value)
 
+        value_str = [
+            "inactive",
+            "active, diagnosis suppressed in case of switch-off",
+            "active",
+        ]
+        Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")
+
     @CpxBase.require_base
     def configure_target_cycle_time(
-        self, value: int, channel: int | list | None = None
+        self, value: int, channel: int | list[int] = None
     ) -> None:
         """Target cycle time in ms for the given channels. If no channel is specified,
         target cycle time is applied to all channels. Possible cycle time values:
@@ -182,16 +217,36 @@ class CpxAp4Iol(CpxApModule):
         - 133: 40.0 ms
         - 158: 80.0 ms
         - 183: 120.0 ms
+
+        :param value: target cycle time (see datasheet)
+        :type value: int
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
         """
         uid = 20049
 
         if channel is None:
             channel = [0, 1, 2, 3]
 
-        allowed_values = [0, 16, 32, 48, 68, 73, 78, 88, 98, 133, 158, 183]
+        allowed_values = {
+            0: "0 ms",
+            16: "1.6 ms",
+            32: "3.2 ms",
+            48: "4.8 ms",
+            68: "8.0 ms",
+            73: "10.0 ms",
+            78: "12.0 ms",
+            88: "16.0 ms",
+            98: "20.0 ms",
+            133: "40.0 ms",
+            158: "80.0 ms",
+            183: "120.0 ms",
+        }
 
         if value not in allowed_values:
-            raise ValueError("Value {value} not valid")
+            raise ValueError(
+                f"Value {value} not valid, must be one of {allowed_values}"
+            )
 
         if isinstance(channel, int):
             channel = [channel]
@@ -199,14 +254,23 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(self.position, uid, channel_item, value)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel(s) {channel} target "
+            f"cycle time to {allowed_values[value]}"
+        )
+
     @CpxBase.require_base
     def configure_device_lost_diagnostics(
-        self, value: bool, channel: int | list | None = None
+        self, value: bool, channel: int | list[int] = None
     ) -> None:
         """Activation of diagnostics for IO-Link device lost (default: True) for
         given channel. If no channel is provided, value will be written to all channels.
-        """
 
+        :param value: activate (True) or deactivate (False) diagnostics for given channel(s)
+        :type value: bool
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
+        """
         uid = 20050
 
         if channel is None:
@@ -218,24 +282,36 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(self.position, uid, channel_item, int(value))
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel(s) {channel} device lost diagnostics to {value}"
+        )
+
     @CpxBase.require_base
-    def configure_port_mode(
-        self, value: int, channel: int | list | None = None
-    ) -> None:
+    def configure_port_mode(self, value: int, channel: int | list[int] = None) -> None:
         """Port mode. Available values:
         - 0: DEACTIVATED (factory setting)
         - 1: IOL_MANUAL
         - 2: IOL_AUTOSTART
         - 3: DI_CQ
         - 97: PREOPERATE (Only supported in combination with IO-Link V1.1 devices)
-        """
 
+        :param value: port mode (see datasheet)
+        :type value: int
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
+        """
         uid = 20071
 
         if channel is None:
             channel = [0, 1, 2, 3]
 
-        allowed_values = [0, 1, 2, 3, 97]
+        allowed_values = {
+            0: "DEACTIVATED",
+            1: "IOL_MANUAL",
+            2: "IOL_AUTOSTART",
+            3: "DI_CQ",
+            97: "PREOPERATE",
+        }
 
         if value not in allowed_values:
             raise ValueError("Value {value} not valid")
@@ -246,9 +322,13 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(self.position, uid, channel_item, value)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel(s) {channel} port mode to {allowed_values[value]}"
+        )
+
     @CpxBase.require_base
     def configure_review_and_backup(
-        self, value: int, channel: int | list | None = None
+        self, value: int, channel: int | list[int] = None
     ) -> None:
         """Review and backup. Available values:
         - 0: no test (factory setting)
@@ -257,6 +337,11 @@ class CpxAp4Iol(CpxApModule):
         - 3: device compatible V1.1 Data storage Backup+ Restore
         - 4: device compatible V1.1 Data storage Restore
         Changes only become effective when the port mode is changed (ID 20071).
+
+        :param value: review and backup option (see datasheet)
+        :type value: int
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
         """
 
         uid = 20072
@@ -264,7 +349,15 @@ class CpxAp4Iol(CpxApModule):
         if channel is None:
             channel = [0, 1, 2, 3]
 
-        if not 0 <= value <= 4:
+        allowed_values = {
+            0: "no test",
+            1: "device compatible V1.0",
+            2: "device compatible V1.1",
+            3: "device compatible V1.1 Data storage Backup+ Restore",
+            4: "device compatible V1.1 Data storage Restore",
+        }
+
+        if value not in allowed_values:
             raise ValueError("Value {value} must be between 0 and 4")
 
         if isinstance(channel, int):
@@ -273,12 +366,22 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(self.position, uid, channel_item, value)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel(s) {channel} port mode to {allowed_values[value]}"
+        )
+
     @CpxBase.require_base
     def configure_target_vendor_id(
-        self, value: int, channel: int | list | None = None
+        self, value: int, channel: int | list[int] = None
     ) -> None:
         """Target Vendor ID
-        Changes only become effective when the port mode is changed (ID 20071)."""
+        Changes only become effective when the port mode is changed (ID 20071).
+
+        :param value: target vendor id
+        :type value: int
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
+        """
 
         uid = 20073
 
@@ -291,12 +394,22 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(self.position, uid, channel_item, value)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel(s) {channel} port mode to {value}"
+        )
+
     @CpxBase.require_base
     def configure_setpoint_device_id(
-        self, value: int, channel: int | list | None = None
+        self, value: int, channel: int | list[int] = None
     ) -> None:
         """Setpoint device ID
-        Changes only become effective when the port mode is changed (ID 20071)."""
+        Changes only become effective when the port mode is changed (ID 20071).
+
+        :param value: setpoint device id
+        :type value: int
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
+        """
 
         uid = 20080
 
@@ -309,6 +422,11 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(self.position, uid, channel_item, value)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel(s) {channel} device id to {value}"
+        )
+
+    # TODO: go on from here
     @CpxBase.require_base
     def read_fieldbus_parameters(self) -> list[dict]:
         """Read all fieldbus parameters (status/information) for all channels
