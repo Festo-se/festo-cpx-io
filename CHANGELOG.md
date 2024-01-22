@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- Added content to README.md
 - Added Parameter write for CPX-AP-*-EP
 - Handling of naming for more modules of one type (CPX-E and -AP)
 - Added warning if cpx-e-ep module is added multiple times
@@ -54,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reworked CPX-E class structure.
 
 ### Fixed
+- Fixed README links
 - Docstrings and Logging
 - Bugfix encode_int with data_type "bool"
 - Fixed Example code CPX-E
