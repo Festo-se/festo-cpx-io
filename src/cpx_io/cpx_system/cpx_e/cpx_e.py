@@ -13,6 +13,11 @@ class CpxE(CpxBase):
     """CPX-E base class"""
 
     def __init__(self, modules=None, **kwargs):
+        """Constructor of the CpxE class.
+
+        Parameters:
+            modules (list): List of module instances e.g. [CpxEEp(), CpxE8Do(), CpxE16Di()]
+        """
         super().__init__(**kwargs)
         self._control_bit_value = 1 << 15
         self._write_bit_value = 1 << 13

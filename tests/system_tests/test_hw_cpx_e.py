@@ -20,7 +20,7 @@ from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
 
 @pytest.fixture(scope="function")
 def test_cpxe():
-    with CpxE(ip_address="172.16.1.40", port=502, timeout=500) as cpxe:
+    with CpxE(ip_address="172.16.1.40") as cpxe:
         yield cpxe
 
 

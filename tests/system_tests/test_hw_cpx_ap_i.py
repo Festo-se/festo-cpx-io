@@ -18,7 +18,7 @@ from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
 @pytest.fixture(scope="function")
 def test_cpxap():
     """test fixture"""
-    with CpxAp(ip_address="172.16.1.41", port=502, timeout=500) as cpxap:
+    with CpxAp(ip_address="172.16.1.41") as cpxap:
         yield cpxap
 
 
@@ -43,6 +43,19 @@ def test_init(test_cpxap):
 def test_module_count(test_cpxap):
     "test module_count"
     assert test_cpxap.read_module_count() == 6
+
+
+def test_timeout(test_cpxap):
+    "test timeout"
+    reg = test_cpxap.read_reg_data(14000, 2)[::-1]
+    assert CpxBase.decode_int(reg, data_type="uint32") == 100
+
+
+def test_set_timeout():
+    "test timeout"
+    with CpxAp(ip_address="172.16.1.41", timeout=0.5) as cpxap:
+        reg = cpxap.read_reg_data(14000, 2)[::-1]
+        assert CpxBase.decode_int(reg, data_type="uint32") == 500
 
 
 def test_read_module_information(test_cpxap):
@@ -185,7 +198,7 @@ def test_ep_param_read(test_cpxap):
     assert param.dhcp_enable is False
     assert param.active_ip_address == "172.16.1.41"
     assert param.active_subnet_mask == "255.255.0.0"
-    assert param.active_gateway_address == "0.0.0.0"
+    assert param.active_gateway_address == "172.16.1.41"
     assert param.mac_address == "00:0e:f0:7d:3b:15"
     assert param.setup_monitoring_load_supply == 1
 
