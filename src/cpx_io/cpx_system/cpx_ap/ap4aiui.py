@@ -54,7 +54,7 @@ class CpxAp4AiUI(CpxApModule):
         uid = 20032
 
         if channel not in range(4):
-            raise ValueError("Channel {channel} must be between 0 and 3")
+            raise ValueError(f"Channel {channel} must be between 0 and 3")
 
         value = {
             "C": 0,
@@ -92,7 +92,7 @@ class CpxAp4AiUI(CpxApModule):
         reg_id = 20043
 
         if channel not in range(4):
-            raise ValueError("Channel {channel} must be between 0 and 3")
+            raise ValueError(f"Channel {channel} must be between 0 and 3")
 
         value = {
             "None": 0,
@@ -140,17 +140,17 @@ class CpxAp4AiUI(CpxApModule):
         lower_id = 20045
 
         if channel not in range(4):
-            raise ValueError("Channel {channel} must be between 0 and 3")
+            raise ValueError(f"Channel {channel} must be between 0 and 3")
 
         if isinstance(lower, int):
             if not -32768 <= lower <= 32767:
                 raise ValueError(
-                    "Values for low {low} must be between -32768 and 32767"
+                    f"Values for low {lower} must be between -32768 and 32767"
                 )
         if isinstance(upper, int):
             if not -32768 <= upper <= 32767:
                 raise ValueError(
-                    "Values for high {high} must be between -32768 and 32767"
+                    f"Values for high {upper} must be between -32768 and 32767"
                 )
 
         if lower is None and isinstance(upper, int):
@@ -180,7 +180,7 @@ class CpxAp4AiUI(CpxApModule):
         uid = 20046
 
         if channel not in range(4):
-            raise ValueError("Channel {channel} must be between 0 and 3")
+            raise ValueError(f"Channel {channel} must be between 0 and 3")
 
         if not 0 <= value <= 0xFFFF:
             raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
@@ -204,7 +204,7 @@ class CpxAp4AiUI(CpxApModule):
         uid = 20107
 
         if channel not in range(4):
-            raise ValueError("Channel {channel} must be between 0 and 3")
+            raise ValueError(f"Channel {channel} must be between 0 and 3")
 
         if value not in range(16):
             raise ValueError(f"'{value}' is not an option")
@@ -226,10 +226,10 @@ class CpxAp4AiUI(CpxApModule):
         """
         uid = 20111
         if not isinstance(value, bool):
-            raise TypeError("State {state} must be of type bool (True or False)")
+            raise TypeError(f"State {value} must be of type bool (True or False)")
 
         if channel not in range(4):
-            raise ValueError("Channel {channel} must be between 0 and 3")
+            raise ValueError(f"Channel {channel} must be between 0 and 3")
 
         self.base.write_parameter(self.position, uid, channel, int(value))
 

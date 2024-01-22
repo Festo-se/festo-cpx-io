@@ -10,3 +10,4 @@ docs/source/modules.rst
 src/festo_cpx_io.egg-info/*
 venv
 coverage.xml
+docs/source/*
