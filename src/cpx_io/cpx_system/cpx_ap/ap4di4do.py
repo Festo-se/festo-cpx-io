@@ -1,4 +1,4 @@
-"""CPX-AP-4DI4DO-`*` module implementation"""
+"""CPX-AP-`*`-4DI4DO-`*` module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
