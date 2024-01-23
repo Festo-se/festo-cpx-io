@@ -134,24 +134,6 @@ class TestCpxE4Iol:
             cpxe4iol.input_register, length=4
         )
 
-    def test_read_outputs_0_to_3(self):
-        """Test read outputs"""
-        # Arrange
-        cpxe4iol = CpxE4Iol()
-        cpxe4iol.input_register = 0
-        cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=[0x00AB, 0x00CD, 0x00EF, 0x0012])
-        )
-
-        # Act
-        channel_values = [cpxe4iol.read_output_channel(idx) for idx in range(4)]
-
-        # Exercise
-        assert channel_values == [[0xAB00], [0xCD00], [0xEF00], [0x1200]]
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.input_register + 4, length=4
-        )
-
     @pytest.mark.parametrize(
         "output_register, input_value, expected_value",
         [

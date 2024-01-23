@@ -6,6 +6,7 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
+from cpx_io.utils.logging import Logging
 
 
 class CpxE8Do(CpxEModule):
@@ -39,9 +40,14 @@ class CpxE8Do(CpxEModule):
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
-        """read module status register. Further information see module datasheet"""
+        """read module status register. Further information see module datasheet
+
+        :return: status information (see datasheet)
+        :rtype: list[bool]"""
         data = self.base.read_reg_data(self.input_register + 1)[0]
-        return int_to_boollist(data, num_bytes=2)
+        ret = int_to_boollist(data, 2)
+        Logging.logger.info(f"{self.name}: Reading status: {ret}")
+        return ret
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:

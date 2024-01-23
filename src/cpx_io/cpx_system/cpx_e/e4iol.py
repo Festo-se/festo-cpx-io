@@ -6,6 +6,7 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.logging import Logging
 
 
 class CpxE4Iol(CpxEModule):
@@ -14,6 +15,7 @@ class CpxE4Iol(CpxEModule):
     def __init__(self, address_space: int = 2, **kwargs):
         """The address space (inputs/outputs) provided by the module is set using DIL
         switches (see Datasheet CPX-E-4IOL-...)
+
         Accepted values are:
           * 2: Per port: 2 E / 2 A  Module: 8 E / 8 A (default)
           * 4: Per port: 4 E / 4 A  Module: 16 E / 16 A
@@ -49,13 +51,22 @@ class CpxE4Iol(CpxEModule):
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
-        """read module status register. Further information see module datasheet"""
+        """read module status register. Further information see module datasheet
+
+        :return: status information (see datasheet)
+        :rtype: list[bool]"""
         data = self.base.read_reg_data(self.input_register + 4)[0]
-        return int_to_boollist(data, 2)
+        ret = int_to_boollist(data, 2)
+        Logging.logger.info(f"{self.name}: Reading status: {ret}")
+        return ret
 
     @CpxBase.require_base
     def read_channels(self) -> list[list[int]]:
-        """read all channels as a list of integer values"""
+        """read all channels as a list of integer values
+
+        :return: All registers from all channels
+        :rtype: list[list[int]]
+        """
         channel_size = self.module_input_size
 
         # read all channels
@@ -72,47 +83,28 @@ class CpxE4Iol(CpxEModule):
             data[channel_size * 2 : channel_size * 3],
             data[channel_size * 3 :],
         ]
-
+        Logging.logger.info(f"{self.name}: Reading channels: {channels}")
         return channels
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> list[int]:
-        """read back the value of one channel"""
+        """read back the value of one channel
+
+        :parameter channel: Channel number, starting with 0
+        :type channel: int
+        :return: All registers from one channel
+        :rtype: list[int]
+        """
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def read_outputs(self) -> list[list[int]]:
-        """read back the values of all output channel"""
-        channel_size = self.module_input_size
-
-        # read all channels
-        data = self.base.read_reg_data(
-            self.input_register + channel_size * 4, length=channel_size * 4
-        )
-
-        data = [
-            CpxBase.decode_int([d], data_type="uint16", byteorder="little")
-            for d in data
-        ]
-
-        channels = [
-            data[: channel_size * 1],
-            data[channel_size * 1 : channel_size * 2],
-            data[channel_size * 2 : channel_size * 3],
-            data[channel_size * 3 :],
-        ]
-
-        return channels
-
-    @CpxBase.require_base
-    def read_output_channel(self, channel: list[int]) -> int:
-        """read back the value of one channel"""
-        return self.read_outputs()[channel]
-
-    @CpxBase.require_base
     def write_channel(self, channel: int, data: list[int]) -> None:
-        """write data to module channel number
-        channel order is [0, 1, 2, 3]
+        """set one channel to list of uint16 values
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param data: list of registers to write
+        :type data: list[int]
         """
         channel_size = self.module_output_size
 
@@ -123,6 +115,7 @@ class CpxE4Iol(CpxEModule):
         self.base.write_reg_data(
             register_data, self.output_register + channel_size * channel
         )
+        Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
 
     @CpxBase.require_base
     def configure_monitoring_uload(self, value: bool) -> None:
@@ -130,6 +123,9 @@ class CpxE4Iol(CpxEModule):
         supply shall be activated or deactivated in regard to undervoltage. When the monitoring
         is activated, the error is sent to the bus module and indicated by the error LED on the
         module
+
+        :param value: monitoring uload value (see datasheet)
+        :type value: int
         """
         function_number = 4828 + 64 * self.position
         reg = self.base.read_function_number(function_number)
@@ -142,6 +138,8 @@ class CpxE4Iol(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting monitoring uload to {value}")
+
     @CpxBase.require_base
     def configure_behaviour_after_scl(self, value: bool) -> None:
         """The "Behaviour after SCS" parameter defines whether the voltage remains deactivated or
@@ -149,6 +147,9 @@ class CpxE4Iol(CpxEModule):
         (ports). The voltage can be switched on again with the "leave switched off" setting by
         deactivating and then reactivating the "PS supply" parameter. Otherwise the activation
         and deactivation of the automation system CPX-E is required to restore the voltage.
+
+        :param value: behaviour after scs (see datasheet)
+        :type value: int
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)
@@ -161,6 +162,8 @@ class CpxE4Iol(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting behaviour after scs to {value}")
+
     @CpxBase.require_base
     def configure_behaviour_after_sco(self, value: bool) -> None:
         """The "Behaviour after SCO" parameter defines whether the voltage remains deactivated or
@@ -169,6 +172,9 @@ class CpxE4Iol(CpxEModule):
         deactivating and then reactivating the "PS supply" (è Tab. 19 ) parameter. Otherwise the
         activation and deactivation of the automation system CPX-E is required to restore the
         voltage.
+
+        :param value: behaviour after sco (see datasheet)
+        :type value: int
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)
@@ -181,10 +187,15 @@ class CpxE4Iol(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting behaviour after sco to {value}")
+
     @CpxBase.require_base
     def configure_ps_supply(self, value: bool) -> None:
         """The "PS supply" parameter defines whether the operating voltage supply shall be
         deactivated or activated. The setting applies for all IO-Link interfaces (ports).
+
+        :param value: ps supply
+        :type value: int
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)
@@ -197,9 +208,11 @@ class CpxE4Iol(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: ps supply to {value}")
+
     @CpxBase.require_base
     def configure_cycle_time(
-        self, value: tuple[int], channel: int | list | None = None
+        self, value: tuple[int], channel: int | list = None
     ) -> None:
         """The "Cycle time" parameter defines the cycle time (low/high) set by the IO-Link master.
         The setting can be made separately for each IO-Link interface (port).
@@ -208,6 +221,11 @@ class CpxE4Iol(CpxEModule):
         until the connection has been deactivated and then reactivated again.
         Values are tuple of (low, high) 16 bit in us unit. Default is 0 (minimum supported cycle
         time). If no channels are specified, all channels are set to the given value.
+
+        :param value: cycle time (see datasheet) as tuple (low, high)
+        :type value: tuple[int]
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
         """
 
         if channel is None:
@@ -230,14 +248,21 @@ class CpxE4Iol(CpxEModule):
             self.base.write_function_number(function_number[item], value[0])
             self.base.write_function_number(function_number[item] + 1, value[1])
 
+        Logging.logger.info(
+            f"{self.name}: setting channel(s) {channel} cycle time to {value}"
+        )
+
     @CpxBase.require_base
-    def configure_pl_supply(
-        self, value: bool, channel: int | list | None = None
-    ) -> None:
+    def configure_pl_supply(self, value: bool, channel: int | list = None) -> None:
         """The "PL supply" parameter defines whether the load voltage supply shall
         be deactivated or activated. The setting can be made separately for each
         IO-Link interface (port). If no channel is specified, the value will be
         applied to all channels.
+
+        :param value: pl supply
+        :type value: bool
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
         """
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -266,18 +291,26 @@ class CpxE4Iol(CpxEModule):
 
             self.base.write_function_number(function_number[item], value_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: setting channel(s) {channel} pl supply to {value}"
+        )
+
     @CpxBase.require_base
-    def configure_operating_mode(
-        self, value: int, channel: int | list | None = None
-    ) -> None:
+    def configure_operating_mode(self, value: int, channel: int | list = None) -> None:
         """The "Operating mode" parameter defines the operating mode of the
         IO-Link® interface (port). The setting can be made separately for
         each IO-Link interface (port).
+
         Possible Values are:
           * 0: Inactive: Port is not in use (default)
           * 1: DI: Port acts like a digital input
           * 2: [DO]: reserved
           * 3: IO-Link: IO-Link communication
+
+        :param value: operating mode
+        :type value: int
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
         """
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -306,10 +339,20 @@ class CpxE4Iol(CpxEModule):
 
             self.base.write_function_number(function_number[item], value_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: setting channel(s) {channel} pl supply to {value}"
+        )
+
     @CpxBase.require_base
-    def read_line_state(self, channel: int | list | None = None) -> list[str] | str:
+    def read_line_state(self, channel: int | list = None) -> list[str] | str:
         """Line state for all channels. If no channel is provided, list of all channels
-        is returned."""
+        is returned.
+
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
+        :return: Line state for all or all requested channels
+        :rtype: list[str] | str
+        """
         if channel is None:
             channel = [0, 1, 2, 3]
 
@@ -348,15 +391,24 @@ class CpxE4Iol(CpxEModule):
         if isinstance(channel, int) and channel in range(4):
             return line_state[channel]
 
-        return [line_state[c] for c in channel]
+        ret = [line_state[c] for c in channel]
+        Logging.logger.info(
+            f"{self.name}: Reading channel(s) {channel} line state: {ret}"
+        )
+        return ret
 
     @CpxBase.require_base
-    def read_device_error(self, channel: int | list | None = None) -> tuple[int] | int:
+    def read_device_error(self, channel: int | list = None) -> tuple[int] | int:
         """the "Device error code" parameter displays the current lowest-value error code
         (event code) of the connected IO-Link device. If no event is reported, the parameter
         has a value of 0.
         Returns list of tuples of (Low, High) values in hexadecimal strings for each requested
         channel. If only one channel is requested, only one tuple is returned.
+
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int | list[int]
+        :return: device error for all or all requested channels
+        :rtype: tuple[int] | int
         """
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -382,4 +434,8 @@ class CpxE4Iol(CpxEModule):
         if isinstance(channel, int) and channel in range(4):
             return device_error[channel]
 
-        return [device_error[c] for c in channel]
+        ret = [device_error[c] for c in channel]
+        Logging.logger.info(
+            f"{self.name}: Reading channel(s) {channel} device error: {ret}"
+        )
+        return ret
