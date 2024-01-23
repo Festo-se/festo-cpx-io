@@ -99,12 +99,15 @@ class CpxBase:
 
         byte_size: int = 2
 
-    def read_reg_data(self, register: int, length=1) -> list:
+    def read_reg_data(self, register: int, length: int = 1) -> list[int]:
         """Reads and returns register from Modbus server
 
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
+        :param register: adress of the first register to read
+        :type register: int
+        :param length: number of registers to read (default: 1)
+        :type length: int
+        :return: Register content
+        :rtype: list[int]
         """
 
         data = self.client.read_holding_registers(register, length)
@@ -114,9 +117,18 @@ class CpxBase:
 
         return data.registers
 
-    def write_reg_data(self, data: int | list, register: int, length=1):
+    def write_reg_data(
+        self, data: int | list[int], register: int, length: int = 1
+    ) -> None:
         """Write data to registers. If data is int, writes one register.
         If data is list, list content is written to given register address and following registers
+
+        :param data: data to write to the register
+        :type data: int | list[int]
+        :param register: adress of the first register to read
+        :type register: int
+        :param length: number of registers to read (default: 1)
+        :type length: int
 
         """
         if isinstance(data, int):

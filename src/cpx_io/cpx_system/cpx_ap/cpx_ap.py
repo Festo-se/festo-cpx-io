@@ -50,7 +50,7 @@ class CpxAp(CpxBase):
 
     @property
     def modules(self):
-        """Function for private modules property"""
+        """getter function for private modules property"""
         return self._modules
 
     def set_timeout(self, timeout_ms: int) -> None:
