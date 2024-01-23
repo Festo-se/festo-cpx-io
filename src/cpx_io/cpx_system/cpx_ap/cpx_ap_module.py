@@ -43,8 +43,14 @@ class CpxApModule:
     def __repr__(self):
         return f"{self.name} (idx: {self.position}, type: {type(self).__name__})"
 
-    def configure(self, base, position):
-        """Set up module when added to cpx system"""
+    def configure(self, base: CpxBase, position: int) -> None:
+        """Setup a module with the according base and position in the system
+
+        :param base: Base module that implements the modbus functions
+        :type base: CpxBase
+        :param position: Module position in CPX-AP system starting with 0 for Busmodule
+        :type position: int
+        """
         # pylint: disable=duplicate-code
         # intended: cpx-ap and cpx-e have similar functions
         self.base = base
@@ -73,8 +79,12 @@ class CpxApModule:
         self.information = info
 
     @CpxBase.require_base
-    def read_ap_parameter(self) -> dict:
-        """Read AP parameters"""
+    def read_ap_parameter(self) -> ApParameters:
+        """Read AP parameters
+
+        :return: ApParameters object containing all AP parameters
+        :rtype: ApParameters
+        """
         params = self.ApParameters(
             fieldbus_serial_number=CpxBase.decode_int(
                 self.base.read_parameter(self.position, 246, 0), data_type="uint32"
@@ -101,4 +111,5 @@ class CpxApModule:
                 self.base.read_parameter(self.position, 20093, 0), data_type="uint8"
             ),
         )
+        Logging.logger.info(f"{self.name}: Reading AP parameters: {params}")
         return params

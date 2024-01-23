@@ -1,12 +1,12 @@
 """CPX-AP-`*`-EP module implementation"""
 
 from dataclasses import dataclass
-from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.utils.helpers import convert_uint32_to_octett, convert_octett_to_uint32
+from cpx_io.utils.logging import Logging
 
 
 class CpxApEp(CpxApModule):
@@ -32,9 +32,24 @@ class CpxApEp(CpxApModule):
         mac_address: str = None
         setup_monitoring_load_supply: int = None
 
-    def configure(self, base, position):
+    def configure(self, base: CpxBase, position: int) -> None:
+        """Setup a module with the according base and position in the system.
+        This overwrites the inherited configure function because the Busmodule -EP is
+        always on position 0 in the system and needs to pull its registers directly from
+        the cpx_ap_registers.
+
+        :param base: Base module that implements the modbus functions
+        :type base: CpxBase
+        :param position: Module position in CPX-AP system starting with 0 for Busmodule
+        :type position: int
+        """
         self.base = base
         self.position = position
+
+        if self.position != 0:
+            Logging.logger.warning(
+                f"{self} is not on module position 0. Check if this intended"
+            )
 
         self.output_register = None
         self.input_register = None
@@ -51,7 +66,11 @@ class CpxApEp(CpxApModule):
 
     @CpxBase.require_base
     def read_parameters(self) -> Parameters:
-        """Read parameters from EP module"""
+        """Read parameters from EP module
+
+        :return: Parameters object containing all r/w parameters
+        :rtype: Parameters
+        """
 
         params = self.__class__.Parameters(
             dhcp_enable=CpxBase.decode_bool(
@@ -102,11 +121,20 @@ class CpxApEp(CpxApModule):
                 data_type="uint8",
             ),
         )
+        Logging.logger.info(f"{self.name}: Reading parameters: {params}")
         return params
 
     @CpxBase.require_base
     def write_parameters(self, params: Parameters) -> None:
-        """Write parameters to EP module"""
+        """Write parameters to EP module. Writable parameters are
+        - dhcp_enable: bool
+        - subnet_mask: str e.g. 255.255.255.0
+        - gateway_adderss: str e.g. 192.168.1.1
+        - setup_monitoring_load_supply: int (see datasheet)
+
+        :param params: Parameters object containing the writeable parameters.
+        :type params: Parameters
+        """
 
         if params.dhcp_enable is not None:
             self.base.write_parameter(self.position, 12000, 0, params.dhcp_enable)
@@ -145,3 +173,5 @@ class CpxApEp(CpxApModule):
             self.base.write_parameter(
                 self.position, 20022, 0, params.setup_monitoring_load_supply
             )
+
+        Logging.logger.info(f"{self.name}: Writing parameters to module: {params}")
