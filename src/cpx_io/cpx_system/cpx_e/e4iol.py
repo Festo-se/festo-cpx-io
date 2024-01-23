@@ -15,11 +15,11 @@ class CpxE4Iol(CpxEModule):
         """The address space (inputs/outputs) provided by the module is set using DIL
         switches (see Datasheet CPX-E-4IOL-...)
         Accepted values are:
-        * 2: Per port: 2 E / 2 A  Module: 8 E / 8 A (default)
-        * 4: Per port: 4 E / 4 A  Module: 16 E / 16 A
-        * 8: Per port: 8 E / 8 A  Module: 32 E / 32 A
-        * 16: Per port: 16 E / 16 A  Module: 32 E /32 A
-        * 32: Per port: 32 E / 32 A  Module: 32 E / 32 A
+          * 2: Per port: 2 E / 2 A  Module: 8 E / 8 A (default)
+          * 4: Per port: 4 E / 4 A  Module: 16 E / 16 A
+          * 8: Per port: 8 E / 8 A  Module: 32 E / 32 A
+          * 16: Per port: 16 E / 16 A  Module: 32 E /32 A
+          * 32: Per port: 32 E / 32 A  Module: 32 E / 32 A
         """
         super().__init__(**kwargs)
         if address_space not in [2, 4, 8, 16, 32]:
@@ -274,10 +274,10 @@ class CpxE4Iol(CpxEModule):
         IO-Link® interface (port). The setting can be made separately for
         each IO-Link interface (port).
         Possible Values are:
-        - 0: Inactive: Port is not in use (default)
-        - 1: DI: Port acts like a digital input
-        - 2: [DO]: reserved
-        - 3: IO-Link: IO-Link communication
+          * 0: Inactive: Port is not in use (default)
+          * 1: DI: Port acts like a digital input
+          * 2: [DO]: reserved
+          * 3: IO-Link: IO-Link communication
         """
         if channel is None:
             channel = [0, 1, 2, 3]

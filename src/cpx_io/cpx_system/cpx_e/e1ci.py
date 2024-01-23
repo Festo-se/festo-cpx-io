@@ -97,14 +97,14 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:
         """Write the process data. Available keywordarguments are:
-        - enable_setting_di2: enable setting counter value via input I2 (1=enabled)
-        - enable_setting_zero: enable setting counter value via zero pulse (1=enabled)
-        - set_counter: setting the counter to the load value (1=set)
-        - block_counter: switch counter to inactive (1=block)
-        - overrun_cl_confirm: confirm overrun of upper and lower count limit (1=acknowledge overrun)
-        - speed_measurement: speed measurement instead of counter values (1=active)
-        - confirm_latching:  confirm latching event (1=acknowledge latching event)
-        - block_latching: switch latching to inactive (1=block)
+        * enable_setting_di2: enable setting counter value via input I2 (1=enabled)
+        * enable_setting_zero: enable setting counter value via zero pulse (1=enabled)
+        * set_counter: setting the counter to the load value (1=set)
+        * block_counter: switch counter to inactive (1=block)
+        * overrun_cl_confirm: confirm overrun of upper and lower count limit (1=acknowledge overrun)
+        * speed_measurement: speed measurement instead of counter values (1=active)
+        * confirm_latching:  confirm latching event (1=acknowledge latching event)
+        * block_latching: switch latching to inactive (1=block)
         """
         process_data = self.read_process_data()
         pd_updated_dict = {**process_data.__dict__, **kwargs}
@@ -132,10 +132,10 @@ class CpxE1Ci(CpxEModule):
     def configure_signal_type(self, value: int) -> None:
         """The parameter “Signal type/encoder type” defines the encoder supply and connection
         type of the encoder.
-        - 0: Encoder 5 Vdc differential (default)
-        - 1: Encoder 5 Vdc single ended
-        - 2: Encoder 24 Vdc single ended
-        - 3: Invalid setting
+          * 0: Encoder 5 Vdc differential (default)
+          * 1: Encoder 5 Vdc single ended
+          * 2: Encoder 24 Vdc single ended
+          * 3: Invalid setting
         """
         if value in range(4):
             function_number = 4828 + 64 * self.position + 6
@@ -148,10 +148,10 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def configure_signal_evaluation(self, value: int) -> None:
         """The “Signal evaluation” parameter defines the encoder type and evaluation
-        - 0: Incremental encoder with single evaluation
-        - 1: Incremental encoder with double evaluation
-        - 2: Incremental encoder with quadruple evaluation (default)
-        - 3: Pulse generator with or without direction signal
+        * 0: Incremental encoder with single evaluation
+        * 1: Incremental encoder with double evaluation
+        * 2: Incremental encoder with quadruple evaluation (default)
+        * 3: Pulse generator with or without direction signal
         """
         if value in range(4):
             function_number = 4828 + 64 * self.position + 7
@@ -165,8 +165,8 @@ class CpxE1Ci(CpxEModule):
     def configure_monitoring_of_cable_brake(self, value: bool) -> None:
         """The “Monitoring of cable break” parameter defines whether a diagnostic message
         should be output when a cable break of the encoder cable is detected.
-        - False: No diagnostic message (default)
-        - True: Diagnostic message active
+          * False: No diagnostic message (default)
+          * True: Diagnostic message active
         The “Monitoring of cable break” parameter is only relevant for encoder 5 V DC
         (differential) with tracks A and B offset in phase.
         """
@@ -183,8 +183,8 @@ class CpxE1Ci(CpxEModule):
     def configure_monitoring_of_tracking_error(self, value: bool) -> None:
         """The “Monitoring of tracking error” parameter defines whether a diagnostic message
         should be output when a tracking error is detected.
-        - False: No diagnostic message (default)
-        - True: Diagnostic message active
+          * False: No diagnostic message (default)
+          * True: Diagnostic message active
         The “Monitoring of cable break” parameter is only relevant for encoders with tracks
         A and B offset in phase.
         """
@@ -201,8 +201,8 @@ class CpxE1Ci(CpxEModule):
     def configure_monitoring_of_zero_pulse(self, value: bool) -> None:
         """The “Monitoring of zero pulse” parameter defines whether a diagnostic message should be
         output when a zero pulse error is detected.
-        - False: No diagnostic message (default)
-        - True: Diagnostic message active
+          * False: No diagnostic message (default)
+          * True: Diagnostic message active
         The “Monitoring of zero pulse” parameter is only relevant for encoders with zero track
         (track 0). With this diagnostic function enabled, the number of pulses per zero pulse
         must be set correctly using the “Pulses per zero pulse” parameter.
@@ -238,8 +238,8 @@ class CpxE1Ci(CpxEModule):
     def configure_latching_signal(self, value: bool) -> None:
         """The “Latching signal” parameter defines whether the digital input I0 or the
         zero pulse (track 0) is used as signal source to trigger the “Latching” function.
-        - False: Evaluate input I0 (default)
-        - True: Evaluate zero pulse
+          * False: Evaluate input I0 (default)
+          * True: Evaluate zero pulse
         """
 
         function_number = 4828 + 64 * self.position + 13
@@ -254,10 +254,10 @@ class CpxE1Ci(CpxEModule):
     def configure_latching_event(self, value: int) -> None:
         """The “Latching event” parameter defines whether the “Latching” function is
         triggered on a rising and/or falling edge.
-        - 0: Invalid setting
-        - 1: Latching on rising edge (default)
-        - 2: Latching on falling edge
-        - 3: Latching on rising and falling edge
+          * 0: Invalid setting
+          * 1: Latching on rising edge (default)
+          * 2: Latching on falling edge
+          * 3: Latching on rising and falling edge
         """
         if value in range(4):
             function_number = 4828 + 64 * self.position + 14
@@ -349,10 +349,10 @@ class CpxE1Ci(CpxEModule):
     def configure_debounce_time_for_digital_inputs(self, value: int) -> None:
         """The parameter “Debounce time for digital inputs” defines the total debounce time
         for all digital inputs I0 ... I3
-        - 0: 20 us (default)
-        - 1: 100 us
-        - 2: 3 ms
-        - 3: Invalid setting
+          * 0: 20 us (default)
+          * 1: 100 us
+          * 2: 3 ms
+          * 3: Invalid setting
         """
 
         if value in range(4):
@@ -366,11 +366,11 @@ class CpxE1Ci(CpxEModule):
     @CpxBase.require_base
     def configure_integration_time_for_speed_measurement(self, value: int) -> None:
         """The parameter “Integration time for speed measurement” defines the length of the
-         measurement cycles for determining the measured value in the “Speed measurement” function
-        - 0: 1 ms
-        - 1: 10 ms (default)
-        - 2: 100 ms
-        - 3: Invalid setting
+        measurement cycles for determining the measured value in the “Speed measurement” function
+         * 0: 1 ms
+         * 1: 10 ms (default)
+         * 2: 100 ms
+         * 3: Invalid setting
         """
 
         if value in range(4):

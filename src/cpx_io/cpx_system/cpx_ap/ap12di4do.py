@@ -129,10 +129,10 @@ class CpxAp12Di4Do(CpxApModule):
         shall be assumed as a logical input signal. In this way, unwanted signal edge changes
         can be suppressed during switching operations (bouncing of the input signal).
         Accepted values are
-        - 0: 0.1 ms
-        - 1: 3 ms (default)
-        - 2: 10 ms
-        - 3: 20 ms
+          * 0: 0.1 ms
+          * 1: 3 ms (default)
+          * 2: 10 ms
+          * 3: 20 ms
 
         :param value: Debounce time for all channels in range 0..3 (see datasheet)
         :type value: int
@@ -150,9 +150,9 @@ class CpxAp12Di4Do(CpxApModule):
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
         """Configures the monitoring load supply. Accepted values are
-        - 0: Load supply monitoring inactive
-        - 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
-        - 2: Load supply monitoring active
+          * 0: Load supply monitoring inactive
+          * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+          * 2: Load supply monitoring active
 
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
@@ -174,8 +174,8 @@ class CpxAp12Di4Do(CpxApModule):
     @CpxBase.require_base
     def configure_behaviour_in_fail_state(self, value: int) -> None:
         """Configures the behaviour in fail state. Accepted values are
-        - 0: Reset Outputs (default)
-        - 1: Hold last state
+          * 0: Reset Outputs (default)
+          * 1: Hold last state
 
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int

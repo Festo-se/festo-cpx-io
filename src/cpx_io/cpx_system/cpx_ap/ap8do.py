@@ -114,10 +114,12 @@ class CpxAp8Do(CpxApModule):
 
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
-        """Accepted values are
-        - 0: Load supply monitoring inactive
-        - 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
-        - 2: Load supply monitoring active
+        """Configure the monitoring of the load supply.
+
+        Accepted values are
+          * 0: Load supply monitoring inactive
+          * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+          * 2: Load supply monitoring active
 
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
@@ -138,9 +140,11 @@ class CpxAp8Do(CpxApModule):
 
     @CpxBase.require_base
     def configure_behaviour_in_fail_state(self, value: int) -> None:
-        """Accepted values are
-        - 0: Reset Outputs (default)
-        - 1: Hold last state
+        """configure the behaviour in fail state
+
+        Accepted values are
+          * 0: Reset Outputs (default)
+          * 1: Hold last state
 
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int

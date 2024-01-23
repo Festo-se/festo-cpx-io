@@ -127,10 +127,10 @@ class CpxApEp(CpxApModule):
     @CpxBase.require_base
     def write_parameters(self, params: Parameters) -> None:
         """Write parameters to EP module. Writable parameters are
-        - dhcp_enable: bool
-        - subnet_mask: str e.g. 255.255.255.0
-        - gateway_adderss: str e.g. 192.168.1.1
-        - setup_monitoring_load_supply: int (see datasheet)
+          * dhcp_enable: bool
+          * subnet_mask: str e.g. 255.255.255.0
+          * gateway_adderss: str e.g. 192.168.1.1
+          * setup_monitoring_load_supply: int (see datasheet)
 
         :param params: Parameters object containing the writeable parameters.
         :type params: Parameters

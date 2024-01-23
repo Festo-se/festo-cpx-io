@@ -177,10 +177,12 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
-        """Accepted values are
-        - 0: Load supply monitoring inactive
-        - 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
-        - 2: Load supply monitoring active
+        """Configure the monitoring of the load supply.
+
+        Accepted values are
+          * 0: Load supply monitoring inactive
+          * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+          * 2: Load supply monitoring active
 
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
@@ -204,19 +206,21 @@ class CpxAp4Iol(CpxApModule):
         self, value: int, channel: int | list[int] = None
     ) -> None:
         """Target cycle time in ms for the given channels. If no channel is specified,
-        target cycle time is applied to all channels. Possible cycle time values:
-        -  0: as fast as possible (default)
-        - 16: 1.6 ms
-        - 32: 3.2 ms
-        - 48: 4.8 ms
-        - 68: 8.0 ms
-        - 73: 10.0 ms
-        - 78: 12.0 ms
-        - 88: 16.0 ms
-        - 98: 20.0 ms
-        - 133: 40.0 ms
-        - 158: 80.0 ms
-        - 183: 120.0 ms
+        target cycle time is applied to all channels.
+
+        Possible cycle time values:
+          *  0: as fast as possible (default)
+          * 16: 1.6 ms
+          * 32: 3.2 ms
+          * 48: 4.8 ms
+          * 68: 8.0 ms
+          * 73: 10.0 ms
+          * 78: 12.0 ms
+          * 88: 16.0 ms
+          * 98: 20.0 ms
+          * 133: 40.0 ms
+          * 158: 80.0 ms
+          * 183: 120.0 ms
 
         :param value: target cycle time (see datasheet)
         :type value: int
@@ -288,12 +292,14 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase.require_base
     def configure_port_mode(self, value: int, channel: int | list[int] = None) -> None:
-        """Port mode. Available values:
-        - 0: DEACTIVATED (factory setting)
-        - 1: IOL_MANUAL
-        - 2: IOL_AUTOSTART
-        - 3: DI_CQ
-        - 97: PREOPERATE (Only supported in combination with IO-Link V1.1 devices)
+        """configure the port mode
+
+        Available values:
+          * 0: DEACTIVATED (factory setting)
+          * 1: IOL_MANUAL
+          * 2: IOL_AUTOSTART
+          * 3: DI_CQ
+          * 97: PREOPERATE (Only supported in combination with IO-Link V1.1 devices)
 
         :param value: port mode (see datasheet)
         :type value: int
@@ -330,12 +336,14 @@ class CpxAp4Iol(CpxApModule):
     def configure_review_and_backup(
         self, value: int, channel: int | list[int] = None
     ) -> None:
-        """Review and backup. Available values:
-        - 0: no test (factory setting)
-        - 1: device compatible V1.0
-        - 2: device compatible V1.1
-        - 3: device compatible V1.1 Data storage Backup+ Restore
-        - 4: device compatible V1.1 Data storage Restore
+        """Review and backup.
+
+        Available values:
+          * 0: no test (factory setting)
+          * 1: device compatible V1.0
+          * 2: device compatible V1.1
+          * 3: device compatible V1.1 Data storage Backup+ Restore
+          * 4: device compatible V1.1 Data storage Restore
         Changes only become effective when the port mode is changed (ID 20071).
 
         :param value: review and backup option (see datasheet)

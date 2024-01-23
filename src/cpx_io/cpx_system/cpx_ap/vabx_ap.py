@@ -3,7 +3,6 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
 
 
@@ -148,10 +147,12 @@ class VabxAP(CpxApModule):
 
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
-        """Configures the monitoring load supply. Accepted values are
-        - 0: Load supply monitoring inactive
-        - 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
-        - 2: Load supply monitoring active
+        """Configures the monitoring load supply.
+
+        Accepted values are
+        * 0: Load supply monitoring inactive
+        * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+        * 2: Load supply monitoring active
 
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
@@ -172,9 +173,11 @@ class VabxAP(CpxApModule):
 
     @CpxBase.require_base
     def configure_behaviour_in_fail_state(self, value: int) -> None:
-        """Configures the behaviour in fail state. Accepted values are
-        - 0: Reset Outputs (default)
-        - 1: Hold last state
+        """Configures the behaviour in fail state.
+
+        Accepted values are
+        * 0: Reset Outputs (default)
+        * 1: Hold last state
 
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int

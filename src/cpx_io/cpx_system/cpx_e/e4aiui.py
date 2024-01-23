@@ -46,9 +46,9 @@ class CpxE4AiUI(CpxEModule):
         if the diagnostics for the
         subsequently listed parameters must be activated ("True", default) or deactivated ("False)
         with regard to unapproved settings:
-         * Hysteresis < 0
-         * Signal range (sensor type)
-         * Lower limit > upper limit
+             * Hysteresis < 0
+             * Signal range (sensor type)
+             * Lower limit > upper limit
         When the diagnostics are activated,
         the error will be sent to the bus module and displayed on the module by the error LED.
         """
@@ -268,9 +268,9 @@ class CpxE4AiUI(CpxEModule):
         """The parameter "Parameter error diagnostics" defines if the diagnostics for the
         subsequently listed parameters must be activated or deactivated with regard to
         unapproved settings:
-        - Signal range
-        - Lower limit
-        - Upper limit
+          * Signal range
+          * Lower limit
+          * Upper limit
         When the diagnostics are activated, the error will be sent to the bus module and displayed
         on the module by the error LED
         """
