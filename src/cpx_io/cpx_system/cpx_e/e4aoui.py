@@ -154,7 +154,7 @@ class CpxE4AoUI(CpxEModule):
         self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(
-            f"{self.name}: Setting behavoiur after SCS actuator supply to {value}"
+            f"{self.name}: Setting behaviour after SCS actuator supply to {value}"
         )
 
     @CpxBase.require_base
