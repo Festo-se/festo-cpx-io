@@ -34,7 +34,10 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
-        """read module status register. Further information see module datasheet"""
+        """read module status register. Further information see module datasheet
+
+        :return: status information (see datasheet)
+        :rtype: list[bool]"""
         data = self.base.read_reg_data(self.input_register + 4)[0]
         ret = int_to_boollist(data, 2)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
@@ -42,7 +45,11 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> int:
-        """read back the value of one channel"""
+        """read back the value of one channel
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        """
         return self.read_channels()[channel]
 
     @CpxBase.require_base
