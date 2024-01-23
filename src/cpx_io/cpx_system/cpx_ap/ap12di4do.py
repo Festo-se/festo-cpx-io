@@ -1,4 +1,4 @@
-"""CPX-AP-*-12DI4DO module implementation"""
+"""CPX-AP-`*`-12DI4DO module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -9,7 +9,7 @@ from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
 
 
 class CpxAp12Di4Do(CpxApModule):
-    """Class for CPX-AP-*-12DI4DO-* module"""
+    """Class for CPX-AP-`*`-12DI4DO-`*` module"""
 
     module_codes = {
         12290: "CPX-AP-A-12DI4DO-M12-5P",

@@ -1,4 +1,4 @@
-"""CPX-AP-4DI4DO module implementation"""
+"""CPX-AP-4DI4DO-`*` module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -10,7 +10,7 @@ from cpx_io.utils.logging import Logging
 
 
 class CpxAp4Di4Do(CpxApModule):
-    """Class for CPX-AP-*-4DI4DO-* module"""
+    """Class for CPX-AP-`*`-4DI4DO-`*` module"""
 
     module_codes = {
         8196: "CPX-AP-I-4DI4DO-M8-3P",

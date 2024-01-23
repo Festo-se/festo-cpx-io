@@ -9,7 +9,7 @@ from cpx_io.utils.boollist import int_to_boollist
 
 
 class CpxAp8Di(CpxApModule):
-    """Class for CPX-AP-*-8DI-* module"""
+    """Class for CPX-AP-`*`-8DI-`*` module"""
 
     module_codes = {
         8199: "CPX-AP-I-8DI-M8-3P",

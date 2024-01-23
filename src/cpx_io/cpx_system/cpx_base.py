@@ -3,6 +3,7 @@
 
 import struct
 from dataclasses import dataclass, fields
+from functools import wraps
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
@@ -133,6 +134,7 @@ class CpxBase:
         """For most module functions, a base is required that handles the registers,
         module numbering, etc."""
 
+        @wraps(func)
         def wrapper(self, *args, **kwargs):
             if not self.base:
                 raise CpxInitError()

@@ -1,4 +1,4 @@
-"""CPX-AP-*-4IOL-* module implementation"""
+"""CPX-AP-`*`-4IOL-`*` module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -12,7 +12,7 @@ from cpx_io.utils.logging import Logging
 
 
 class CpxAp4Iol(CpxApModule):
-    """Class for CPX-AP-*-4IOL-* module"""
+    """Class for CPX-AP-`*`-4IOL-`*` module"""
 
     module_codes = {
         8201: "CPX-AP-I-4IOL-M12 variant 8",
@@ -426,11 +426,12 @@ class CpxAp4Iol(CpxApModule):
             f"{self.name}: Setting channel(s) {channel} device id to {value}"
         )
 
-    # TODO: go on from here
     @CpxBase.require_base
     def read_fieldbus_parameters(self) -> list[dict]:
-        """Read all fieldbus parameters (status/information) for all channels
-        Returns a dict of parameters for every channel.
+        """Read all fieldbus parameters (status/information) for all channels.
+
+        :return: a dict of parameters for every channel.
+        :rtype: list[dict]
         """
 
         channel_params = []
@@ -506,12 +507,25 @@ class CpxAp4Iol(CpxApModule):
                 }
             )
 
+        Logging.logger.info(
+            f"{self.name}: Reading fieldbus parameters for all channels: {channel_params}"
+        )
         return channel_params
 
     @CpxBase.require_base
     def read_isdu(self, channel: int, index: int, subindex: int) -> list[int]:
         """Read isdu (device parameter) from defined channel
-        Raises CpxRequestError when read failed"""
+        Raises CpxRequestError when read failed
+
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int
+        :param index: io-link parameter index
+        :type index: int
+        :param subindex: io-link parameter subindex
+        :type subindex: int
+        :return: device parameter (index/subindex) for given channel
+        :rtype: list[int]
+        """
 
         # select module, starts with 1
         self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
@@ -534,14 +548,27 @@ class CpxAp4Iol(CpxApModule):
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
 
-        return self.base.read_reg_data(*cpx_ap_registers.ISDU_DATA)
+        ret = self.base.read_reg_data(*cpx_ap_registers.ISDU_DATA)
+        Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
+
+        return ret
 
     @CpxBase.require_base
     def write_isdu(
         self, data: list[int], channel: int, index: int, subindex: int
     ) -> None:
         """Write isdu (device parameter) to defined channel.
-        Raises CpxRequestError when write failed"""
+        Raises CpxRequestError when write failed
+
+        :param data: Data as 16bit register values in list
+        :type data: list[int]
+        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :type channel: int
+        :param index: io-link parameter index
+        :type index: int
+        :param subindex: io-link parameter subindex
+        :type subindex: int
+        """
 
         # select module, starts with 1
         self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
@@ -565,3 +592,7 @@ class CpxAp4Iol(CpxApModule):
             cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data write failed")
+
+        Logging.logger.info(
+            f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
+        )
