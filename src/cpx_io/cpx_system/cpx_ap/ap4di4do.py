@@ -178,8 +178,8 @@ class CpxAp4Di4Do(CpxApModule):
     @CpxBase.require_base
     def configure_behaviour_in_fail_state(self, value: int) -> None:
         """Configures the behaviour in fail state. Accepted values are
-        0: Reset Outputs (default)
-        1: Hold last state
+        - 0: Reset Outputs (default)
+        - 1: Hold last state
 
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int
