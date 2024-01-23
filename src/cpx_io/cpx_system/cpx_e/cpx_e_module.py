@@ -23,7 +23,13 @@ class CpxEModule:
         return f"{self.name} (idx: {self.position}, type: {type(self).__name__})"
 
     def configure(self, base, position):
-        """Set up module when added to cpx system"""
+        """Set up module when added to cpx system
+
+        :param base: Base module that implements the modbus functions
+        :type base: CpxBase
+        :param position: Module position in CPX-AP system starting with 0 for Busmodule
+        :type position: int
+        """
         # pylint: disable=duplicate-code
         # intended: cpx-ap and cpx-e have similar functions
         self.base = base

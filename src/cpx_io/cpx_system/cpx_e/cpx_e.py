@@ -15,8 +15,8 @@ class CpxE(CpxBase):
     def __init__(self, modules=None, **kwargs):
         """Constructor of the CpxE class.
 
-        Parameters:
-            modules (list): List of module instances e.g. [CpxEEp(), CpxE8Do(), CpxE16Di()]
+        :param modules: List of module instances e.g. [CpxEEp(), CpxE8Do(), CpxE16Di()]
+        :type modules: list
         """
         super().__init__(**kwargs)
         self._control_bit_value = 1 << 15
@@ -35,13 +35,12 @@ class CpxE(CpxBase):
 
     @property
     def modules(self):
-        """Property getter for modules"""
+        """getter function for private modules property"""
         return self._modules
 
     @modules.setter
     def modules(self, modules_value):
-        """
-        Property setter for modules.
+        """property setter for modules.
         Enables overwriting of modules list.
         """
         for mod in self._modules:
@@ -62,7 +61,13 @@ class CpxE(CpxBase):
             self.add_module(mod)
 
     def write_function_number(self, function_number: int, value: int) -> None:
-        """Write parameters via function number"""
+        """Write parameters via function number
+
+        :param function_number: Function number (see datasheet)
+        :type function_number: int
+        :param value: Value to write to function number
+        :type value: int
+        """
         self.write_reg_data(value, *cpx_e_registers.DATA_SYSTEM_TABLE_WRITE)
         # need to write 0 first because there might be an
         # old unknown configuration in the register
@@ -81,8 +86,18 @@ class CpxE(CpxBase):
         if its >= 1000:
             raise ConnectionError()
 
+        Logging.logger.debug(
+            f"Wrote value {value} to function number {function_number}"
+        )
+
     def read_function_number(self, function_number: int) -> int:
-        """Read parameters via function number"""
+        """Read parameters via function number
+
+        :param function_number: Function number (see datasheet)
+        :type function_number: int
+        :return: Value read from function number
+        :rtype: int
+        """
         # need to write 0 first because there might be an
         # old unknown configuration in the register
         self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
@@ -102,37 +117,68 @@ class CpxE(CpxBase):
 
         data &= ~self._control_bit_value
         value = self.read_reg_data(*cpx_e_registers.DATA_SYSTEM_TABLE_READ)
+
+        Logging.logger.debug(
+            f"Read value {value[0]} from function number {function_number}"
+        )
         return value[0]
 
     def module_count(self) -> int:
-        """returns the total count of attached modules"""
+        """reads the module configuratio register from the system
+
+        :returns: total module count
+        :rtype: int
+        """
         data = self.read_reg_data(*cpx_e_registers.MODULE_CONFIGURATION)
+        Logging.logger.debug(f"Read {data} from MODULE_CONFIGURATION register")
         return sum(d.bit_count() for d in data)
 
     def fault_detection(self) -> list[bool]:
-        """returns list of bools with Errors (True = Error)"""
+        """reads the fault detection register from the system
+
+        :returns: list of bools with Errors (True = Error)
+        :rtype: list[bool]"""
         ret = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
         data = ret[2] << 16 | ret[1] << 8 | ret[0]
+        Logging.logger.debug(f"Read {data} from FAULT_DETECTION register")
         return int_to_boollist(data, 3)
 
     def status_register(self) -> tuple:
-        """returns (Write-protected, Force active)"""
+        """reads the status register.
+
+        :returns: tuple (Write-protected, Force active)
+        :rtype: tuple
+        """
         write_protect_bit = 1 << 11
         force_active_bit = 1 << 15
         data = self.read_reg_data(*cpx_e_registers.STATUS_REGISTER)
+        Logging.logger.debug(f"Read {data} from STATUS_REGISTER register")
         return (bool(data[0] & write_protect_bit), bool(data[0] & force_active_bit))
 
     def read_device_identification(self) -> int:
-        """returns Objects IDO 1,2,3,4,5"""
+        """reads device identification
+
+        :returns: Objects IDO 1,2,3,4,5
+        :rtype: int
+        """
         data = self.read_function_number(43)
         return data
 
     def read_module_count(self) -> int:
-        """Reads and returns IO module count as integer"""
-        return len(self._modules)
+        """Reads and returns IO module count as integer
+
+        :return: Number of the total amount of connected modules
+        :rtype: int
+        """
+        ret = len(self._modules)
+        Logging.logger.debug(f"Total module count: {ret}")
+        return ret
 
     def add_module(self, module):
-        """Adds one module to the base. This is required to use the module."""
+        """Adds one module to the base. This is required to use the module.
+
+        :param module: the module that should be added to the system
+        """
         module.configure(self, len(self._modules))
         self._modules.append(module)
         if [type(mod) for mod in self._modules].count(CpxEEp) > 1:
@@ -140,5 +186,5 @@ class CpxE(CpxBase):
                 "Module CpxEEp is assigned multiple times. This is most likey incorrect."
             )
         setattr(self, module.name, module)
-        Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
+        Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module

@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed README links
+- Docstrings and Logging
 - Bugfix encode_int with data_type "bool"
 - Fixed Example code CPX-E
 - Bugfix CPX-AP Parameter
