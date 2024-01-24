@@ -6,6 +6,7 @@
   :caption: Features:
 
   features/cli
+  features/cpx_io
 
 .. toctree::
   :maxdepth: 2
