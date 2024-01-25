@@ -120,14 +120,14 @@ class CpxE1Ci(CpxEModule):
         """Write the process data.
 
         Available keywordarguments are:
-        * enable_setting_di2: enable setting counter value via input I2 (1=enabled)
-        * enable_setting_zero: enable setting counter value via zero pulse (1=enabled)
-        * set_counter: setting the counter to the load value (1=set)
-        * block_counter: switch counter to inactive (1=block)
-        * overrun_cl_confirm: confirm overrun of upper and lower count limit (1=acknowledge overrun)
-        * speed_measurement: speed measurement instead of counter values (1=active)
-        * confirm_latching:  confirm latching event (1=acknowledge latching event)
-        * block_latching: switch latching to inactive (1=block)
+         * enable_setting_di2: enable setting counter value via input I2 (1=enabled)
+         * enable_setting_zero: enable setting counter value via zero pulse (1=enabled)
+         * set_counter: setting the counter to the load value (1=set)
+         * block_counter: switch counter to inactive (1=block)
+         * overrun_cl_confirm: confirm overrun of upper/lower count limit (1=acknowledge overrun)
+         * speed_measurement: speed measurement instead of counter values (1=active)
+         * confirm_latching:  confirm latching event (1=acknowledge latching event)
+         * block_latching: switch latching to inactive (1=block)
         """
         process_data = self.read_process_data()
         pd_updated_dict = {**process_data.__dict__, **kwargs}
@@ -164,7 +164,7 @@ class CpxE1Ci(CpxEModule):
         """The parameter “Signal type/encoder type” defines the encoder supply and connection
         type of the encoder.
 
-        Accepted values:
+        Accepted values are
           * 0: Encoder 5 Vdc differential (default)
           * 1: Encoder 5 Vdc single ended
           * 2: Encoder 24 Vdc single ended
@@ -187,11 +187,11 @@ class CpxE1Ci(CpxEModule):
     def configure_signal_evaluation(self, value: int) -> None:
         """The “Signal evaluation” parameter defines the encoder type and evaluation
 
-        Accepted values:
-        * 0: Incremental encoder with single evaluation
-        * 1: Incremental encoder with double evaluation
-        * 2: Incremental encoder with quadruple evaluation (default)
-        * 3: Pulse generator with or without direction signal
+        Accepted values are
+         * 0: Incremental encoder with single evaluation
+         * 1: Incremental encoder with double evaluation
+         * 2: Incremental encoder with quadruple evaluation (default)
+         * 3: Pulse generator with or without direction signal
 
         :param value: Signal evaluation (see datasheet)
         :type value: int
@@ -211,7 +211,7 @@ class CpxE1Ci(CpxEModule):
         """The “Monitoring of cable break” parameter defines whether a diagnostic message
         should be output when a cable break of the encoder cable is detected.
 
-        Available options:
+        Accepted values are
           * False: No diagnostic message (default)
           * True: Diagnostic message active
 
@@ -237,7 +237,7 @@ class CpxE1Ci(CpxEModule):
         """The “Monitoring of tracking error” parameter defines whether a diagnostic message
         should be output when a tracking error is detected.
 
-        Available options:
+        Accepted values are
           * False: No diagnostic message (default)
           * True: Diagnostic message active
 
@@ -263,7 +263,7 @@ class CpxE1Ci(CpxEModule):
         """The “Monitoring of zero pulse” parameter defines whether a diagnostic message should be
         output when a zero pulse error is detected.
 
-        Available options:
+        Accepted values are
           * False: No diagnostic message (default)
           * True: Diagnostic message active
 
@@ -313,7 +313,7 @@ class CpxE1Ci(CpxEModule):
         """The “Latching signal” parameter defines whether the digital input I0 or the
         zero pulse (track 0) is used as signal source to trigger the “Latching” function.
 
-        Available options:
+        Accepted values are
           * False: Evaluate input I0 (default)
           * True: Evaluate zero pulse
 
@@ -336,7 +336,7 @@ class CpxE1Ci(CpxEModule):
         """The “Latching event” parameter defines whether the “Latching” function is
         triggered on a rising and/or falling edge.
 
-        Available options:
+        Accepted values are
           * 0: Invalid setting
           * 1: Latching on rising edge (default)
           * 2: Latching on falling edge
@@ -458,7 +458,7 @@ class CpxE1Ci(CpxEModule):
         """The parameter “Debounce time for digital inputs” defines the total debounce time
         for all digital inputs I0 ... I3
 
-        Available options are
+        Accepted values are
           * 0: 20 us (default)
           * 1: 100 us
           * 2: 3 ms
@@ -483,7 +483,9 @@ class CpxE1Ci(CpxEModule):
     def configure_integration_time_for_speed_measurement(self, value: int) -> None:
         """The parameter “Integration time for speed measurement” defines the length of the
         measurement cycles for determining the measured value in the “Speed measurement” function
-         * 0: 1 ms
+
+        Accepted values are
+        * 0: 1 ms
          * 1: 10 ms (default)
          * 2: 100 ms
          * 3: Invalid setting

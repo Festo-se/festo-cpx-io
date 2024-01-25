@@ -320,19 +320,22 @@ class CpxE4AoUI(CpxEModule):
     def configure_channel_range(self, channel: int, signalrange: str) -> None:
         """Set the signal range and type of one channel
 
+        Accepted values are
+          * "None",
+          * "-10-+10V",
+          * "-5-+5V",
+          * "0-10V",
+          * "1-5V",
+          * "0-20mA",
+          * "4-20mA",
+          * "0-500R",
+          * "PT100",
+          * "NI100"
+
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param signalrange: Channel range. One of
-             * "None",
-             * "-10-+10V",
-             * "-5-+5V",
-             * "0-10V",
-             * "1-5V",
-             * "0-20mA",
-             * "4-20mA",
-             * "0-500R",
-             * "PT100",
-             * "NI100"
+        :param signalrange: Channel range (see datasheet)
+
         :type signalrange: str
         """
 
