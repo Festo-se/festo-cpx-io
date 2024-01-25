@@ -44,6 +44,17 @@ class TestCpxE:
         assert isinstance(cpx_e.cpxeep, CpxEEp)  # pylint: disable="no-member"
         assert isinstance(cpx_e.cpxe16di, CpxE16Di)  # pylint: disable="no-member"
 
+    def test_rename_module_reflected_in_base(self):
+        """Test constructor with two modules"""
+        # Arrange
+        cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
+
+        # Act
+        cpx_e.cpxe16di.name = "my16di"
+
+        # Assert
+        assert isinstance(cpx_e.my16di, CpxE16Di)  # pylint: disable="no-member"
+
     @patch.object(Logging.logger, "warning")
     def test_constructor_cpxeep_twice(self, mock_logger_warning):
         """Test default constructor with modified modules"""

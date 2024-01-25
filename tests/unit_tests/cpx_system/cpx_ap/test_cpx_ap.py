@@ -65,3 +65,37 @@ class TestCpxAp:
         assert isinstance(cpxap.cpxap4iol, CpxAp4Iol)  # pylint: disable="no-member"
         assert isinstance(cpxap.cpxap4di, CpxAp4Di)  # pylint: disable="no-member"
         assert isinstance(cpxap.cpxap4di_1, CpxAp4Di)  # pylint: disable="no-member"
+
+    @patch.object(CpxAp, "read_module_count")
+    @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "write_reg_data")
+    @patch.object(CpxAp, "read_reg_data")
+    # @patch.object(CpxAp, "add_module")
+    def test_rename_module_reflected_in_base(
+        self,
+        mock_read_reg_data,
+        mock_write_reg_data,
+        mock_read_module_information,
+        mock_read_module_count,
+    ):
+        "Test constructor"
+        # Arrange
+        mock_read_module_count.return_value = 2
+
+        module_code_list = [8323, 8199]
+        module_information_list = [
+            CpxAp.ModuleInformation(
+                module_code=module_code, output_size=0, input_size=0
+            )
+            for module_code in module_code_list
+        ]
+        mock_read_module_information.side_effect = module_information_list
+        mock_read_reg_data.return_value = [0x0000, 0x0064]
+
+        cpxap = CpxAp()
+
+        # Act
+        cpxap.cpxap8di.name = "my8di"  # pylint: disable="no-member"
+
+        # Assert
+        assert isinstance(cpxap.my8di, CpxAp8Di)  # pylint: disable="no-member"

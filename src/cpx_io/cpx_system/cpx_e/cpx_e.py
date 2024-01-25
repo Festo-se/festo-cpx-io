@@ -24,7 +24,6 @@ class CpxE(CpxBase):
 
         self.next_output_register = None
         self.next_input_register = None
-        self._modules = []
 
         self.modules = modules
 
@@ -43,8 +42,6 @@ class CpxE(CpxBase):
         """property setter for modules.
         Enables overwriting of modules list.
         """
-        for mod in self._modules:
-            delattr(self, mod.name)
         self._modules = []
 
         if modules_value is None:
@@ -185,6 +182,6 @@ class CpxE(CpxBase):
             Logging.logger.warning(
                 "Module CpxEEp is assigned multiple times. This is most likey incorrect."
             )
-        setattr(self, module.name, module)
+        self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module

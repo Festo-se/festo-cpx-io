@@ -40,7 +40,6 @@ class CpxAp(CpxBase):
 
         self.next_output_register = None
         self.next_input_register = None
-        self._modules = []
 
         self.set_timeout(int(timeout * 1000))
 
@@ -93,7 +92,7 @@ class CpxAp(CpxBase):
         module.update_information(info)
         module.configure(self, len(self._modules))
         self._modules.append(module)
-        setattr(self, module.name, module)
+        self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
 
