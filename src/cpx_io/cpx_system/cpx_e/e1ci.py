@@ -124,7 +124,7 @@ class CpxE1Ci(CpxEModule):
          * enable_setting_zero: enable setting counter value via zero pulse (1=enabled)
          * set_counter: setting the counter to the load value (1=set)
          * block_counter: switch counter to inactive (1=block)
-         * overrun_cl_confirm: confirm overrun of upper and lower count limit (1=acknowledge overrun)
+         * overrun_cl_confirm: confirm overrun of upper/lower count limit (1=acknowledge overrun)
          * speed_measurement: speed measurement instead of counter values (1=active)
          * confirm_latching:  confirm latching event (1=acknowledge latching event)
          * block_latching: switch latching to inactive (1=block)

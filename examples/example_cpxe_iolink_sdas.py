@@ -1,4 +1,5 @@
 """Example code for CPX-E IO-Link master with sensor SDAS"""
+# pylint: disable=no-member
 
 # import the librarys
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
