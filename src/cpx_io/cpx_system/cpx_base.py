@@ -41,6 +41,9 @@ class CpxBase:
         Parameters:
             ip_address (str): Required IP address as string e.g. ('192.168.1.1')
         """
+        self._modules = []
+        self._module_names = []
+
         if ip_address is None:
             Logging.logger.info("Not connected since no IP address was provided")
             return
@@ -48,6 +51,21 @@ class CpxBase:
         self.client = ModbusTcpClient(host=ip_address)
         self.client.connect()
         Logging.logger.info(f"Connected to {ip_address}:502")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.shutdown()
+
+    def update_module_names(self):
+        """Updates the module name list and attributes accordingly"""
+        for name in self._module_names:
+            delattr(self, name)
+
+        self._module_names = [module.name for module in self._modules]
+        for name, module in zip(self._module_names, self._modules):
+            setattr(self, name, module)
 
     def shutdown(self):
         """Shutdown function"""
@@ -57,12 +75,6 @@ class CpxBase:
         else:
             Logging.logger.info("No connection to close")
         return False
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.shutdown()
 
     @dataclass
     class _BitwiseReg:

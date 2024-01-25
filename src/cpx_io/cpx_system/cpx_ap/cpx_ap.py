@@ -40,8 +40,6 @@ class CpxAp(CpxBase):
 
         self.next_output_register = None
         self.next_input_register = None
-        self._modules = []
-        self._module_names = []
 
         self.set_timeout(int(timeout * 1000))
 
@@ -97,15 +95,6 @@ class CpxAp(CpxBase):
         self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
-
-    def update_module_names(self):
-        """Updates the module name list and attributes accordingly"""
-        for name in self._module_names:
-            delattr(self, name)
-
-        self._module_names = [module.name for module in self._modules]
-        for name, module in zip(self._module_names, self._modules):
-            setattr(self, name, module)
 
     def read_module_count(self) -> int:
         """Reads and returns IO module count as integer
