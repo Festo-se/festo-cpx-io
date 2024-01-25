@@ -208,7 +208,7 @@ class CpxAp4Iol(CpxApModule):
         """Target cycle time in ms for the given channels. If no channel is specified,
         target cycle time is applied to all channels.
 
-        Possible cycle time values:
+        Accepted values are
           *  0: as fast as possible (default)
           * 16: 1.6 ms
           * 32: 3.2 ms
@@ -294,7 +294,7 @@ class CpxAp4Iol(CpxApModule):
     def configure_port_mode(self, value: int, channel: int | list[int] = None) -> None:
         """configure the port mode
 
-        Available values:
+        Accepted values are
           * 0: DEACTIVATED (factory setting)
           * 1: IOL_MANUAL
           * 2: IOL_AUTOSTART
@@ -338,7 +338,7 @@ class CpxAp4Iol(CpxApModule):
     ) -> None:
         """Review and backup.
 
-        Available values:
+        Accepted values are
           * 0: no test (factory setting)
           * 1: device compatible V1.0
           * 2: device compatible V1.1

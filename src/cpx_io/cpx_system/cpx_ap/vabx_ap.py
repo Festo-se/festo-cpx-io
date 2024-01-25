@@ -1,4 +1,4 @@
-"""VABX-A-P-EL-E12-AP`*` module implementation"""
+"""VABX-A-P-EL-E12-AP* module implementation"""
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 
@@ -7,7 +7,7 @@ from cpx_io.utils.logging import Logging
 
 
 class VabxAP(CpxApModule):
-    """Class for VABX-A-P-EL-E12-AP`*` module"""
+    """Class for VABX-A-P-EL-E12-AP* module"""
 
     module_codes = {
         8232: "VABX-A-P-EL-E12-API",
@@ -150,9 +150,9 @@ class VabxAP(CpxApModule):
         """Configures the monitoring load supply.
 
         Accepted values are
-        * 0: Load supply monitoring inactive
-        * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
-        * 2: Load supply monitoring active
+          * 0: Load supply monitoring inactive
+          * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
+          * 2: Load supply monitoring active
 
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
@@ -176,8 +176,8 @@ class VabxAP(CpxApModule):
         """Configures the behaviour in fail state.
 
         Accepted values are
-        * 0: Reset Outputs (default)
-        * 1: Hold last state
+          * 0: Reset Outputs (default)
+          * 1: Hold last state
 
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int
