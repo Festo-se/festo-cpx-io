@@ -1,8 +1,8 @@
 # CPX-SYSTEM
 
 ## festo-cpx-io 
-python modbus implementation for festo cpx remote-io systems
-### cpx-e
+Python modbus implementation for Festo cpx remote-io systems
+### CPX-E
 The automation system CPX-E is a high-performance control and automation system focusing primarily on motion control functions for handling technology. It comprises individual function modules that allow a very flexible system structure. Depending on the combination, the automation system CPE-X can be configured and used purely as a remote I/O system or as a control system. The following modules are available:
 - Controller
 - Bus modules
@@ -12,7 +12,7 @@ The automation system CPX-E is a high-performance control and automation system 
 
 In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via modbus on ethernet/ip. Therefore the bus module CPX-E-EP is required to use this software.
 
-#### import
+#### Import
 Import the required cpx-system
 ```
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
@@ -72,7 +72,7 @@ with CpxE(ip_address="192.168.1.1", modules = [CpxEEp(), CpxE16Di()]) as myCPX:
     print(myCPX.cpxe16di)
     # will also return "cpxe16di (idx: 1, type: CpxE16Di)"
     myCPX.cpxe16di.name = "my16di" # rename the module
-    # you can now access the module with
+    # you can access the module with the new name
     cpx.my16di
     # and the myCPX.modules[1] will return the new name "my16di (idx: 1, type: CpxE16Di)"
 ```
@@ -80,7 +80,7 @@ with CpxE(ip_address="192.168.1.1", modules = [CpxEEp(), CpxE16Di()]) as myCPX:
 #### Use the modules functions
 The modules offer different functions but most of them have read_channel() and depending on the kind of module write_channel() as well as very individual configure functions. Read the [doc](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/) and have a look at the [examples](./examples) for more information.
 
-### cpx-ap
+### CPX-AP
 CPX-AP is a modular and lightweight IO system with IP65/IP67 protection. it
 - Can be adapted to Festo valve terminals
 - Highly flexible remote IO system with maximum performance 
@@ -90,7 +90,7 @@ CPX-AP is a modular and lightweight IO system with IP65/IP67 protection. it
 
 In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via modbus on ethernet/ip. Therefore the bus module CPX-A-EP or CPX-I-EP is required to use this software.
 
-#### import
+#### Import
 Import the required cpx-system
 ```
 from cpx_io.cpx_system.cpx_e.cpx_ap import CpxAP
@@ -122,8 +122,8 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     print(myCPX.cpxap8di)
     # will also return "cpxap8di (idx: 1, type: CpxAp8Di)"
     cpx.cpxap8di.name = "my8di" # rename the module
-    # you can now access the module with
-    cpx.my8di
+    # you can access the module with the new name
+    print(cpx.my8di)
     # and the myCPX.modules[1] will return the new name "my8di (idx: 1, type: CpxAp8Di)"
 ```
 
