@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- Removed timeout and port from CPX-base, implemented timeout for CPX-AP
 - Reworked unit tests
 - Moved typecode ids to cpx_*_definitions.py
 - e1ci dicts are now dataclasses
@@ -55,6 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Bugfix where renaming of modules wouldn't be reflected in base.
+- Fixed README links
+- Docstrings and Logging
 - Bugfix encode_int with data_type "bool"
 - Fixed Example code CPX-E
 - Bugfix CPX-AP Parameter

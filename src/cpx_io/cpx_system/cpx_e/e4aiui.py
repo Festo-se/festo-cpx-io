@@ -6,6 +6,7 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.logging import Logging
 
 
 class CpxE4AiUI(CpxEModule):
@@ -21,24 +22,40 @@ class CpxE4AiUI(CpxEModule):
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
-        """read all channels as a list of (signed) integers"""
+        """read all channels as a list of (signed) integers
+
+        :return: Values of all channels
+        :rtype: list[int]
+        """
         raw_data = self.base.read_reg_data(self.input_register, length=4)
         data = [CpxBase.decode_int([x]) for x in raw_data]
+        Logging.logger.info(f"{self.name}: Reading channels: {data}")
         return data
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
-        """read module status register. Further information see module datasheet"""
+        """read module status register. Further information see module datasheet
+
+        :return: status information (see datasheet)
+        :rtype: list[bool]"""
         data = self.base.read_reg_data(self.input_register + 4)[0]
-        return int_to_boollist(data, 2)
+        ret = int_to_boollist(data, 2)
+        Logging.logger.info(f"{self.name}: Reading status: {ret}")
+        return ret
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> int:
-        """read back the value of one channel"""
+        """read back the value of one channel
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        """
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def configure_diagnostics(self, short_circuit=None, param_error=None):
+    def configure_diagnostics(
+        self, short_circuit: bool = None, param_error: bool = None
+    ) -> None:
         """The "Diagnostics of sensor supply short circuit" defines whether
         the diagnostics of the sensor supply in regard to short circuit or
         overload should be activated ("True", default) or deactivated ("False").
@@ -46,11 +63,16 @@ class CpxE4AiUI(CpxEModule):
         if the diagnostics for the
         subsequently listed parameters must be activated ("True", default) or deactivated ("False)
         with regard to unapproved settings:
-         * Hysteresis < 0
-         * Signal range (sensor type)
-         * Lower limit > upper limit
-        When the diagnostics are activated,
-        the error will be sent to the bus module and displayed on the module by the error LED.
+          * Hysteresis < 0
+          * Signal range (sensor type)
+          * Lower limit > upper limit
+        When the diagnostics are activated,the error will be sent to the bus module and displayed
+        on the module by the error LED.
+
+        :param short_circuit: Short circuit diagnostics
+        :type short_circuit: bool
+        :param param_error: Parameter error diagnostics
+        :type param_error: bool
         """
         function_number = 4828 + 64 * self.position + 0
         reg = self.base.read_function_number(function_number)
@@ -67,14 +89,20 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: Set diagnostics to short circuit monitoring: {short_circuit}"
+            f"parameter error: {param_error}"
+        )
+
     @CpxBase.require_base
     def configure_power_reset(self, value: bool) -> None:
-        """The "Behaviour after SCO" parameter defines whether
-        the voltage remains switched off ("False") or
-        automatically switches on ("True, default") again
-        after a short circuit or overload of the sensor supply.
-        In the case of the "Leave power switched off" setting,
+        """The "Behaviour after SCO" parameter defines whetherthe voltage remains switched off
+        ("False") or automatically switches on ("True, default") again after a short circuit or
+        overload of the sensor supply. In the case of the "Leave power switched off" setting,
         the CPX-E automation system must be switched off and on to restore the power.
+
+        :param value: behaviour after power reset
+        :type value: bool
         """
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)
@@ -87,11 +115,18 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting power reset to {value}")
+
     @CpxBase.require_base
     def configure_data_format(self, value: bool) -> None:
         """The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
+
+        Accepted values:
         * False (default): Sign + 15 bit
         * True: Linear scaled
+
+        :param value: data format
+        :type value: bool
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)
@@ -104,11 +139,16 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting data format to {value}")
+
     @CpxBase.require_base
     def configure_sensor_supply(self, value: bool) -> None:
         """The parameter "Sensor supply" defines if the sensor supply must be switched off ("False")
         or switched on ("True", default).
         The sensor supply can also be switched off and switched on during operation.
+
+        :param value: sensor supply
+        :type value: bool
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)
@@ -121,6 +161,8 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting sensor supply to {value}")
+
     @CpxBase.require_base
     def configure_diagnostics_overload(self, value: bool) -> None:
         """The parameter "Diagnostics of overload at analogue inputs" defines
@@ -129,6 +171,9 @@ class CpxE4AiUI(CpxEModule):
         When the diagnostics are activated,
         the error at an input current of >30 mA will be sent to the bus module and
         displayed with the error LED on the module.
+
+        :param value: diagnostics of overload at analogue inputs
+        :type value: bool
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)
@@ -141,6 +186,8 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting diagnostics of overload to {value}")
+
     @CpxBase.require_base
     def configure_behaviour_overload(self, value: bool) -> None:
         """The parameter "Behaviour after overload at analogue inputs" defines if
@@ -148,6 +195,9 @@ class CpxE4AiUI(CpxEModule):
         if it should be switched on again ("True", default) automatically.
         In the case of the "Leave power switched off" setting,
         the automation system CPX-E must be switched off and on to restore the power.
+
+        :param value: behaviour after overload at analogue inputs
+        :type value: bool
         """
         function_number = 4828 + 64 * self.position + 6
         reg = self.base.read_function_number(function_number)
@@ -160,9 +210,11 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting diagnostics of overload to {value}")
+
     @CpxBase.require_base
     def configure_hysteresis_limit_monitoring(
-        self, lower: int | None = None, upper: int | None = None
+        self, lower: int = None, upper: int = None
     ) -> None:
         """The parameter "Hysteresis of limit monitoring" defines
         the hysteresis value of the limit monitoring for all channels.
@@ -170,6 +222,11 @@ class CpxE4AiUI(CpxEModule):
         than the difference between the upper and lower limit values.
         The defined value is not checked for validity and
         incorrect parameterisations will be applied.
+
+        :param lower: hysteresis of lower limit monitoring
+        :type lower: int
+        :param upper: hysteresis of upper limit monitoring
+        :type upper: int
         """
         if lower:
             if lower < 0 or lower > 32767:
@@ -191,14 +248,25 @@ class CpxE4AiUI(CpxEModule):
         else:
             raise ValueError("Value must be given for upper, lower or both")
 
+        Logging.logger.info(
+            f"{self.name}: Setting hysteresis of limit monitoring to upper {upper}, lower {lower}"
+        )
+
     @CpxBase.require_base
     def configure_channel_diagnostics_limits(
-        self, channel: int, lower: bool | None = None, upper: bool | None = None
+        self, channel: int, lower: bool = None, upper: bool = None
     ) -> None:
         """The parameter " Diagnostics of lower/upper limit" defines if the diagnostics for the
         input signals must be activated or deactivated with regard to compliance with the
         defined lower limits. When the diagnostics are activated, the error will be sent to the
         bus module and displayed on the module by the error LED.
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param lower: channel diagnostics of lower limit monitoring
+        :type lower: bool
+        :param upper: channel diagnostics of upper limit monitoring
+        :type upper: bool
         """
 
         if channel not in range(4):
@@ -218,6 +286,11 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, reg_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} diagnostics of upper/lower limit to "
+            f"upper {upper}, lower {lower}"
+        )
+
     @CpxBase.require_base
     def configure_channel_diagnostics_wire_break(
         self, channel: int, value: bool
@@ -227,6 +300,11 @@ class CpxE4AiUI(CpxEModule):
         When the diagnostics are activated, the error at an input current of <1.2 mA will be sent
         to the bus module and displayed with the error LED on the module.
         The parameter is only effective with a defined signal range of 4 … 20 mA
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: wire brake diagnostics
+        :type value: bool
         """
 
         if channel not in range(4):
@@ -240,6 +318,10 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, reg_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} wirebrake diagnostics to {value}"
+        )
+
     @CpxBase.require_base
     def configure_channel_diagnostics_underflow_overflow(
         self, channel: int, value: bool
@@ -248,6 +330,11 @@ class CpxE4AiUI(CpxEModule):
         input signals should be activated or deactivated with regard to compliance with the defined
         signal ranges. When the diagnostics are activated, the error will be sent to the bus module
         and displayed on the module by the error LED.
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: underflow/overflow diagnostics
+        :type value: bool
         """
 
         if channel not in range(4):
@@ -261,6 +348,10 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, reg_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} underflow/overflow diagnostics to {value}"
+        )
+
     @CpxBase.require_base
     def configure_channel_diagnostics_parameter_error(
         self, channel: int, value: bool
@@ -268,11 +359,16 @@ class CpxE4AiUI(CpxEModule):
         """The parameter "Parameter error diagnostics" defines if the diagnostics for the
         subsequently listed parameters must be activated or deactivated with regard to
         unapproved settings:
-        - Signal range
-        - Lower limit
-        - Upper limit
+          * Signal range
+          * Lower limit
+          * Upper limit
         When the diagnostics are activated, the error will be sent to the bus module and displayed
         on the module by the error LED
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: parameter error diagnostics
+        :type value: bool
         """
 
         if channel not in range(4):
@@ -286,10 +382,19 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, reg_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} parameter error diagnostics to {value}"
+        )
+
     @CpxBase.require_base
-    def configure_channel_range(self, channel: int, signalrange: str) -> None:
+    def configure_channel_range(self, channel: int, value: str) -> None:
         """The parameter "Signal range" defines the signal range of the channels 0 … 3
         independently of each other
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: signal range
+        :type value: str
         """
 
         bitmask = {
@@ -305,9 +410,9 @@ class CpxE4AiUI(CpxEModule):
             "0-20mAoU": 0b1001,
             "4-20mAoU": 0b1010,
         }
-        if signalrange not in bitmask:
+        if value not in bitmask:
             raise ValueError(
-                f"'{signalrange}' is not an option. Choose from {bitmask.keys()}"
+                f"'{value}' is not an option. Choose from {bitmask.keys()}"
             )
 
         function_number = 4828 + 64 * self.position
@@ -317,32 +422,39 @@ class CpxE4AiUI(CpxEModule):
 
         if channel == 0:
             function_number += 13
-            value_to_write = (reg_01 & 0xF0) | bitmask[signalrange]
+            value_to_write = (reg_01 & 0xF0) | bitmask[value]
         elif channel == 1:
             function_number += 13
-            value_to_write = (reg_01 & 0x0F) | bitmask[signalrange] << 4
+            value_to_write = (reg_01 & 0x0F) | bitmask[value] << 4
         elif channel == 2:
             function_number += 14
-            value_to_write = (reg_23 & 0xF0) | bitmask[signalrange]
+            value_to_write = (reg_23 & 0xF0) | bitmask[value]
         elif channel == 3:
             function_number += 14
-            value_to_write = (reg_23 & 0x0F) | bitmask[signalrange] << 4
+            value_to_write = (reg_23 & 0x0F) | bitmask[value] << 4
         else:
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(f"{self.name}: Setting channel {channel} range to {value}")
+
     @CpxBase.require_base
-    def configure_channel_smoothing(self, channel: int, smoothing_power: int) -> None:
+    def configure_channel_smoothing(self, channel: int, value: int) -> None:
         """The parameter "Smoothing factor" defines the measured value smoothing for
         the channels 0 … 3 independent from each other.
         The measured value smoothing can be used to suppress interference.
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: Channel smoothing
+        :type value: int
         """
 
-        if smoothing_power > 15:
-            raise ValueError(f"'{smoothing_power}' is not an option")
+        if value > 15:
+            raise ValueError(f"'{value}' is not an option")
 
-        bitmask = smoothing_power
+        bitmask = value
 
         function_number = 4828 + 64 * self.position
 
@@ -366,9 +478,13 @@ class CpxE4AiUI(CpxEModule):
 
         self.base.write_function_number(function_number, value_to_write)
 
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} smoothing to {value}"
+        )
+
     @CpxBase.require_base
     def configure_channel_limits(
-        self, channel: int, upper: int | None = None, lower: int | None = None
+        self, channel: int, upper: int = None, lower: int = None
     ) -> None:
         """The parameters "Lower limit" and "Upper limit" define the lower or upper limit of
         the channels 0 … 3 independent from each other.
@@ -379,7 +495,15 @@ class CpxE4AiUI(CpxEModule):
         the last valid parameterisations. The upper limit value must always be greater
         than the lower limit value. The permitted limits depend on the parameterised data
         format. With the data format "linear scaled", the limits function as scaling end values
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param upper: Upper limit
+        :type upper: int
+        :param lower: Lower limit
+        :type lower: int
         """
+
         if channel not in range(4):
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
 
@@ -434,3 +558,7 @@ class CpxE4AiUI(CpxEModule):
 
         else:
             raise ValueError("Value must be given for upper, lower or both")
+
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} limits to upper {upper}, lower {lower}"
+        )

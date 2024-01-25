@@ -30,7 +30,12 @@ class CpxAp(CpxBase):
         product_key: str = None
         order_text: str = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, timeout: float = 0.1, **kwargs):
+        """Constructor of the CpxAp class.
+
+        :param timeout: Modbus timeout (in s) that should be configured on the slave
+        :type timeout: float
+        """
         super().__init__(**kwargs)
 
         self.next_output_register = None
@@ -38,18 +43,39 @@ class CpxAp(CpxBase):
         self._modules = []
         self._module_names = []
 
+        self.set_timeout(int(timeout * 1000))
+
         module_count = self.read_module_count()
         for i in range(module_count):
             self.add_module(self.read_module_information(i))
 
     @property
     def modules(self):
-        """Function for private modules property"""
+        """getter function for private modules property"""
         return self._modules
 
-    def add_module(self, info: ModuleInformation):
+    def set_timeout(self, timeout_ms: int) -> None:
+        """Sets the modbus timeout to the provided value
+
+        :param timeout_ms: Modbus timeout in ms (milli-seconds)
+        :type timeout_ms: int
+        """
+        Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
+        registers = self.encode_int(timeout_ms, data_type="uint32")
+        self.write_reg_data(registers, *cpx_ap_registers.TIMEOUT)
+        # Check if it actually succeeded
+        indata = self.decode_int(
+            self.read_reg_data(*cpx_ap_registers.TIMEOUT)[::-1], data_type="uint32"
+        )
+        if indata != timeout_ms:
+            Logging.logger.error("Setting of modbus timeout was not successful")
+
+    def add_module(self, info: ModuleInformation) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
+
+        :param info: ModuleInformation object containing the read-out info from the module
+        :type info: ModuleInformation
         """
         module = next(
             (
@@ -69,7 +95,7 @@ class CpxAp(CpxBase):
         module.configure(self, len(self._modules))
         self._modules.append(module)
         self.update_module_names()
-        Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
+        Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
 
     def update_module_names(self):
@@ -82,15 +108,27 @@ class CpxAp(CpxBase):
             setattr(self, name, module)
 
     def read_module_count(self) -> int:
-        """Reads and returns IO module count as integer"""
-        return self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)[0]
+        """Reads and returns IO module count as integer
+
+        :return: Number of the total amount of connected modules
+        :rtype: int
+        """
+        ret = self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)[0]
+        Logging.logger.debug(f"Total module count: {ret}")
+        return ret
 
     def _module_offset(self, modbus_command: tuple, module: int) -> int:
         register, length = modbus_command
         return ((register + 37 * module), length)
 
     def read_module_information(self, position: int) -> ModuleInformation:
-        """Reads and returns detailed information for a specific IO module"""
+        """Reads and returns detailed information for a specific IO module
+
+        :param position: Module position index starting with 0
+        :type position: int
+        :return: ModuleInformation object containing all the module information from the module
+        :rtype: ModuleInformation
+        """
 
         info = self.ModuleInformation(
             module_code=CpxBase.decode_int(
@@ -165,14 +203,24 @@ class CpxAp(CpxBase):
                 )
             ),
         )
+        Logging.logger.debug(f"Reading ModuleInformation: {info}")
         return info
 
     def write_parameter(
         self, position: int, param_id: int, instance: int, data: list | int | bool
     ) -> None:
         """Write parameters via module position, param_id, instance (=channel) and data to write
-        Data must be a list of (signed) 16 bit values or one 16 bit (signed) value
-        Returns None if successful or raises "CpxRequestError" if request denied
+        Data must be a list of (signed) 16 bit values or one 16 bit (signed) value or bool
+        Raises "CpxRequestError" if request denied
+
+        :param position: Module position index starting with 0
+        :type position: int
+        :param param_id: Parameter ID (see datasheet)
+        :type param_id: int
+        :param instance: Parameter Instance (typically used to define the channel, see datasheet)
+        :type instance: int
+        :param data: list of 16 bit signed integers, one signed 16 bit integer or bool to write
+        :type data: list | int | bool
         """
         if isinstance(data, list):
             registers = [CpxBase.encode_int(d)[0] for d in data]
@@ -222,10 +270,20 @@ class CpxAp(CpxBase):
             raise CpxRequestError(
                 "Parameter might not have been written correctly after 10 tries"
             )
+        Logging.logger.debug(f"Wrote data {data} to module position: {position}")
 
-    def read_parameter(self, position: int, param_id: int, instance: int) -> list:
+    def read_parameter(self, position: int, param_id: int, instance: int) -> list[int]:
         """Read parameters via module position, param_id, instance (=channel)
-        Returns data as list if successful or raises "CpxRequestError" if request denied
+        Raises "CpxRequestError" if request denied
+
+        :param position: Module position index starting with 0
+        :type position: int
+        :param param_id: Parameter ID (see datasheet)
+        :type param_id: int
+        :param instance: Parameter Instance (typically used to define the channel, see datasheet)
+        :type instance: int
+        :return: Parameter data as list of int
+        :rtype: list[int]
         """
 
         param_reg = cpx_ap_registers.PARAMETERS.register_address
@@ -250,4 +308,6 @@ class CpxAp(CpxBase):
         data_length = div_ceil(self.read_reg_data(param_reg + 4)[0], 2)
 
         data = self.read_reg_data(param_reg + 10, data_length)
+
+        Logging.logger.debug(f"Read data {data} from module position: {position}")
         return data

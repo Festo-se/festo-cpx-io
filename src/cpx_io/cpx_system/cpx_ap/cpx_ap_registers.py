@@ -11,6 +11,7 @@ PARAMETERS = ModbusRegister(10000, 1000)
 
 DIAGNOSIS = ModbusRegister(11000, 100)
 MODULE_COUNT = ModbusRegister(12000, 1)
+TIMEOUT = ModbusRegister(14000, 2)
 
 # module information
 MODULE_CODE = ModbusRegister(15000, 2)

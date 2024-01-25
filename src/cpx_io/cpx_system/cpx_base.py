@@ -3,6 +3,7 @@
 
 import struct
 from dataclasses import dataclass, fields
+from functools import wraps
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.payload import BinaryPayloadDecoder, BinaryPayloadBuilder
@@ -34,19 +35,19 @@ class CpxRequestError(Exception):
 class CpxBase:
     """A class to connect to the Festo CPX system and read data from IO modules"""
 
-    def __init__(self, ip_address=None, port=502, timeout=1):
+    def __init__(self, ip_address: str = None):
+        """Constructor of CpxBase class.
+
+        Parameters:
+            ip_address (str): Required IP address as string e.g. ('192.168.1.1')
+        """
         if ip_address is None:
             Logging.logger.info("Not connected since no IP address was provided")
             return
 
-        self.client = ModbusTcpClient(
-            host=ip_address,
-            port=port,
-            timeout=timeout,
-        )
-
+        self.client = ModbusTcpClient(host=ip_address)
         self.client.connect()
-        Logging.logger.info(f"Connected to {ip_address}:{port} (timeout: {timeout})")
+        Logging.logger.info(f"Connected to {ip_address}:502")
 
     def shutdown(self):
         """Shutdown function"""
@@ -98,12 +99,15 @@ class CpxBase:
 
         byte_size: int = 2
 
-    def read_reg_data(self, register: int, length=1) -> list:
+    def read_reg_data(self, register: int, length: int = 1) -> list[int]:
         """Reads and returns register from Modbus server
 
-        Arguments:
-        register -- adress of the first register to read
-        length -- number of registers to read (default: 1)
+        :param register: adress of the first register to read
+        :type register: int
+        :param length: number of registers to read (default: 1)
+        :type length: int
+        :return: Register content
+        :rtype: list[int]
         """
 
         data = self.client.read_holding_registers(register, length)
@@ -113,9 +117,18 @@ class CpxBase:
 
         return data.registers
 
-    def write_reg_data(self, data: int | list, register: int, length=1):
+    def write_reg_data(
+        self, data: int | list[int], register: int, length: int = 1
+    ) -> None:
         """Write data to registers. If data is int, writes one register.
         If data is list, list content is written to given register address and following registers
+
+        :param data: data to write to the register
+        :type data: int | list[int]
+        :param register: adress of the first register to read
+        :type register: int
+        :param length: number of registers to read (default: 1)
+        :type length: int
 
         """
         if isinstance(data, int):
@@ -133,6 +146,7 @@ class CpxBase:
         """For most module functions, a base is required that handles the registers,
         module numbering, etc."""
 
+        @wraps(func)
         def wrapper(self, *args, **kwargs):
             if not self.base:
                 raise CpxInitError()
