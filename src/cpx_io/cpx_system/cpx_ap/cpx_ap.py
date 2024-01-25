@@ -36,6 +36,7 @@ class CpxAp(CpxBase):
         self.next_output_register = None
         self.next_input_register = None
         self._modules = []
+        self._module_names = []
 
         module_count = self.read_module_count()
         for i in range(module_count):
@@ -67,9 +68,18 @@ class CpxAp(CpxBase):
         module.update_information(info)
         module.configure(self, len(self._modules))
         self._modules.append(module)
-        setattr(self, module.name, module)
+        self.update_module_names()
         Logging.logger.debug("Added module %s (%s)", module.name, type(module).__name__)
         return module
+
+    def update_module_names(self):
+        """Updates the module name list and attributes accordingly"""
+        for name in self._module_names:
+            delattr(self, name)
+
+        self._module_names = [module.name for module in self._modules]
+        for name, module in zip(self._module_names, self._modules):
+            setattr(self, name, module)
 
     def read_module_count(self) -> int:
         """Reads and returns IO module count as integer"""

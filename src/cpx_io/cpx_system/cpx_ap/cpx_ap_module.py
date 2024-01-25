@@ -26,22 +26,41 @@ class CpxApModule:
         operating_supply: bool = False
 
     def __init__(self, name=None):
-        # pylint: disable=duplicate-code
-        # intended: cpx-ap and cpx-e have similar functions
-        if name:
-            self.name = name
-        else:
-            # Use class name (lower cased) as default value
-            self.name = type(self).__name__.lower()
         self.base = None
         self.position = None
         self.information = None
 
         self.output_register = None
         self.input_register = None
+        self._name = None
+        self.name = name
 
     def __repr__(self):
         return f"{self.name} (idx: {self.position}, type: {type(self).__name__})"
+
+    @property
+    def name(self):
+        """
+        Property getter for name.
+        """
+        return self._name
+
+    # pylint: disable=duplicate-code
+    # intended: cpx-ap and cpx-e have similar functions
+    @name.setter
+    def name(self, name_value):
+        """
+        Property setter for name.
+        Updates base module list if base exists.
+        """
+        if name_value:
+            self._name = name_value
+        else:
+            # Use class name (lower cased) as default value
+            self._name = type(self).__name__.lower()
+
+        if self.base:
+            self.base.update_module_names()
 
     def configure(self, base, position):
         """Set up module when added to cpx system"""
