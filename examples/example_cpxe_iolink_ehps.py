@@ -1,4 +1,5 @@
 """Example code for CPX-E IO-Link master with gripper EHPS"""
+# pylint: disable=no-member
 
 import time
 
@@ -17,23 +18,23 @@ def read_process_data_in(data):
     """Read the process data and return as dict"""
     # ehps provides 3 x 16bit "process data in".
 
-    process_data_in = {}
+    _process_data_in = {}
 
-    process_data_in["Error"] = bool((data[0] >> 15) & 1)
-    process_data_in["DirectionCloseFlag"] = bool((data[0] >> 14) & 1)
-    process_data_in["DirectionOpenFlag"] = bool((data[0] >> 13) & 1)
-    process_data_in["LatchDataOk"] = bool((data[0] >> 12) & 1)
-    process_data_in["UndefinedPositionFlag"] = bool((data[0] >> 11) & 1)
-    process_data_in["ClosedPositionFlag"] = bool((data[0] >> 10) & 1)
-    process_data_in["GrippedPositionFlag"] = bool((data[0] >> 9) & 1)
-    process_data_in["OpenedPositionFlag"] = bool((data[0] >> 8) & 1)
+    _process_data_in["Error"] = bool((data[0] >> 15) & 1)
+    _process_data_in["DirectionCloseFlag"] = bool((data[0] >> 14) & 1)
+    _process_data_in["DirectionOpenFlag"] = bool((data[0] >> 13) & 1)
+    _process_data_in["LatchDataOk"] = bool((data[0] >> 12) & 1)
+    _process_data_in["UndefinedPositionFlag"] = bool((data[0] >> 11) & 1)
+    _process_data_in["ClosedPositionFlag"] = bool((data[0] >> 10) & 1)
+    _process_data_in["GrippedPositionFlag"] = bool((data[0] >> 9) & 1)
+    _process_data_in["OpenedPositionFlag"] = bool((data[0] >> 8) & 1)
 
-    process_data_in["Ready"] = bool((data[0] >> 6) & 1)
+    _process_data_in["Ready"] = bool((data[0] >> 6) & 1)
 
-    process_data_in["ErrorNumber"] = data[1]
-    process_data_in["ActualPosition"] = data[2]
+    _process_data_in["ErrorNumber"] = data[1]
+    _process_data_in["ActualPosition"] = data[2]
 
-    return process_data_in
+    return _process_data_in
 
 
 # list of some connected modules. IO-Link module is specified with 8 bytes per port:

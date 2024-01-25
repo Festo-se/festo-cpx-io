@@ -10,16 +10,16 @@ with CpxAp(ip_address="172.16.1.42") as myCPX:
     module_count = myCPX.read_module_count()
     module_information = [myCPX.read_module_information(i) for i in range(module_count)]
 
-    sdas_channel = 0
+    SDAS_CHANNEL = 0
     # set operating mode of channel 0 to "IO-Link communication"
-    myCPX.cpxap4iol.configure_port_mode(2, sdas_channel)
+    myCPX.cpxap4iol.configure_port_mode(2, SDAS_CHANNEL)
 
     # read back the port status information to check if it's "OPERATE"
     param = myCPX.cpxap4iol.read_fieldbus_parameters()
-    assert param[sdas_channel]["Port status information"] == "OPERATE"
+    assert param[SDAS_CHANNEL]["Port status information"] == "OPERATE"
 
     # read the channel 0 process data
-    sdas_data = myCPX.cpxap4iol.read_channel(sdas_channel)
+    sdas_data = myCPX.cpxap4iol.read_channel(SDAS_CHANNEL)
 
     # sdas only requires 2 bytes, so the first 16 bit value from the list is taken
     process_data = sdas_data[0]

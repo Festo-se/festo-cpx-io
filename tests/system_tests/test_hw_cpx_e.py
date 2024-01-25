@@ -91,6 +91,13 @@ def test_1module(test_cpxe):
     assert test_cpxe.modules[1] == e16di
 
 
+def test_module_naming(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    assert e16di == test_cpxe.cpxe16di
+    test_cpxe.cpxe16di.name = "test"
+    assert test_cpxe.test.read_channel(0) is False
+
+
 def test_2modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
