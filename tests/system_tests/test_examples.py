@@ -3,6 +3,17 @@
 import subprocess
 
 
+def test_example_cpxap_digital_io():
+    """Test example for CPX-E"""
+    result = subprocess.run(
+        ["python3", "examples/example_cpxap_digital_io.py"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert result.returncode == 0, f"Script failed with output: {result.stdout}"
+
+
 def test_example_cpxap_iolink_sdas():
     """Test example for CPX-AP"""
     result = subprocess.run(
