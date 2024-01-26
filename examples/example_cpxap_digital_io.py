@@ -1,5 +1,4 @@
 """Example code for CPX-AP"""
-# pylint: disable=no-member
 
 # import the library
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
