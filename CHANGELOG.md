@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added CPX-AP-A modules
 - Implemented CPX-E-1CI module
 - Unittests for cpxe and cpxap modules
-- CpxE and CpxAP: Added __repr__ function
+- CpxE and CpxAP: Added `__repr__` function
 - CpxE: Added property setter / getter for more modules.
 - CpxE: Added access-by-name for modules of CpxE.
 - CpxE: Added construction from typecode.
