@@ -1,4 +1,5 @@
 """Constant definitions for CPX-E"""
+
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do

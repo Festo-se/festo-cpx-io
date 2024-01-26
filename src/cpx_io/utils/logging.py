@@ -1,4 +1,5 @@
 """Contains class which contains logging methods."""
+
 import logging
 from rich.logging import RichHandler
 

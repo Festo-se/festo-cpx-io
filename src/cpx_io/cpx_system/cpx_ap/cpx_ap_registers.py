@@ -1,4 +1,5 @@
 """Modbus register definitions for CPX-AP"""
+
 from collections import namedtuple
 
 # Modbus register definitions for CPX-E constist of holding register address and length

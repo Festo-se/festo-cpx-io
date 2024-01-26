@@ -1,4 +1,5 @@
 """CLI Tool that distributes subcommands"""
+
 import argparse
 import logging
 from cpx_io.cli.cpx_e import add_cpx_e_parser
