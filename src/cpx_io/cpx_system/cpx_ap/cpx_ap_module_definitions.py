@@ -1,4 +1,5 @@
 """Constant definitions for CPX-AP"""
+
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di

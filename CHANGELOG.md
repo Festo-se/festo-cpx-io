@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- Examples
 - Feature.md file
 - Added content to README.md
 - Added Parameter write for CPX-AP-*-EP
@@ -56,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reworked CPX-E class structure.
 
 ### Fixed
+- Example tests after rework
 - Bugfix where renaming of modules wouldn't be reflected in base.
 - Fixed README links
 - Docstrings and Logging

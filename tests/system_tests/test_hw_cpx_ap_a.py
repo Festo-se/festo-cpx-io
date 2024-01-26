@@ -55,6 +55,12 @@ def test_read_module_information(test_cpxap):
     assert modules[0].module_code in CpxApEp.module_codes
 
 
+def test_module_naming(test_cpxap):
+    assert isinstance(test_cpxap.cpxap8di, CpxAp8Di)
+    test_cpxap.cpxap8di.name = "test"
+    assert test_cpxap.test.read_channel(0) is False
+
+
 def test_modules(test_cpxap):
     assert isinstance(test_cpxap.modules[0], CpxApEp)
     assert isinstance(test_cpxap.modules[1], CpxAp16Di)

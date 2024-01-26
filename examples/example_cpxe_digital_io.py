@@ -1,4 +1,5 @@
 """Example code for CPX-E"""
+# pylint: disable=no-member
 
 # import the librarys
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
