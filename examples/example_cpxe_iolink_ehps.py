@@ -6,10 +6,6 @@ import time
 # import the librarys
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
-from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
-from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
-from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
-from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 
 
@@ -18,40 +14,40 @@ def read_process_data_in(data):
     """Read the process data and return as dict"""
     # ehps provides 3 x 16bit "process data in".
 
-    _process_data_in = {}
+    process_data_dict = {}
 
-    _process_data_in["Error"] = bool((data[0] >> 15) & 1)
-    _process_data_in["DirectionCloseFlag"] = bool((data[0] >> 14) & 1)
-    _process_data_in["DirectionOpenFlag"] = bool((data[0] >> 13) & 1)
-    _process_data_in["LatchDataOk"] = bool((data[0] >> 12) & 1)
-    _process_data_in["UndefinedPositionFlag"] = bool((data[0] >> 11) & 1)
-    _process_data_in["ClosedPositionFlag"] = bool((data[0] >> 10) & 1)
-    _process_data_in["GrippedPositionFlag"] = bool((data[0] >> 9) & 1)
-    _process_data_in["OpenedPositionFlag"] = bool((data[0] >> 8) & 1)
+    process_data_dict["Error"] = bool((data[0] >> 15) & 1)
+    process_data_dict["DirectionCloseFlag"] = bool((data[0] >> 14) & 1)
+    process_data_dict["DirectionOpenFlag"] = bool((data[0] >> 13) & 1)
+    process_data_dict["LatchDataOk"] = bool((data[0] >> 12) & 1)
+    process_data_dict["UndefinedPositionFlag"] = bool((data[0] >> 11) & 1)
+    process_data_dict["ClosedPositionFlag"] = bool((data[0] >> 10) & 1)
+    process_data_dict["GrippedPositionFlag"] = bool((data[0] >> 9) & 1)
+    process_data_dict["OpenedPositionFlag"] = bool((data[0] >> 8) & 1)
 
-    _process_data_in["Ready"] = bool((data[0] >> 6) & 1)
+    process_data_dict["Ready"] = bool((data[0] >> 6) & 1)
 
-    _process_data_in["ErrorNumber"] = data[1]
-    _process_data_in["ActualPosition"] = data[2]
+    process_data_dict["ErrorNumber"] = data[1]
+    process_data_dict["ActualPosition"] = data[2]
 
-    return _process_data_in
+    return process_data_dict
 
 
 # list of some connected modules. IO-Link module is specified with 8 bytes per port:
 # Datasheet: Per port: 8 E / 8 A  Module: 32 E / 32 A. This has to be set up with the
 # switch on the module.
 with CpxE(
-    ip_address="172.16.1.40",
-    modules=[CpxEEp(), CpxE16Di(), CpxE8Do(), CpxE4AiUI(), CpxE4AoUI(), CpxE4Iol(8)],
+    ip_address="192.168.1.1",
+    modules=[CpxEEp(), CpxE4Iol(8)],
 ) as myCPX:
     # read system information
     module_list = myCPX.modules
 
     # example EHPS-20-A-LK on port 1
-    ehps_channel = 1
+    EHPS_CHANNEL = 1
 
     # set operating mode of channel 0 to "IO-Link communication"
-    myCPX.cpxe4iol.configure_operating_mode(3, channel=ehps_channel)
+    myCPX.cpxe4iol.configure_operating_mode(3, channel=EHPS_CHANNEL)
 
     time.sleep(0.05)
 
@@ -59,7 +55,7 @@ with CpxE(
     param = myCPX.cpxe4iol.read_line_state()
 
     # read process data
-    raw_data = myCPX.cpxe4iol.read_channel(ehps_channel)
+    raw_data = myCPX.cpxe4iol.read_channel(EHPS_CHANNEL)
 
     # interpret it according to datasheet
     process_data_in = read_process_data_in(raw_data)
@@ -81,27 +77,27 @@ with CpxE(
     ]
 
     # init
-    myCPX.cpxe4iol.write_channel(ehps_channel, process_data_out)
+    myCPX.cpxe4iol.write_channel(EHPS_CHANNEL, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
     process_data_out[0] = 0x0100
-    myCPX.cpxe4iol.write_channel(ehps_channel, process_data_out)
+    myCPX.cpxe4iol.write_channel(EHPS_CHANNEL, process_data_out)
 
     # wait for the process data in to change to "opened"
     while not process_data_in["OpenedPositionFlag"]:
         process_data_in = read_process_data_in(
-            myCPX.cpxe4iol.read_channel(ehps_channel)
+            myCPX.cpxe4iol.read_channel(EHPS_CHANNEL)
         )
         time.sleep(0.05)
 
     # Close command 0x 0200
     process_data_out[0] = 0x0200
-    myCPX.cpxe4iol.write_channel(ehps_channel, process_data_out)
+    myCPX.cpxe4iol.write_channel(EHPS_CHANNEL, process_data_out)
 
     # wait for the process data in to change to "closed"
     while not process_data_in["ClosedPositionFlag"]:
         process_data_in = read_process_data_in(
-            myCPX.cpxe4iol.read_channel(ehps_channel)
+            myCPX.cpxe4iol.read_channel(EHPS_CHANNEL)
         )
         time.sleep(0.05)

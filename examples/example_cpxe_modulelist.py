@@ -1,4 +1,4 @@
-"""Example code for CPX-E"""
+"""Example code for CPX-E with list of modules"""
 
 # import the librarys
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
@@ -8,7 +8,7 @@ from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 # use list of modules to call CpxE
 modules = [CpxEEp(), CpxE16Di()]
 
-with CpxE(ip_address="172.16.1.40", modules=modules) as myCPX:
+with CpxE(ip_address="192.168.1.1", modules=modules) as myCPX:
     # read system information
     module_list = myCPX.modules
 

@@ -1,23 +1,20 @@
-"""Example code for CPX-AP"""
-# pylint: disable=no-member
+"""Example code for CPX-AP digital output"""
 
 # import the library
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 
 # for cpx_ap, the attached modules are found automatically
-with CpxAp(ip_address="172.16.1.41") as myCPX:
+with CpxAp(ip_address="192.168.1.1") as myCPX:
     # read system information
     module_count = myCPX.read_module_count()
     module_information = [myCPX.read_module_information(i) for i in range(module_count)]
 
-    # in this example the first IO module is 'CPX-AP-I-8DI-M8-3P'
-    # read digital input
-    ap_8di = myCPX.modules[1]
-    myCPX.cpxap8di.read_channel(0)  # returns bool
-    myCPX.cpxap8di.read_channels()  # returns list of bool
+    # module index 0 is 'CPX-AP-*-EP' (* can be I or A)
+    # in this example the first IO module (index 1) is 'CPX-AP-*-4DI4DO-M12-5P'
+    # same as with every module, you can access it by the module index or the automatically
+    # generated name 'cpxap4di4do' as well as rename it (see example_cpxap_digital_input.py)
 
-    # the second module is 'CPX-AP-I-4DI4DO-M12-5P'
-    # set digital output
+    # set, clear, toggle a digital output
     myCPX.cpxap4di4do.set_channel(0)  # sets one channel, returns none
     myCPX.cpxap4di4do.clear_channel(0)  # clear one channel, returns none
     myCPX.cpxap4di4do.toggle_channel(0)  # toggle the state of one channel, returns none
@@ -33,10 +30,10 @@ with CpxAp(ip_address="172.16.1.41") as myCPX:
     # reads back the first output channel, same as "read_channel(4)"
     myCPX.cpxap4di4do.read_channel(0, output_numbering=True)
 
-    # third module is 'CPX-AP-I-4AI-U-I-RTD-M12'
-    # configure the channel range
-    myCPX.cpxap4aiui.configure_channel_range(0, "0-10V")
-    # read analog input
-    myCPX.cpxap4aiui.read_channel(0)  # returns integer value of one channel
-    # returns list of integer values for all channels [0,1,2,3]
-    myCPX.cpxap4aiui.read_channels()
+    # configure the module
+    # sets debounce time to 10 ms (see datasheet)
+    myCPX.cpxap4di4do.configure_debounce_time(2)
+    # sets Load supply monitoring inactive
+    myCPX.cpxap4di4do.configure_monitoring_load_supply(0)
+    # hold last state on the outputs
+    myCPX.cpxap4di4do.configure_behaviour_in_fail_state(1)
