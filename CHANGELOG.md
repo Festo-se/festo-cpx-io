@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.2.0 - 26.01.24
 ### Added
+- More examples
 - Added content to README.md
 - Added module functions CPX-E/AP
 - Handling of naming for more modules of one type (CPX-E and -AP)
