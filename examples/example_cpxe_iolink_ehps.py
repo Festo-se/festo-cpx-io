@@ -37,7 +37,7 @@ def read_process_data_in(data):
 # Datasheet: Per port: 8 E / 8 A  Module: 32 E / 32 A. This has to be set up with the
 # switch on the module.
 with CpxE(
-    ip_address="172.16.1.40",
+    ip_address="192.168.1.1",
     modules=[CpxEEp(), CpxE4Iol(8)],
 ) as myCPX:
     # read system information

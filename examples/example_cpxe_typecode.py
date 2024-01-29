@@ -1,10 +1,10 @@
-"""Example code for CPX-E"""
+"""Example code for CPX-E with typecode"""
 
 # import the library
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
 # use the typecode to setup all attached modules
-with CpxE("60E-EP-MLNINO", ip_address="172.16.1.40") as myCPX:
+with CpxE("60E-EP-MLNINO", ip_address="192.168.1.1") as myCPX:
     # read system information
     module_list = myCPX.modules
 

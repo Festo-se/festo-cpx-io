@@ -1,11 +1,11 @@
-"""Example code for CPX-E"""
+"""Example code for CPX-E add module"""
 
 # import the librarys
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
 
-with CpxE(ip_address="172.16.1.40") as myCPX:
+with CpxE(ip_address="192.168.1.1") as myCPX:
     # add modules (the order must be from left to right in the cpx-e system,
     # the first module -EP is already added at position 0)
     myCPX.add_module(CpxE16Di())

@@ -1,4 +1,4 @@
-"""Example code for CPX-E"""
+"""Example code for CPX-E digital output"""
 
 # import the librarys
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
@@ -6,7 +6,7 @@ from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
 
 # use the typecode to setup all attached modules
-with CpxE(ip_address="172.16.1.40", modules=[CpxEEp(), CpxE8Do()]) as myCPX:
+with CpxE(ip_address="192.168.1.1", modules=[CpxEEp(), CpxE8Do()]) as myCPX:
     # the modules are all named automatically and one can access them by their name or index
 
     # read all channels

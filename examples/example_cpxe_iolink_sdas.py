@@ -7,7 +7,7 @@ from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 
 # use the typecode to setup all attached modules
 with CpxE(
-    ip_address="172.16.1.40",
+    ip_address="192.168.1.1",
     modules=[CpxEEp(), CpxE4Iol()],
 ) as myCPX:
     # read system information
