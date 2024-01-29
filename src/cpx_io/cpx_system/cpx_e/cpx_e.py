@@ -161,16 +161,6 @@ class CpxE(CpxBase):
         data = self.read_function_number(43)
         return data
 
-    def read_module_count(self) -> int:
-        """Reads and returns IO module count as integer
-
-        :return: Number of the total amount of connected modules
-        :rtype: int
-        """
-        ret = len(self._modules)
-        Logging.logger.debug(f"Total module count: {ret}")
-        return ret
-
     def add_module(self, module):
         """Adds one module to the base. This is required to use the module.
 

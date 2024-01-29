@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- Deleted obsolete cpx-e "read_module_count" function
 - Removed timeout and port from CPX-base, implemented timeout for CPX-AP
 - changed return value of read function number to int
 - Added context manager functionality to cpx base class. Adapted examples to use this context manager.
