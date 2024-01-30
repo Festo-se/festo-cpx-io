@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "festo-cpx-io"
 description = "Library to control and access festo CPX modules"
-readme = {file = "README.txt", content-type = "text/markdown"}
+readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
     {name = "Martin Wiesner", email = "martin.wiesner@festo.com"},
     {name = "Elias Rosch", email = "elias.rosch@festo.com"},
@@ -24,10 +24,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.festo.company/maws/festo-cpx-io"
-Documentation = "https://gitlab.festo.company/maws/festo-cpx-io"
-Repository = "https://gitlab.festo.company/maws/festo-cpx-io"
-Changelog = "https://gitlab.festo.company/maws/festo-cpx-io"
+Homepage = "https://gitlab.festo.company/festo/electric-automation/remote-io/festo-cpx-io"
+Documentation = "https://gitlab.festo.company/festo/electric-automation/remote-io/festo-cpx-io"
+Repository = "https://gitlab.festo.company/festo/electric-automation/remote-io/festo-cpx-io"
+Changelog = "https://gitlab.festo.company/festo/electric-automation/remote-io/festo-cpx-io"
 
 [project.scripts]
 festo-cpx-io = "cpx_io.cli.cli:main"

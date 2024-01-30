@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated modules list so each module can be adressed via the base class
 
 ### Fixed
+- Project URLs in pyproject.toml
 - General Bugfixes
 
 ## v0.1.1 - 20.10.23
