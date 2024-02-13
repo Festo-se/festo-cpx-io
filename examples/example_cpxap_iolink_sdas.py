@@ -25,7 +25,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
 
     # the process data consists of 4 ssc bits and 12 bit pdv (see datasheet sdas)
     # you can convert the bytes data to integer first and then do bitwise operations
-    process_data_int = int.from_bytes(process_data, byteorder="big")
+    process_data_int = int.from_bytes(sdas_data, byteorder="big")
     ssc1 = bool(process_data_int & 0x1)
     ssc2 = bool(process_data_int & 0x2)
     ssc3 = bool(process_data_int & 0x4)
