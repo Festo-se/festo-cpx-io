@@ -1,8 +1,11 @@
 """Contains tests for VabxAP class"""
+
 from unittest.mock import Mock, call
+import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class TestVabxAP:
@@ -22,9 +25,9 @@ class TestVabxAP:
         """Test read channels"""
         # Arrange
         vabx_ap = VabxAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
-        # return [lsb, msb]
-        vabx_ap.base = Mock(read_reg_data=Mock(return_value=[0xDEAD, 0xBEEF]))
+        vabx_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = vabx_ap.read_channels()
@@ -69,8 +72,9 @@ class TestVabxAP:
         """Test read channel"""
         # Arrange
         vabx_ap = VabxAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
-        vabx_ap.base = Mock(read_reg_data=Mock(return_value=[0xDEAD, 0xBEEF]))
+        vabx_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = [vabx_ap.read_channel(idx) for idx in range(32)]
@@ -115,8 +119,9 @@ class TestVabxAP:
         """Test get item"""
         # Arrange
         vabx_ap = VabxAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
-        vabx_ap.base = Mock(read_reg_data=Mock(return_value=[0xDEAD, 0xBEEF]))
+        vabx_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = [vabx_ap[idx] for idx in range(32)]
@@ -204,9 +209,7 @@ class TestVabxAP:
         vabx_ap.write_channels(bool_list)
 
         # Assert
-        vabx_ap.base.write_reg_data.assert_has_calls(
-            [call(0xDEAD, 0), call(0xBEEF, 1)], any_order=True
-        )
+        vabx_ap.base.write_reg_data.assert_called_with(b"\xad\xde\xef\xbe", 0)
 
     def test_write_channels_too_long(self):
         """Test write channels, expect error"""
@@ -245,35 +248,35 @@ class TestVabxAP:
         """Test write channel"""
         # Arange
         vabx_ap = VabxAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vabx_ap.base = Mock(write_reg_data=Mock())
-        vabx_ap.base = Mock(read_reg_data=Mock(return_value=[0xDEAD, 0xBEEF]))
+        vabx_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
         vabx_ap.output_register = 0
 
         # Act
         vabx_ap.write_channel(0, False)
 
         # Assert
-        vabx_ap.base.write_reg_data.assert_has_calls(
-            [call(0xDEAC, 0), call(0xBEEF, 1)], any_order=True
-        )
+        # exected is DEAC BEEF
+        vabx_ap.base.write_reg_data.assert_called_with(b"\xac\xde\xef\xbe", 0)
 
     def test_write_channel_false(self):
         """Test write channel"""
         # Arange
         vabx_ap = VabxAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vabx_ap.base = Mock(write_reg_data=Mock())
-        vabx_ap.base = Mock(read_reg_data=Mock(return_value=[0xDEAD, 0xBEEF]))
+        vabx_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
         vabx_ap.output_register = 0
 
         # Act
         vabx_ap.write_channel(1, True)
 
         # Assert
-        vabx_ap.base.write_reg_data.assert_has_calls(
-            [call(0xDEAF, 0), call(0xBEEF, 1)], any_order=True
-        )
+        # exected is DEAF BEEF
+        vabx_ap.base.write_reg_data.assert_called_with(b"\xaf\xde\xef\xbe", 0)
 
     def test_set_item(self):
         """Test set item"""
@@ -376,12 +379,13 @@ class TestVabxAP:
         vabx_ap.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20021  # pylint: disable=invalid-name
         vabx_ap.configure_diagnosis_for_defect_valve(input_value)
 
         # Assert
         vabx_ap.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE,
+            expected_value,
         )
 
     @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (1, 1), (2, 2)])
@@ -396,12 +400,13 @@ class TestVabxAP:
         vabx_ap.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20022  # pylint: disable=invalid-name
         vabx_ap.configure_monitoring_load_supply(input_value)
 
         # Assert
         vabx_ap.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP,
+            expected_value,
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -431,12 +436,13 @@ class TestVabxAP:
         vabx_ap.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20052  # pylint: disable=invalid-name
         vabx_ap.configure_behaviour_in_fail_state(input_value)
 
         # Assert
         vabx_ap.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.FAIL_STATE_BEHAVIOUR,
+            expected_value,
         )
 
     @pytest.mark.parametrize("input_value", [-1, 2])

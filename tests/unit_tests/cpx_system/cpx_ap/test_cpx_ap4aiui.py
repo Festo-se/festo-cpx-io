@@ -1,8 +1,11 @@
 """Contains tests for CpxAp4AiUI class"""
+
 from unittest.mock import Mock, call
+import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class TestCpxAp4AiUI:
@@ -22,10 +25,9 @@ class TestCpxAp4AiUI:
         """Test read channels"""
         # Arrange
         cpxap4aiui = CpxAp4AiUI()
+        ret_data = struct.pack("<HHHH", *[0, 32767, 32768, 65535])
 
-        cpxap4aiui.base = Mock(
-            read_reg_data=Mock(return_value=[0, 32767, 32768, 65535])
-        )
+        cpxap4aiui.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = cpxap4aiui.read_channels()
@@ -38,10 +40,9 @@ class TestCpxAp4AiUI:
         """Test read channel"""
         # Arrange
         cpxap4aiui = CpxAp4AiUI()
+        ret_data = struct.pack("<HHHH", *[0, 32767, 32768, 65535])
 
-        cpxap4aiui.base = Mock(
-            read_reg_data=Mock(return_value=[0, 32767, 32768, 65535])
-        )
+        cpxap4aiui.base = Mock(read_reg_data=Mock(return_value=ret_data))
         # Act
         channel_values = [cpxap4aiui.read_channel(idx) for idx in range(4)]
 
@@ -53,10 +54,9 @@ class TestCpxAp4AiUI:
         """Test get item"""
         # Arrange
         cpxap4aiui = CpxAp4AiUI()
+        ret_data = struct.pack("<HHHH", *[0, 32767, 32768, 65535])
 
-        cpxap4aiui.base = Mock(
-            read_reg_data=Mock(return_value=[0, 32767, 32768, 65535])
-        )
+        cpxap4aiui.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = [cpxap4aiui[idx] for idx in range(4)]
@@ -201,12 +201,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20044  # pylint: disable=invalid-name
         cpxap4aiui.configure_channel_limits(0, upper=input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, expected_value, 0
         )
 
     @pytest.mark.parametrize(
@@ -229,12 +228,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20045  # pylint: disable=invalid-name
         cpxap4aiui.configure_channel_limits(0, lower=input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, expected_value, 0
         )
 
     @pytest.mark.parametrize(
@@ -264,8 +262,18 @@ class TestCpxAp4AiUI:
         # Assert
         cpxap4aiui.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID_UPPER, 0, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID_LOWER, 0, expected_value),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.UPPER_THRESHOLD_VALUE,
+                    expected_value,
+                    0,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.LOWER_THRESHOLD_VALUE,
+                    expected_value,
+                    0,
+                ),
             ],
             any_order=True,
         )
@@ -363,12 +371,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20046  # pylint: disable=invalid-name
         cpxap4aiui.configure_hysteresis_limit_monitoring(0, input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [-1, 65536])
@@ -420,12 +427,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20107  # pylint: disable=invalid-name
         cpxap4aiui.configure_channel_smoothing(0, input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.SMOOTH_FACTOR, expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [-1, 16])
@@ -476,12 +482,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20111  # pylint: disable=invalid-name
         cpxap4aiui.configure_linear_scaling(0, input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.LINEAR_SCALING_ENABLE, expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [1, "A"])

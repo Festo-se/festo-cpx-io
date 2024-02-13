@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- CpxApEP: deleted write_parameters(), added configure_monitoring_load_supply() instead
+- Pybodmus Error now raises "ConnectionAbortedError" instead of "ValueError"
+- IO-Link modules now read and write bytes objects
 - Deleted obsolete cpx-e "read_module_count" function
 - Removed timeout and port from CPX-base, implemented timeout for CPX-AP
 - changed return value of read function number to int

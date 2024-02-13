@@ -3,9 +3,11 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
@@ -52,12 +54,12 @@ class CpxAp4Iol(CpxApModule):
         """
         params = super().read_ap_parameter()
 
-        io_link_variant = CpxBase.decode_int(
-            self.base.read_parameter(self.position, 20090, 0)[:-1], data_type="uint16"
+        io_link_variant = self.base.read_parameter(
+            self.position, cpx_ap_parameters.VARIANT_SWITCH
         )
 
-        activation_operating_voltage = CpxBase.decode_bool(
-            self.base.read_parameter(self.position, 20097, 0)
+        activation_operating_voltage = self.base.read_parameter(
+            self.position, cpx_ap_parameters.SENSOR_SUPPLY_ENABLE
         )
 
         params.io_link_variant = self.__class__.module_codes[io_link_variant]
@@ -66,62 +68,54 @@ class CpxAp4Iol(CpxApModule):
         return params
 
     @CpxBase.require_base
-    def read_channels(self) -> list[list[int]]:
+    def read_channels(self) -> list[bytes]:
         """read all IO-Link input data register order is [msb, ... , lsb]
 
         :return: All registers from all channels
-        :rtype: list[list[int]]
+        :rtype: list[bytes]
         """
         module_input_size = div_ceil(self.information.input_size, 2) - 2
 
-        data = self.base.read_reg_data(self.input_register, length=module_input_size)
-        data = [
-            CpxBase.decode_int([d], data_type="uint16", byteorder="little")
-            for d in data
-        ]
+        reg = self.base.read_reg_data(self.input_register, length=module_input_size)
 
-        channel_size = (module_input_size) // 4
+        # 4 channels per module but channel_size should be in bytes while module_input_size
+        # is in 16bit registers
+        channel_size = (module_input_size) // 4 * 2
 
         channels = [
-            data[: channel_size * 1],
-            data[channel_size * 1 : channel_size * 2],
-            data[channel_size * 2 : channel_size * 3],
-            data[channel_size * 3 :],
+            reg[: channel_size * 1],
+            reg[channel_size * 1 : channel_size * 2],
+            reg[channel_size * 2 : channel_size * 3],
+            reg[channel_size * 3 :],
         ]
         Logging.logger.info(f"{self.name}: Reading channels: {channels}")
         return channels
 
     @CpxBase.require_base
-    def read_channel(self, channel: int) -> list[int]:
+    def read_channel(self, channel: int) -> bytes:
         """read back the register values of one channel
         register order is [msb, ... , ... , lsb]
 
         :parameter channel: Channel number, starting with 0
         :type channel: int
-        :return: All registers from one channel
-        :rtype: list[int]
+        :return: Value of the channel
+        :rtype: bytes
         """
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def write_channel(self, channel: int, data: list[int]) -> None:
+    def write_channel(self, channel: int, data: bytes) -> None:
         """set one channel to list of uint16 values
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param data: list of registers to write
-        :type data: list[int]
+        :param data: Value to write
+        :type data: bytes
         """
         module_output_size = div_ceil(self.information.output_size, 2)
         channel_size = (module_output_size) // 4
 
-        register_data = [
-            CpxBase.encode_int(d, data_type="uint16", byteorder="little")[0]
-            for d in data
-        ]
-        self.base.write_reg_data(
-            register_data, self.output_register + channel_size * channel
-        )
+        self.base.write_reg_data(data, self.output_register + channel_size * channel)
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
 
     @CpxBase.require_base
@@ -187,12 +181,13 @@ class CpxAp4Iol(CpxApModule):
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
         """
-        uid = 20022
 
         if not 0 <= value <= 2:
             raise ValueError(f"Value {value} must be between 0 and 2")
 
-        self.base.write_parameter(self.position, uid, 0, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
+        )
 
         value_str = [
             "inactive",
@@ -227,7 +222,6 @@ class CpxAp4Iol(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        uid = 20049
 
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -255,8 +249,10 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for channel_item in channel:
-            self.base.write_parameter(self.position, uid, channel_item, value)
+        for c in channel:
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.NOMINAL_CYCLE_TIME, value, c
+            )
 
         Logging.logger.info(
             f"{self.name}: Setting channel(s) {channel} target "
@@ -275,7 +271,6 @@ class CpxAp4Iol(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        uid = 20050
 
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -283,8 +278,10 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for channel_item in channel:
-            self.base.write_parameter(self.position, uid, channel_item, int(value))
+        for c in channel:
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, value, c
+            )
 
         Logging.logger.info(
             f"{self.name}: Setting channel(s) {channel} device lost diagnostics to {value}"
@@ -306,7 +303,6 @@ class CpxAp4Iol(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        uid = 20071
 
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -325,8 +321,10 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for channel_item in channel:
-            self.base.write_parameter(self.position, uid, channel_item, value)
+        for c in channel:
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.PORT_MODE, value, c
+            )
 
         Logging.logger.info(
             f"{self.name}: Setting channel(s) {channel} port mode to {allowed_values[value]}"
@@ -352,8 +350,6 @@ class CpxAp4Iol(CpxApModule):
         :type channel: int | list[int]
         """
 
-        uid = 20072
-
         if channel is None:
             channel = [0, 1, 2, 3]
 
@@ -371,8 +367,13 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for channel_item in channel:
-            self.base.write_parameter(self.position, uid, channel_item, value)
+        for c in channel:
+            self.base.write_parameter(
+                self.position,
+                cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                value,
+                c,
+            )
 
         Logging.logger.info(
             f"{self.name}: Setting channel(s) {channel} port mode to {allowed_values[value]}"
@@ -391,16 +392,16 @@ class CpxAp4Iol(CpxApModule):
         :type channel: int | list[int]
         """
 
-        uid = 20073
-
         if channel is None:
             channel = [0, 1, 2, 3]
 
         if isinstance(channel, int):
             channel = [channel]
 
-        for channel_item in channel:
-            self.base.write_parameter(self.position, uid, channel_item, value)
+        for c in channel:
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.NOMINAL_VENDOR_ID, value, c
+            )
 
         Logging.logger.info(
             f"{self.name}: Setting channel(s) {channel} port mode to {value}"
@@ -419,16 +420,16 @@ class CpxAp4Iol(CpxApModule):
         :type channel: int | list[int]
         """
 
-        uid = 20080
-
         if channel is None:
             channel = [0, 1, 2, 3]
 
         if isinstance(channel, int):
             channel = [channel]
 
-        for channel_item in channel:
-            self.base.write_parameter(self.position, uid, channel_item, value)
+        for c in channel:
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.NOMINAL_DEVICE_ID, value, c
+            )
 
         Logging.logger.info(
             f"{self.name}: Setting channel(s) {channel} device id to {value}"
@@ -457,49 +458,41 @@ class CpxAp4Iol(CpxApModule):
         }
         transmission_rate_dict = {0: "not detected", 1: "COM1", 2: "COM2", 3: "COM3"}
 
-        for i in range(4):
+        for c in range(4):
             port_status_information = port_status_dict.get(
-                CpxBase.decode_int(
-                    self.base.read_parameter(self.position, 20074, i),
-                    data_type="uint8",
-                )
+                self.base.read_parameter(
+                    self.position, cpx_ap_parameters.PORT_STATUS_INFO, c
+                ),
             )
 
-            revision_id = CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20075, i),
-                data_type="uint8",
+            revision_id = self.base.read_parameter(
+                self.position, cpx_ap_parameters.REVISION_ID, c
             )
 
             transmission_rate = transmission_rate_dict.get(
-                CpxBase.decode_int(
-                    self.base.read_parameter(self.position, 20076, i),
-                    data_type="uint8",
-                )
+                self.base.read_parameter(
+                    self.position, cpx_ap_parameters.TRANSMISSION_RATE, c
+                ),
             )
 
-            actual_cycle_time = CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20077, i),
-                data_type="uint16",
+            actual_cycle_time = self.base.read_parameter(
+                self.position, cpx_ap_parameters.ACTUAL_CYCLE_TIME, c
             )
 
-            actual_vendor_id = CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20078, i),
-                data_type="uint16",
+            actual_vendor_id = self.base.read_parameter(
+                self.position, cpx_ap_parameters.ACTUAL_VENDOR_ID, c
             )
 
-            actual_device_id = CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20079, i),
-                data_type="uint32",
+            actual_device_id = self.base.read_parameter(
+                self.position, cpx_ap_parameters.ACTUAL_DEVICE_ID, c
             )
 
-            input_data_length = CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20108, i),
-                data_type="uint8",
+            input_data_length = self.base.read_parameter(
+                self.position, cpx_ap_parameters.IO_LINK_INPUT_DATA_LENGTH, c
             )
 
-            output_data_length = CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20109, i),
-                data_type="uint8",
+            output_data_length = self.base.read_parameter(
+                self.position, cpx_ap_parameters.IO_LINK_OUTPUT_DATA_LENGTH, c
             )
 
             channel_params.append(
@@ -521,37 +514,57 @@ class CpxAp4Iol(CpxApModule):
         return channel_params
 
     @CpxBase.require_base
-    def read_isdu(self, channel: int, index: int, subindex: int) -> list[int]:
+    def read_isdu(self, channel: int, index: int, subindex: int) -> bytes:
         """Read isdu (device parameter) from defined channel
         Raises CpxRequestError when read failed
 
-        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :param channel: Channel number, starting with 0
         :type channel: int
         :param index: io-link parameter index
         :type index: int
         :param subindex: io-link parameter subindex
         :type subindex: int
         :return: device parameter (index/subindex) for given channel
-        :rtype: list[int]
+        :rtype: bytes
         """
+        module_index = struct.pack("<H", self.position + 1)
+        channel = struct.pack("<H", channel + 1)
+        index = struct.pack("<H", index)
+        subindex = struct.pack("<H", subindex)
+        length = struct.pack("<H", 0)  # always zero when reading
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        command = struct.pack("<H", 100)
 
         # select module, starts with 1
-        self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
+        self.base.write_reg_data(
+            module_index, cpx_ap_registers.ISDU_MODULE_NO.register_address
+        )
         # select channel, starts with 1
-        self.base.write_reg_data(channel + 1, *cpx_ap_registers.ISDU_CHANNEL)
+        self.base.write_reg_data(
+            channel, cpx_ap_registers.ISDU_CHANNEL.register_address
+        )
         # select index
-        self.base.write_reg_data(index, *cpx_ap_registers.ISDU_INDEX)
+        self.base.write_reg_data(index, cpx_ap_registers.ISDU_INDEX.register_address)
         # select subindex
-        self.base.write_reg_data(subindex, *cpx_ap_registers.ISDU_SUBINDEX)
-        # select length of data in bytes, always zero when reading
-        self.base.write_reg_data(0, *cpx_ap_registers.ISDU_LENGTH)
-        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        self.base.write_reg_data(100, *cpx_ap_registers.ISDU_COMMAND)
+        self.base.write_reg_data(
+            subindex, cpx_ap_registers.ISDU_SUBINDEX.register_address
+        )
+        # select length of data in bytes
+        length = struct.pack("<H", 0)
+        self.base.write_reg_data(length, cpx_ap_registers.ISDU_LENGTH.register_address)
+        # command
+        self.base.write_reg_data(
+            command, cpx_ap_registers.ISDU_COMMAND.register_address
+        )
 
         stat = 1
         cnt = 0
         while stat > 0 and cnt < 1000:
-            stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
+            stat = int.from_bytes(
+                self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS),
+                byteorder="little",
+            )
+
             cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
@@ -562,41 +575,57 @@ class CpxAp4Iol(CpxApModule):
         return ret
 
     @CpxBase.require_base
-    def write_isdu(
-        self, data: list[int], channel: int, index: int, subindex: int
-    ) -> None:
+    def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
         """Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed
 
         :param data: Data as 16bit register values in list
         :type data: list[int]
-        :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
+        :param channel: Channel number, starting with 0
         :type channel: int
         :param index: io-link parameter index
         :type index: int
         :param subindex: io-link parameter subindex
         :type subindex: int
         """
+        module_index = struct.pack("<H", self.position + 1)
+        channel = struct.pack("<H", channel + 1)
+        index = struct.pack("<H", index)
+        subindex = struct.pack("<H", subindex)
+        length = struct.pack("<H", len(data) * 2)
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        command = struct.pack("<H", 101)
 
         # select module, starts with 1
-        self.base.write_reg_data(self.position + 1, *cpx_ap_registers.ISDU_MODULE_NO)
+        self.base.write_reg_data(
+            module_index, cpx_ap_registers.ISDU_MODULE_NO.register_address
+        )
         # select channel, starts with 1
-        self.base.write_reg_data(channel + 1, *cpx_ap_registers.ISDU_CHANNEL)
+        self.base.write_reg_data(
+            channel, cpx_ap_registers.ISDU_CHANNEL.register_address
+        )
         # select index
-        self.base.write_reg_data(index, *cpx_ap_registers.ISDU_INDEX)
+        self.base.write_reg_data(index, cpx_ap_registers.ISDU_INDEX.register_address)
         # select subindex
-        self.base.write_reg_data(subindex, *cpx_ap_registers.ISDU_SUBINDEX)
-        # select length of data in bytes, always zero when reading
-        self.base.write_reg_data(len(data) * 2, *cpx_ap_registers.ISDU_LENGTH)
+        self.base.write_reg_data(
+            subindex, cpx_ap_registers.ISDU_SUBINDEX.register_address
+        )
+        # select length of data in bytes
+        self.base.write_reg_data(length, cpx_ap_registers.ISDU_LENGTH.register_address)
         # write data to data register
-        self.base.write_reg_data(data, *cpx_ap_registers.ISDU_DATA)
-        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        self.base.write_reg_data(101, *cpx_ap_registers.ISDU_COMMAND)
+        self.base.write_reg_data(data, cpx_ap_registers.ISDU_DATA.register_address)
+        # command
+        self.base.write_reg_data(
+            command, cpx_ap_registers.ISDU_COMMAND.register_address
+        )
 
         stat = 1
         cnt = 0
         while stat > 0 and cnt < 1000:
-            stat = self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS)[0]
+            stat = int.from_bytes(
+                self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS),
+                byteorder="little",
+            )
             cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data write failed")

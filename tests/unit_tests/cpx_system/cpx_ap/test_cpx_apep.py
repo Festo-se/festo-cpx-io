@@ -1,7 +1,10 @@
 """Contains tests for CpxApEp class"""
+
 from unittest.mock import Mock, call
+import pytest
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class TestCpxApEp:
@@ -45,15 +48,15 @@ class TestCpxApEp:
 
         cpxapep.base = Mock(read_parameter=Mock())
         cpxapep.base.read_parameter.side_effect = [
-            [0x0100],
-            [0xA8C0, 0x0101],
-            [0xFFFF, 0x0000],
-            [0xA8C0, 0x0001],
-            [0xA8C0, 0x0201],
-            [0xFFFF, 0x00FF],
-            [0xA8C0, 0x0301],
-            [0xADDE, 0xFFC0, 0xBAEE],
-            [0xFF03],
+            True,
+            0xA8C0 + (0x0101 << 16),
+            0xFFFF + (0x0000 << 16),
+            0xA8C0 + (0x0001 << 16),
+            0xA8C0 + (0x0201 << 16),
+            0xFFFF + (0x00FF << 16),
+            0xA8C0 + (0x0301 << 16),
+            [0xDE, 0xAD, 0xC0, 0xFF, 0xEE, 0x00],
+            0xFF03,
         ]
 
         expected = CpxApEp.Parameters(
@@ -64,7 +67,7 @@ class TestCpxApEp:
             active_ip_address="192.168.1.2",
             active_subnet_mask="255.255.255.0",
             active_gateway_address="192.168.1.3",
-            mac_address="de:ad:c0:ff:ee:ba",
+            mac_address="de:ad:c0:ff:ee:00",
             setup_monitoring_load_supply=3,
         )
 
@@ -74,35 +77,36 @@ class TestCpxApEp:
         # Assert
         assert params == expected
 
-    def test_write_parameters(self):
-        """Test write_parameters"""
+    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (1, 1), (2, 2)])
+    def test_configure_monitoring_load_supply(self, input_value, expected_value):
+        """Test configure_monitoring_load_supply and expect success"""
         # Arrange
-        cpxapep = CpxApEp()
-
         MODULE_POSITION = 0  # pylint: disable=invalid-name
 
+        cpxapep = CpxApEp()
         cpxapep.position = MODULE_POSITION
 
         cpxapep.base = Mock(write_parameter=Mock())
 
-        param = CpxApEp.Parameters(
-            dhcp_enable=True,
-            ip_address="192.168.1.1",
-            subnet_mask="255.255.0.0",
-            gateway_address="192.168.1.0",
-            setup_monitoring_load_supply=3,
-        )
-
         # Act
-        cpxapep.write_parameters(param)
+        cpxapep.configure_monitoring_load_supply(input_value)
 
         # Assert
-        cpxapep.base.write_parameter.assert_has_calls(
-            [
-                call(cpxapep.position, 12000, 0, True),
-                call(cpxapep.position, 12001, 0, [0xC0, 0xA8, 0x01, 0x01]),
-                call(cpxapep.position, 12002, 0, [0xFF, 0xFF, 0x00, 0x00]),
-                call(cpxapep.position, 12003, 0, [0xC0, 0xA8, 0x01, 0x00]),
-                call(cpxapep.position, 20022, 0, 3),
-            ]
+        cpxapep.base.write_parameter.assert_called_with(
+            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
         )
+
+    @pytest.mark.parametrize("input_value", [-1, 3])
+    def test_configure_monitoring_load_supply_raise_error(self, input_value):
+        """Test configure_monitoring_load_supply and expect error"""
+        # Arrange
+        MODULE_POSITION = 0  # pylint: disable=invalid-name
+
+        cpxapep = CpxApEp()
+        cpxapep.position = MODULE_POSITION
+
+        cpxapep.base = Mock(write_parameter=Mock())
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            cpxapep.configure_monitoring_load_supply(input_value)

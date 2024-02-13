@@ -6,7 +6,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
 from cpx_io.cpx_system.cpx_e import cpx_e_registers
 from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DICT
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import bytes_to_boollist
 
 
 class CpxE(CpxBase):
@@ -65,19 +65,32 @@ class CpxE(CpxBase):
         :param value: Value to write to function number
         :type value: int
         """
-        self.write_reg_data(value, *cpx_e_registers.DATA_SYSTEM_TABLE_WRITE)
+        value_bytes = value.to_bytes(length=2, byteorder="little", signed=False)
+        self.write_reg_data(
+            value_bytes, cpx_e_registers.DATA_SYSTEM_TABLE_WRITE.register_address
+        )
         # need to write 0 first because there might be an
         # old unknown configuration in the register
-        self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
         self.write_reg_data(
-            self._control_bit_value | self._write_bit_value | function_number,
-            *cpx_e_registers.PROCESS_DATA_OUTPUTS,
+            b"\x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+        )
+
+        write_data = (
+            self._control_bit_value | self._write_bit_value | function_number
+        ).to_bytes(length=2, byteorder="little", signed=False)
+
+        self.write_reg_data(
+            write_data,
+            cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS)[0]
+            data = int.from_bytes(
+                self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS),
+                byteorder="little",
+            )
             its += 1
 
         if its >= 1000:
@@ -97,48 +110,64 @@ class CpxE(CpxBase):
         """
         # need to write 0 first because there might be an
         # old unknown configuration in the register
-        self.write_reg_data(0, *cpx_e_registers.PROCESS_DATA_OUTPUTS)
         self.write_reg_data(
-            self._control_bit_value | function_number,
-            *cpx_e_registers.PROCESS_DATA_OUTPUTS,
+            b"\0x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+        )
+
+        write_data = (self._control_bit_value | function_number).to_bytes(
+            length=2, byteorder="little", signed=False
+        )
+
+        self.write_reg_data(
+            write_data,
+            cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
-            data = self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS)[0]
+            data = int.from_bytes(
+                self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS),
+                byteorder="little",
+            )
             its += 1
 
         if its >= 1000:
             raise ConnectionError()
 
         data &= ~self._control_bit_value
-        value = self.read_reg_data(*cpx_e_registers.DATA_SYSTEM_TABLE_READ)
+        value = int.from_bytes(
+            self.read_reg_data(*cpx_e_registers.DATA_SYSTEM_TABLE_READ),
+            byteorder="little",
+        )
 
         Logging.logger.debug(
-            f"Read value {value[0]} from function number {function_number}"
+            f"Read value {value} from function number {function_number}"
         )
-        return value[0]
+        return value
 
     def module_count(self) -> int:
-        """reads the module configuratio register from the system
+        """reads the module configuration register from the system
 
         :returns: total module count
         :rtype: int
         """
-        data = self.read_reg_data(*cpx_e_registers.MODULE_CONFIGURATION)
+        data = int.from_bytes(
+            self.read_reg_data(*cpx_e_registers.MODULE_CONFIGURATION),
+            byteorder="little",
+        )
         Logging.logger.debug(f"Read {data} from MODULE_CONFIGURATION register")
-        return sum(d.bit_count() for d in data)
+        return data.bit_count()
 
     def fault_detection(self) -> list[bool]:
         """reads the fault detection register from the system
 
         :returns: list of bools with Errors (True = Error)
         :rtype: list[bool]"""
-        ret = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
-        data = ret[2] << 16 | ret[1] << 8 | ret[0]
+        data = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
+
         Logging.logger.debug(f"Read {data} from FAULT_DETECTION register")
-        return int_to_boollist(data, 3)
+        return bytes_to_boollist(data[:6], 3)
 
     def status_register(self) -> tuple:
         """reads the status register.
@@ -146,11 +175,12 @@ class CpxE(CpxBase):
         :returns: tuple (Write-protected, Force active)
         :rtype: tuple
         """
-        write_protect_bit = 1 << 11
-        force_active_bit = 1 << 15
+        write_protect_bit = 11
+        force_active_bit = 15
         data = self.read_reg_data(*cpx_e_registers.STATUS_REGISTER)
         Logging.logger.debug(f"Read {data} from STATUS_REGISTER register")
-        return (bool(data[0] & write_protect_bit), bool(data[0] & force_active_bit))
+        data = bytes_to_boollist(data)
+        return (data[write_protect_bit], data[force_active_bit])
 
     def read_device_identification(self) -> int:
         """reads device identification

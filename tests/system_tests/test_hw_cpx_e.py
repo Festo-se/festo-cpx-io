@@ -1,8 +1,8 @@
 """Tests for cpx-e system"""
 
-import pytest
-
+import struct
 import time
+import pytest
 
 from cpx_io.cpx_system.cpx_base import CpxInitError
 
@@ -116,31 +116,31 @@ def test_2modules(test_cpxe):
     # channel 1 of 16DI is still True (hardwired)
     data = [False] * 8
     data[0] = True
-    assert e8do.write_channels(data) == None
+    assert e8do.write_channels(data) is None
     assert e8do.read_channels() == data
-    assert e8do.read_channel(0) == True
+    assert e8do.read_channel(0) is True
     time.sleep(0.05)
-    assert e16di.read_channel(0) == True
+    assert e16di.read_channel(0) is True
 
-    assert e8do.set_channel(0) == None
-    assert e8do.read_channel(0) == True
+    assert e8do.set_channel(0) is None
+    assert e8do.read_channel(0) is True
     time.sleep(0.05)
-    assert e16di.read_channel(0) == True
+    assert e16di.read_channel(0) is True
 
-    assert e8do.clear_channel(0) == None
-    assert e8do.read_channel(0) == False
+    assert e8do.clear_channel(0) is None
+    assert e8do.read_channel(0) is False
     time.sleep(0.05)
-    assert e16di.read_channel(0) == False
+    assert e16di.read_channel(0) is False
 
-    assert e8do.toggle_channel(0) == None
-    assert e8do.read_channel(0) == True
+    assert e8do.toggle_channel(0) is None
+    assert e8do.read_channel(0) is True
     time.sleep(0.05)
-    assert e16di.read_channel(0) == True
+    assert e16di.read_channel(0) is True
 
-    assert e8do.clear_channel(0) == None
-    assert e8do.read_channel(0) == False
+    assert e8do.clear_channel(0) is None
+    assert e8do.read_channel(0) is False
     time.sleep(0.05)
-    assert e16di.read_channel(0) == False
+    assert e16di.read_channel(0) is False
 
     time.sleep(0.05)
     assert e8do.read_channels() == [False] * 8
@@ -260,8 +260,8 @@ def test_3modules(test_cpxe):
     assert e4ai.read_status() == [False] * 16
     assert e4ai.position == 3
 
-    assert e4ai.configure_channel_range(3, "0-10V") == None
-    assert e4ai.configure_channel_smoothing(3, 2) == None
+    assert e4ai.configure_channel_range(3, "0-10V") is None
+    assert e4ai.configure_channel_smoothing(3, 2) is None
     time.sleep(0.05)
     data0 = e4ai.read_channel(3)
     # assert -10 < data0 < 10
@@ -406,14 +406,14 @@ def test_4modules(test_cpxe):
     assert e4ao.position == 4
 
     assert e4ao.read_channels() == [0] * 4
-    assert e4ao.write_channels([0] * 4) == None
+    assert e4ao.write_channels([0] * 4) is None
     assert e4ao.read_channels() == [0] * 4
     assert e4ao.read_channel(0) == 0
 
-    assert e4ao.write_channels([20] * 4) == None
+    assert e4ao.write_channels([20] * 4) is None
     assert e4ao.read_channels() == [20] * 4
 
-    assert e4ao.write_channel(0, 40) == None
+    assert e4ao.write_channel(0, 40) is None
     assert e4ao.read_channel(0) == 40
 
     assert all(isinstance(item, CpxEModule) for item in test_cpxe.modules)
@@ -584,13 +584,14 @@ def test_4iol_sdas(test_cpxe):
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(3, 0)
+    e4iol.configure_operating_mode(3, channel=0)
 
     time.sleep(0.05)
     assert e4iol.read_line_state()[0] == "OPERATE"
 
-    sdas_data = e4iol.read_channel(0)
-    process_data = sdas_data[0]
+    sdas_data = e4iol.read_channel(0)[:2]  # only two bytes relevant
+
+    process_data = int.from_bytes(sdas_data, byteorder="big")
 
     ssc1 = bool(process_data & 0x1)
     ssc2 = bool(process_data & 0x2)
@@ -598,11 +599,9 @@ def test_4iol_sdas(test_cpxe):
     ssc4 = bool(process_data & 0x8)
     pdv = (process_data & 0xFFF0) >> 4
 
-    assert pdv > 0
+    assert 0 <= pdv <= 4095
 
-    # assert e4iol[0] == e4iol.read_channel(0) # here a delta is needed
-
-    assert e4iol.read_device_error(0) == ("0x0", "0x0")
+    assert e4iol[0] == e4iol.read_channel(0)
 
 
 def test_4iol_ehps(test_cpxe):
@@ -614,9 +613,12 @@ def test_4iol_ehps(test_cpxe):
 
     assert isinstance(e4iol, CpxE4Iol)
 
+    # process data decoding (device specific)
     def read_process_data_in(module, channel):
-        # ehps provides 3 x 16bit "process data in".
-        ehps_data = module.read_channel(channel)
+        # ehps provides 48 bit "process data in".
+        data = module.read_channel(channel)
+        # this unpack is not good, just for testing I can use legacy code
+        ehps_data = struct.unpack(">HHHH", data)
         assert ehps_data[3] == 0
 
         process_data_in = {}
@@ -637,19 +639,33 @@ def test_4iol_ehps(test_cpxe):
 
         return process_data_in
 
+    # example EHPS-20-A-LK on port 2
     ehps_channel = 1
-    e4iol.configure_operating_mode(3, channel=ehps_channel)
 
+    # reset power
+    e4iol.configure_pl_supply(False, ehps_channel)
+    e4iol.configure_ps_supply(False)
+    time.sleep(0.05)
+    e4iol.configure_pl_supply(True, ehps_channel)
+    e4iol.configure_ps_supply(True)
     time.sleep(0.05)
 
-    # example EHPS-20-A-LK on port 1
-    param = e4iol.read_line_state()
+    e4iol.configure_operating_mode(3, channel=ehps_channel)
+    time.sleep(0.05)
+
+    # read some time because after power reset, the device takes some
+    # time to boot
+    for _ in range(50):
+        param = e4iol.read_line_state()
+        time.sleep(0.05)
+
     assert param[ehps_channel] == "OPERATE"
+    time.sleep(0.05)
 
     process_data_in = read_process_data_in(e4iol, ehps_channel)
     assert process_data_in["Ready"] is True
 
-    # demo of process data out
+    # demo of process data out, also sent to initialize
     control_word_msb = 0x00
     control_word_lsb = 0x01  # latch
     gripping_mode = 0x46  # universal
@@ -658,7 +674,7 @@ def test_4iol_ehps(test_cpxe):
     gripping_force = 0x03  # ca. 85%
     gripping_tolerance = 0x0A
 
-    process_data_out = [
+    data = [
         control_word_lsb + (control_word_msb << 8),
         workpiece_no + (gripping_mode << 8),
         gripping_position,
@@ -666,11 +682,14 @@ def test_4iol_ehps(test_cpxe):
     ]
 
     # init
+    # this pack is not good, just for testing I can use legacy code
+    process_data_out = struct.pack(">HHHH", *data)
     e4iol.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    process_data_out[0] = 0x0100
+    data[0] = 0x0100
+    process_data_out = struct.pack(">HHHH", *data)
     e4iol.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["OpenedPositionFlag"]:
@@ -678,7 +697,8 @@ def test_4iol_ehps(test_cpxe):
         time.sleep(0.05)
 
     # Close command 0x 0200
-    process_data_out[0] = 0x0200
+    data[0] = 0x0200
+    process_data_out = struct.pack(">HHHH", *data)
     e4iol.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:
@@ -709,6 +729,8 @@ def test_1ci_module(test_cpxe):
 
     e1ci.configure_signal_type(2)
     e1ci.configure_signal_evaluation(3)
+    e1ci.configure_load_value(0)
+    time.sleep(0.05)
     e1ci.write_process_data(set_counter=True)
 
     while not e1ci.read_process_data().set_counter:

@@ -22,6 +22,11 @@ def convert_octett_to_uint32(octetts: str) -> int:
     )
 
 
+def convert_to_mac_string(values: list[int]) -> str:
+    """Convert list of uint8 to mac adderss string."""
+    return ":".join(format(x, "02x") for x in values)
+
+
 def module_list_from_typecode(typecode: str, module_id_dict: dict) -> list:
     """Creates a module list from a provided typecode."""
     module_list = []

@@ -1,9 +1,11 @@
 """Contains tests for CpxAp8Do class"""
+
 from unittest.mock import Mock, call
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
-from cpx_io.utils.boollist import boollist_to_int
+from cpx_io.utils.boollist import boollist_to_bytes
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class TestCpxAp8Do:
@@ -24,7 +26,7 @@ class TestCpxAp8Do:
         # Arrange
         cpxap8do = CpxAp8Do()
 
-        cpxap8do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap8do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
 
         # Act
         channel_values = cpxap8do.read_channels()
@@ -37,7 +39,7 @@ class TestCpxAp8Do:
         # Arrange
         cpxap8do = CpxAp8Do()
 
-        cpxap8do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap8do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
 
         # Act
         channel_values = [cpxap8do.read_channel(idx) for idx in range(8)]
@@ -50,7 +52,7 @@ class TestCpxAp8Do:
         # Arrange
         cpxap8do = CpxAp8Do()
 
-        cpxap8do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap8do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
 
         # Act
         channel_values = [cpxap8do[idx] for idx in range(8)]
@@ -68,7 +70,7 @@ class TestCpxAp8Do:
 
         # Act
         bool_list = [False, True, False, True, True, True, False, True]
-        data = boollist_to_int(bool_list)
+        data = boollist_to_bytes(bool_list)
 
         cpxap8do.write_channels(bool_list)
 
@@ -103,14 +105,14 @@ class TestCpxAp8Do:
         cpxap8do = CpxAp8Do()
 
         cpxap8do.base = Mock(write_reg_data=Mock())
-        cpxap8do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap8do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
         cpxap8do.output_register = 0
 
         # Act
         cpxap8do.write_channel(0, True)
 
         # Assert
-        cpxap8do.base.write_reg_data.assert_called_with(0xBB, 0)
+        cpxap8do.base.write_reg_data.assert_called_with(b"\xBB", 0)
 
     def test_set_item(self):
         """Test set item"""
@@ -137,14 +139,14 @@ class TestCpxAp8Do:
         cpxap8do = CpxAp8Do()
 
         cpxap8do.base = Mock(write_reg_data=Mock())
-        cpxap8do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap8do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
         cpxap8do.output_register = 0
 
         # Act
         cpxap8do.write_channel(1, False)
 
         # Assert
-        cpxap8do.base.write_reg_data.assert_called_with(0xB8, 0)
+        cpxap8do.base.write_reg_data.assert_called_with(b"\xB8", 0)
 
     def test_set_channel(self):
         """Test set channel"""
@@ -201,12 +203,11 @@ class TestCpxAp8Do:
         cpxap8do.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20022  # pylint: disable=invalid-name
         cpxap8do.configure_monitoring_load_supply(input_value)
 
         # Assert
         cpxap8do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -236,12 +237,11 @@ class TestCpxAp8Do:
         cpxap8do.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20052  # pylint: disable=invalid-name
         cpxap8do.configure_behaviour_in_fail_state(input_value)
 
         # Assert
         cpxap8do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 2])

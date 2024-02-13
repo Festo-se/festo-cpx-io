@@ -1,11 +1,13 @@
 """Contains tests for CpxAp4Iol class"""
+
 from unittest.mock import Mock, call, patch
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.utils.boollist import boollist_to_int
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 
 
 class TestCpxAp4Iol:
@@ -43,26 +45,25 @@ class TestCpxAp4Iol:
         cpxap4iol = CpxAp4Iol()
         cpxap4iol.position = MODULE_POSITION
 
-        cpxap4iol.base = Mock(read_parameter=Mock(return_value=[8201, 0]))
+        cpxap4iol.base = Mock()
+        cpxap4iol.base.read_parameter.side_effect = [8201, False]
 
         # Act
-        PARAMETER_ID_VARIANT = 20090  # pylint: disable=invalid-name
-        PARAMETER_ID_VOLTAGE = 20097  # pylint: disable=invalid-name
         params = cpxap4iol.read_ap_parameter()
 
         # Assert
         mock_read_ap_parameter.assert_called_once()
         cpxap4iol.base.read_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID_VARIANT, 0),
-                call(MODULE_POSITION, PARAMETER_ID_VOLTAGE, 0),
+                call(MODULE_POSITION, cpx_ap_parameters.VARIANT_SWITCH),
+                call(MODULE_POSITION, cpx_ap_parameters.SENSOR_SUPPLY_ENABLE),
             ],
             any_order=True,
         )
         assert params.io_link_variant == "CPX-AP-I-4IOL-M12 variant 8"
         assert params.operating_supply is False
 
-    def test_read_channels_correct_values(self):
+    def test_read_channels_correct_values_4byte(self):
         """Test read channels"""
         # Arrange
         cpxap4iol = CpxAp4Iol()
@@ -82,9 +83,10 @@ class TestCpxAp4Iol:
             product_key=0,
             order_text=0,
         )
-        v0, v1, v2, v3, v4, v5, v6, v7 = 0, 1, 2, 3, 4, 5, 6, 7
         cpxap4iol.base = Mock(
-            read_reg_data=Mock(return_value=[v0, v1, v2, v3, v4, v5, v6, v7])
+            read_reg_data=Mock(
+                return_value=b"\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00"
+            )
         )
 
         # Act
@@ -93,22 +95,10 @@ class TestCpxAp4Iol:
         # Assert
         # values are in byteorder: little
         assert channel_values == [
-            [
-                int.from_bytes(v0.to_bytes(2, byteorder="little"), byteorder="big"),
-                int.from_bytes(v1.to_bytes(2, byteorder="little"), byteorder="big"),
-            ],
-            [
-                int.from_bytes(v2.to_bytes(2, byteorder="little"), byteorder="big"),
-                int.from_bytes(v3.to_bytes(2, byteorder="little"), byteorder="big"),
-            ],
-            [
-                int.from_bytes(v4.to_bytes(2, byteorder="little"), byteorder="big"),
-                int.from_bytes(v5.to_bytes(2, byteorder="little"), byteorder="big"),
-            ],
-            [
-                int.from_bytes(v6.to_bytes(2, byteorder="little"), byteorder="big"),
-                int.from_bytes(v7.to_bytes(2, byteorder="little"), byteorder="big"),
-            ],
+            b"\x00\x00\x00\x00",
+            b"\x01\x00\x00\x00",
+            b"\x02\x00\x00\x00",
+            b"\x03\x00\x00\x00",
         ]
 
     def test_get_item_correct_values(self):
@@ -117,12 +107,12 @@ class TestCpxAp4Iol:
         cpxap4iol = CpxAp4Iol()
 
         cpxap4iol.base = Mock()
-        cpxap4iol.read_channel = Mock(return_value=[[0xDEAD], [0xBEEF]])
+        cpxap4iol.read_channel = Mock(return_value=b"\xAD\xDE\xEF\xBE")
         # Act
         channel_values = [cpxap4iol[idx] for idx in range(4)]
 
         # Assert
-        assert channel_values == [[[0xDEAD], [0xBEEF]]] * 4
+        assert channel_values == [b"\xAD\xDE\xEF\xBE"] * 4
 
     def test_read_channel_correct_value(self):
         """Test read_channel"""
@@ -132,10 +122,10 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock()
         cpxap4iol.read_channels = Mock(
             return_value=[
-                [[0xDEAD], [0xBEEF]],
-                [[0xDEAF], [0xCAFE]],
-                [[0xABCD], [0x1234]],
-                [[0xDEED], [0xBEEB]],
+                b"\x1D\xDE\xEF\xBE",
+                b"\x2D\xDE\xEF\xBE",
+                b"\x3D\xDE\xEF\xBE",
+                b"\x4D\xDE\xEF\xBE",
             ]
         )
         # Act
@@ -143,10 +133,10 @@ class TestCpxAp4Iol:
 
         # Assert
         assert channel_values == [
-            [[0xDEAD], [0xBEEF]],
-            [[0xDEAF], [0xCAFE]],
-            [[0xABCD], [0x1234]],
-            [[0xDEED], [0xBEEB]],
+            b"\x1D\xDE\xEF\xBE",
+            b"\x2D\xDE\xEF\xBE",
+            b"\x3D\xDE\xEF\xBE",
+            b"\x4D\xDE\xEF\xBE",
         ]
 
     @pytest.mark.parametrize("channel_number", [0, 1, 2, 3])
@@ -172,17 +162,12 @@ class TestCpxAp4Iol:
         )
         cpxap4iol.output_register = 0
 
-        data = [
-            int.from_bytes(x.to_bytes(2, byteorder="little"), byteorder="big")
-            for x in range(8)
-        ]
-
         # Act
-        cpxap4iol.write_channel(channel_number, list(range(8)))
+        cpxap4iol.write_channel(channel_number, b"\x00\x01\x02\x03")
 
         # Assert
         cpxap4iol.base.write_reg_data.assert_called_with(
-            data, cpxap4iol.output_register + 2 * channel_number
+            b"\x00\x01\x02\x03", cpxap4iol.output_register + 2 * channel_number
         )
 
     def test_set_item(self):
@@ -257,12 +242,11 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20022  # pylint: disable=invalid-name
         cpxap4iol.configure_monitoring_load_supply(input_value)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, input_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -296,16 +280,35 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20049  # pylint: disable=invalid-name
         cpxap4iol.configure_target_cycle_time(input_value)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 0, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID, 1, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID, 2, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID, 3, expected_value),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    expected_value,
+                    0,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    expected_value,
+                    1,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    expected_value,
+                    2,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    expected_value,
+                    3,
+                ),
             ]
         )
 
@@ -323,12 +326,11 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20049  # pylint: disable=invalid-name
         cpxap4iol.configure_target_cycle_time(input_value, 0)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.NOMINAL_CYCLE_TIME, expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [-1, 1])
@@ -362,16 +364,35 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20050  # pylint: disable=invalid-name
         cpxap4iol.configure_device_lost_diagnostics(input_value)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 0, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID, 1, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID, 2, expected_value),
-                call(MODULE_POSITION, PARAMETER_ID, 3, expected_value),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    expected_value,
+                    0,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    expected_value,
+                    1,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    expected_value,
+                    2,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    expected_value,
+                    3,
+                ),
             ]
         )
 
@@ -391,12 +412,14 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20050  # pylint: disable=invalid-name
         cpxap4iol.configure_device_lost_diagnostics(input_value, 0)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+            expected_value,
+            0,
         )
 
     @pytest.mark.parametrize(
@@ -413,12 +436,14 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20071  # pylint: disable=invalid-name
         cpxap4iol.configure_port_mode(input_value, 0)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.PORT_MODE,
+            expected_value,
+            0,
         )
 
     def test_configure_port_mode_more_channels(self):
@@ -432,15 +457,29 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20071  # pylint: disable=invalid-name
         cpxap4iol.configure_port_mode(0, [1, 2, 3])
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    0,
+                    1,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    0,
+                    2,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    0,
+                    3,
+                ),
             ]
         )
 
@@ -455,16 +494,35 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20071  # pylint: disable=invalid-name
         cpxap4iol.configure_port_mode(97)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 0, 97),
-                call(MODULE_POSITION, PARAMETER_ID, 1, 97),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 97),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 97),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    97,
+                    0,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    97,
+                    1,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    97,
+                    2,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.PORT_MODE,
+                    97,
+                    3,
+                ),
             ]
         )
 
@@ -499,12 +557,14 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20072  # pylint: disable=invalid-name
         cpxap4iol.configure_review_and_backup(input_value, 0)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.VALIDATION_AND_BACKUP,
+            expected_value,
+            0,
         )
 
     def test_configure_review_and_backup_more_channels(self):
@@ -518,15 +578,29 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20072  # pylint: disable=invalid-name
         cpxap4iol.configure_review_and_backup(0, [1, 2, 3])
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    0,
+                    1,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    0,
+                    2,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    0,
+                    3,
+                ),
             ]
         )
 
@@ -541,16 +615,35 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20072  # pylint: disable=invalid-name
         cpxap4iol.configure_review_and_backup(4)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 0, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 1, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 4),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    4,
+                    0,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    4,
+                    1,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    4,
+                    2,
+                ),
+                call(
+                    MODULE_POSITION,
+                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    4,
+                    3,
+                ),
             ]
         )
 
@@ -583,12 +676,11 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20073  # pylint: disable=invalid-name
         cpxap4iol.configure_target_vendor_id(input_value, 0)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, expected_value, 0
         )
 
     def test_configure_target_vendor_id_more_channels(self):
@@ -602,15 +694,14 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20073  # pylint: disable=invalid-name
         cpxap4iol.configure_target_vendor_id(0, [1, 2, 3])
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0, 1),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0, 2),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0, 3),
             ]
         )
 
@@ -625,16 +716,15 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20073  # pylint: disable=invalid-name
         cpxap4iol.configure_target_vendor_id(4)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 0, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 1, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 4),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 0),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 1),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 2),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 3),
             ]
         )
 
@@ -652,12 +742,11 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20080  # pylint: disable=invalid-name
         cpxap4iol.configure_setpoint_device_id(input_value, 0)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, expected_value, 0
         )
 
     def testconfigure_setpoint_device_id_more_channels(self):
@@ -671,15 +760,14 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20080  # pylint: disable=invalid-name
         cpxap4iol.configure_setpoint_device_id(0, [1, 2, 3])
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 1, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 0),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 0),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0, 1),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0, 2),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0, 3),
             ]
         )
 
@@ -694,16 +782,15 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20080  # pylint: disable=invalid-name
         cpxap4iol.configure_setpoint_device_id(4)
 
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, PARAMETER_ID, 0, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 1, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 2, 4),
-                call(MODULE_POSITION, PARAMETER_ID, 3, 4),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 0),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 1),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 2),
+                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 3),
             ]
         )
 
@@ -714,25 +801,25 @@ class TestCpxAp4Iol:
 
         cpxap4iol.base = Mock(read_parameter=Mock())
         cpxap4iol.base.read_parameter.side_effect = [
-            [0xCAFE],
-            [0xCAFE],
-            [0xCA02],
-            [0xCAFE],
-            [0xCAFE],
-            [0xDEAD, 0xBEEF],
-            [0xDEAD],
-            [0xBEEF],
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
         ] * 4
         cpxap4iol.input_register = 0
         expected = {
-            "Port status information": "PORT_POWER_OFF",
-            "Revision ID": 0xFE,
-            "Transmission rate": "COM2",
-            "Actual cycle time [in 100 us]": 0xCAFE,
-            "Actual vendor ID": 0xCAFE,
-            "Actual device ID": 0xBEEFDEAD,
-            "Input data length": 0xAD,
-            "Output data length": 0xEF,
+            "Port status information": "DEACTIVATED",
+            "Revision ID": 2,
+            "Transmission rate": "COM3",
+            "Actual cycle time [in 100 us]": 4,
+            "Actual vendor ID": 5,
+            "Actual device ID": 6,
+            "Input data length": 7,
+            "Output data length": 8,
         }
 
         # Act
@@ -747,20 +834,11 @@ class TestCpxAp4Iol:
         # Arange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        ISDU_STATUS = (34000, 1)  # pylint: disable=invalid-name
-        ISDU_COMMAND = (34001, 1)  # pylint: disable=invalid-name
-        ISDU_MODULE_NO = (34002, 1)  # pylint: disable=invalid-name
-        ISDU_CHANNEL = (34003, 1)  # pylint: disable=invalid-name
-        ISDU_INDEX = (34004, 1)  # pylint: disable=invalid-name
-        ISDU_SUBINDEX = (34005, 1)  # pylint: disable=invalid-name
-        ISDU_LENGTH = (34006, 1)  # pylint: disable=invalid-name
-        ISDU_DATA = (34007, 119)  # pylint: disable=invalid-name
-
         cpxap4iol = CpxAp4Iol()
         cpxap4iol.position = MODULE_POSITION
 
         cpxap4iol.base = Mock(write_reg_data=Mock())
-        cpxap4iol.base.read_reg_data = Mock(return_value=[0])
+        cpxap4iol.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
         isdu = cpxap4iol.read_isdu(input_value, input_value, input_value)
@@ -768,21 +846,33 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_reg_data.assert_has_calls(
             [
-                call(MODULE_POSITION + 1, *ISDU_MODULE_NO),
-                call(input_value + 1, *ISDU_CHANNEL),
-                call(input_value, *ISDU_INDEX),
-                call(input_value, *ISDU_SUBINDEX),
-                call(0, *ISDU_LENGTH),
-                call(100, *ISDU_COMMAND),
+                call(
+                    (MODULE_POSITION + 1).to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_MODULE_NO.register_address,
+                ),
+                call(
+                    (input_value + 1).to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_CHANNEL.register_address,
+                ),
+                call(
+                    input_value.to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_INDEX.register_address,
+                ),
+                call(
+                    input_value.to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_SUBINDEX.register_address,
+                ),
+                call(b"\x00\x00", cpx_ap_registers.ISDU_LENGTH.register_address),
+                call(b"\x64\x00", cpx_ap_registers.ISDU_COMMAND.register_address),
             ]
         )
         cpxap4iol.base.read_reg_data.assert_has_calls(
             [
-                call(*ISDU_STATUS),
-                call(*ISDU_DATA),
+                call(*cpx_ap_registers.ISDU_STATUS),
+                call(*cpx_ap_registers.ISDU_DATA),
             ]
         )
-        assert isdu == [0]
+        assert isdu == b"\x00\x00"
 
     @pytest.mark.parametrize("input_value", [0, 1, 10])
     def test_write_isdu(self, input_value):
@@ -790,39 +880,48 @@ class TestCpxAp4Iol:
         # Arange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        ISDU_STATUS = (34000, 1)  # pylint: disable=invalid-name
-        ISDU_COMMAND = (34001, 1)  # pylint: disable=invalid-name
-        ISDU_MODULE_NO = (34002, 1)  # pylint: disable=invalid-name
-        ISDU_CHANNEL = (34003, 1)  # pylint: disable=invalid-name
-        ISDU_INDEX = (34004, 1)  # pylint: disable=invalid-name
-        ISDU_SUBINDEX = (34005, 1)  # pylint: disable=invalid-name
-        ISDU_LENGTH = (34006, 1)  # pylint: disable=invalid-name
-        ISDU_DATA = (34007, 119)  # pylint: disable=invalid-name
-
         cpxap4iol = CpxAp4Iol()
         cpxap4iol.position = MODULE_POSITION
 
         cpxap4iol.base = Mock(write_reg_data=Mock())
-        cpxap4iol.base.read_reg_data = Mock(return_value=[0])
+        cpxap4iol.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        data = [1, 2, 3]
+        data = b"\x01\x02\x03\x04"
         cpxap4iol.write_isdu(data, input_value, input_value, input_value)
 
         # Assert
         cpxap4iol.base.write_reg_data.assert_has_calls(
             [
-                call(MODULE_POSITION + 1, *ISDU_MODULE_NO),
-                call(input_value + 1, *ISDU_CHANNEL),
-                call(input_value, *ISDU_INDEX),
-                call(input_value, *ISDU_SUBINDEX),
-                call(len(data) * 2, *ISDU_LENGTH),
-                call(data, *ISDU_DATA),
-                call(101, *ISDU_COMMAND),
+                call(
+                    (MODULE_POSITION + 1).to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_MODULE_NO.register_address,
+                ),
+                call(
+                    (input_value + 1).to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_CHANNEL.register_address,
+                ),
+                call(
+                    input_value.to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_INDEX.register_address,
+                ),
+                call(
+                    input_value.to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_SUBINDEX.register_address,
+                ),
+                call(
+                    len(data * 2).to_bytes(2, byteorder="little"),
+                    cpx_ap_registers.ISDU_LENGTH.register_address,
+                ),
+                call(
+                    data,
+                    cpx_ap_registers.ISDU_DATA.register_address,
+                ),
+                call(b"\x65\x00", cpx_ap_registers.ISDU_COMMAND.register_address),
             ]
         )
         cpxap4iol.base.read_reg_data.assert_has_calls(
             [
-                call(*ISDU_STATUS),
+                call(*cpx_ap_registers.ISDU_STATUS),
             ]
         )

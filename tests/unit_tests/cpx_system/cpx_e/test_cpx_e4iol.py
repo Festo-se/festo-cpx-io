@@ -1,4 +1,5 @@
 """Contains tests for cpx_e4iol class"""
+
 import pytest
 from unittest.mock import Mock, call
 
@@ -33,6 +34,7 @@ class TestCpxE4Iol:
     def test_configure(
         self, address_space, module_position, expected_insize, expected_outsize
     ):
+        """Test configure function"""
         # Arrange
         cpxe4iol = CpxE4Iol(address_space)
         mocked_base = Mock(next_input_register=0, next_output_register=0, modules=[])
@@ -51,7 +53,7 @@ class TestCpxE4Iol:
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.input_register = 0
-        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=[0xAAAA]))
+        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
         status = cpxe4iol.read_status()
@@ -64,14 +66,14 @@ class TestCpxE4Iol:
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=[0x00AB, 0x00CD, 0x00EF, 0x0012])
+            read_reg_data=Mock(return_value=b"\xA0\xA1\xB0\xB1\xC0\xC1\xD0\xD1")
         )
 
         # Act
         channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
 
         # Assert
-        assert channel_values == [[0xAB00], [0xCD00], [0xEF00], [0x1200]]
+        assert channel_values == [b"\xA0\xA1", b"\xB0\xB1", b"\xC0\xC1", b"\xD0\xD1"]
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.input_register, length=4
         )
@@ -82,24 +84,8 @@ class TestCpxE4Iol:
         cpxe4iol = CpxE4Iol(8)
         cpxe4iol.base = Mock(
             read_reg_data=Mock(
-                return_value=[
-                    0xA110,
-                    0xA111,
-                    0xA113,
-                    0xA114,
-                    0xB110,
-                    0xB111,
-                    0xB113,
-                    0xB114,
-                    0xC110,
-                    0xC111,
-                    0xC113,
-                    0xC114,
-                    0xD110,
-                    0xD111,
-                    0xD113,
-                    0xD114,
-                ]
+                return_value=b"\xA1\x10\xA1\x11\xA1\x13\xA1\x14\xB1\x10\xB1\x11\xB1\x13\xB1\x14"
+                b"\xC1\x10\xC1\x11\xC1\x13\xC1\x14\xD1\x10\xD1\x11\xD1\x13\xD1\x14"
             )
         )
 
@@ -108,10 +94,10 @@ class TestCpxE4Iol:
 
         # Assert
         assert channel_values == [
-            [0x10A1, 0x11A1, 0x13A1, 0x14A1],
-            [0x10B1, 0x11B1, 0x13B1, 0x14B1],
-            [0x10C1, 0x11C1, 0x13C1, 0x14C1],
-            [0x10D1, 0x11D1, 0x13D1, 0x14D1],
+            b"\xA1\x10\xA1\x11\xA1\x13\xA1\x14",
+            b"\xB1\x10\xB1\x11\xB1\x13\xB1\x14",
+            b"\xC1\x10\xC1\x11\xC1\x13\xC1\x14",
+            b"\xD1\x10\xD1\x11\xD1\x13\xD1\x14",
         ]
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.input_register, length=16
@@ -122,14 +108,14 @@ class TestCpxE4Iol:
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=[0x00AB, 0x00CD, 0x00EF, 0x0012])
+            read_reg_data=Mock(return_value=b"\x00\xAB\x00\xCD\x00\xEF\x00\x12")
         )
 
         # Act
         channel_values = [cpxe4iol[idx] for idx in range(4)]
 
         # Assert
-        assert channel_values == [[0xAB00], [0xCD00], [0xEF00], [0x1200]]
+        assert channel_values == [b"\x00\xAB", b"\x00\xCD", b"\x00\xEF", b"\x00\x12"]
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.input_register, length=4
         )
@@ -137,10 +123,10 @@ class TestCpxE4Iol:
     @pytest.mark.parametrize(
         "output_register, input_value, expected_value",
         [
-            (0, (0, [0xAB]), ([0xAB00], 0)),
-            (0, (1, [0xCD]), ([0xCD00], 1)),
-            (1, (0, [0xAB]), ([0xAB00], 1)),
-            (1, (1, [0xCD]), ([0xCD00], 2)),
+            (0, (0, b"\x00\xAB"), (b"\x00\xAB", 0)),
+            (0, (1, b"\x00\xCD"), (b"\x00\xCD", 1)),
+            (1, (0, b"\x00\xAB"), (b"\x00\xAB", 1)),
+            (1, (1, b"\x00\xCD"), (b"\x00\xCD", 2)),
         ],
     )
     def test_write_channel(self, output_register, input_value, expected_value):
@@ -164,11 +150,11 @@ class TestCpxE4Iol:
         cpxe4iol.base = Mock(write_reg_data=Mock())
 
         # Act
-        cpxe4iol[0] = [0xFE]
+        cpxe4iol[0] = b"\xFE\x00"
 
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
-            [0xFE00], cpxe4iol.output_register
+            b"\xFE\x00", cpxe4iol.output_register
         )
 
     @pytest.mark.parametrize(

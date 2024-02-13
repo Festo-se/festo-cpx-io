@@ -5,7 +5,8 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
@@ -28,10 +29,10 @@ class CpxAp8Di(CpxApModule):
         :return: Values of all channels
         :rtype: list[bool]
         """
-        data = self.base.read_reg_data(self.input_register)[0]
-        ret = int_to_boollist(data, 1)
-        Logging.logger.info(f"{self.name}: Reading channels: {ret}")
-        return ret
+        data = self.base.read_reg_data(self.input_register)
+        values = bytes_to_boollist(data)[:8]
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:
@@ -46,8 +47,7 @@ class CpxAp8Di(CpxApModule):
 
     @CpxBase.require_base
     def configure_debounce_time(self, value: int) -> None:
-        """
-        The "Input debounce time" parameter defines when an edge change of the sensor signal
+        """The "Input debounce time" parameter defines when an edge change of the sensor signal
         shall be assumed as a logical input signal. In this way, unwanted signal edge changes
         can be suppressed during switching operations (bouncing of the input signal).
 
@@ -60,12 +60,13 @@ class CpxAp8Di(CpxApModule):
         :param value: Debounce time for all channels in range 0..3 (see datasheet)
         :type value: int
         """
-        uid = 20014
 
         if not 0 <= value <= 3:
             raise ValueError(f"Value {value} must be between 0 and 3")
 
-        self.base.write_parameter(self.position, uid, 0, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, value
+        )
 
         value_str = ["0.1 ms", "3 ms", "10 ms", "20 ms"]
         Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")

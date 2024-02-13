@@ -3,9 +3,10 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
@@ -27,10 +28,10 @@ class CpxE4AiUI(CpxEModule):
         :return: Values of all channels
         :rtype: list[int]
         """
-        raw_data = self.base.read_reg_data(self.input_register, length=4)
-        data = [CpxBase.decode_int([x]) for x in raw_data]
-        Logging.logger.info(f"{self.name}: Reading channels: {data}")
-        return data
+        reg = self.base.read_reg_data(self.input_register, length=4)
+        values = list(struct.unpack("<" + "h" * (len(reg) // 2), reg))
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
@@ -38,8 +39,8 @@ class CpxE4AiUI(CpxEModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 4)[0]
-        ret = int_to_boollist(data, 2)
+        data = self.base.read_reg_data(self.input_register + 4)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
 
@@ -526,13 +527,11 @@ class CpxE4AiUI(CpxEModule):
                 )
 
         if isinstance(lower, int):
-            lower = CpxBase.encode_int(lower, data_type="int16")[0]
             value_lower_low_byte = lower & 0xFF
             value_lower_high_byte = (lower & 0xFF00) >> 8
         if isinstance(upper, int):
             value_upper_low_byte = upper & 0xFF
             value_upper_high_byte = (upper & 0xFF00) >> 8
-            upper = CpxBase.encode_int(upper, data_type="int16")[0]
 
         if lower is None and isinstance(upper, int):
             self.base.write_function_number(function_number_upper, value_upper_low_byte)

@@ -3,8 +3,10 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.logging import Logging
 
 
@@ -25,10 +27,10 @@ class CpxAp4AiUI(CpxApModule):
         :return: Values of all channels
         :rtype: list[int]
         """
-        raw_data = self.base.read_reg_data(self.input_register, length=4)
-        ret = [CpxBase.decode_int([i], data_type="int16") for i in raw_data]
-        Logging.logger.info(f"{self.name}: Reading channels: {ret}")
-        return ret
+        reg = self.base.read_reg_data(self.input_register, length=4)
+        values = list(struct.unpack("<" + "h" * (len(reg) // 2), reg))
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> int:
@@ -51,7 +53,6 @@ class CpxAp4AiUI(CpxApModule):
         :param unit: Channel unit. One of "C", "F", "K"
         :type unit: str
         """
-        uid = 20032
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
@@ -64,7 +65,9 @@ class CpxAp4AiUI(CpxApModule):
         if unit not in value:
             raise ValueError(f"'{unit}' is not an option. Choose from {value.keys()}")
 
-        self.base.write_parameter(self.position, uid, channel, value[unit])
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value[unit], channel
+        )
 
         Logging.logger.info(
             f"{self.name}: Setting channel {channel} temperature unit to {unit}"
@@ -91,7 +94,6 @@ class CpxAp4AiUI(CpxApModule):
         :param signalrange: Channel range string
         :type signalrange: str
         """
-        reg_id = 20043
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
@@ -113,7 +115,12 @@ class CpxAp4AiUI(CpxApModule):
                 f"'{signalrange}' is not an option. Choose from {value.keys()}"
             )
 
-        self.base.write_parameter(self.position, reg_id, channel, value[signalrange])
+        self.base.write_parameter(
+            self.position,
+            cpx_ap_parameters.CHANNEL_INPUT_MODE,
+            value[signalrange],
+            channel,
+        )
 
         Logging.logger.info(
             f"{self.name}: Setting channel {channel} range to {signalrange}"
@@ -138,9 +145,6 @@ class CpxAp4AiUI(CpxApModule):
 
         self.configure_linear_scaling(channel, True)
 
-        upper_id = 20044
-        lower_id = 20045
-
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
@@ -156,12 +160,23 @@ class CpxAp4AiUI(CpxApModule):
                 )
 
         if lower is None and isinstance(upper, int):
-            self.base.write_parameter(self.position, upper_id, channel, upper)
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, upper, channel
+            )
         elif upper is None and isinstance(lower, int):
-            self.base.write_parameter(self.position, lower_id, channel, lower)
+            self.base.write_parameter(
+                self.position,
+                cpx_ap_parameters.LOWER_THRESHOLD_VALUE,
+                lower,
+                channel,
+            )
         elif isinstance(upper, int) and isinstance(lower, int):
-            self.base.write_parameter(self.position, upper_id, channel, upper)
-            self.base.write_parameter(self.position, lower_id, channel, lower)
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, upper, channel
+            )
+            self.base.write_parameter(
+                self.position, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, lower, channel
+            )
         else:
             raise ValueError("Value must be given for upper, lower or both")
 
@@ -179,7 +194,6 @@ class CpxAp4AiUI(CpxApModule):
         :param value: Channel hysteresis limit in range 0 ... 65535
         :type value: int
         """
-        uid = 20046
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
@@ -187,7 +201,9 @@ class CpxAp4AiUI(CpxApModule):
         if not 0 <= value <= 0xFFFF:
             raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
 
-        self.base.write_parameter(self.position, uid, channel, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, value, channel
+        )
 
         Logging.logger.info(
             f"{self.name}: Setting channel {channel} hysteresis limit to {value}"
@@ -203,7 +219,6 @@ class CpxAp4AiUI(CpxApModule):
         :param value: Channel smoothing potency in range of 0 ... 16
         :type value: int
         """
-        uid = 20107
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
@@ -211,7 +226,9 @@ class CpxAp4AiUI(CpxApModule):
         if value not in range(16):
             raise ValueError(f"'{value}' is not an option")
 
-        self.base.write_parameter(self.position, uid, channel, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.SMOOTH_FACTOR, value, channel
+        )
 
         Logging.logger.info(
             f"{self.name}: Setting channel {channel} smoothing to {value}"
@@ -226,14 +243,15 @@ class CpxAp4AiUI(CpxApModule):
         :param value: Channel linear scaling activated (True) or deactivated (False)
         :type value: bool
         """
-        uid = 20111
         if not isinstance(value, bool):
             raise TypeError(f"State {value} must be of type bool (True or False)")
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        self.base.write_parameter(self.position, uid, channel, int(value))
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.LINEAR_SCALING_ENABLE, int(value), channel
+        )
 
         Logging.logger.info(
             f"{self.name}: Setting channel {channel} linear scaling to {value}"

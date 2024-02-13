@@ -1,11 +1,15 @@
 """CPX-AP module implementations"""
 
+import struct
+from typing import Any
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-from cpx_io.utils.helpers import div_ceil
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module_definitions import CPX_AP_MODULE_ID_LIST
+from cpx_io.cpx_system.cpx_ap.parameter_packing import parameter_pack, parameter_unpack
+from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
 
 
@@ -59,11 +63,14 @@ class CpxAp(CpxBase):
         :type timeout_ms: int
         """
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
-        registers = self.encode_int(timeout_ms, data_type="uint32")
-        self.write_reg_data(registers, *cpx_ap_registers.TIMEOUT)
+        registers = timeout_ms.to_bytes(length=4, byteorder="little", signed=False)
+        self.write_reg_data(registers, cpx_ap_registers.TIMEOUT.register_address)
+
         # Check if it actually succeeded
-        indata = self.decode_int(
-            self.read_reg_data(*cpx_ap_registers.TIMEOUT)[::-1], data_type="uint32"
+        indata = int.from_bytes(
+            self.read_reg_data(*cpx_ap_registers.TIMEOUT),
+            byteorder="little",
+            signed=False,
         )
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
@@ -102,9 +109,10 @@ class CpxAp(CpxBase):
         :return: Number of the total amount of connected modules
         :rtype: int
         """
-        ret = self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)[0]
-        Logging.logger.debug(f"Total module count: {ret}")
-        return ret
+        reg = self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)
+        value = int.from_bytes(reg, byteorder="little", signed=False)
+        Logging.logger.debug(f"Total module count: {value}")
+        return value
 
     def _module_offset(self, modbus_command: tuple, module: int) -> int:
         register, length = modbus_command
@@ -120,83 +128,106 @@ class CpxAp(CpxBase):
         """
 
         info = self.ModuleInformation(
-            module_code=CpxBase.decode_int(
+            module_code=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.MODULE_CODE, position)
                 ),
-                data_type="int32",
+                byteorder="little",
+                signed=False,
             ),
-            module_class=CpxBase.decode_int(
+            module_class=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.MODULE_CLASS, position)
                 ),
-                data_type="uint8",
+                byteorder="little",
+                signed=False,
             ),
-            communication_profiles=CpxBase.decode_int(
+            communication_profiles=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(
                         cpx_ap_registers.COMMUNICATION_PROFILE, position
                     )
                 ),
-                data_type="uint16",
+                byteorder="little",
+                signed=False,
             ),
-            input_size=CpxBase.decode_int(
+            input_size=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.INPUT_SIZE, position)
                 ),
-                data_type="uint16",
+                byteorder="little",
+                signed=False,
             ),
-            input_channels=CpxBase.decode_int(
+            input_channels=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.INPUT_CHANNELS, position)
                 ),
-                data_type="uint16",
+                byteorder="little",
+                signed=False,
             ),
-            output_size=CpxBase.decode_int(
+            output_size=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.OUTPUT_SIZE, position)
                 ),
-                data_type="uint16",
+                byteorder="little",
+                signed=False,
             ),
-            output_channels=CpxBase.decode_int(
+            output_channels=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.OUTPUT_CHANNELS, position)
                 ),
-                data_type="uint16",
+                byteorder="little",
+                signed=False,
             ),
-            hw_version=CpxBase.decode_int(
+            hw_version=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.HW_VERSION, position)
                 ),
-                data_type="uint8",
+                byteorder="little",
+                signed=False,
             ),
             fw_version=".".join(
                 str(x)
-                for x in self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.FW_VERSION, position)
+                for x in struct.unpack(
+                    "<HHH",
+                    self.read_reg_data(
+                        *self._module_offset(cpx_ap_registers.FW_VERSION, position)
+                    ),
                 )
             ),
-            serial_number=CpxBase.decode_hex(
-                self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.SERIAL_NUMBER, position)
+            serial_number=hex(
+                int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(cpx_ap_registers.SERIAL_NUMBER, position)
+                    ),
+                    byteorder="little",
+                    signed=False,
                 )
             ),
-            product_key=CpxBase.decode_string(
+            product_key=(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.PRODUCT_KEY, position)
                 )
+                .decode("ascii")
+                .strip("\x00")
             ),
-            order_text=CpxBase.decode_string(
+            order_text=(
                 self.read_reg_data(
                     *self._module_offset(cpx_ap_registers.ORDER_TEXT, position)
                 )
+                .decode("ascii")
+                .strip("\x00")
             ),
         )
         Logging.logger.debug(f"Reading ModuleInformation: {info}")
         return info
 
     def write_parameter(
-        self, position: int, param_id: int, instance: int, data: list | int | bool
+        self,
+        position: int,
+        parameter: cpx_ap_parameters.ApParameter,
+        data: list[int] | int | bool,
+        instance: int = 0,
     ) -> None:
         """Write parameters via module position, param_id, instance (=channel) and data to write
         Data must be a list of (signed) 16 bit values or one 16 bit (signed) value or bool
@@ -204,64 +235,19 @@ class CpxAp(CpxBase):
 
         :param position: Module position index starting with 0
         :type position: int
-        :param param_id: Parameter ID (see datasheet)
-        :type param_id: int
-        :param instance: Parameter Instance (typically used to define the channel, see datasheet)
-        :type instance: int
+        :param parameter: AP Parameter
+        :type parameter: ApParameter
         :param data: list of 16 bit signed integers, one signed 16 bit integer or bool to write
         :type data: list | int | bool
+        :param instance: Parameter Instance (typically used to define the channel, see datasheet)
+        :type instance: int
         """
-        if isinstance(data, list):
-            registers = [CpxBase.encode_int(d)[0] for d in data]
+        raw = parameter_pack(parameter, data)
+        self._write_parameter_raw(position, parameter.id, instance, raw)
 
-        elif isinstance(data, int):
-            registers = [CpxBase.encode_int(data)[0]]
-            data = [data]  # needed for validation check
-
-        elif isinstance(data, bool):
-            registers = [CpxBase.encode_int(data, data_type="bool")[0]]
-            data = [int(data)]  # needed for validation check
-
-        else:
-            raise ValueError("Data must be of type list, int or bool")
-
-        param_reg = cpx_ap_registers.PARAMETERS.register_address
-
-        # Strangely this sending has to be repeated several times,
-        # actually it is tried up to 10 times.
-        # This seems to work but it's not good
-        for i in range(10):
-            self.write_reg_data(position + 1, param_reg)
-            self.write_reg_data(param_id, param_reg + 1)
-            self.write_reg_data(instance, param_reg + 2)
-            self.write_reg_data(len(registers), param_reg + 3)
-
-            self.write_reg_data(registers, param_reg + 10, len(registers))
-
-            self.write_reg_data(2, param_reg + 3)  # 1=read, 2=write
-
-            exe_code = 0
-            while exe_code < 16:
-                exe_code = self.read_reg_data(param_reg + 3)[0]
-                # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-                if exe_code == 4:
-                    raise CpxRequestError
-
-            # Validation check according to datasheet
-            data_length = div_ceil(self.read_reg_data(param_reg + 4)[0], 2)
-            ret = self.read_reg_data(param_reg + 10, data_length)
-            ret = [CpxBase.decode_int([x], data_type="int16") for x in ret]
-
-            if all(r == d for r, d in zip(ret, data)):
-                break
-
-        if i >= 9:
-            raise CpxRequestError(
-                "Parameter might not have been written correctly after 10 tries"
-            )
-        Logging.logger.debug(f"Wrote data {data} to module position: {position}")
-
-    def read_parameter(self, position: int, param_id: int, instance: int) -> list[int]:
+    def _write_parameter_raw(
+        self, position: int, param_id: int, instance: int, data: bytes
+    ) -> None:
         """Read parameters via module position, param_id, instance (=channel)
         Raises "CpxRequestError" if request denied
 
@@ -271,32 +257,114 @@ class CpxAp(CpxBase):
         :type param_id: int
         :param instance: Parameter Instance (typically used to define the channel, see datasheet)
         :type instance: int
-        :return: Parameter data as list of int
-        :rtype: list[int]
+        :param data: data as bytes object
+        :type data: bytes
         """
 
         param_reg = cpx_ap_registers.PARAMETERS.register_address
+        module_index = position + 1  # indexing starts with 1 (see datasheet)
+        module_index = module_index.to_bytes(2, byteorder="little", signed=False)
+        param_id = param_id.to_bytes(2, byteorder="little", signed=False)
+        instance = instance.to_bytes(2, byteorder="little", signed=False)
+        # length in 16 bit registers
+        length = (len(data) // 2).to_bytes(2, byteorder="little", signed=False)
+        command = struct.pack("<H", 2)  # 1=read, 2=write
 
-        self.write_reg_data(
-            position + 1, param_reg
-        )  # module index starts with 1 on first module ("position" starts with 0)
+        # Strangely this sending has to be repeated several times,
+        # actually it is tried up to 10 times.
+        for i in range(10):
+            self.write_reg_data(module_index, param_reg)
+            self.write_reg_data(param_id, param_reg + 1)
+            self.write_reg_data(instance, param_reg + 2)
+            self.write_reg_data(length, param_reg + 3)
+            self.write_reg_data(data, param_reg + 10)
+
+            self.write_reg_data(command, param_reg + 3)  # 1=read, 2=write
+
+            exe_code = 0
+            while exe_code < 16:
+                exe_code = int.from_bytes(
+                    self.read_reg_data(param_reg + 3), byteorder="little", signed=False
+                )
+                # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+                if exe_code == 4:
+                    raise CpxRequestError
+
+            # Validation check according to datasheet
+            read_registers = self.read_reg_data(param_reg + 10, len(data) // 2)
+
+            if read_registers == data:
+                break
+
+        if i >= 9:
+            raise CpxRequestError(
+                "Parameter might not have been written correctly after 10 tries"
+            )
+        Logging.logger.debug(f"Wrote data {data} to module position: {position - 1}")
+
+    def read_parameter(
+        self,
+        position: int,
+        parameter: cpx_ap_parameters.ApParameter,
+        instance: int = 0,
+    ) -> Any:
+        """Read parameter
+
+        :param position: Module position index starting with 0
+        :type position: int
+        :param parameter: AP Parameter
+        :type parameter: ApParameter
+        :param instance: (optional) Parameter Instance (typically the channel, see datasheet)
+        :type instance: int
+        :return: Parameter value
+        :rtype: Any
+        """
+        raw = self._read_parameter_raw(position, parameter.id, instance)
+        data = parameter_unpack(parameter, raw)
+        return data
+
+    def _read_parameter_raw(self, position: int, param_id: int, instance: int) -> bytes:
+        """Read parameters via module position, param_id, instance (=channel)
+        Raises "CpxRequestError" if request denied
+
+        :param position: Module position index starting with 0
+        :type position: int
+        :param param_id: Parameter ID (see datasheet)
+        :type param_id: int
+        :param instance: Parameter Instance (typically used to define the channel, see datasheet)
+        :type instance: int
+        :return: Parameter register values
+        :rtype: bytes
+        """
+
+        param_reg = cpx_ap_registers.PARAMETERS.register_address
+        module_index = position + 1  # indexing starts with 1 (see datasheet)
+        module_index = module_index.to_bytes(2, byteorder="little", signed=False)
+        param_id = param_id.to_bytes(2, byteorder="little", signed=False)
+        instance = instance.to_bytes(2, byteorder="little", signed=False)
+        command = struct.pack("<H", 1)  # 1=read, 2=write
+
+        self.write_reg_data(module_index, param_reg)
         self.write_reg_data(param_id, param_reg + 1)
         self.write_reg_data(instance, param_reg + 2)
 
-        self.write_reg_data(1, param_reg + 3)  # 1=read, 2=write
+        self.write_reg_data(command, param_reg + 3)
 
+        # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
         exe_code = 0
         while exe_code < 16:
-            exe_code = self.read_reg_data(param_reg + 3)[
-                0
-            ]  # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            exe_code = int.from_bytes(
+                self.read_reg_data(param_reg + 3), byteorder="little", signed=False
+            )
             if exe_code == 4:
                 raise CpxRequestError
 
-        # data_length from register 10004 is bytewise. 2 bytes = 1 register.
-        data_length = div_ceil(self.read_reg_data(param_reg + 4)[0], 2)
+        # get datalength from register 10004
+        data_length = div_ceil(
+            int.from_bytes(
+                self.read_reg_data(param_reg + 4), byteorder="little", signed=False
+            ),
+            2,
+        )
 
-        data = self.read_reg_data(param_reg + 10, data_length)
-
-        Logging.logger.debug(f"Read data {data} from module position: {position}")
-        return data
+        return self.read_reg_data(param_reg + 10, data_length)

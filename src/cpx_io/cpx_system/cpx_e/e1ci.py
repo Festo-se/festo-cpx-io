@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.logging import Logging
 
 
@@ -27,7 +27,7 @@ class CpxE1Ci(CpxEModule):
         di1: bool
         di2: bool
         di3: bool
-        _: None
+        _: None  # spacer for not-used bit
         latchin_missed: bool
         latching_set: bool
         latching_blocked: bool
@@ -69,7 +69,7 @@ class CpxE1Ci(CpxEModule):
         :return: counter value or speed
         :rtype: int"""
         reg = self.base.read_reg_data(self.input_register, length=2)
-        value = CpxBase.decode_int(reg, data_type="uint32")
+        value = int.from_bytes(reg, byteorder="little")
 
         Logging.logger.info(f"{self.name}: Read counter/speed value: {value}")
         return value
@@ -81,7 +81,7 @@ class CpxE1Ci(CpxEModule):
         :return: latching value
         :rtype: int"""
         reg = self.base.read_reg_data(self.input_register + 2, length=2)
-        value = CpxBase.decode_int(reg, data_type="uint32")
+        value = int.from_bytes(reg, byteorder="little")
 
         Logging.logger.info(f"{self.name}: Read latching value: {value}")
         return value
@@ -92,13 +92,12 @@ class CpxE1Ci(CpxEModule):
 
         :return: status word
         :rtype: StatusWord"""
-        reg = self.base.read_reg_data(self.input_register + 4)[0]
+        reg = self.base.read_reg_data(self.input_register + 4)
 
-        sw = self.StatusWord
+        sw = self.StatusWord.from_bytes(reg)
 
-        ret = sw.from_int(reg)
-        Logging.logger.info(f"{self.name}: Read status word: {ret}")
-        return ret
+        Logging.logger.info(f"{self.name}: Read status word: {sw}")
+        return sw
 
     @CpxBase.require_base
     def read_process_data(self) -> ProcessData:
@@ -107,13 +106,12 @@ class CpxE1Ci(CpxEModule):
         :return: process data
         :rtype: ProcessData"""
         # echo output data bit 0 ... 15 are in input_register + 6
-        reg = self.base.read_reg_data(self.input_register + 6)[0]
+        reg = self.base.read_reg_data(self.input_register + 6)
 
-        pd = self.ProcessData
+        pd = self.ProcessData.from_bytes(reg[:1])  # take only first byte
 
-        ret = pd.from_int(reg)
-        Logging.logger.info(f"{self.name}: Read process data: {ret}")
-        return ret
+        Logging.logger.info(f"{self.name}: Read process data: {pd}")
+        return pd
 
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:
@@ -132,17 +130,17 @@ class CpxE1Ci(CpxEModule):
         process_data = self.read_process_data()
         pd_updated_dict = {**process_data.__dict__, **kwargs}
 
-        data = (
-            (int(pd_updated_dict.get("enable_setting_di2")) << 0)
-            | (int(pd_updated_dict.get("enable_setting_zero")) << 1)
-            | (int(pd_updated_dict.get("set_counter")) << 2)
-            | (int(pd_updated_dict.get("block_counter")) << 3)
-            | (int(pd_updated_dict.get("overrun_cl_confirm")) << 4)
-            | (int(pd_updated_dict.get("speed_measurement")) << 5)
-            | (int(pd_updated_dict.get("confirm_latching")) << 6)
-            | (int(pd_updated_dict.get("block_latching")) << 7)
-        )
-        reg_data = CpxBase.decode_int([data])
+        data = [
+            pd_updated_dict.get("enable_setting_di2"),
+            pd_updated_dict.get("enable_setting_zero"),
+            pd_updated_dict.get("set_counter"),
+            pd_updated_dict.get("block_counter"),
+            pd_updated_dict.get("overrun_cl_confirm"),
+            pd_updated_dict.get("speed_measurement"),
+            pd_updated_dict.get("confirm_latching"),
+            pd_updated_dict.get("block_latching"),
+        ]
+        reg_data = boollist_to_bytes(data)
         self.base.write_reg_data(reg_data, self.output_register)
 
         Logging.logger.info(f"{self.name}: Write process data {kwargs}")
@@ -153,9 +151,9 @@ class CpxE1Ci(CpxEModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 7)[0]
+        data = self.base.read_reg_data(self.input_register + 7)
 
-        ret = int_to_boollist(data, num_bytes=2)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Read status {ret}")
         return ret
 
@@ -389,12 +387,10 @@ class CpxE1Ci(CpxEModule):
         function_number = 4828 + 64 * self.position + 16
 
         if value in range(2**32):
-            regs = CpxBase.encode_int(value, data_type="uint32")
-
-            self.base.write_function_number(function_number + 0, regs[1] & 0xFF)
-            self.base.write_function_number(function_number + 1, regs[1] >> 8)
-            self.base.write_function_number(function_number + 2, regs[0] & 0xFF)
-            self.base.write_function_number(function_number + 3, regs[0] >> 8)
+            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         else:
             raise ValueError(f"Value {value} must be in range 0 ... (2^32 - 1)")
@@ -416,12 +412,10 @@ class CpxE1Ci(CpxEModule):
         function_number = 4828 + 64 * self.position + 20
 
         if value in range(2**32):
-            regs = CpxBase.encode_int(value, data_type="uint32")
-
-            self.base.write_function_number(function_number + 0, regs[1] & 0xFF)
-            self.base.write_function_number(function_number + 1, regs[1] >> 8)
-            self.base.write_function_number(function_number + 2, regs[0] & 0xFF)
-            self.base.write_function_number(function_number + 3, regs[0] >> 8)
+            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         else:
             raise ValueError(f"Value {value} must be in range 0 ... 2^32")
@@ -441,12 +435,10 @@ class CpxE1Ci(CpxEModule):
         function_number = 4828 + 64 * self.position + 24
 
         if value in range(2**32):
-            regs = CpxBase.encode_int(value, data_type="uint32")
-            # divide in 8 bit registers
-            self.base.write_function_number(function_number + 0, regs[1] & 0xFF)
-            self.base.write_function_number(function_number + 1, regs[1] >> 8)
-            self.base.write_function_number(function_number + 2, regs[0] & 0xFF)
-            self.base.write_function_number(function_number + 3, regs[0] >> 8)
+            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         else:
             raise ValueError(f"Value {value} must be in range 0 ... 2^32")

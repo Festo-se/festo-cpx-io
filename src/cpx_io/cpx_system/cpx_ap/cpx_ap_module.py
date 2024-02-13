@@ -5,6 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import div_ceil
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class CpxApModule(CpxModule):
@@ -20,8 +21,8 @@ class CpxApModule(CpxModule):
         firmware_version: str
         module_code: int
         temp_asic: int
-        logic_voltage: int
-        load_voltage: int
+        logic_voltage: float
+        load_voltage: float
         hw_version: int
         io_link_variant: str = "n.a."
         operating_supply: bool = False
@@ -51,29 +52,31 @@ class CpxApModule(CpxModule):
         :rtype: ApParameters
         """
         params = self.ApParameters(
-            fieldbus_serial_number=CpxBase.decode_int(
-                self.base.read_parameter(self.position, 246, 0), data_type="uint32"
+            fieldbus_serial_number=self.base.read_parameter(
+                self.position, cpx_ap_parameters.FIELDBUS_SERIAL_NUMBER
             ),
-            product_key=CpxBase.decode_string(
-                self.base.read_parameter(self.position, 791, 0)
+            product_key=self.base.read_parameter(
+                self.position, cpx_ap_parameters.PRODUCT_KEY
             ),
-            firmware_version=CpxBase.decode_string(
-                self.base.read_parameter(self.position, 960, 0)
+            firmware_version=self.base.read_parameter(
+                self.position, cpx_ap_parameters.FIRMWARE_VERSION_STRING
             ),
-            module_code=CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20000, 0), data_type="uint32"
+            module_code=self.base.read_parameter(
+                self.position, cpx_ap_parameters.MODULE_CODE
             ),
-            temp_asic=CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20085, 0), data_type="int16"
+            temp_asic=self.base.read_parameter(
+                self.position, cpx_ap_parameters.TEMPERATURE_VALUE_ASIC
             ),
-            logic_voltage=CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20087, 0), data_type="uint16"
-            ),
-            load_voltage=CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20088, 0), data_type="uint16"
-            ),
-            hw_version=CpxBase.decode_int(
-                self.base.read_parameter(self.position, 20093, 0), data_type="uint8"
+            logic_voltage=self.base.read_parameter(
+                self.position, cpx_ap_parameters.U_ELSEN_VALUE
+            )
+            / 1000.0,
+            load_voltage=self.base.read_parameter(
+                self.position, cpx_ap_parameters.U_LOAD_VALUE
+            )
+            / 1000.0,
+            hw_version=self.base.read_parameter(
+                self.position, cpx_ap_parameters.HARDWARE_VERSION
             ),
         )
         Logging.logger.info(f"{self.name}: Reading AP parameters: {params}")

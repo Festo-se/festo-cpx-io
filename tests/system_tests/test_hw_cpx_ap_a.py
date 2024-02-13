@@ -2,11 +2,11 @@
 
 import time
 import pytest
+import struct
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_base import CpxBase
-
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
@@ -14,6 +14,7 @@ from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
 from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
+from cpx_io.utils.boollist import bytes_to_boollist
 
 
 @pytest.fixture(scope="function")
@@ -33,17 +34,18 @@ def test_module_count(test_cpxap):
     assert test_cpxap.read_module_count() == 6
 
 
-def test_timeout(test_cpxap):
+def test_default_timeout(test_cpxap):
     "test timeout"
-    reg = test_cpxap.read_reg_data(14000, 2)[::-1]
-    assert CpxBase.decode_int(reg, data_type="uint32") == 100
+    reg = test_cpxap.read_reg_data(14000, 2)
+    value = int.from_bytes(reg, byteorder="little", signed=False)
+    assert value == 100
 
 
 def test_set_timeout():
     "test timeout"
     with CpxAp(ip_address="172.16.1.41", timeout=0.5) as cpxap:
-        reg = cpxap.read_reg_data(14000, 2)[::-1]
-        assert CpxBase.decode_int(reg, data_type="uint32") == 500
+        reg = cpxap.read_reg_data(14000, 2)
+        assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
 def test_read_module_information(test_cpxap):
@@ -111,7 +113,7 @@ def test_16Di(test_cpxap):
     assert test_cpxap.modules[1].read_channels() == [False] * 16
 
 
-def test_8Di_configure(test_cpxap):
+def test_16Di_configure(test_cpxap):
     test_cpxap.modules[1].configure_debounce_time(1)
 
 
@@ -174,7 +176,7 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param.dhcp_enable is False
+    assert param.dhcp_enable is True
     assert param.active_ip_address == "172.16.1.42"
     assert param.active_subnet_mask == "255.255.255.0"
     assert param.active_gateway_address == "0.0.0.0"
@@ -182,36 +184,51 @@ def test_ep_param_read(test_cpxap):
     assert param.setup_monitoring_load_supply == 1
 
 
+def test_ep_configure(test_cpxap):
+    ep = test_cpxap.modules[0]
+
+    ep.configure_monitoring_load_supply(0)
+    time.sleep(0.05)
+    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+
+    ep.configure_monitoring_load_supply(2)
+    time.sleep(0.05)
+    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+
+    ep.configure_monitoring_load_supply(1)
+    time.sleep(0.05)
+    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+
+
 def test_12Di4Do_configures(test_cpxap):
-    a4di4do = test_cpxap.modules[2]
-    assert isinstance(a4di4do, CpxAp12Di4Do)
+    idx = 2
+    a12di4do = test_cpxap.modules[idx]
+    assert isinstance(a12di4do, CpxAp12Di4Do)
     time.sleep(0.05)
 
-    a4di4do.configure_debounce_time(3)
+    a12di4do.configure_debounce_time(3)
     time.sleep(0.05)
-    assert CpxBase.decode_int(a4di4do.base.read_parameter(2, 20014, 0)) == 3
+    assert a12di4do.base.read_parameter(idx, cpx_ap_parameters.INPUT_DEBOUNCE_TIME) == 3
 
-    a4di4do.configure_monitoring_load_supply(2)
+    a12di4do.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        CpxBase.decode_int(a4di4do.base.read_parameter(2, 20022, 0), data_type="uint8")
-        == 2
+        a12di4do.base.read_parameter(idx, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
     )
 
-    a4di4do.configure_behaviour_in_fail_state(1)
+    a12di4do.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        CpxBase.decode_int(a4di4do.base.read_parameter(2, 20052, 0), data_type="uint8")
-        == 1
+        a12di4do.base.read_parameter(idx, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
     )
 
     time.sleep(0.05)
     # reset to default
-    a4di4do.configure_debounce_time(1)
+    a12di4do.configure_debounce_time(1)
     time.sleep(0.05)
-    a4di4do.configure_monitoring_load_supply(1)
+    a12di4do.configure_monitoring_load_supply(1)
     time.sleep(0.05)
-    a4di4do.configure_behaviour_in_fail_state(0)
+    a12di4do.configure_behaviour_in_fail_state(0)
 
 
 def test_getter(test_cpxap):
@@ -275,12 +292,9 @@ def test_4iol_sdas(test_cpxap):
     param = a4iol.read_fieldbus_parameters()
     assert param[0]["Port status information"] == "OPERATE"
 
-    sdas_data = a4iol.read_channel(0)
-    process_data = sdas_data[0]
+    sdas_data = a4iol.read_channel(0)[:2]  # only two bytes relevant
 
-    assert sdas_data[1] == 0
-    assert sdas_data[2] == 0
-    assert sdas_data[3] == 0
+    process_data = int.from_bytes(sdas_data, byteorder="big")
 
     ssc1 = bool(process_data & 0x1)
     ssc2 = bool(process_data & 0x2)
@@ -300,7 +314,9 @@ def test_4iol_ehps(test_cpxap):
 
     def read_process_data_in(module, channel):
         # ehps provides 3 x 16bit "process data in".
-        ehps_data = module.read_channel(channel)
+        data = module.read_channel(channel)
+        # this unpack is not good, just for testing I can use legacy code
+        ehps_data = struct.unpack(">HHHH", data)
         assert ehps_data[3] == 0
 
         process_data_in = {}
@@ -321,12 +337,12 @@ def test_4iol_ehps(test_cpxap):
 
         return process_data_in
 
+    # example EHPS-20-A-LK on port 1
     ehps_channel = 1
     a4iol.configure_port_mode(2, channel=ehps_channel)
 
     time.sleep(0.05)
 
-    # example EHPS-20-A-LK on port 1
     param = a4iol.read_fieldbus_parameters()
     assert param[ehps_channel]["Port status information"] == "OPERATE"
 
@@ -342,7 +358,7 @@ def test_4iol_ehps(test_cpxap):
     gripping_force = 0x03  # ca. 85%
     gripping_tolerance = 0x0A
 
-    process_data_out = [
+    data = [
         control_word_lsb + (control_word_msb << 8),
         workpiece_no + (gripping_mode << 8),
         gripping_position,
@@ -350,11 +366,14 @@ def test_4iol_ehps(test_cpxap):
     ]
 
     # init
+    # this pack is not good, just for testing I can use legacy code
+    process_data_out = struct.pack(">HHHH", *data)
     a4iol.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    process_data_out[0] = 0x0100
+    data[0] = 0x0100
+    process_data_out = struct.pack(">HHHH", *data)
     a4iol.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["OpenedPositionFlag"]:
@@ -362,7 +381,8 @@ def test_4iol_ehps(test_cpxap):
         time.sleep(0.05)
 
     # Close command 0x 0200
-    process_data_out[0] = 0x0200
+    data[0] = 0x0200
+    process_data_out = struct.pack(">HHHH", *data)
     a4iol.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:
@@ -381,16 +401,18 @@ def test_4iol_ethrottle(test_cpxap):
     def read_process_data_in(module, channel):
         data = module.read_channel(channel)
         # register order is [msb, ... , ... , lsb]
+        # this unpack is not good, just for testing I can use legacy code
+        data = struct.unpack(">Q", data)[0]
         process_input_data = {
-            "Actual Position": data[3],
-            "Homing Valid": bool(data[3] & 0b1000),
-            "Motion Complete": bool(data[3] & 0b100),
-            "Proximity Switch": bool(data[3] & 0b10),
-            "Reduced Speed": bool(data[3] & 0b1000),
+            "Actual Position": data,
+            "Homing Valid": bool(data & 0b1000),
+            "Motion Complete": bool(data & 0b100),
+            "Proximity Switch": bool(data & 0b10),
+            "Reduced Speed": bool(data & 0b1000),
         }
         return process_input_data
 
-    ethrottle_channel = 3
+    ethrottle_channel = 2
 
     a4iol.configure_port_mode(2, channel=ethrottle_channel)
 
@@ -402,13 +424,15 @@ def test_4iol_ethrottle(test_cpxap):
     process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
     if not process_input_data["Homing Valid"]:
-        process_output_data = [0, 0, 0, 1]
+        process_output_data = [1]
+        process_output_data = struct.pack(">Q", *process_output_data)
         a4iol.write_channel(ethrottle_channel, process_output_data)
 
         while not process_input_data["Homing Valid"]:
             process_input_data = read_process_data_in(a4iol, ethrottle_channel)
 
-    process_output_data = [0, 0, 0, 0x0F00]  # setpoint 0x0F
+    process_output_data = [0xF00]  # setpoint 0xF00
+    process_output_data = struct.pack(">Q", *process_output_data)
     a4iol.write_channel(ethrottle_channel, process_output_data)
 
     time.sleep(0.1)
@@ -420,19 +444,216 @@ def test_4iol_ethrottle(test_cpxap):
 def test_4iol_ethrottle_isdu_read(test_cpxap):
     a4iol = test_cpxap.modules[5]
     assert isinstance(a4iol, CpxAp4Iol)
-    ethrottle_channel = 3
+    ethrottle_channel = 2
 
-    assert (
-        CpxBase.decode_string(a4iol.read_isdu(ethrottle_channel, 16, 0)[:32])
-        == "Festo SE & Co. KG"
-    )
+    assert (a4iol.read_isdu(ethrottle_channel, 16, 0)[:17]) == b"Festo SE & Co. KG"
 
 
 def test_4iol_ethrottle_isdu_write(test_cpxap):
     a4iol = test_cpxap.modules[5]
     assert isinstance(a4iol, CpxAp4Iol)
-    ethrottle_channel = 3
+    ethrottle_channel = 2
     function_tag_idx = 25
-    a4iol.write_isdu([1, 2, 3, 4], ethrottle_channel, function_tag_idx, 0)
+    a4iol.write_isdu(b"\x01\x02\x03\x04", ethrottle_channel, function_tag_idx, 0)
 
-    assert a4iol.read_isdu(ethrottle_channel, function_tag_idx, 0)[:4] == [1, 2, 3, 4]
+    assert (
+        a4iol.read_isdu(ethrottle_channel, function_tag_idx, 0)[:4]
+        == b"\x01\x02\x03\x04"
+    )
+
+
+def test_4iol_configure_monitoring_load_supply(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_monitoring_load_supply(0)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+
+    a4iol.configure_monitoring_load_supply(1)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+
+    a4iol.configure_monitoring_load_supply(2)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+
+    a4iol.configure_monitoring_load_supply(1)
+
+
+def test_4iol_configure_target_cycle_time(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+
+    time.sleep(0.05)
+    a4iol.configure_target_cycle_time(16, channel=0)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 16
+
+    a4iol.configure_target_cycle_time(73, channel=[1, 2])
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 73
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 73
+
+    a4iol.configure_target_cycle_time(158)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 158
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 158
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 158
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 3) == 158
+
+    a4iol.configure_target_cycle_time(0)
+
+
+def test_4iol_configure_device_lost_diagnostics(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
+
+    a4iol.configure_device_lost_diagnostics(False, channel=0)
+    time.sleep(0.05)
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE)
+        is False
+    )
+
+    a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
+    time.sleep(0.05)
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 1)
+        is False
+    )
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 2)
+        is False
+    )
+
+    a4iol.configure_device_lost_diagnostics(False)
+    time.sleep(0.05)
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 0)
+        is False
+    )
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 1)
+        is False
+    )
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 2)
+        is False
+    )
+    assert (
+        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 3)
+        is False
+    )
+
+    a4iol.configure_device_lost_diagnostics(True)
+
+
+def test_4iol_configure_port_mode(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
+
+    a4iol.configure_port_mode(0, channel=0)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 0) == 0
+
+    a4iol.configure_port_mode(3, channel=[1, 2])
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 1) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 2) == 3
+
+    a4iol.configure_port_mode(97)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 0) == 97
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 1) == 97
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 2) == 97
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 3) == 97
+
+    a4iol.configure_port_mode(0)
+
+
+def test_4iol_configure_review_and_backup(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
+
+    a4iol.configure_review_and_backup(1, channel=0)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 1
+
+    a4iol.configure_review_and_backup(2, channel=[1, 2])
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 2
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 2
+
+    a4iol.configure_review_and_backup(3)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 3) == 3
+
+    a4iol.configure_review_and_backup(0)
+
+
+def test_4iol_configure_target_vendor_id(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
+
+    a4iol.configure_target_vendor_id(1, channel=0)
+    time.sleep(0.05)
+    a4iol.configure_port_mode(1, channel=0)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0) == 1
+
+    a4iol.configure_target_vendor_id(2, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[1, 2])
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 1) == 2
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 2) == 2
+
+    a4iol.configure_target_vendor_id(3)
+    a4iol.configure_port_mode(1)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 1) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 2) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 3) == 3
+
+    a4iol.configure_target_vendor_id(0)
+    a4iol.configure_port_mode(0)
+
+
+def test_4iol_configure_setpoint_device_id(test_cpxap):
+    a4iol = test_cpxap.modules[5]
+    assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
+
+    a4iol.configure_setpoint_device_id(1, channel=0)
+    time.sleep(0.05)
+    a4iol.configure_port_mode(1, channel=0)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 1
+
+    a4iol.configure_setpoint_device_id(2, channel=[1, 2])
+    time.sleep(0.05)
+    a4iol.configure_port_mode(1, channel=[1, 2])
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 2
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 2
+
+    a4iol.configure_setpoint_device_id(3)
+    time.sleep(0.05)
+    a4iol.configure_port_mode(1)
+    time.sleep(0.05)
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 3
+    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 3) == 3
+
+    a4iol.configure_setpoint_device_id(0)
+    time.sleep(0.05)
+    a4iol.configure_port_mode(0)

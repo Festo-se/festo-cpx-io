@@ -35,20 +35,3 @@ def boollist_to_bytes(boollist: list):
         for chunk in chunkedlist
     ]
     return bytes(intlist)
-
-
-def int_to_boollist(data: int, num_bytes: int = None):
-    """Converts integer data to a list of bools"""
-    if num_bytes is None:
-        # round up to nearest whole byte
-        num_bytes = (data.bit_length() + 7) // 8
-
-    return [d == "1" for d in bin(data)[2:].zfill(num_bytes * 8)[::-1]]
-
-
-def boollist_to_int(boollist: list):
-    """Converts list of bools to integer"""
-    # Make binary from list of bools
-    binary_string = "".join("1" if value else "0" for value in reversed(boollist))
-    # Convert the binary string to an integer
-    return int(binary_string, 2)
