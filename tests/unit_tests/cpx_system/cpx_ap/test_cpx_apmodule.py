@@ -1,4 +1,5 @@
 """Contains tests for TestCpxApModule class"""
+
 from unittest.mock import Mock
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
@@ -29,7 +30,7 @@ class TestCpxApModule:
         mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
 
         # Act
-        MODULE_POSITION = 1
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
         module.configure(mocked_base, MODULE_POSITION)
 
         # Assert
@@ -52,20 +53,22 @@ class TestCpxApModule:
         # Arrange
         module = CpxApModule()
 
-        module.base = Mock(read_parameter=Mock(return_value=[0x01, 0x02]))
+        module.base = Mock(read_parameter=Mock(return_value=131073))
 
         # Act
         ret = module.read_ap_parameter()
 
         # Assert
+        # since the real read_parameter would return values dependent on the
+        # parameter, this test only shows mostly, that all ap parameters are included
         assert ret.fieldbus_serial_number == 131073
-        assert ret.product_key == "\x01\x00\x02"
-        assert ret.firmware_version == "\x01\x00\x02"
+        assert ret.product_key == 131073
+        assert ret.firmware_version == 131073
         assert ret.module_code == 131073
-        assert ret.temp_asic == 2
-        assert ret.logic_voltage == 2
-        assert ret.load_voltage == 2
-        assert ret.hw_version == 1
+        assert ret.temp_asic == 131073
+        assert ret.logic_voltage == 131.073
+        assert ret.load_voltage == 131.073
+        assert ret.hw_version == 131073
         assert ret.io_link_variant == "n.a."
         assert ret.operating_supply is False
 

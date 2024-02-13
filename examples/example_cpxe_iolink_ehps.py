@@ -1,4 +1,5 @@
 """Example code for CPX-E IO-Link master with gripper EHPS"""
+
 # pylint: disable=no-member
 
 import time
@@ -12,7 +13,7 @@ from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 # process data as dict
 def read_process_data_in(data):
     """Read the process data and return as dict"""
-    # ehps provides 3 x 16bit "process data in".
+    # ehps provides 3 x UIntegerT16 "process data in" according to datasheet.
 
     process_data_dict = {}
 

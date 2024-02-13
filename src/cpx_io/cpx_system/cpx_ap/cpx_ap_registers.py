@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-# Modbus register definitions for CPX-E constist of holding register address and length
+# Modbus register definitions for CPX-AP constist of holding register address and length
 ModbusRegister = namedtuple("ModbusRegister", "register_address, length")
 
 # holding registers

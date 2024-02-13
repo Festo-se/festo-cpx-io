@@ -5,7 +5,8 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.logging import Logging
 
 
@@ -29,10 +30,10 @@ class CpxAp8Do(CpxApModule):
         :return: Values of all channels
         :rtype: list[bool]
         """
-        data = self.base.read_reg_data(self.output_register)[0] & 0xFF
-        ret = int_to_boollist(data, 1)
-        Logging.logger.info(f"{self.name}: Reading channels: {ret}")
-        return ret
+        data = self.base.read_reg_data(self.output_register)
+        values = bytes_to_boollist(data)[:8]
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:
@@ -54,8 +55,8 @@ class CpxAp8Do(CpxApModule):
         """
         if len(data) != 8:
             raise ValueError("Data must be list of eight elements")
-        integer_data = boollist_to_int(data)
-        self.base.write_reg_data(integer_data, self.output_register)
+        reg = boollist_to_bytes(data)
+        self.base.write_reg_data(reg, self.output_register)
 
         Logging.logger.info(f"{self.name}: Setting channels to {data}")
 
@@ -68,15 +69,11 @@ class CpxAp8Do(CpxApModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        data = (
-            self.base.read_reg_data(self.output_register)[0] & 0xFF
-        )  # read current value
-        mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
-        data &= ~mask  # Clear the bit indicated by the mask
-        if value:
-            data |= mask  # If x was True, set the bit indicated by the mask.
-
-        self.base.write_reg_data(data, self.output_register)
+        # read current value, invert the channel value
+        data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
+        data[channel] = value
+        reg = boollist_to_bytes(data)
+        self.base.write_reg_data(reg, self.output_register)
 
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
 
@@ -102,15 +99,9 @@ class CpxAp8Do(CpxApModule):
 
         :param channel: Channel number, starting with 0
         :type channel: int"""
-        data = (
-            self.base.read_reg_data(self.output_register)[0] & 1 << channel
-        ) >> channel
-        if data == 1:
-            self.clear_channel(channel)
-        elif data == 0:
-            self.set_channel(channel)
-        else:
-            raise ValueError
+        # get the relevant value from the register and write the inverse
+        value = self.read_channel(channel)
+        self.write_channel(channel, not value)
 
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: int) -> None:
@@ -124,12 +115,13 @@ class CpxAp8Do(CpxApModule):
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
         """
-        uid = 20022
 
         if not 0 <= value <= 2:
             raise ValueError("Value {value} must be between 0 and 2")
 
-        self.base.write_parameter(self.position, uid, 0, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
+        )
 
         value_str = [
             "inactive",
@@ -149,12 +141,13 @@ class CpxAp8Do(CpxApModule):
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int
         """
-        uid = 20052
 
         if not 0 <= value <= 1:
             raise ValueError("Value {value} must be between 0 and 1")
 
-        self.base.write_parameter(self.position, uid, 0, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, value
+        )
 
         value_str = ["Reset Outputs", "Hold last state"]
         Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")

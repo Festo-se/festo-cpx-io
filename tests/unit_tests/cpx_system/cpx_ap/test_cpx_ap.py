@@ -1,4 +1,5 @@
 """Contains tests for CpxAp class"""
+
 from unittest.mock import Mock, patch
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
@@ -38,14 +39,14 @@ class TestCpxAp:
             for module_code in module_code_list
         ]
         mock_read_module_information.side_effect = module_information_list
-        mock_read_reg_data.return_value = [0x0000, 0x0064]
+        mock_read_reg_data.return_value = b"\x64\x00\x00\x00"
 
         # Act
         cpxap = CpxAp()
 
         # Assert
         mock_write_reg_data.assert_called_with(
-            [0x0000, 0x0064], *cpx_ap_registers.TIMEOUT
+            b"\x64\x00\x00\x00", cpx_ap_registers.TIMEOUT.register_address
         )
         mock_read_reg_data.assert_called_once()
 
@@ -90,7 +91,7 @@ class TestCpxAp:
             for module_code in module_code_list
         ]
         mock_read_module_information.side_effect = module_information_list
-        mock_read_reg_data.return_value = [0x0000, 0x0064]
+        mock_read_reg_data.return_value = b"\x64\x00\x00\x00"
 
         cpxap = CpxAp()
 

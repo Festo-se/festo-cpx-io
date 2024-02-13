@@ -1,4 +1,5 @@
 """Contains tests for cpx_e16di class"""
+
 import pytest
 from unittest.mock import Mock
 
@@ -26,7 +27,7 @@ class TestCpxE16Di:
         mocked_base = Mock(next_input_register=0, modules=[])
 
         # Act
-        MODULE_POSITION = 1
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
         cpxe16di.configure(mocked_base, MODULE_POSITION)
 
         # Assert
@@ -38,7 +39,7 @@ class TestCpxE16Di:
         # Arrange
         cpxe16di = CpxE16Di()
         cpxe16di.input_register = 0
-        cpxe16di.base = Mock(read_reg_data=Mock(return_value=[0xAAAA]))
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
         status = cpxe16di.read_status()
@@ -50,7 +51,7 @@ class TestCpxE16Di:
         """Test read channels"""
         # Arrange
         cpxe16di = CpxE16Di()
-        cpxe16di.base = Mock(read_reg_data=Mock(return_value=[0b1100110010101110]))
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAE\xCC"))
 
         # Act
         channel_values = [cpxe16di.read_channel(idx) for idx in range(16)]
@@ -80,7 +81,7 @@ class TestCpxE16Di:
         """Test get item"""
         # Arrange
         cpxe16di = CpxE16Di()
-        cpxe16di.base = Mock(read_reg_data=Mock(return_value=[0b1100110010101110]))
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAE\xCC"))
 
         # Act
         channel_values = [cpxe16di[idx] for idx in range(16)]

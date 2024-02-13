@@ -5,7 +5,7 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
-from cpx_io.utils.boollist import int_to_boollist, boollist_to_int
+from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.logging import Logging
 
 
@@ -31,8 +31,8 @@ class CpxE8Do(CpxEModule):
         :return: Values of all channels
         :rtype: list[bool]
         """
-        data = self.base.read_reg_data(self.input_register)[0]
-        ret = int_to_boollist(data, num_bytes=1)
+        data = self.base.read_reg_data(self.input_register)
+        ret = bytes_to_boollist(data, num_bytes=1)
         Logging.logger.info(f"{self.name}: Reading channels: {ret}")
         return ret
 
@@ -56,7 +56,7 @@ class CpxE8Do(CpxEModule):
         """
         if len(data) != 8:
             raise ValueError(f"Data len error: expected: 8, got: {len(data)}")
-        integer_data = boollist_to_int(data)
+        integer_data = boollist_to_bytes(data)
         self.base.write_reg_data(integer_data, self.output_register)
 
         Logging.logger.info(f"{self.name}: Setting channels to {data}")
@@ -70,13 +70,10 @@ class CpxE8Do(CpxEModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        data = self.base.read_reg_data(self.input_register)[0]  # read current value
-        mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
-        data &= ~mask  # Clear the bit indicated by the mask
-        if value:
-            data |= mask  # If x was True, set the bit indicated by the mask.
-
-        self.base.write_reg_data(data, self.output_register)
+        data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
+        data[channel] = value
+        reg = boollist_to_bytes(data)
+        self.base.write_reg_data(reg, self.output_register)
 
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
 
@@ -86,8 +83,8 @@ class CpxE8Do(CpxEModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 1)[0]
-        ret = int_to_boollist(data, 2)
+        data = self.base.read_reg_data(self.input_register + 1)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
 
@@ -113,15 +110,9 @@ class CpxE8Do(CpxEModule):
 
         :param channel: Channel number, starting with 0
         :type channel: int"""
-        data = (
-            self.base.read_reg_data(self.input_register)[0] & 1 << channel
-        ) >> channel
-        if data == 1:
-            self.clear_channel(channel)
-        elif data == 0:
-            self.set_channel(channel)
-        else:
-            raise ValueError(f"Value {data} must be between 0 and 1")
+        # get the relevant value from the register and write the inverse
+        value = self.read_channel(channel)
+        self.write_channel(channel, not value)
 
     @CpxBase.require_base
     def configure_diagnostics(

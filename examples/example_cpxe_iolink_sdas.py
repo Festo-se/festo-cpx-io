@@ -19,15 +19,17 @@ with CpxE(
     # read the channel 0 process data
     sdas_data = myCPX.cpxe4iol.read_channel(0)
 
-    # sdas only requires 2 bytes, so the first 16 bit value from the list is taken
-    process_data = sdas_data[0]
+    # sdas only requires 2 bytes, so the first 2 bytes are extracted
+    process_data = sdas_data[:2]
 
     # the process data consists of 4 ssc bits and 12 bit pdv (see datasheet sdas)
-    ssc1 = bool(process_data & 0x1)
-    ssc2 = bool(process_data & 0x2)
-    ssc3 = bool(process_data & 0x4)
-    ssc4 = bool(process_data & 0x8)
-    pdv = (process_data & 0xFFF0) >> 4
+    # you can convert the bytes data to integer first and then do bitwise operations
+    process_data_int = int.from_bytes(process_data, byteorder="big")
+    ssc1 = bool(process_data_int & 0x1)
+    ssc2 = bool(process_data_int & 0x2)
+    ssc3 = bool(process_data_int & 0x4)
+    ssc4 = bool(process_data_int & 0x8)
+    pdv = (process_data_int & 0xFFF0) >> 4
 
     # you can also read the device error or other parameters
     myCPX.cpxe4iol.read_device_error(0)

@@ -1,9 +1,11 @@
 """Contains tests for CpxAp4Di4Do class"""
+
 from unittest.mock import Mock, call
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
-from cpx_io.utils.boollist import boollist_to_int
+from cpx_io.utils.boollist import boollist_to_bytes
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class TestCpxAp4Di4Do:
@@ -26,7 +28,7 @@ class TestCpxAp4Di4Do:
 
         cpxap4di4do.base = Mock()
         # return [input reg, output reg]
-        cpxap4di4do.base.read_reg_data.side_effect = [[0xDEAD], [0xBEEF]]
+        cpxap4di4do.base.read_reg_data.side_effect = [b"\xAD\xDE", b"\xEF\xBE"]
 
         # Act
         channel_values = cpxap4di4do.read_channels()
@@ -88,7 +90,7 @@ class TestCpxAp4Di4Do:
 
         cpxap4di4do.base = Mock()
         # return [input reg, output reg]
-        cpxap4di4do.base.read_reg_data.side_effect = [[0xDEAD], [0xBEEF]] * 8
+        cpxap4di4do.base.read_reg_data.side_effect = [b"\xAD\xDE", b"\xEF\xBE"] * 8
 
         # Act
         channel_values = [cpxap4di4do[idx] for idx in range(8)]
@@ -107,7 +109,7 @@ class TestCpxAp4Di4Do:
 
         # Act
         bool_list = [False, True, False, True]
-        data = boollist_to_int(bool_list)
+        data = boollist_to_bytes(bool_list)
 
         cpxap4di4do.write_channels(bool_list)
 
@@ -153,14 +155,14 @@ class TestCpxAp4Di4Do:
         cpxap4di4do = CpxAp4Di4Do()
 
         cpxap4di4do.base = Mock(write_reg_data=Mock())
-        cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
         cpxap4di4do.output_register = 0
 
         # Act
         cpxap4di4do.write_channel(0, True)
 
         # Assert
-        cpxap4di4do.base.write_reg_data.assert_called_with(0xBB, 0)
+        cpxap4di4do.base.write_reg_data.assert_called_with(b"\xBB", 0)
 
     def test_write_channel_false(self):
         """Test write channel"""
@@ -168,14 +170,14 @@ class TestCpxAp4Di4Do:
         cpxap4di4do = CpxAp4Di4Do()
 
         cpxap4di4do.base = Mock(write_reg_data=Mock())
-        cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
         cpxap4di4do.output_register = 0
 
         # Act
         cpxap4di4do.write_channel(1, False)
 
         # Assert
-        cpxap4di4do.base.write_reg_data.assert_called_with(0xB8, 0)
+        cpxap4di4do.base.write_reg_data.assert_called_with(b"\xB8", 0)
 
     def test_set_channel(self):
         """Test set channel"""
@@ -211,7 +213,7 @@ class TestCpxAp4Di4Do:
         cpxap4di4do = CpxAp4Di4Do()
 
         cpxap4di4do.base = Mock(write_reg_data=Mock())
-        cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
+        cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
         cpxap4di4do.write_channel = Mock()
 
         # Act
@@ -253,12 +255,11 @@ class TestCpxAp4Di4Do:
         cpxap4di4do.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20014  # pylint: disable=invalid-name
         cpxap4di4do.configure_debounce_time(input_value)
 
         # Assert
         cpxap4di4do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 4])
@@ -288,12 +289,11 @@ class TestCpxAp4Di4Do:
         cpxap4di4do.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20022  # pylint: disable=invalid-name
         cpxap4di4do.configure_monitoring_load_supply(input_value)
 
         # Assert
         cpxap4di4do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -323,12 +323,11 @@ class TestCpxAp4Di4Do:
         cpxap4di4do.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20052  # pylint: disable=invalid-name
         cpxap4di4do.configure_behaviour_in_fail_state(input_value)
 
         # Assert
         cpxap4di4do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 2])

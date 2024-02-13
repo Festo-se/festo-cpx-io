@@ -1,9 +1,14 @@
 """VABX-A-P-EL-E12-AP* module implementation"""
 
+# pylint: disable=duplicate-code
+# intended: modules have similar functions
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.logging import Logging
+from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 
 
 class VabxAP(CpxApModule):
@@ -29,12 +34,10 @@ class VabxAP(CpxApModule):
         :rtype: list[bool]
         """
 
-        data0, data1 = self.base.read_reg_data(self.output_register, length=2)
-        data = (data1 << 16) + data0
-
-        ret = [d == "1" for d in bin(data)[2:].zfill(32)[::-1]]
-        Logging.logger.info(f"{self.name}: Reading channels: {ret}")
-        return ret
+        data = self.base.read_reg_data(self.output_register, length=2)
+        values = bytes_to_boollist(data)
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_channel(self, channel: int) -> bool:
@@ -51,20 +54,14 @@ class VabxAP(CpxApModule):
     def write_channels(self, data: list[bool]) -> None:
         """write all channels with a list of bool values
 
-        :param data: list of bool values containing exactly 4 elements for each output channel
+        :param data: list of bool values containing exactly 32 elements for each output channel
         :type data: list[bool]
         """
         if len(data) != 32:
             raise ValueError("Data must be list of 32 elements")
-        # Make binary from list of bools
-        binary_string = "".join("1" if value else "0" for value in reversed(data))
-        # Convert the binary string to an integer
-        integer_data = int(binary_string, 2)
 
-        data0 = integer_data & 0xFFFF
-        data1 = integer_data >> 16
-        self.base.write_reg_data(data0, self.output_register)
-        self.base.write_reg_data(data1, self.output_register + 1)
+        reg = boollist_to_bytes(data)
+        self.base.write_reg_data(reg, self.output_register)
 
         Logging.logger.info(f"{self.name}: Setting channels to {data}")
 
@@ -77,22 +74,14 @@ class VabxAP(CpxApModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        if channel not in range(33):
-            raise ValueError("Channel must be in range 0...32")
+        if channel not in range(32):
+            raise ValueError("Channel must be in range 0...31")
 
         # read current values
-        data0, data1 = self.base.read_reg_data(self.output_register, length=2)
-        data = (data1 << 16) + data0
-
-        mask = 1 << channel  # Compute mask, an integer with just bit 'channel' set.
-        data &= ~mask  # Clear the bit indicated by the mask
-        if value:
-            data |= mask  # If x was True, set the bit indicated by the mask.
-
-        data0 = data & 0xFFFF
-        data1 = data >> 16
-        self.base.write_reg_data(data0, self.output_register)
-        self.base.write_reg_data(data1, self.output_register + 1)
+        data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
+        data[channel] = value
+        reg = boollist_to_bytes(data)
+        self.base.write_reg_data(reg, self.output_register)
 
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
 
@@ -121,15 +110,9 @@ class VabxAP(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        data = (
-            self.base.read_reg_data(self.output_register)[0] & 1 << channel
-        ) >> channel
-        if data == 1:
-            self.clear_channel(channel)
-        elif data == 0:
-            self.set_channel(channel)
-        else:
-            raise ValueError
+        # get the relevant value from the register and write the inverse
+        value = self.read_channel(channel)
+        self.write_channel(channel, not value)
 
     @CpxBase.require_base
     def configure_diagnosis_for_defect_valve(self, value: bool) -> None:
@@ -138,9 +121,10 @@ class VabxAP(CpxApModule):
         :param value: Value to write to the module (True to enable diagnosis)
         :type value: bool
         """
-        uid = 20021
 
-        self.base.write_parameter(self.position, uid, 0, int(value))
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE, value
+        )
         Logging.logger.info(
             f"{self.name}: Setting diagnosis for defect valve to {value}"
         )
@@ -157,12 +141,13 @@ class VabxAP(CpxApModule):
         :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
         :type value: int
         """
-        uid = 20022
 
         if not 0 <= value <= 2:
             raise ValueError("Value {value} must be between 0 and 2")
 
-        self.base.write_parameter(self.position, uid, 0, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
+        )
 
         value_str = [
             "inactive",
@@ -182,12 +167,13 @@ class VabxAP(CpxApModule):
         :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
         :type value: int
         """
-        uid = 20052
 
         if not 0 <= value <= 1:
             raise ValueError("Value {value} must be between 0 and 1")
 
-        self.base.write_parameter(self.position, uid, 0, value)
+        self.base.write_parameter(
+            self.position, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, value
+        )
 
         value_str = ["Reset Outputs", "Hold last state"]
         Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")

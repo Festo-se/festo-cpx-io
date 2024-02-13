@@ -5,7 +5,7 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
@@ -55,45 +55,43 @@ class CpxE4Iol(CpxEModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 4)[0]
-        ret = int_to_boollist(data, 2)
+        data = self.base.read_reg_data(self.input_register + 4)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
 
     @CpxBase.require_base
-    def read_channels(self) -> list[list[int]]:
-        """read all channels as a list of integer values
+    def read_channels(self) -> list[bytes]:
+        """read all channels as a list of bytes values
 
         :return: All registers from all channels
-        :rtype: list[list[int]]
+        :rtype: list[bytes]
         """
-        channel_size = self.module_input_size
 
-        # read all channels
-        data = self.base.read_reg_data(self.input_register, length=channel_size * 4)
-
-        data = [
-            CpxBase.decode_int([d], data_type="uint16", byteorder="little")
-            for d in data
-        ]
+        reg = self.base.read_reg_data(
+            self.input_register, length=self.module_input_size * 4
+        )
+        # module_input_size is in 16bit registers per channel
+        # channel_size should be in bytes
+        channel_size = self.module_input_size * 2
 
         channels = [
-            data[: channel_size * 1],
-            data[channel_size * 1 : channel_size * 2],
-            data[channel_size * 2 : channel_size * 3],
-            data[channel_size * 3 :],
+            reg[: channel_size * 1],
+            reg[channel_size * 1 : channel_size * 2],
+            reg[channel_size * 2 : channel_size * 3],
+            reg[channel_size * 3 :],
         ]
         Logging.logger.info(f"{self.name}: Reading channels: {channels}")
         return channels
 
     @CpxBase.require_base
-    def read_channel(self, channel: int) -> list[int]:
+    def read_channel(self, channel: int) -> bytes:
         """read back the value of one channel
 
         :parameter channel: Channel number, starting with 0
         :type channel: int
-        :return: All registers from one channel
-        :rtype: list[int]
+        :return: Channel value
+        :rtype: bytes
         """
         return self.read_channels()[channel]
 
@@ -103,18 +101,12 @@ class CpxE4Iol(CpxEModule):
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param data: list of registers to write
-        :type data: list[int]
+        :param data: Value to write
+        :type data: bytes
         """
         channel_size = self.module_output_size
 
-        register_data = [
-            CpxBase.encode_int(d, data_type="uint16", byteorder="little")[0]
-            for d in data
-        ]
-        self.base.write_reg_data(
-            register_data, self.output_register + channel_size * channel
-        )
+        self.base.write_reg_data(data, self.output_register + channel_size * channel)
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
 
     @CpxBase.require_base

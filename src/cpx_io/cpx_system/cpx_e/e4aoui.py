@@ -3,9 +3,10 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
@@ -31,10 +32,10 @@ class CpxE4AoUI(CpxEModule):
         :return: Values of all channels
         :rtype: list[int]
         """
-        raw_data = self.base.read_reg_data(self.input_register, length=4)
-        data = [CpxBase.decode_int([x]) for x in raw_data]
-        Logging.logger.info(f"{self.name}: Reading channels: {data}")
-        return data
+        reg = self.base.read_reg_data(self.input_register, length=4)
+        values = list(struct.unpack("<" + "h" * (len(reg) // 2), reg))
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_status(self) -> list[bool]:
@@ -42,8 +43,8 @@ class CpxE4AoUI(CpxEModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 4)[0]
-        ret = int_to_boollist(data, 2)
+        data = self.base.read_reg_data(self.input_register + 4)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
 
@@ -60,31 +61,34 @@ class CpxE4AoUI(CpxEModule):
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def write_channels(self, data: list[int]) -> None:
-        """write data to module channels in ascending order
+    def write_channels(self, values: list[int]) -> None:
+        """write (signed 16bit int) data list to module channels in ascending order
 
-        :param data: values to write to the channels
-        :type data: list[int]
+        :param values: values to write to the channels
+        :type values: list[int]
         """
-        reg_data = [CpxBase.decode_int([x]) for x in data]
-        self.base.write_reg_data(reg_data, self.output_register, length=4)
-        Logging.logger.info(f"{self.name}: Writing {data} to channels")
+        if len(values) != 4:
+            raise ValueError(f"Data len error: expected: 4, got: {len(values)}")
+
+        reg_data = struct.pack("<hhhh", *values)
+        self.base.write_reg_data(reg_data, self.output_register)
+        Logging.logger.info(f"{self.name}: Writing {values} to channels")
 
     @CpxBase.require_base
-    def write_channel(self, channel: int, data: int) -> None:
-        """write data to module channel number
+    def write_channel(self, channel: int, value: int) -> None:
+        """write (signed 16 bit) value to module channel number
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param data: Value two write to the channel
-        :type data: int"""
+        :param value: Value to write to the channel
+        :type value: int"""
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        reg_data = CpxBase.decode_int([data])
+        reg_data = value.to_bytes(2, byteorder="little", signed=True)
         self.base.write_reg_data(reg_data, self.output_register + channel)
-        Logging.logger.info(f"{self.name}: Writing {data} to channel {channel}")
+        Logging.logger.info(f"{self.name}: Writing {value} to channel {channel}")
 
     @CpxBase.require_base
     def configure_diagnostics(

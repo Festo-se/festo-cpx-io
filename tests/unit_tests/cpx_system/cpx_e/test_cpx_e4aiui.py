@@ -1,9 +1,7 @@
 """Contains tests for cpx_e4aiui class"""
+
 from unittest.mock import Mock, call
-
 import pytest
-
-from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 
 
@@ -28,7 +26,7 @@ class TestCpxE4AiUI:
         mocked_base = Mock(next_input_register=0, modules=[])
 
         # Act
-        MODULE_POSITION = 1
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
         cpxe4aiui.configure(mocked_base, MODULE_POSITION)
 
         # Assert
@@ -40,7 +38,7 @@ class TestCpxE4AiUI:
         # Arrange
         cpxe4aiui = CpxE4AiUI()
         cpxe4aiui.input_register = 0
-        cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=[0xAAAA]))
+        cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
         status = cpxe4aiui.read_status()
@@ -52,7 +50,9 @@ class TestCpxE4AiUI:
         """Test read channels"""
         # Arrange
         cpxe4aiui = CpxE4AiUI()
-        cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=[0, 1000, 2000, 3000]))
+        cpxe4aiui.base = Mock(
+            read_reg_data=Mock(return_value=b"\x00\x00\xE8\x03\xD0\x07\xB8\x0B")
+        )
 
         # Act
         channel_values = [cpxe4aiui.read_channel(idx) for idx in range(4)]
@@ -67,7 +67,9 @@ class TestCpxE4AiUI:
         """Test get item"""
         # Arrange
         cpxe4aiui = CpxE4AiUI()
-        cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=[0, 1000, 2000, 3000]))
+        cpxe4aiui.base = Mock(
+            read_reg_data=Mock(return_value=b"\x00\x00\xE8\x03\xD0\x07\xB8\x0B")
+        )
 
         # Act
         channel_values = [cpxe4aiui[idx] for idx in range(4)]

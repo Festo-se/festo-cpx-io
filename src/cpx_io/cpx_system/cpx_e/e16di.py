@@ -5,7 +5,7 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
-from cpx_io.utils.boollist import int_to_boollist
+from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
@@ -27,8 +27,8 @@ class CpxE16Di(CpxEModule):
         :return: Values of all channels
         :rtype: list[bool]
         """
-        data = self.base.read_reg_data(self.input_register)[0]
-        ret = int_to_boollist(data, num_bytes=2)
+        data = self.base.read_reg_data(self.input_register)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading channels: {ret}")
         return ret
 
@@ -48,8 +48,8 @@ class CpxE16Di(CpxEModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 1)[0]
-        ret = int_to_boollist(data, 2)
+        data = self.base.read_reg_data(self.input_register + 1)
+        ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
 

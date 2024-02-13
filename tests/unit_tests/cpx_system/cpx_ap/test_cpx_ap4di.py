@@ -1,8 +1,10 @@
 """Contains tests for CpxAp4Di class"""
+
 from unittest.mock import Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
+from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 
 
 class TestCpxAp4Di:
@@ -22,8 +24,9 @@ class TestCpxAp4Di:
         """Test read channels"""
         # Arrange
         cpxap4di = CpxAp4Di()
+        ret_data = b"\xFA"
 
-        cpxap4di.base = Mock(read_reg_data=Mock(return_value=[0xFA]))
+        cpxap4di.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = cpxap4di.read_channels()
@@ -35,8 +38,9 @@ class TestCpxAp4Di:
         """Test read channel"""
         # Arrange
         cpxap4di = CpxAp4Di()
+        ret_data = b"\xAA"
 
-        cpxap4di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
+        cpxap4di.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = [cpxap4di.read_channel(idx) for idx in range(4)]
@@ -48,8 +52,9 @@ class TestCpxAp4Di:
         """Test get item"""
         # Arrange
         cpxap4di = CpxAp4Di()
+        ret_data = b"\xAA"
 
-        cpxap4di.base = Mock(read_reg_data=Mock(return_value=[0xAA]))
+        cpxap4di.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
         channel_values = [cpxap4di[idx] for idx in range(4)]
@@ -71,12 +76,13 @@ class TestCpxAp4Di:
         cpxap4di.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20014  # pylint: disable=invalid-name
         cpxap4di.configure_debounce_time(input_value)
 
         # Assert
         cpxap4di.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION,
+            cpx_ap_parameters.INPUT_DEBOUNCE_TIME,
+            expected_value,
         )
 
     @pytest.mark.parametrize("input_value", [-1, 4])
