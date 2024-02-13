@@ -39,6 +39,14 @@ class CpxAp4Iol(CpxApModule):
         12309: "CPX-AP-A-4IOL-M12 variant 32 OE",
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fieldbus_parameters = None
+
+    def configure(self, *args, **kwargs):
+        super().configure(*args, **kwargs)
+        self.fieldbus_parameters = self.read_fieldbus_parameters()
+
     def __getitem__(self, key):
         return self.read_channel(key)
 
@@ -92,16 +100,24 @@ class CpxAp4Iol(CpxApModule):
         return channels
 
     @CpxBase.require_base
-    def read_channel(self, channel: int) -> bytes:
+    def read_channel(self, channel: int, full_size: bool = False) -> bytes:
         """read back the register values of one channel
         register order is [msb, ... , ... , lsb]
 
         :parameter channel: Channel number, starting with 0
         :type channel: int
+        :parameter full: Return all bytes for the channel ignoring device information
+        :type full: bool
         :return: Value of the channel
         :rtype: bytes
         """
-        return self.read_channels()[channel]
+
+        if full_size:
+            return self.read_channels()[channel]
+
+        return self.read_channels()[channel][
+            : self.fieldbus_parameters[channel]["Input data length"]
+        ]
 
     @CpxBase.require_base
     def write_channel(self, channel: int, data: bytes) -> None:
@@ -511,6 +527,8 @@ class CpxAp4Iol(CpxApModule):
         Logging.logger.info(
             f"{self.name}: Reading fieldbus parameters for all channels: {channel_params}"
         )
+        # update the instance
+        self.fieldbus_parameters = channel_params
         return channel_params
 
     @CpxBase.require_base

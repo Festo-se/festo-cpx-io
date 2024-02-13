@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- CpxAp4Iol: read_channel now takes "full_size" parameter. Default is now to return the length from the device information (returns only relevant bytes)
 - CpxApEP: deleted write_parameters(), added configure_monitoring_load_supply() instead
 - Pybodmus Error now raises "ConnectionAbortedError" instead of "ValueError"
 - IO-Link modules now read and write bytes objects

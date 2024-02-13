@@ -17,11 +17,11 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     param = myCPX.cpxap4iol.read_fieldbus_parameters()
     assert param[SDAS_CHANNEL]["Port status information"] == "OPERATE"
 
-    # read the channel 0 process data
+    # read the channel 0 process data. This takes the device information and returns
+    # only relevant bytes (2). If you want to get all bytes so you have the same length
+    # for all channels, you can read all cahnnels with read_channels() or
+    # read_channel(SDAS_CHANNLE, full_size=True)
     sdas_data = myCPX.cpxap4iol.read_channel(SDAS_CHANNEL)
-
-    # sdas only requires 2 bytes, so the first 2 bytes are extracted
-    process_data = sdas_data[:2]
 
     # the process data consists of 4 ssc bits and 12 bit pdv (see datasheet sdas)
     # you can convert the bytes data to integer first and then do bitwise operations

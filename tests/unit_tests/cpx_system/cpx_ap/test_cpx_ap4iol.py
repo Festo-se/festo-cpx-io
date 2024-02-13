@@ -122,6 +122,37 @@ class TestCpxAp4Iol:
         cpxap4iol.base = Mock()
         cpxap4iol.read_channels = Mock(
             return_value=[
+                b"\x4D\xDE\xEF\xBE",
+                b"\x4D\xDE\xEF\xBE",
+                b"\x4D\xDE\xEF\xBE",
+                b"\x4D\xDE\xEF\xBE",
+            ]
+        )
+        cpxap4iol.fieldbus_parameters = [
+            {"Input data length": 1},
+            {"Input data length": 2},
+            {"Input data length": 3},
+            {"Input data length": 4},
+        ]
+        # Act
+        channel_values = [cpxap4iol.read_channel(idx) for idx in range(4)]
+
+        # Assert
+        assert channel_values == [
+            b"\x4D",
+            b"\x4D\xDE",
+            b"\x4D\xDE\xEF",
+            b"\x4D\xDE\xEF\xBE",
+        ]
+
+    def test_read_channel_correct_value_full_size(self):
+        """Test read_channel"""
+        # Arrange
+        cpxap4iol = CpxAp4Iol()
+
+        cpxap4iol.base = Mock()
+        cpxap4iol.read_channels = Mock(
+            return_value=[
                 b"\x1D\xDE\xEF\xBE",
                 b"\x2D\xDE\xEF\xBE",
                 b"\x3D\xDE\xEF\xBE",
@@ -129,7 +160,7 @@ class TestCpxAp4Iol:
             ]
         )
         # Act
-        channel_values = [cpxap4iol.read_channel(idx) for idx in range(4)]
+        channel_values = [cpxap4iol.read_channel(idx, True) for idx in range(4)]
 
         # Assert
         assert channel_values == [

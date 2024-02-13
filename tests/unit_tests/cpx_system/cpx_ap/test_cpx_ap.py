@@ -39,7 +39,7 @@ class TestCpxAp:
             for module_code in module_code_list
         ]
         mock_read_module_information.side_effect = module_information_list
-        mock_read_reg_data.return_value = b"\x64\x00\x00\x00"
+        mock_read_reg_data.side_effect = [b"\x64\x00\x00\x00"]
 
         # Act
         cpxap = CpxAp()
