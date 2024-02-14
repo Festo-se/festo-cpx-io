@@ -41,6 +41,7 @@ class CpxBase:
         """
         self._modules = []
         self._module_names = []
+        self.base = None
 
         if ip_address is None:
             Logging.logger.info("Not connected since no IP address was provided")
