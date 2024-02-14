@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.2.0 - 26.01.24
 ### Added
+- Unittests for CpxBase
 - More examples
 - Added content to README.md
 - Added module functions CPX-E/AP
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- CpxBase: now initializes with self.base=None instead of no self.base at all
 - CpxAp: Parameter read/write now utilizes multi-register access
 - CpxApEP: deleted write_parameters(), added configure_monitoring_load_supply() instead
 - Pybodmus Error now raises "ConnectionAbortedError" instead of "ValueError"
