@@ -140,7 +140,7 @@ class CpxBase:
         if len(data) % 2 != 0:
             data += b"\x00"
         # Convert to list of words
-        reg = struct.unpack("<" + "H" * (len(data) // 2), data)
+        reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
         self.client.write_registers(register, reg)
 
