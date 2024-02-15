@@ -1,6 +1,7 @@
 """Contains tests for CpxAp class"""
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
+import pytest
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
@@ -100,3 +101,33 @@ class TestCpxAp:
 
         # Assert
         assert isinstance(cpxap.my8di, CpxAp8Di)  # pylint: disable="no-member"
+
+    @patch.object(CpxAp, "read_module_count")
+    @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "write_reg_data")
+    @patch.object(CpxAp, "read_reg_data")
+    # @patch.object(CpxAp, "add_module")
+    def test_constructor_inknown_module(
+        self,
+        mock_read_reg_data,
+        mock_write_reg_data,
+        mock_read_module_information,
+        mock_read_module_count,
+    ):
+        "Test constructor"
+        # Arrange
+        mock_read_module_count.return_value = 7
+
+        module_code_list = [0]
+        module_information_list = [
+            CpxAp.ModuleInformation(
+                module_code=module_code, output_size=0, input_size=0
+            )
+            for module_code in module_code_list
+        ]
+        mock_read_module_information.side_effect = module_information_list
+        mock_read_reg_data.return_value = b"\x64\x00\x00\x00"
+
+        # Act & Assert
+        with pytest.raises(NotImplementedError):
+            cpxap = CpxAp()

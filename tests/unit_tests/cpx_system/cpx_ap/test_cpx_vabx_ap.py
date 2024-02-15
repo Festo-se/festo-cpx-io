@@ -278,6 +278,17 @@ class TestVabxAP:
         # exected is DEAF BEEF
         vabx_ap.base.write_reg_data.assert_called_with(b"\xaf\xde\xef\xbe", 0)
 
+    @pytest.mark.parametrize("input_value", [-1, 32])
+    def test_write_wrong_channel(self, input_value):
+        """Test write channel"""
+        # Arange
+        vabx_ap = VabxAP()
+        vabx_ap.base = Mock(write_reg_data=Mock())
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            vabx_ap.write_channel(input_value, True)
+
     def test_set_item(self):
         """Test set item"""
         # Arange
