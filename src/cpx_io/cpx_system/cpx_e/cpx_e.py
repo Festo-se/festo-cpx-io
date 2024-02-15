@@ -65,19 +65,19 @@ class CpxE(CpxBase):
         :param value: Value to write to function number
         :type value: int
         """
-        value_bytes = value.to_bytes(length=2, byteorder="little", signed=False)
+        value_bytes = value.to_bytes(2, byteorder="little")
         self.write_reg_data(
             value_bytes, cpx_e_registers.DATA_SYSTEM_TABLE_WRITE.register_address
         )
         # need to write 0 first because there might be an
         # old unknown configuration in the register
         self.write_reg_data(
-            b"\x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+            b"\x00\x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
         )
 
         write_data = (
             self._control_bit_value | self._write_bit_value | function_number
-        ).to_bytes(length=2, byteorder="little", signed=False)
+        ).to_bytes(2, byteorder="little")
 
         self.write_reg_data(
             write_data,
@@ -111,11 +111,11 @@ class CpxE(CpxBase):
         # need to write 0 first because there might be an
         # old unknown configuration in the register
         self.write_reg_data(
-            b"\0x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+            b"\x00\x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
         )
 
         write_data = (self._control_bit_value | function_number).to_bytes(
-            length=2, byteorder="little", signed=False
+            2, byteorder="little"
         )
 
         self.write_reg_data(
@@ -159,7 +159,7 @@ class CpxE(CpxBase):
         Logging.logger.debug(f"Read {data} from MODULE_CONFIGURATION register")
         return data.bit_count()
 
-    def fault_detection(self) -> list[bool]:
+    def read_fault_detection(self) -> list[bool]:
         """reads the fault detection register from the system
 
         :returns: list of bools with Errors (True = Error)
@@ -169,7 +169,7 @@ class CpxE(CpxBase):
         Logging.logger.debug(f"Read {data} from FAULT_DETECTION register")
         return bytes_to_boollist(data[:6], 3)
 
-    def status_register(self) -> tuple:
+    def read_status(self) -> tuple:
         """reads the status register.
 
         :returns: tuple (Write-protected, Force active)

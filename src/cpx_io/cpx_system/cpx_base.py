@@ -41,6 +41,7 @@ class CpxBase:
         """
         self._modules = []
         self._module_names = []
+        self.base = None
 
         if ip_address is None:
             Logging.logger.info("Not connected since no IP address was provided")
@@ -140,7 +141,7 @@ class CpxBase:
         if len(data) % 2 != 0:
             data += b"\x00"
         # Convert to list of words
-        reg = struct.unpack("<" + "H" * (len(data) // 2), data)
+        reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
         self.client.write_registers(register, reg)
 

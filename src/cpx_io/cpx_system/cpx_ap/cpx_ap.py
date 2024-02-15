@@ -63,7 +63,7 @@ class CpxAp(CpxBase):
         :type timeout_ms: int
         """
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
-        registers = timeout_ms.to_bytes(length=4, byteorder="little", signed=False)
+        registers = timeout_ms.to_bytes(length=4, byteorder="little")
         self.write_reg_data(registers, cpx_ap_registers.TIMEOUT.register_address)
 
         # Check if it actually succeeded
@@ -110,7 +110,7 @@ class CpxAp(CpxBase):
         :rtype: int
         """
         reg = self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)
-        value = int.from_bytes(reg, byteorder="little", signed=False)
+        value = int.from_bytes(reg, byteorder="little")
         Logging.logger.debug(f"Total module count: {value}")
         return value
 
@@ -262,29 +262,28 @@ class CpxAp(CpxBase):
         """
 
         param_reg = cpx_ap_registers.PARAMETERS.register_address
-        module_index = position + 1  # indexing starts with 1 (see datasheet)
-        module_index = module_index.to_bytes(2, byteorder="little", signed=False)
-        param_id = param_id.to_bytes(2, byteorder="little", signed=False)
-        instance = instance.to_bytes(2, byteorder="little", signed=False)
+        # module indexing starts with 1 (see datasheet)
+        module_index = (position + 1).to_bytes(2, byteorder="little")
+        param_id = param_id.to_bytes(2, byteorder="little")
+        instance = instance.to_bytes(2, byteorder="little")
         # length in 16 bit registers
-        length = (len(data) // 2).to_bytes(2, byteorder="little", signed=False)
-        command = struct.pack("<H", 2)  # 1=read, 2=write
+        length = (len(data) // 2).to_bytes(2, byteorder="little")
+        command = (2).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
         # Strangely this sending has to be repeated several times,
         # actually it is tried up to 10 times.
         for i in range(10):
-            self.write_reg_data(module_index, param_reg)
-            self.write_reg_data(param_id, param_reg + 1)
-            self.write_reg_data(instance, param_reg + 2)
-            self.write_reg_data(length, param_reg + 3)
+            # prepare the command
+            self.write_reg_data(module_index + param_id + instance + length, param_reg)
+            # write data to register
             self.write_reg_data(data, param_reg + 10)
-
-            self.write_reg_data(command, param_reg + 3)  # 1=read, 2=write
+            # execute the command
+            self.write_reg_data(command, param_reg + 3)
 
             exe_code = 0
             while exe_code < 16:
                 exe_code = int.from_bytes(
-                    self.read_reg_data(param_reg + 3), byteorder="little", signed=False
+                    self.read_reg_data(param_reg + 3), byteorder="little"
                 )
                 # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
                 if exe_code == 4:
@@ -338,32 +337,27 @@ class CpxAp(CpxBase):
         """
 
         param_reg = cpx_ap_registers.PARAMETERS.register_address
-        module_index = position + 1  # indexing starts with 1 (see datasheet)
-        module_index = module_index.to_bytes(2, byteorder="little", signed=False)
-        param_id = param_id.to_bytes(2, byteorder="little", signed=False)
-        instance = instance.to_bytes(2, byteorder="little", signed=False)
-        command = struct.pack("<H", 1)  # 1=read, 2=write
+        # module indexing starts with 1 (see datasheet)
+        module_index = (position + 1).to_bytes(2, byteorder="little")
+        param_id = param_id.to_bytes(2, byteorder="little")
+        instance = instance.to_bytes(2, byteorder="little")
+        command = (1).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
-        self.write_reg_data(module_index, param_reg)
-        self.write_reg_data(param_id, param_reg + 1)
-        self.write_reg_data(instance, param_reg + 2)
-
-        self.write_reg_data(command, param_reg + 3)
+        # prepare and execute the read command
+        self.write_reg_data(module_index + param_id + instance + command, param_reg)
 
         # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
         exe_code = 0
         while exe_code < 16:
             exe_code = int.from_bytes(
-                self.read_reg_data(param_reg + 3), byteorder="little", signed=False
+                self.read_reg_data(param_reg + 3), byteorder="little"
             )
             if exe_code == 4:
                 raise CpxRequestError
 
-        # get datalength from register 10004
+        # get datalength in bytes from register 10004
         data_length = div_ceil(
-            int.from_bytes(
-                self.read_reg_data(param_reg + 4), byteorder="little", signed=False
-            ),
+            int.from_bytes(self.read_reg_data(param_reg + 4), byteorder="little"),
             2,
         )
 

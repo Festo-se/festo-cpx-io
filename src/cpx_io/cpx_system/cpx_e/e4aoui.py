@@ -377,8 +377,6 @@ class CpxE4AoUI(CpxEModule):
         elif channel == 3:
             function_number += 12
             value_to_write = (reg_23 & 0x0F) | value[signalrange] << 4
-        else:
-            raise ValueError(f"'{channel}' is not in range 0...3")
 
         self.base.write_function_number(function_number, value_to_write)
 
