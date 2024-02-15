@@ -517,7 +517,8 @@ class TestCpxE4AiUI:
         cpxe4aiui.base.write_function_number.assert_has_calls(expected_value)
 
     @pytest.mark.parametrize(
-        "input_value", [(0, None, 50000), (0, -50000, None), (4, None, 0)]
+        "input_value",
+        [(0, None, 50000), (0, -50000, None), (4, None, 0), (0, None, None)],
     )
     def test_configure_channel_limits_raise_error(self, input_value):
         """Test configure_channel_diagnostics_parameter_error"""

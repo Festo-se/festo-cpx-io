@@ -206,6 +206,29 @@ class TestCpxE4Iol:
     @pytest.mark.parametrize(
         "input_value, expected_value",
         [
+            (True, (4892 + 1, 0xAA)),
+            (False, (4892 + 1, 0xA8)),
+        ],
+    )
+    def test_configure_behaviour_after_sco(self, input_value, expected_value):
+        """Test configure_behaviour_after_sco"""
+        # Arrange
+        cpxe4iol = CpxE4Iol()
+        cpxe4iol.position = 1
+        cpxe4iol.base = Mock(
+            read_function_number=Mock(return_value=0xAA), write_reg_data=Mock()
+        )
+
+        # Act
+        cpxe4iol.configure_behaviour_after_sco(input_value)
+
+        # Assert
+        cpxe4iol.base.read_function_number.assert_called_with(expected_value[0])
+        cpxe4iol.base.write_function_number.assert_called_with(*expected_value)
+
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
             (True, (4892 + 6, 0xAB)),
             (False, (4892 + 6, 0xAA)),
         ],
