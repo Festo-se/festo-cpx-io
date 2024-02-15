@@ -20,9 +20,11 @@ class TestCpxAp:
     @patch.object(CpxAp, "read_module_information")
     @patch.object(CpxAp, "write_reg_data")
     @patch.object(CpxAp, "read_reg_data")
+    @patch.object(CpxAp, "read_parameter")
     # @patch.object(CpxAp, "add_module")
     def test_constructor_correct_type(
         self,
+        mock_read_parameter,
         mock_read_reg_data,
         mock_write_reg_data,
         mock_read_module_information,
@@ -41,6 +43,7 @@ class TestCpxAp:
         ]
         mock_read_module_information.side_effect = module_information_list
         mock_read_reg_data.side_effect = [b"\x64\x00\x00\x00"]
+        mock_read_parameter.return_value = 0
 
         # Act
         cpxap = CpxAp()
