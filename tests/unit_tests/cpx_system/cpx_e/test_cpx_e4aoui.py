@@ -117,6 +117,42 @@ class TestCpxE4AoUI:
             b"\x00\x00\x01\x00\x02\x00\x03\x00", cpxe4aoui.output_register
         )
 
+    @pytest.mark.parametrize("input_value", [-1, 4])
+    def test_read_channel_out_of_range(self, input_value):
+        """test read channel"""
+        # Arrange
+        cpxe4aoui = CpxE4AoUI()
+        cpxe4aoui.output_register = 0
+        cpxe4aoui.base = Mock()
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            cpxe4aoui.read_channel(input_value)
+
+    @pytest.mark.parametrize("input_value", [-1, 4])
+    def test_write_channel_out_of_range(self, input_value):
+        """test write channel"""
+        # Arrange
+        cpxe4aoui = CpxE4AoUI()
+        cpxe4aoui.output_register = 0
+        cpxe4aoui.base = Mock()
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            cpxe4aoui.write_channel(input_value, 0)
+
+    @pytest.mark.parametrize("input_value", [[0], [0, 1], [0, 1, 2], [0, 1, 2, 3, 4]])
+    def test_write_channels_wrong_length(self, input_value):
+        """test write channels"""
+        # Arrange
+        cpxe4aoui = CpxE4AoUI()
+        cpxe4aoui.output_register = 0
+        cpxe4aoui.base = Mock()
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            cpxe4aoui.write_channels(input_value)
+
     def test_write_channels_negative(self):
         """test write channels"""
         # Arrange
@@ -436,6 +472,7 @@ class TestCpxE4AoUI:
         [
             (0, "not_implemented"),
             (4, "0-10V"),
+            (-1, "None"),
         ],
     )
     def test_configure_channel_range_raise_error(self, input_value):

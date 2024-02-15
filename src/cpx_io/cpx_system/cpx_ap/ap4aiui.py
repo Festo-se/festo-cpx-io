@@ -143,10 +143,10 @@ class CpxAp4AiUI(CpxApModule):
         :type lower: int
         """
 
-        self.configure_linear_scaling(channel, True)
-
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
+
+        self.configure_linear_scaling(channel, True)
 
         if isinstance(lower, int):
             if not -32768 <= lower <= 32767:

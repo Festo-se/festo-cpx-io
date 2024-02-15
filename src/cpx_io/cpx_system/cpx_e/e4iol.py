@@ -161,7 +161,7 @@ class CpxE4Iol(CpxEModule):
         """The "Behaviour after SCO" parameter defines whether the voltage remains deactivated or
         reactivates automatically after a short circuit or overload at the IO-Link® interfaces
         (ports). The voltage can be switched on again with the "leave switched off" setting by
-        deactivating and then reactivating the "PS supply" (è Tab. 19 ) parameter. Otherwise the
+        deactivating and then reactivating the "PS supply" parameter. Otherwise the
         activation and deactivation of the automation system CPX-E is required to restore the
         voltage.
 

@@ -261,6 +261,38 @@ class TestCpxBase:
         # Assert
         assert integer == b"\xAA\xFF"
 
+    def test_bitwise_reg_int(self):
+        "Test bitwiseReg functions"
+
+        # Arrange
+        @dataclass
+        class TestRegister(CpxBase.BitwiseReg16):
+            """register dataclass"""
+
+            bit0: bool = False
+            bit1: bool = True
+            bit2: bool = False
+            bit3: bool = True
+            bit4: bool = False
+            bit5: bool = True
+            bit6: bool = False
+            bit7: bool = True
+            bit8: bool = True
+            bit9: bool = True
+            bit10: bool = True
+            bit11: bool = True
+            bit12: bool = True
+            bit13: bool = True
+            bit14: bool = True
+            bit15: bool = True
+
+        # Act
+        reg = TestRegister()
+        integer = int(reg)
+
+        # Assert
+        assert integer == 0xFFAA
+
     def test_read_reg_data_without_length(self):
         "Test read_reg_data function"
 
