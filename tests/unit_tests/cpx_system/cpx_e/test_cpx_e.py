@@ -1,5 +1,6 @@
 """Contains tests for CpxE class"""
-from unittest.mock import Mock, patch
+
+from unittest.mock import Mock, patch, call
 import pytest
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
@@ -50,7 +51,7 @@ class TestCpxE:
         cpx_e = CpxE(modules=[CpxEEp(), CpxE16Di()])
 
         # Act
-        cpx_e.cpxe16di.name = "my16di"
+        cpx_e.cpxe16di.name = "my16di"  # pylint: disable="no-member"
 
         # Assert
         assert isinstance(cpx_e.my16di, CpxE16Di)  # pylint: disable="no-member"
@@ -183,7 +184,7 @@ class TestCpxE:
         """Test module count"""
         # Arrange
         cpx_e = CpxE()
-        cpx_e.read_reg_data = Mock(return_value=[0xAA, 0xAA, 0xAA])
+        cpx_e.read_reg_data = Mock(return_value=b"\xAA\xAA\xAA")
 
         # Act
         module_count = cpx_e.module_count()
@@ -192,15 +193,109 @@ class TestCpxE:
         assert module_count == bin(0xAAAAAA)[2:].count("1")
         cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.MODULE_CONFIGURATION)
 
-    def test_fault_detection(self):
-        """Test fault detection"""
+    def test_read_fault_detection(self):
+        """Test read fault detection"""
         # Arrange
         cpx_e = CpxE()
-        cpx_e.read_reg_data = Mock(return_value=[0xAA, 0xBB, 0xCC])
+        cpx_e.read_reg_data = Mock(return_value=b"\xAA\xBB\xCC")
 
         # Act
-        fault_detection = cpx_e.fault_detection()
+        fault_detection = cpx_e.read_fault_detection()
 
         # Assert
         assert fault_detection == [x == "1" for x in bin(0xCCBBAA)[2:]][::-1]
         cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.FAULT_DETECTION)
+
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
+            (b"\xCA\xFE", (True, True)),
+            (b"\x00\x00", (False, False)),
+            (b"\x00\x88", (True, True)),
+            (b"\x00\x77", (False, False)),
+        ],
+    )
+    def test_read_status(self, input_value, expected_value):
+        """Test read status"""
+        # Arrange
+        cpx_e = CpxE()
+        cpx_e.read_reg_data = Mock(return_value=input_value)
+
+        # Act
+        status = cpx_e.read_status()
+
+        # Assert
+        # tuple of bit (11, 15)
+        assert status == expected_value
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.STATUS_REGISTER)
+
+    def test_read_device_identification(self):
+        """Test read_device_identification"""
+        # Arrange
+        cpx_e = CpxE()
+        cpx_e.read_function_number = Mock(return_value=42)
+        # Act
+        device_identification = cpx_e.read_device_identification()
+        # Assert
+        assert device_identification == 42
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_write_function_number(self, input_value):
+        """Test write_function_number"""
+        # Arrange
+        cpx_e = CpxE()
+        cpx_e.read_reg_data = Mock(return_value=b"\x00\x80")
+        cpx_e.write_reg_data = Mock()
+
+        # Act
+        FUNC_NUM = 0
+        cpx_e.write_function_number(FUNC_NUM, input_value)
+
+        # Assert
+        cpx_e.write_reg_data.assert_has_calls(
+            [
+                call(
+                    input_value.to_bytes(2, "little"),
+                    cpx_e_registers.DATA_SYSTEM_TABLE_WRITE.register_address,
+                ),
+                call(
+                    b"\x00\x00",
+                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                ),
+                call(
+                    b"\x00\xA0",
+                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                ),
+            ]
+        )
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.PROCESS_DATA_INPUTS)
+
+    def test_read_function_number(self):
+        """Test read_function_number"""
+        # Arrange
+        cpx_e = CpxE()
+        cpx_e.read_reg_data = Mock(return_value=b"\x00\xA0")
+        cpx_e.write_reg_data = Mock()
+
+        # Act
+        cpx_e.read_function_number(1)
+
+        # Assert
+        cpx_e.write_reg_data.assert_has_calls(
+            [
+                call(
+                    b"\x00\x00",
+                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                ),
+                call(
+                    b"\x01\x80",  # function number | control bit 15
+                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                ),
+            ]
+        )
+        cpx_e.read_reg_data.assert_has_calls(
+            [
+                call(*cpx_e_registers.PROCESS_DATA_INPUTS),
+                call(*cpx_e_registers.DATA_SYSTEM_TABLE_READ),
+            ]
+        )

@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- CpxE: functions renamed to read_status, read_fault_detection
 - CpxBase: now initializes with self.base=None instead of no self.base at all
 - CpxAp: Parameter read/write now utilizes multi-register access
 - CpxApEP: deleted write_parameters(), added configure_monitoring_load_supply() instead
