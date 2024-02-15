@@ -589,7 +589,7 @@ def test_4iol_sdas(test_cpxe):
     time.sleep(0.05)
     assert e4iol.read_line_state()[0] == "OPERATE"
 
-    sdas_data = e4iol.read_channel(0)[:2]  # only two bytes relevant
+    sdas_data = e4iol.read_channel(0)  # only two bytes relevant
 
     process_data = int.from_bytes(sdas_data, byteorder="big")
 
@@ -617,7 +617,6 @@ def test_4iol_ehps(test_cpxe):
     def read_process_data_in(module, channel):
         # ehps provides 48 bit "process data in".
         data = module.read_channel(channel)
-        # this unpack is not good, just for testing I can use legacy code
         ehps_data = struct.unpack(">HHHH", data)
         assert ehps_data[3] == 0
 

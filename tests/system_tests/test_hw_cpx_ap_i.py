@@ -526,7 +526,39 @@ def test_4iol_sdas(test_cpxap):
     param = a4iol.read_fieldbus_parameters()
     assert param[0]["Port status information"] == "OPERATE"
 
-    sdas_data = a4iol.read_channel(0)[:2]  # only two bytes relevant
+    sdas_data = a4iol.read_channel(0)
+    assert len(sdas_data) == 2
+
+    process_data = int.from_bytes(sdas_data, byteorder="big")
+
+    ssc1 = bool(process_data & 0x1)
+    ssc2 = bool(process_data & 0x2)
+    ssc3 = bool(process_data & 0x4)
+    ssc4 = bool(process_data & 0x8)
+    pdv = (process_data & 0xFFF0) >> 4
+
+    assert 0 <= pdv <= 4095
+
+    assert a4iol[0] == a4iol.read_channel(0)
+
+
+def test_4iol_sdas_full(test_cpxap):
+    a4iol = test_cpxap.modules[4]
+    assert isinstance(a4iol, CpxAp4Iol)
+    time.sleep(0.05)
+
+    a4iol.configure_port_mode(2, channel=0)
+
+    time.sleep(0.05)
+
+    # example SDAS-MHS on port 0
+    param = a4iol.read_fieldbus_parameters()
+    assert param[0]["Port status information"] == "OPERATE"
+
+    sdas_data = a4iol.read_channel(0, full_size=True)
+    assert len(sdas_data) == 8
+
+    sdas_data = sdas_data[:2]  # only two bytes relevant
 
     process_data = int.from_bytes(sdas_data, byteorder="big")
 
@@ -549,9 +581,8 @@ def test_4iol_ehps(test_cpxap):
     def read_process_data_in(module, channel):
         # ehps provides 3 x 16bit "process data in".
         data = module.read_channel(channel)
-        # this unpack is not good, just for testing I can use legacy code
-        ehps_data = struct.unpack(">HHHH", data)
-        assert ehps_data[3] == 0
+        # unpack it to 3x 16 bit uint
+        ehps_data = struct.unpack(">HHH", data)
 
         process_data_in = {}
 
