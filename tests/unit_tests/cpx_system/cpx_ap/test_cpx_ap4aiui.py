@@ -68,7 +68,7 @@ class TestCpxAp4AiUI:
     @pytest.mark.parametrize(
         "input_value, expected_value", [("C", 0), ("F", 1), ("K", 2)]
     )
-    def configure_channel_temp_unit(self, input_value, expected_value):
+    def test_configure_channel_temp_unit(self, input_value, expected_value):
         """Test configure_channel_temp_unit and expect success"""
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
@@ -79,12 +79,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20032  # pylint: disable=invalid-name
         cpxap4aiui.configure_channel_temp_unit(0, input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.TEMPERATURE_UNIT, expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", ["A", "1"])
@@ -132,7 +131,7 @@ class TestCpxAp4AiUI:
             ("NI100", 9),
         ],
     )
-    def configure_channel_range(self, input_value, expected_value):
+    def test_configure_channel_range(self, input_value, expected_value):
         """Test configure_channel_range and expect success"""
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
@@ -143,12 +142,11 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID = 20043  # pylint: disable=invalid-name
         cpxap4aiui.configure_channel_range(0, input_value)
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, PARAMETER_ID, 0, expected_value
+            MODULE_POSITION, cpx_ap_parameters.CHANNEL_INPUT_MODE, expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", ["A", "1"])
@@ -350,7 +348,7 @@ class TestCpxAp4AiUI:
 
         # Act & Assert
         with pytest.raises(ValueError):
-            cpxap4aiui.configure_channel_limits(input_value, 0)
+            cpxap4aiui.configure_channel_limits(input_value, upper=0, lower=0)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
