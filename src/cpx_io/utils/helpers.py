@@ -8,17 +8,17 @@ def div_ceil(x_val: int, y_val: int) -> int:
 
 def convert_uint32_to_octett(value: int) -> str:
     """Convert one uint32 value to octett. Usually used for displaying ip addresses."""
-    return f"{value & 0xFF}.{(value >> 8) & 0xFF}.{(value >> 16) & 0xFF}.{(value) >> 24 & 0xFF}"
+    return f"{(value >> 24) & 0xFF}.{(value >> 16) & 0xFF}.{(value >> 8) & 0xFF}.{(value) & 0xFF}"
 
 
 def convert_octett_to_uint32(octetts: str) -> int:
     """Convert octett string to 32 bit value. Usually used for converting ip addresses."""
     str_list = octetts.split(".")
     return (
-        int(str_list[0])
-        | (int(str_list[1]) << 8)
-        | (int(str_list[2]) << 16)
-        | (int(str_list[3]) << 24)
+        int(str_list[0] << 24)
+        | (int(str_list[1]) << 16)
+        | (int(str_list[2]) << 8)
+        | (int(str_list[3]) << 0)
     )
 
 

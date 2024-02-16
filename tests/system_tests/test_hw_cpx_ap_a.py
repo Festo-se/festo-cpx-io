@@ -176,7 +176,7 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param.dhcp_enable is True
+    assert param.dhcp_enable is False
     assert param.active_ip_address == "172.16.1.42"
     assert param.active_subnet_mask == "255.255.255.0"
     assert param.active_gateway_address == "0.0.0.0"
@@ -476,8 +476,11 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
     a4iol = test_cpxap.modules[5]
     assert isinstance(a4iol, CpxAp4Iol)
     ethrottle_channel = 2
+    time.sleep(0.05)
+    a4iol.configure_port_mode(2, ethrottle_channel)
+    time.sleep(0.05)
 
-    assert (a4iol.read_isdu(ethrottle_channel, 16, 0)[:17]) == b"Festo SE & Co. KG"
+    assert a4iol.read_isdu(ethrottle_channel, 16, 0)[:17] == b"Festo SE & Co. KG"
 
 
 def test_4iol_ethrottle_isdu_write(test_cpxap):

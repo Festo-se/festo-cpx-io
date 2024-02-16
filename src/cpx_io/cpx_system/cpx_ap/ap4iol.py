@@ -545,13 +545,13 @@ class CpxAp4Iol(CpxApModule):
         :return: device parameter (index/subindex) for given channel
         :rtype: bytes
         """
-        module_index = struct.pack("<H", self.position + 1)
-        channel = struct.pack("<H", channel + 1)
-        index = struct.pack("<H", index)
-        subindex = struct.pack("<H", subindex)
-        length = struct.pack("<H", 0)  # always zero when reading
+        module_index = (self.position + 1).to_bytes(2, "little")
+        channel = (channel + 1).to_bytes(2, "little")
+        index = index.to_bytes(2, "little")
+        subindex = subindex.to_bytes(2, "little")
+        length = (0).to_bytes(2, "little")  # always zero when reading
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        command = struct.pack("<H", 100)
+        command = (100).to_bytes(2, "little")
 
         # select module, starts with 1
         self.base.write_reg_data(
@@ -568,7 +568,6 @@ class CpxAp4Iol(CpxApModule):
             subindex, cpx_ap_registers.ISDU_SUBINDEX.register_address
         )
         # select length of data in bytes
-        length = struct.pack("<H", 0)
         self.base.write_reg_data(length, cpx_ap_registers.ISDU_LENGTH.register_address)
         # command
         self.base.write_reg_data(
@@ -577,14 +576,14 @@ class CpxAp4Iol(CpxApModule):
 
         stat = 1
         cnt = 0
-        while stat > 0 and cnt < 1000:
+        while stat > 0 and cnt < 5000:
             stat = int.from_bytes(
                 self.base.read_reg_data(*cpx_ap_registers.ISDU_STATUS),
                 byteorder="little",
             )
 
             cnt += 1
-        if cnt >= 1000:
+        if cnt >= 5000:
             raise CpxRequestError("ISDU data read failed")
 
         ret = self.base.read_reg_data(*cpx_ap_registers.ISDU_DATA)
@@ -606,13 +605,13 @@ class CpxAp4Iol(CpxApModule):
         :param subindex: io-link parameter subindex
         :type subindex: int
         """
-        module_index = struct.pack("<H", self.position + 1)
-        channel = struct.pack("<H", channel + 1)
-        index = struct.pack("<H", index)
-        subindex = struct.pack("<H", subindex)
-        length = struct.pack("<H", len(data) * 2)
+        module_index = (self.position + 1).to_bytes(2, "little")
+        channel = (channel + 1).to_bytes(2, "little")
+        index = (index).to_bytes(2, "little")
+        subindex = (subindex).to_bytes(2, "little")
+        length = (len(data) * 2).to_bytes(2, "little")
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        command = struct.pack("<H", 101)
+        command = (101).to_bytes(2, "little")
 
         # select module, starts with 1
         self.base.write_reg_data(
