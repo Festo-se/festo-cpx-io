@@ -3,7 +3,6 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
-import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
