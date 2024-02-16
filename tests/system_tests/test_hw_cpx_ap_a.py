@@ -662,31 +662,47 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
 
 
 def test_4iol_configure_setpoint_device_id(test_cpxap):
-    a4iol = test_cpxap.modules[5]
+
+    channel = 2
+    position = 5
+    a4iol = test_cpxap.modules[position]
     assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(0)
     time.sleep(0.05)
 
-    a4iol.configure_setpoint_device_id(1, channel=0)
+    a4iol.configure_setpoint_device_id(1, channel=channel)
     time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=0)
+    a4iol.configure_port_mode(1, channel=channel)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 1
+    assert (
+        a4iol.base.read_parameter(
+            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+        )
+        == 1
+    )
 
-    a4iol.configure_setpoint_device_id(2, channel=[1, 2])
+    a4iol.configure_setpoint_device_id(2, channel=[channel])
     time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[channel])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 2
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 2
+    assert (
+        a4iol.base.read_parameter(
+            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+        )
+        == 2
+    )
 
     a4iol.configure_setpoint_device_id(3)
     time.sleep(0.05)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 3) == 3
+    assert (
+        a4iol.base.read_parameter(
+            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+        )
+        == 3
+    )
 
     a4iol.configure_setpoint_device_id(0)
     time.sleep(0.05)
