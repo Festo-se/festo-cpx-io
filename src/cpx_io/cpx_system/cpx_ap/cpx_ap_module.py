@@ -12,7 +12,7 @@ class CpxApModule(CpxModule):
     """Base class for cpx-ap modules"""
 
     @dataclass
-    class ApParameters:
+    class ModuleParameters:
         """AP Parameters of module"""
 
         # pylint: disable=too-many-instance-attributes
@@ -45,13 +45,13 @@ class CpxApModule(CpxModule):
         self.information = info
 
     @CpxBase.require_base
-    def read_ap_parameter(self) -> ApParameters:
+    def read_ap_parameter(self) -> ModuleParameters:
         """Read AP parameters
 
-        :return: ApParameters object containing all AP parameters
-        :rtype: ApParameters
+        :return: ModuleParameters object containing all AP parameters
+        :rtype: ModuleParameters
         """
-        params = self.ApParameters(
+        params = self.ModuleParameters(
             fieldbus_serial_number=self.base.read_parameter(
                 self.position, cpx_ap_parameters.FIELDBUS_SERIAL_NUMBER
             ),

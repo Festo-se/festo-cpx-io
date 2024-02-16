@@ -1,8 +1,8 @@
 """Tests for cpx-ap system"""
 
 import time
-import pytest
 import struct
+import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
@@ -14,7 +14,6 @@ from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
 from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
-from cpx_io.utils.boollist import bytes_to_boollist
 
 
 @pytest.fixture(scope="function")
@@ -55,6 +54,18 @@ def test_read_module_information(test_cpxap):
     for i in range(cnt):
         modules.append(test_cpxap.read_module_information(i))
     assert modules[0].module_code in CpxApEp.module_codes
+
+
+def test_read_diagnostic_status(test_cpxap):
+
+    diagnostics = test_cpxap.modules[0].read_diagnostic_status()
+    assert isinstance(diagnostics, CpxApEp.Diagnostics)
+
+
+def test_read_bootloader_version(test_cpxap):
+
+    value = test_cpxap.modules[0].read_bootloader_version()
+    assert value == "1.2.3"
 
 
 def test_module_naming(test_cpxap):

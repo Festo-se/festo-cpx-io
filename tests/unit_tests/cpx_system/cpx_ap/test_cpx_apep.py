@@ -1,6 +1,6 @@
 """Contains tests for CpxApEp class"""
 
-from unittest.mock import Mock, call
+from unittest.mock import Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
@@ -110,3 +110,37 @@ class TestCpxApEp:
         # Act & Assert
         with pytest.raises(ValueError):
             cpxapep.configure_monitoring_load_supply(input_value)
+
+    def test_read_diagnostic_status(self):
+        """Test read_diagnostic_status"""
+        # Arrange
+        MODULE_POSITION = 0  # pylint: disable=invalid-name
+
+        cpxapep = CpxApEp()
+        cpxapep.position = MODULE_POSITION
+
+        ret = CpxApEp.Diagnostics.from_bytes(b"\xAA")
+        cpxapep.base = Mock(read_parameter=Mock(return_value=ret))
+
+        # Act
+        diagnostics = cpxapep.read_diagnostic_status()
+
+        # Assert
+        assert isinstance(diagnostics, CpxApEp.Diagnostics)
+        assert diagnostics == [False, True] * 4
+
+    def test_read_bootloader_version(self):
+        """Test read_bootloader_version"""
+        # Arrange
+        MODULE_POSITION = 0  # pylint: disable=invalid-name
+
+        cpxapep = CpxApEp()
+        cpxapep.position = MODULE_POSITION
+
+        cpxapep.base = Mock(read_parameter=Mock(return_value="1.2.3"))
+
+        # Act
+        value = cpxapep.read_bootloader_version()
+
+        # Assert
+        assert value == "1.2.3"

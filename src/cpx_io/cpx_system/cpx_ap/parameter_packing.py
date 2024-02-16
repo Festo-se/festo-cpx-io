@@ -22,13 +22,13 @@ TYPE_TO_FORMAT_CHAR = {
 
 
 def parameter_unpack(
-    parameter: cpx_ap_parameters.ApParameter, raw: bytes, forced_format: str = None
+    parameter: cpx_ap_parameters.ParameterMapItem, raw: bytes, forced_format: str = None
 ) -> Any:
     """Unpacks a raw byte value to specific type.
     The type is determined by the parameters included in cpx_ap_parameters.
 
     param parameter: Parameter that should be unpacked.
-    type parameter: ApParameter
+    type parameter: ParameterMapItem
     param raw: Raw bytes value that should be unpacked.
     type raw: bytes
     param forced_format: Optional format char (see struct) to force the unpacking strategy.
@@ -75,13 +75,13 @@ def parameter_unpack(
 
 
 def parameter_pack(
-    parameter: cpx_ap_parameters.ApParameter, value: Any, forced_format: str = None
+    parameter: cpx_ap_parameters.ParameterMapItem, value: Any, forced_format: str = None
 ) -> bytes:
     """Packs a provided value to raw bytes object.
     The type is determined by the parameters included in cpx_ap_parameters.
 
      param parameter: Parameter of value that should be unpacked.
-     type parameter: ApParameter
+     type parameter: ParameterMapItem
      param value: Value that should be packed.
      type value: Any
      param forced_format: Optional format char (see struct) to force the packing strategy.
@@ -105,7 +105,7 @@ def parameter_pack(
             array_size = int(array_size)
             if array_size != len(value):
                 Logging.logger.warning(
-                    f"Length of value {value} does not fit length of ApParameter ({array_size})"
+                    f"Length of value {value} does not fit length of ParameterMapItem ({array_size})"
                 )
             pack_data_type = f"{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
         else:

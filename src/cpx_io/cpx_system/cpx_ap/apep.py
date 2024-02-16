@@ -36,6 +36,19 @@ class CpxApEp(CpxApModule):
         mac_address: str = None
         setup_monitoring_load_supply: int = None
 
+    @dataclass
+    class Diagnostics(CpxBase.BitwiseReg8):
+        """Diagnostic information"""
+
+        degree_of_severity_information: bool
+        degree_of_severity_maintenance: bool
+        degree_of_severity_warning: bool
+        degree_of_severity_error: bool
+        _: None  # spacer for not-used bit
+        _: None  # spacer for not-used bit
+        module_present: bool
+        _: None  # spacer for not-used bit
+
     def configure(self, base: CpxBase, position: int) -> None:
         """Setup a module with the according base and position in the system.
         This overwrites the inherited configure function because the Busmodule -EP is
@@ -142,3 +155,28 @@ class CpxApEp(CpxApModule):
             "active",
         ]
         Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")
+
+    @CpxBase.require_base
+    def read_diagnostic_status(self) -> list[Diagnostics]:
+        """Read the diagnostic status and return a Diagnostics object for each module
+
+        :ret value: Diagnostics status for every module
+        :rtype: list[Diagnostics]
+        """
+        # overwrite the type [n] with the actual module count
+        ap_diagnosis_parameter = cpx_ap_parameters.AP_DIAGNOSIS_STATUS
+        ap_diagnosis_parameter.dtype = f"UINT8{self.base.module_count + 1}]"
+
+        reg = self.base.read_parameter(self.position, ap_diagnosis_parameter)
+        return self.Diagnostics.from_bytes(reg)
+
+    @CpxBase.require_base
+    def read_bootloader_version(self) -> str:
+        """Read the bootloader version
+
+        :ret value: bootloader version
+        :rtype: str
+        """
+        return self.base.read_parameter(
+            self.position, cpx_ap_parameters.BOOTLOADER_VERSION_STRING
+        )
