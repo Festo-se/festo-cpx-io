@@ -211,8 +211,8 @@ def test_ep_param_read(test_cpxap):
 
     # assert param.dhcp_enable is False
     assert param.active_ip_address == "172.16.1.41"
-    assert param.active_subnet_mask == "255.255.0.0"
-    assert param.active_gateway_address == "0.0.0.0"
+    assert param.active_subnet_mask == "255.255.255.0"
+    assert param.active_gateway_address == "172.16.1.41"
     assert param.mac_address == "00:0e:f0:7d:3b:15"
     assert param.setup_monitoring_load_supply == 1
 

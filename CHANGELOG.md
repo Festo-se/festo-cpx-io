@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- ap4iol: code optimization
 - CpxE: functions renamed to read_status, read_fault_detection
 - CpxBase: now initializes with self.base=None instead of no self.base at all
 - CpxAp: Parameter read/write now utilizes multi-register access
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated modules list so each module can be adressed via the base class
 
 ### Fixed
+- ip-address octetts now in correct order
 - Project URLs in pyproject.toml
 - General Bugfixes
 

@@ -49,12 +49,12 @@ class TestCpxApEp:
         cpxapep.base = Mock(read_parameter=Mock())
         cpxapep.base.read_parameter.side_effect = [
             True,
-            0xA8C0 + (0x0101 << 16),
-            0xFFFF + (0x0000 << 16),
-            0xA8C0 + (0x0001 << 16),
-            0xA8C0 + (0x0201 << 16),
-            0xFFFF + (0x00FF << 16),
-            0xA8C0 + (0x0301 << 16),
+            0xC0A80101,
+            0xFFFFFF00,
+            0xC0A80100,
+            0xC0A80102,
+            0xFFFFFF00,
+            0xC0A80103,
             [0xDE, 0xAD, 0xC0, 0xFF, 0xEE, 0x00],
             0xFF03,
         ]
@@ -62,7 +62,7 @@ class TestCpxApEp:
         expected = CpxApEp.Parameters(
             dhcp_enable=True,
             ip_address="192.168.1.1",
-            subnet_mask="255.255.0.0",
+            subnet_mask="255.255.255.0",
             gateway_address="192.168.1.0",
             active_ip_address="192.168.1.2",
             active_subnet_mask="255.255.255.0",

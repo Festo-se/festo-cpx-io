@@ -49,7 +49,7 @@ def test_fault_detection(test_cpxe):
 
 
 def test_status_register(test_cpxe):
-    response = test_cpxe.read_status_register()
+    response = test_cpxe.read_status()
     assert response == (False, False)
 
 

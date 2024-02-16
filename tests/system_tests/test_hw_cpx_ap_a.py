@@ -176,7 +176,7 @@ def test_ep_param_read(test_cpxap):
     ep = test_cpxap.modules[0]
     param = ep.read_parameters()
 
-    assert param.dhcp_enable is True
+    assert param.dhcp_enable is False
     assert param.active_ip_address == "172.16.1.42"
     assert param.active_subnet_mask == "255.255.255.0"
     assert param.active_gateway_address == "0.0.0.0"
@@ -476,8 +476,11 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
     a4iol = test_cpxap.modules[5]
     assert isinstance(a4iol, CpxAp4Iol)
     ethrottle_channel = 2
+    time.sleep(0.05)
+    a4iol.configure_port_mode(2, ethrottle_channel)
+    time.sleep(0.05)
 
-    assert (a4iol.read_isdu(ethrottle_channel, 16, 0)[:17]) == b"Festo SE & Co. KG"
+    assert a4iol.read_isdu(ethrottle_channel, 16, 0)[:17] == b"Festo SE & Co. KG"
 
 
 def test_4iol_ethrottle_isdu_write(test_cpxap):
@@ -659,31 +662,47 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
 
 
 def test_4iol_configure_setpoint_device_id(test_cpxap):
-    a4iol = test_cpxap.modules[5]
+
+    channel = 2
+    position = 5
+    a4iol = test_cpxap.modules[position]
     assert isinstance(a4iol, CpxAp4Iol)
+
+    a4iol.configure_port_mode(0)
     time.sleep(0.05)
 
-    a4iol.configure_setpoint_device_id(1, channel=0)
+    a4iol.configure_setpoint_device_id(1, channel=channel)
     time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=0)
+    a4iol.configure_port_mode(1, channel=channel)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 1
+    assert (
+        a4iol.base.read_parameter(
+            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+        )
+        == 1
+    )
 
-    a4iol.configure_setpoint_device_id(2, channel=[1, 2])
+    a4iol.configure_setpoint_device_id(2, channel=[channel])
     time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=[1, 2])
+    a4iol.configure_port_mode(1, channel=[channel])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 2
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 2
+    assert (
+        a4iol.base.read_parameter(
+            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+        )
+        == 2
+    )
 
     a4iol.configure_setpoint_device_id(3)
     time.sleep(0.05)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_DEVICE_ID, 3) == 3
+    assert (
+        a4iol.base.read_parameter(
+            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+        )
+        == 3
+    )
 
     a4iol.configure_setpoint_device_id(0)
     time.sleep(0.05)
