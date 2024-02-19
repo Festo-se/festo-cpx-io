@@ -53,6 +53,35 @@ class TestCpxBase:
             assert isinstance(cpx, CpxBase)
             assert isinstance(cpx.client, ModbusTcpClient)
 
+    def test_read_device_info(self):
+        "Test read_device_info"
+        # Arrange
+        cpx = CpxBase()
+
+        class mock_rres:
+            "mock ReadDeviceInformationRequest data"
+            information = [
+                b"Festo SE & Co. KG",
+                b"CPX-E-EP",
+                b"1.2",
+                b"http://www.festo.com",
+                b"Modbus TCP",
+                b"CPX-E-Terminal",
+            ]
+
+        cpx.client = Mock(execute=Mock(return_value=mock_rres()))
+
+        # Act
+        info = cpx.read_device_info()
+
+        # Assert
+        assert info["vendor_name"] == "Festo SE & Co. KG"
+        assert info["product_code"] == "CPX-E-EP"
+        assert info["revision"] == "1.2"
+        assert info["vendor_url"] == "http://www.festo.com"
+        assert info["product_name"] == "Modbus TCP"
+        assert info["model_name"] == "CPX-E-Terminal"
+
     def test_bitwiseReg8_from_bytes(self):
         "Test bitwiseReg functions"
 

@@ -6,6 +6,7 @@ from dataclasses import dataclass, fields
 from functools import wraps
 
 from pymodbus.client import ModbusTcpClient
+from pymodbus.mei_message import ReadDeviceInformationRequest
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
 
@@ -74,6 +75,32 @@ class CpxBase:
         else:
             Logging.logger.info("No connection to close")
         return False
+
+    def read_device_info(self) -> dict:
+        """Reads device info from the CPX system and returns dict with containing values
+
+        return: Contains device information values
+        rtype: dict
+        """
+        dev_info = {}
+
+        # Read device information
+        rreq = ReadDeviceInformationRequest(0x1, 0)
+        rres = self.client.execute(rreq)
+        dev_info["vendor_name"] = rres.information[0].decode("ascii")
+        dev_info["product_code"] = rres.information[1].decode("ascii")
+        dev_info["revision"] = rres.information[2].decode("ascii")
+
+        rreq = ReadDeviceInformationRequest(0x2, 0)
+        rres = self.client.execute(rreq)
+        dev_info["vendor_url"] = rres.information[3].decode("ascii")
+        dev_info["product_name"] = rres.information[4].decode("ascii")
+        dev_info["model_name"] = rres.information[5].decode("ascii")
+
+        for key, value in dev_info.items():
+            Logging.logger.info(f"{key.replace('_',' ').title()}: {value}")
+
+        return dev_info
 
     @dataclass
     class _BitwiseReg:
