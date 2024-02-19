@@ -225,7 +225,7 @@ class CpxAp(CpxBase):
     def write_parameter(
         self,
         position: int,
-        parameter: cpx_ap_parameters.ApParameter,
+        parameter: cpx_ap_parameters.ParameterMapItem,
         data: list[int] | int | bool,
         instance: int = 0,
     ) -> None:
@@ -236,7 +236,7 @@ class CpxAp(CpxBase):
         :param position: Module position index starting with 0
         :type position: int
         :param parameter: AP Parameter
-        :type parameter: ApParameter
+        :type parameter: ParameterMapItem
         :param data: list of 16 bit signed integers, one signed 16 bit integer or bool to write
         :type data: list | int | bool
         :param instance: Parameter Instance (typically used to define the channel, see datasheet)
@@ -304,7 +304,7 @@ class CpxAp(CpxBase):
     def read_parameter(
         self,
         position: int,
-        parameter: cpx_ap_parameters.ApParameter,
+        parameter: cpx_ap_parameters.ParameterMapItem,
         instance: int = 0,
     ) -> Any:
         """Read parameter
@@ -312,7 +312,7 @@ class CpxAp(CpxBase):
         :param position: Module position index starting with 0
         :type position: int
         :param parameter: AP Parameter
-        :type parameter: ApParameter
+        :type parameter: ParameterMapItem
         :param instance: (optional) Parameter Instance (typically the channel, see datasheet)
         :type instance: int
         :return: Parameter value

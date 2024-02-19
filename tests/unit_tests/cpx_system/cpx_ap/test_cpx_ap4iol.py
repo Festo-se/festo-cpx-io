@@ -26,7 +26,7 @@ class TestCpxAp4Iol:
     @patch.object(
         CpxApModule,
         "read_ap_parameter",
-        return_value=CpxApModule.ApParameters(
+        return_value=CpxApModule.ModuleParameters(
             fieldbus_serial_number=0,
             product_key="pk",
             firmware_version="fw",
