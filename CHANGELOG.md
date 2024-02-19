@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.2.0 - 26.01.24
 ### Added
+- CpxApEp: read_diagnostic_status reads Diagnostics for each module
+- CpxApEp: read_bootloader_version
 - Unittests for CpxBase
 - More examples
 - Added content to README.md
@@ -28,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- Renamed ApParameter to ParameterMapItem,
+- Renamed ApParameters to ModuleParameters
 - ap4iol: code optimization
 - CpxE: functions renamed to read_status, read_fault_detection
 - CpxBase: now initializes with self.base=None instead of no self.base at all

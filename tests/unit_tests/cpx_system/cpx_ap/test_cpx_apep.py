@@ -119,15 +119,25 @@ class TestCpxApEp:
         cpxapep = CpxApEp()
         cpxapep.position = MODULE_POSITION
 
-        ret = CpxApEp.Diagnostics.from_bytes(b"\xAA")
+        ret = [0xAA] * 5
         cpxapep.base = Mock(read_parameter=Mock(return_value=ret))
+        cpxapep.base.read_module_count = Mock(return_value=4)
+
+        ap_diagnosis_parameter = cpx_ap_parameters.ParameterMapItem(
+            cpx_ap_parameters.AP_DIAGNOSIS_STATUS.id, "UINT8[5]"
+        )
+        expected = CpxApEp.Diagnostics.from_int(0xAA)
 
         # Act
         diagnostics = cpxapep.read_diagnostic_status()
 
         # Assert
-        assert isinstance(diagnostics, CpxApEp.Diagnostics)
-        assert diagnostics == [False, True] * 4
+        cpxapep.base.read_parameter.assert_called_with(
+            MODULE_POSITION, ap_diagnosis_parameter
+        )
+        assert all(isinstance(d, CpxApEp.Diagnostics) for d in diagnostics)
+        assert diagnostics == [expected] * 5
+        assert len(diagnostics) == 5
 
     def test_read_bootloader_version(self):
         """Test read_bootloader_version"""

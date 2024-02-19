@@ -59,7 +59,8 @@ def test_read_module_information(test_cpxap):
 def test_read_diagnostic_status(test_cpxap):
 
     diagnostics = test_cpxap.modules[0].read_diagnostic_status()
-    assert isinstance(diagnostics, CpxApEp.Diagnostics)
+    assert len(diagnostics) == test_cpxap.read_module_count() + 1
+    assert all(isinstance(d, CpxApEp.Diagnostics) for d in diagnostics)
 
 
 def test_read_bootloader_version(test_cpxap):

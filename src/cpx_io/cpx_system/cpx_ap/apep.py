@@ -40,14 +40,15 @@ class CpxApEp(CpxApModule):
     class Diagnostics(CpxBase.BitwiseReg8):
         """Diagnostic information"""
 
+        # pylint: disable=too-many-instance-attributes
         degree_of_severity_information: bool
         degree_of_severity_maintenance: bool
         degree_of_severity_warning: bool
         degree_of_severity_error: bool
-        _: None  # spacer for not-used bit
-        _: None  # spacer for not-used bit
+        _4: None  # spacer for not-used bit
+        _5: None  # spacer for not-used bit
         module_present: bool
-        _: None  # spacer for not-used bit
+        _7: None  # spacer for not-used bit
 
     def configure(self, base: CpxBase, position: int) -> None:
         """Setup a module with the according base and position in the system.
@@ -163,12 +164,14 @@ class CpxApEp(CpxApModule):
         :ret value: Diagnostics status for every module
         :rtype: list[Diagnostics]
         """
-        # overwrite the type [n] with the actual module count
-        ap_diagnosis_parameter = cpx_ap_parameters.AP_DIAGNOSIS_STATUS
-        ap_diagnosis_parameter.dtype = f"UINT8{self.base.module_count + 1}]"
+        # overwrite the type UINT8[n] with the actual module count + 1 (see datasheet)
+        ap_diagnosis_parameter = cpx_ap_parameters.ParameterMapItem(
+            id=cpx_ap_parameters.AP_DIAGNOSIS_STATUS.id,
+            dtype=f"UINT8[{self.base.read_module_count() + 1}]",
+        )
 
         reg = self.base.read_parameter(self.position, ap_diagnosis_parameter)
-        return self.Diagnostics.from_bytes(reg)
+        return [self.Diagnostics.from_int(r) for r in reg]
 
     @CpxBase.require_base
     def read_bootloader_version(self) -> str:
