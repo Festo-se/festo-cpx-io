@@ -105,7 +105,8 @@ def parameter_pack(
             array_size = int(array_size)
             if array_size != len(value):
                 Logging.logger.warning(
-                    f"Length of value {value} does not fit length of ParameterMapItem ({array_size})"
+                    f"Length of value {value} does not fit length "
+                    f"of ParameterMapItem ({array_size})"
                 )
             pack_data_type = f"{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
         else:
