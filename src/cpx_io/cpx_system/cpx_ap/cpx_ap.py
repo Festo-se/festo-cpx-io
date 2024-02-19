@@ -34,6 +34,20 @@ class CpxAp(CpxBase):
         product_key: str = None
         order_text: str = None
 
+    @dataclass
+    class Diagnostics(CpxBase.BitwiseReg8):
+        """Diagnostic information"""
+
+        # pylint: disable=too-many-instance-attributes
+        degree_of_severity_information: bool
+        degree_of_severity_maintenance: bool
+        degree_of_severity_warning: bool
+        degree_of_severity_error: bool
+        _4: None  # spacer for not-used bit
+        _5: None  # spacer for not-used bit
+        module_present: bool
+        _7: None  # spacer for not-used bit
+
     def __init__(self, timeout: float = 0.1, **kwargs):
         """Constructor of the CpxAp class.
 
@@ -221,6 +235,21 @@ class CpxAp(CpxBase):
         )
         Logging.logger.debug(f"Reading ModuleInformation: {info}")
         return info
+
+    def read_diagnostic_status(self) -> list[Diagnostics]:
+        """Read the diagnostic status and return a Diagnostics object for each module
+
+        :ret value: Diagnostics status for every module
+        :rtype: list[Diagnostics]
+        """
+        # overwrite the type UINT8[n] with the actual module count + 1 (see datasheet)
+        ap_diagnosis_parameter = cpx_ap_parameters.ParameterMapItem(
+            id=cpx_ap_parameters.AP_DIAGNOSIS_STATUS.id,
+            dtype=f"UINT8[{self.read_module_count() + 1}]",
+        )
+
+        reg = self.read_parameter(0, ap_diagnosis_parameter)
+        return [self.Diagnostics.from_int(r) for r in reg]
 
     def write_parameter(
         self,
