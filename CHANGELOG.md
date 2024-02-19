@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v0.2.0 - 26.01.24
 ### Added
 - CpxApEp: read_diagnostic_status reads Diagnostics for each module
-- CpxApEp: read_bootloader_version
 - Unittests for CpxBase
 - More examples
 - Added content to README.md

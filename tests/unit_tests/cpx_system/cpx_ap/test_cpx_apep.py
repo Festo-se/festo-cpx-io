@@ -138,19 +138,3 @@ class TestCpxApEp:
         assert all(isinstance(d, CpxApEp.Diagnostics) for d in diagnostics)
         assert diagnostics == [expected] * 5
         assert len(diagnostics) == 5
-
-    def test_read_bootloader_version(self):
-        """Test read_bootloader_version"""
-        # Arrange
-        MODULE_POSITION = 0  # pylint: disable=invalid-name
-
-        cpxapep = CpxApEp()
-        cpxapep.position = MODULE_POSITION
-
-        cpxapep.base = Mock(read_parameter=Mock(return_value="1.2.3"))
-
-        # Act
-        value = cpxapep.read_bootloader_version()
-
-        # Assert
-        assert value == "1.2.3"

@@ -172,14 +172,3 @@ class CpxApEp(CpxApModule):
 
         reg = self.base.read_parameter(self.position, ap_diagnosis_parameter)
         return [self.Diagnostics.from_int(r) for r in reg]
-
-    @CpxBase.require_base
-    def read_bootloader_version(self) -> str:
-        """Read the bootloader version
-
-        :ret value: bootloader version
-        :rtype: str
-        """
-        return self.base.read_parameter(
-            self.position, cpx_ap_parameters.BOOTLOADER_VERSION_STRING
-        )

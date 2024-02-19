@@ -63,12 +63,6 @@ def test_read_diagnostic_status(test_cpxap):
     assert all(isinstance(d, CpxApEp.Diagnostics) for d in diagnostics)
 
 
-def test_read_bootloader_version(test_cpxap):
-
-    value = test_cpxap.modules[0].read_bootloader_version()
-    assert value == "1.2.3"
-
-
 def test_module_naming(test_cpxap):
     assert isinstance(test_cpxap.cpxap8di, CpxAp8Di)
     test_cpxap.cpxap8di.name = "test"
