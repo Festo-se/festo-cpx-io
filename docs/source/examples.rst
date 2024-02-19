@@ -20,6 +20,11 @@ io link with sdas
     
 :download:`Download Example <../../examples/example_cpxap_iolink_sdas.py>`
 
+cyclic access with threading
+^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_cyclic.py
+    
+:download:`Download Example <../../examples/example_cpxap_cyclic.py>`
 
 CPX-E
 ------
