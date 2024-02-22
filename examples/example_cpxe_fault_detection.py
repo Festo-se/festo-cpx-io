@@ -51,7 +51,7 @@ class ThreadedCpx(CpxE):
 # main task with acyclic access
 def main():
     """main thread with acyclic access"""
-    with ThreadedCpx(ip_address="172.16.1.40") as myCPX:
+    with ThreadedCpx(ip_address="192.168.1.1") as myCPX:
         myCPX.add_module(CpxE16Di())
 
         # your main application here...
