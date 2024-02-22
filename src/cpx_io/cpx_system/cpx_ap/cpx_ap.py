@@ -107,7 +107,7 @@ class CpxAp(CpxBase):
 
         if module is None:
             raise NotImplementedError(
-                "This module is not yet implemented or not available"
+                f"Module code {info.module_code} is not yet implemented or not available"
             )
 
         module.update_information(info)
