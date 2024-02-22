@@ -4,11 +4,12 @@ import time
 import threading
 
 # import the library
-from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
+from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
+from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 
 
-class ThreadedCpx(CpxAp):
-    """Class for threaded CpxAp"""
+class ThreadedCpx(CpxE):
+    """Class for threaded CpxE"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,12 +33,12 @@ class ThreadedCpx(CpxAp):
         while not self.exit_event.is_set():
             # lock the thread when accessing the connection
             with self.lock:
-                module_status = self.read_diagnostic_status()
+                module_status = self.read_fault_detection()
 
-            if any(status.degree_of_severity_error for status in module_status):
+            if any(module_status):
                 print(
                     f"Status Error in module(s): "
-                    f"{[i for i, s in enumerate(module_status) if s.degree_of_severity_error]}"
+                    f"{[i for i, s in enumerate(module_status) if s]}"
                 )
                 self.status_error.set()
 
@@ -50,13 +51,14 @@ class ThreadedCpx(CpxAp):
 # main task with acyclic access
 def main():
     """main thread with acyclic access"""
-    with ThreadedCpx(ip_address="172.16.1.42") as myCPX:
+    with ThreadedCpx(ip_address="172.16.1.40") as myCPX:
+        myCPX.add_module(CpxE16Di())
 
         # your main application here...
         for _ in range(3):
             # acyclic communication with locking
             with myCPX.lock:
-                information = myCPX.read_module_information(0)
+                information = myCPX.read_device_identification()
                 channels = myCPX.modules[1].read_channels()
 
             # error handling

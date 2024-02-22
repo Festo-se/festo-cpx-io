@@ -71,3 +71,9 @@ io-link actuator (ehps)
 
 :download:`Download Example <../../examples/example_cpxe_iolink_ehps.py>`
 
+fault detection and threading
+^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxe_fault_detection.py
+    
+:download:`Download Example <../../examples/example_cpxe_fault_detection.py>`
+
