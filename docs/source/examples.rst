@@ -20,6 +20,11 @@ io link with sdas
     
 :download:`Download Example <../../examples/example_cpxap_iolink_sdas.py>`
 
+fault detection and threading
+^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_fault_detection.py
+    
+:download:`Download Example <../../examples/example_cpxap_fault_detection.py>`
 
 CPX-E
 ------
@@ -65,4 +70,10 @@ io-link actuator (ehps)
 .. literalinclude:: ../../examples/example_cpxe_iolink_ehps.py
 
 :download:`Download Example <../../examples/example_cpxe_iolink_ehps.py>`
+
+fault detection and threading
+^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxe_fault_detection.py
+    
+:download:`Download Example <../../examples/example_cpxe_fault_detection.py>`
 

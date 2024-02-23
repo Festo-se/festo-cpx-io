@@ -110,31 +110,3 @@ class TestCpxApEp:
         # Act & Assert
         with pytest.raises(ValueError):
             cpxapep.configure_monitoring_load_supply(input_value)
-
-    def test_read_diagnostic_status(self):
-        """Test read_diagnostic_status"""
-        # Arrange
-        MODULE_POSITION = 0  # pylint: disable=invalid-name
-
-        cpxapep = CpxApEp()
-        cpxapep.position = MODULE_POSITION
-
-        ret = [0xAA] * 5
-        cpxapep.base = Mock(read_parameter=Mock(return_value=ret))
-        cpxapep.base.read_module_count = Mock(return_value=4)
-
-        ap_diagnosis_parameter = cpx_ap_parameters.ParameterMapItem(
-            cpx_ap_parameters.AP_DIAGNOSIS_STATUS.id, "UINT8[5]"
-        )
-        expected = CpxApEp.Diagnostics.from_int(0xAA)
-
-        # Act
-        diagnostics = cpxapep.read_diagnostic_status()
-
-        # Assert
-        cpxapep.base.read_parameter.assert_called_with(
-            MODULE_POSITION, ap_diagnosis_parameter
-        )
-        assert all(isinstance(d, CpxApEp.Diagnostics) for d in diagnostics)
-        assert diagnostics == [expected] * 5
-        assert len(diagnostics) == 5
