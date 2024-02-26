@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.2.0 - 26.01.24
 ### Added
+- Systemtests for VABX
 - Examples for cyclic access with threading
 - CpxBase: read_device_info
 - CpxApEp: read_diagnostic_status reads Diagnostics for each module

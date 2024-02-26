@@ -23,21 +23,6 @@ def test_cpxap():
         yield cpxap
 
 
-"""
-def test_vabx_read(test_cpxap):
-    "test"
-    assert isinstance(test_cpxap.modules[5], VabxAP)
-    test_cpxap.modules[5].read_channels()
-
-
-def test_vabx_write(test_cpxap):
-    "test"
-    assert isinstance(test_cpxap.modules[5], VabxAP)
-    # write = [True] * 32
-    test_cpxap.modules[5].write_channel(0, True)
-"""
-
-
 def test_init(test_cpxap):
     "test init"
     assert test_cpxap
