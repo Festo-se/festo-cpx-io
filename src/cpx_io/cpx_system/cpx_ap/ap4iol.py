@@ -355,7 +355,7 @@ class CpxAp4Iol(CpxApModule):
           * 0: no test (factory setting)
           * 1: device compatible V1.0
           * 2: device compatible V1.1
-          * 3: device compatible V1.1 Data storage Backup+ Restore
+          * 3: device compatible V1.1 Data storage Backup + Restore
           * 4: device compatible V1.1 Data storage Restore
         Changes only become effective when the port mode is changed (ID 20071).
 
@@ -372,7 +372,7 @@ class CpxAp4Iol(CpxApModule):
             0: "no test",
             1: "device compatible V1.0",
             2: "device compatible V1.1",
-            3: "device compatible V1.1 Data storage Backup+ Restore",
+            3: "device compatible V1.1 Data storage Backup + Restore",
             4: "device compatible V1.1 Data storage Restore",
         }
 
