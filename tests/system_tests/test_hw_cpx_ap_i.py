@@ -13,7 +13,6 @@ from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
-from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
 
 
 @pytest.fixture(scope="function")

@@ -6,6 +6,9 @@ from enum import Enum
 class DebounceTimeEnum(Enum):
     """Enum for configure_debounce_time"""
 
+    # pylint: disable=duplicate-code
+    # intended: cpx-e and cpx-ap same debounce times
+
     T_100US = 0
     T_3MS = 1
     T_10MS = 2
@@ -40,7 +43,7 @@ class ChannelRangeEnum(Enum):
     U_4_20MA_NO_UNDERDRIVE = 10
 
 
-class e1ciDigInDebounceTimeEnum(Enum):
+class DigInDebounceTimeEnum(Enum):
     """Enum for configure_debounce_time_for_digital_inputs"""
 
     T_20US = 0
@@ -48,7 +51,7 @@ class e1ciDigInDebounceTimeEnum(Enum):
     T_3MS = 2
 
 
-class e1ciIntegrationTimeEnum(Enum):
+class IntegrationTimeEnum(Enum):
     """Enum for configure_integration_time_for_speed_measurement"""
 
     T_1MS = 0
@@ -56,7 +59,7 @@ class e1ciIntegrationTimeEnum(Enum):
     T_100MS = 2
 
 
-class e1ciSignalTypeEnum(Enum):
+class SignalTypeEnum(Enum):
     """Enum for configure_signal_type"""
 
     ENCODER_5V_DIFFERENTIAL = 0
@@ -64,7 +67,7 @@ class e1ciSignalTypeEnum(Enum):
     ENCODER_24V_SINGLE_ENDED = 2
 
 
-class e1ciSignalEvaluationEnum(Enum):
+class SignalEvaluationEnum(Enum):
     """Enum for configure_signal_evaluation"""
 
     INCREMENTAL_SINGLE_EVALUATION = 0

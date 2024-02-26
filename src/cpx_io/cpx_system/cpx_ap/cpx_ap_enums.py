@@ -21,6 +21,9 @@ class FailStateEnum(Enum):
 class DebounceTimeEnum(Enum):
     """Enum for configure_debounce_time"""
 
+    # pylint: disable=duplicate-code
+    # intended: cpx-e and cpx-ap same debounce times
+
     T_100US = 0
     T_3MS = 1
     T_10MS = 2

@@ -6,6 +6,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.cpx_ap import cpx_ap_enums as ENUM
 
 
 class TestCpxAp4AiUI:
@@ -66,7 +67,15 @@ class TestCpxAp4AiUI:
         assert channel_values == [0, 32767, -32768, -1]
 
     @pytest.mark.parametrize(
-        "input_value, expected_value", [("C", 0), ("F", 1), ("K", 2)]
+        "input_value, expected_value",
+        [
+            ("C", 0),
+            ("F", 1),
+            ("K", 2),
+            (ENUM.TempUnitEnum.CELSIUS, 0),
+            (ENUM.TempUnitEnum.FARENHEIT, 1),
+            (ENUM.TempUnitEnum.KELVIN, 2),
+        ],
     )
     def test_configure_channel_temp_unit(self, input_value, expected_value):
         """Test configure_channel_temp_unit and expect success"""
@@ -129,6 +138,16 @@ class TestCpxAp4AiUI:
             ("0-500R", 7),
             ("PT100", 8),
             ("NI100", 9),
+            (ENUM.ChannelRangeEnum.NONE, 0),
+            (ENUM.ChannelRangeEnum.B_10V, 1),
+            (ENUM.ChannelRangeEnum.B_5V, 2),
+            (ENUM.ChannelRangeEnum.U_10V, 3),
+            (ENUM.ChannelRangeEnum.U_1_5V, 4),
+            (ENUM.ChannelRangeEnum.U_20MA, 5),
+            (ENUM.ChannelRangeEnum.U_4_20MA, 6),
+            (ENUM.ChannelRangeEnum.U_500R, 7),
+            (ENUM.ChannelRangeEnum.PT100, 8),
+            (ENUM.ChannelRangeEnum.NI100, 9),
         ],
     )
     def test_configure_channel_range(self, input_value, expected_value):

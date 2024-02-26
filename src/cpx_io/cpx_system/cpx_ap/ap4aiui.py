@@ -44,29 +44,34 @@ class CpxAp4AiUI(CpxApModule):
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def configure_channel_temp_unit(self, channel: int, unit: str) -> None:
+    def configure_channel_temp_unit(self, channel: int, unit: str | int) -> None:
         """
         set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param unit: Channel unit. One of "C", "F", "K"
-        :type unit: str
+        :param unit: Channel unit. One of "C", "F", "K" or use TempUnitEnum from cpx_ap_enums
+        :type unit: str|int
         """
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
-
-        value = {
-            "C": 0,
-            "F": 1,
-            "K": 2,
-        }
-        if unit not in value:
-            raise ValueError(f"'{unit}' is not an option. Choose from {value.keys()}")
+        if isinstance(unit, str):
+            value_dict = {
+                "C": 0,
+                "F": 1,
+                "K": 2,
+            }
+            value = value_dict.get(unit)
+            if value is None:
+                raise ValueError(
+                    f"'{unit}' is not an option. Choose from {value_dict.keys()}"
+                )
+        else:
+            value = unit.value
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value[unit], channel
+            self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value, channel
         )
 
         Logging.logger.info(
