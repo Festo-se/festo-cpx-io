@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.2.0 - 26.01.24
 ### Added
+- Enums for configure functions
 - Systemtests for VABX
 - Examples for cyclic access with threading
 - CpxBase: read_device_info
@@ -50,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated modules list so each module can be adressed via the base class
 
 ### Fixed
+- Docstring in e4aoui configure_channel_range
 - ip-address octetts now in correct order
 - Project URLs in pyproject.toml
 - General Bugfixes
