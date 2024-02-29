@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-class LoadSupplyEnum(Enum):
+class LoadSupply(Enum):
     """Enum for configure_monitoring_load_supply"""
 
     INACTIVE = 0
@@ -11,14 +11,14 @@ class LoadSupplyEnum(Enum):
     ACTIVE = 2
 
 
-class FailStateEnum(Enum):
+class FailState(Enum):
     """Enum for configure_behaviour_in_fail_state"""
 
     RESET_OUTPUTS = 0
     HOLD_LAST_STATE = 1
 
 
-class DebounceTimeEnum(Enum):
+class DebounceTime(Enum):
     """Enum for configure_debounce_time"""
 
     # pylint: disable=duplicate-code
@@ -30,7 +30,7 @@ class DebounceTimeEnum(Enum):
     T_20MS = 3
 
 
-class TempUnitEnum(Enum):
+class TempUnit(Enum):
     """Enum for configure_channel_temp_unit"""
 
     CELSIUS = 0
@@ -38,7 +38,7 @@ class TempUnitEnum(Enum):
     KELVIN = 2
 
 
-class ChannelRangeEnum(Enum):
+class ChannelRange(Enum):
     """Enum for configure_channel_range
     * U means unipolar e.g. 0..10 V, 1..5 V
     * B means bipolar e.g. +/- 10 V"""
@@ -55,7 +55,7 @@ class ChannelRangeEnum(Enum):
     NI100 = 9
 
 
-class CycleTimeEnum(Enum):
+class CycleTime(Enum):
     """Enum for configure_target_cycle_time"""
 
     FAST = 0
@@ -72,7 +72,7 @@ class CycleTimeEnum(Enum):
     T_120MS = 183
 
 
-class PortModeEnum(Enum):
+class PortMode(Enum):
     """Enum for configure_port_mode"""
 
     DEACTIVATED = 0
@@ -82,7 +82,7 @@ class PortModeEnum(Enum):
     PREOPERATE = 97
 
 
-class ReviewBackupEnum(Enum):
+class ReviewBackup(Enum):
     """Enum for configure_review_and_backup"""
 
     NO_TEST = 0

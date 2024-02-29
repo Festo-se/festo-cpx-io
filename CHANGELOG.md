@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CpxE: Added CLI for writing and reading values.
 
 ### Changed
+- configure functions don't accept strings anymore. Instead use enums from cpx_ap/e_enums
 - Moved read_diagnostics_status from CpxApEp to CpxAp
 - Renamed ApParameter to ParameterMapItem,
 - Renamed ApParameters to ModuleParameters
@@ -51,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated modules list so each module can be adressed via the base class
 
 ### Fixed
+- Many logger.info strings in modules
 - Docstring in e4aoui configure_channel_range
 - ip-address octetts now in correct order
 - Project URLs in pyproject.toml
