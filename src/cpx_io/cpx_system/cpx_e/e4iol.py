@@ -13,7 +13,7 @@ from cpx_io.cpx_system.cpx_e.cpx_e_enums import OperatingMode, AddressSpace
 class CpxE4Iol(CpxEModule):
     """Class for CPX-E-4IOL io-link master module"""
 
-    def __init__(self, address_space: int = 2 | AddressSpace, **kwargs):
+    def __init__(self, address_space: int | AddressSpace = 2, **kwargs):
         """The address space (inputs/outputs) provided by the module is set using DIL
         switches (see Datasheet CPX-E-4IOL-...)
 
