@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-class DebounceTimeEnum(Enum):
+class DebounceTime(Enum):
     """Enum for configure_debounce_time"""
 
     # pylint: disable=duplicate-code
@@ -15,7 +15,7 @@ class DebounceTimeEnum(Enum):
     T_20MS = 3
 
 
-class SignalExtensionEnum(Enum):
+class SignalExtension(Enum):
     """Enum for configure_signal_extension_time"""
 
     T_500US = 0
@@ -24,7 +24,7 @@ class SignalExtensionEnum(Enum):
     T_100MS = 3
 
 
-class ChannelRangeEnum(Enum):
+class ChannelRange(Enum):
     """Enum for configure_channel_range
     * U means unipolar e.g. 0..10 V, 1..5 V
     * B means bipolar e.g. +/- 10 V
@@ -43,7 +43,7 @@ class ChannelRangeEnum(Enum):
     U_4_20MA_NO_UNDERDRIVE = 10
 
 
-class DigInDebounceTimeEnum(Enum):
+class DigInDebounceTime(Enum):
     """Enum for configure_debounce_time_for_digital_inputs"""
 
     T_20US = 0
@@ -51,7 +51,7 @@ class DigInDebounceTimeEnum(Enum):
     T_3MS = 2
 
 
-class IntegrationTimeEnum(Enum):
+class IntegrationTime(Enum):
     """Enum for configure_integration_time_for_speed_measurement"""
 
     T_1MS = 0
@@ -59,7 +59,7 @@ class IntegrationTimeEnum(Enum):
     T_100MS = 2
 
 
-class SignalTypeEnum(Enum):
+class SignalType(Enum):
     """Enum for configure_signal_type"""
 
     ENCODER_5V_DIFFERENTIAL = 0
@@ -67,7 +67,7 @@ class SignalTypeEnum(Enum):
     ENCODER_24V_SINGLE_ENDED = 2
 
 
-class SignalEvaluationEnum(Enum):
+class SignalEvaluation(Enum):
     """Enum for configure_signal_evaluation"""
 
     INCREMENTAL_SINGLE_EVALUATION = 0
@@ -76,7 +76,7 @@ class SignalEvaluationEnum(Enum):
     PULSE_GENERATOR = 3
 
 
-class LatchingEventEnum(Enum):
+class LatchingEvent(Enum):
     """Enum for configure_latching_event"""
 
     RISING_EDGE = 1
@@ -84,7 +84,7 @@ class LatchingEventEnum(Enum):
     BOTH_EDGES = 3
 
 
-class AddressSpaceEnum(Enum):
+class AddressSpace(Enum):
     """Enum for CpxE4Iol init"""
 
     PORT_2E2A = 2
@@ -94,7 +94,7 @@ class AddressSpaceEnum(Enum):
     PORT_32E32A = 32
 
 
-class OperatingModeEnum(Enum):
+class OperatingMode(Enum):
     """Enum for configure_operating_mode"""
 
     INACTIVE = 0

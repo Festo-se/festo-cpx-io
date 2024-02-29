@@ -41,7 +41,8 @@ class TempUnit(Enum):
 class ChannelRange(Enum):
     """Enum for configure_channel_range
     * U means unipolar e.g. 0..10 V, 1..5 V
-    * B means bipolar e.g. +/- 10 V"""
+    * B means bipolar e.g. +/- 10 V
+    """
 
     NONE = 0
     B_10V = 1

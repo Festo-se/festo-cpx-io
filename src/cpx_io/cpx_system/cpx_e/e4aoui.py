@@ -8,6 +8,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
 
 class CpxE4AoUI(CpxEModule):
@@ -321,41 +322,30 @@ class CpxE4AoUI(CpxEModule):
         )
 
     @CpxBase.require_base
-    def configure_channel_range(self, channel: int, signalrange: str) -> None:
+    def configure_channel_range(self, channel: int, value: ChannelRange | int) -> None:
         """Set the signal range and type of one channel
 
-        Accepted values are
-          * "0-10V",
-          * "-10-+10V",
-          * "-5-+5V",
-          * "1-5V",
-          * "0-20mA",
-          * "4-20mA",
-          * "-20-+20mA"
+          * 1: 0...10 V
+          * 2: -10...+10 V
+          * 3: -5...+5 V
+          * 4: 1...5 V
+          * 5: 0...20 mA
+          * 6: 4...20 mA
+          * 7: -20...+20 mA
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param signalrange: Channel range (see datasheet)
-
-        :type signalrange: str
+        :param signalrange: Channel range. Use ChannelRange from cpx_e_enums or see datasheet
+        :type signalrange: ChannelRange | int
         """
+        if isinstance(value, ChannelRange):
+            value = value.value
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        value = {
-            "0-10V": 0b0001,
-            "-10-+10V": 0b0010,
-            "-5-+5V": 0b0011,
-            "1-5V": 0b0100,
-            "0-20mA": 0b0101,
-            "4-20mA": 0b0110,
-            "-20-+20mA": 0b0111,
-        }
-        if signalrange not in value:
-            raise ValueError(
-                f"'{signalrange}' is not an option. Choose from {value.keys()}"
-            )
+        if value not in range(1, 8):
+            raise ValueError(f"'{value}' is not an option for channel range")
 
         function_number = 4828 + 64 * self.position
 
@@ -364,19 +354,17 @@ class CpxE4AoUI(CpxEModule):
 
         if channel == 0:
             function_number += 11
-            value_to_write = (reg_01 & 0xF0) | value[signalrange]
+            value_to_write = (reg_01 & 0xF0) | value
         elif channel == 1:
             function_number += 11
-            value_to_write = (reg_01 & 0x0F) | value[signalrange] << 4
+            value_to_write = (reg_01 & 0x0F) | (value << 4)
         elif channel == 2:
             function_number += 12
-            value_to_write = (reg_23 & 0xF0) | value[signalrange]
+            value_to_write = (reg_23 & 0xF0) | value
         elif channel == 3:
             function_number += 12
-            value_to_write = (reg_23 & 0x0F) | value[signalrange] << 4
+            value_to_write = (reg_23 & 0x0F) | (value << 4)
 
         self.base.write_function_number(function_number, value_to_write)
 
-        Logging.logger.info(
-            f"{self.name}: Setting channel {channel} range to {signalrange}"
-        )
+        Logging.logger.info(f"{self.name}: Setting channel {channel} range to {value}")
