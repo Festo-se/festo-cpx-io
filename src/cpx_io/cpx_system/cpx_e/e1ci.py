@@ -491,7 +491,7 @@ class CpxE1Ci(CpxEModule):
          * 1: 10 ms (default)
          * 2: 100 ms
 
-        :param value: integration time parameter. Use IntegrationTime from cpx_e_enums or see datasheet
+        :param value: integration time. Use IntegrationTime from cpx_e_enums or see datasheet
         :type value: IntegrationTime | int
         """
         if isinstance(value, IntegrationTime):
