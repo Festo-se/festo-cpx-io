@@ -1,9 +1,10 @@
 """Contains tests for cpx_e16di class"""
 
-import pytest
 from unittest.mock import Mock
+import pytest
 
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import DebounceTime, SignalExtension
 
 
 class TestCpxE16Di:
@@ -138,7 +139,12 @@ class TestCpxE16Di:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4893, 0x8A)), (3, (4893, 0xBA))],
+        [
+            (0, (4893, 0x8A)),
+            (3, (4893, 0xBA)),
+            (DebounceTime.T_100US, (4893, 0x8A)),
+            (DebounceTime.T_20MS, (4893, 0xBA)),
+        ],
     )
     def test_configure_debounce_time(self, input_value, expected_value):
         """Test debounce time"""
@@ -166,7 +172,12 @@ class TestCpxE16Di:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4893, 0x2A)), (3, (4893, 0xEA))],
+        [
+            (0, (4893, 0x2A)),
+            (3, (4893, 0xEA)),
+            (SignalExtension.T_500US, (4893, 0x2A)),
+            (SignalExtension.T_100MS, (4893, 0xEA)),
+        ],
     )
     def test_configure_signal_extension_time(self, input_value, expected_value):
         """Test debounce time"""

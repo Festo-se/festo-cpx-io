@@ -172,7 +172,6 @@ class CpxE1Ci(CpxEModule):
           * 0: Encoder 5 Vdc differential (default)
           * 1: Encoder 5 Vdc single ended
           * 2: Encoder 24 Vdc single ended
-          * 3: Invalid setting
 
         :param value: Signal type. Use SignalType from cpx_e_enums or see datasheet.
         :type value: SignalType | int
@@ -180,7 +179,7 @@ class CpxE1Ci(CpxEModule):
         if isinstance(value, SignalType):
             value = value.value
 
-        if value in range(4):
+        if value in range(3):
             function_number = 4828 + 64 * self.position + 6
             reg = self.base.read_function_number(function_number)
             value_to_write = (reg & 0xFC) | value
@@ -341,7 +340,6 @@ class CpxE1Ci(CpxEModule):
         """The “Latching event” parameter defines whether the “Latching” function is
         triggered on a rising and/or falling edge.
 
-          * 0: Invalid setting
           * 1: Latching on rising edge (default)
           * 2: Latching on falling edge
           * 3: Latching on rising and falling edge
@@ -350,16 +348,16 @@ class CpxE1Ci(CpxEModule):
         :type value: LatchingEvent | int
         """
 
-        if isinstance(value, SignalType):
+        if isinstance(value, LatchingEvent):
             value = value.value
 
-        if value in range(4):
+        if value in range(1, 4):
             function_number = 4828 + 64 * self.position + 14
             reg = self.base.read_function_number(function_number)
             value_to_write = (reg & 0xFC) | value
             self.base.write_function_number(function_number, value_to_write)
         else:
-            raise ValueError(f"Value {value} must be in range 0 ... 3")
+            raise ValueError(f"Value {value} must be in range 1 ... 3")
 
         Logging.logger.info(f"{self.name}: set latching event to {value}")
 
@@ -465,19 +463,20 @@ class CpxE1Ci(CpxEModule):
           * 0: 20 us (default)
           * 1: 100 us
           * 2: 3 ms
-          * 3: Invalid setting
 
         :param value: debounce time option. Use DigInDebounceTime from cpx_e_enums or see datasheet
         :type value: DigInDebounceTime | int
         """
+        if isinstance(value, DigInDebounceTime):
+            value = value.value
 
-        if value in range(4):
+        if value in range(3):
             function_number = 4828 + 64 * self.position + 28
             reg = self.base.read_function_number(function_number)
             value_to_write = (reg & 0xFC) | value
             self.base.write_function_number(function_number, value_to_write)
         else:
-            raise ValueError(f"Value {value} must be in range 0 ... 3")
+            raise ValueError(f"Value {value} must be in range 0 ... 2")
 
         Logging.logger.info(f"{self.name}: set debounce time to {value}")
 
@@ -491,13 +490,14 @@ class CpxE1Ci(CpxEModule):
          * 0: 1 ms
          * 1: 10 ms (default)
          * 2: 100 ms
-         * 3: Invalid setting
 
         :param value: integration time parameter. Use IntegrationTime from cpx_e_enums or see datasheet
         :type value: IntegrationTime | int
         """
+        if isinstance(value, IntegrationTime):
+            value = value.value
 
-        if value in range(4):
+        if value in range(3):
             function_number = 4828 + 64 * self.position + 29
             reg = self.base.read_function_number(function_number)
             value_to_write = (reg & 0xFC) | value

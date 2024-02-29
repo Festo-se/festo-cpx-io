@@ -1,9 +1,10 @@
 """Contains tests for cpx_e4iol class"""
 
-import pytest
 from unittest.mock import Mock, call
+import pytest
 
 from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import OperatingMode, AddressSpace
 
 
 class TestCpxE4Iol:
@@ -29,7 +30,12 @@ class TestCpxE4Iol:
 
     @pytest.mark.parametrize(
         "address_space, module_position, expected_insize, expected_outsize",
-        [(2, 1, 1, 1), (8, 1, 4, 4)],
+        [
+            (2, 1, 1, 1),
+            (8, 1, 4, 4),
+            (AddressSpace.PORT_2E2A, 1, 1, 1),
+            (AddressSpace.PORT_8E8A, 1, 4, 4),
+        ],
     )
     def test_configure(
         self, address_space, module_position, expected_insize, expected_outsize
@@ -427,6 +433,15 @@ class TestCpxE4Iol:
                 [
                     call(4892 + 15, 0xAB),
                     call(4892 + 19, 0xAB),
+                ],
+            ),
+            (
+                (OperatingMode.IO_LINK, None),
+                [
+                    call(4892 + 11, 0xAB),
+                    call(4892 + 15, 0xAB),
+                    call(4892 + 19, 0xAB),
+                    call(4892 + 23, 0xAB),
                 ],
             ),
         ],
