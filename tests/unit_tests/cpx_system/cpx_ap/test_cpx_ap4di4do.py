@@ -6,6 +6,7 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.utils.boollist import boollist_to_bytes
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime, LoadSupply, FailState
 
 
 class TestCpxAp4Di4Do:
@@ -242,7 +243,17 @@ class TestCpxAp4Di4Do:
         )
 
     @pytest.mark.parametrize(
-        "input_value, expected_value", [(0, 0), (1, 1), (2, 2), (3, 3)]
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (DebounceTime.T_100US, 0),
+            (DebounceTime.T_3MS, 1),
+            (DebounceTime.T_10MS, 2),
+            (DebounceTime.T_20MS, 3),
+        ],
     )
     def test_configure_debounce_time(self, input_value, expected_value):
         """Test configure_debounce_time and expect success"""
@@ -277,7 +288,17 @@ class TestCpxAp4Di4Do:
         with pytest.raises(ValueError):
             cpxap4di4do.configure_debounce_time(input_value)
 
-    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (1, 1), (2, 2)])
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (LoadSupply.INACTIVE, 0),
+            (LoadSupply.ACTIVE_DIAG_OFF, 1),
+            (LoadSupply.ACTIVE, 2),
+        ],
+    )
     def test_configure_monitoring_load_supply(self, input_value, expected_value):
         """Test configure_monitoring_load_supply and expect success"""
         # Arrange
@@ -311,7 +332,10 @@ class TestCpxAp4Di4Do:
         with pytest.raises(ValueError):
             cpxap4di4do.configure_monitoring_load_supply(input_value)
 
-    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (1, 1)])
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [(0, 0), (1, 1), (FailState.RESET_OUTPUTS, 0), (FailState.HOLD_LAST_STATE, 1)],
+    )
     def test_configure_behaviour_in_fail_state(self, input_value, expected_value):
         """Test configure_behaviour_in_fail_state and expect success"""
         # Arrange
