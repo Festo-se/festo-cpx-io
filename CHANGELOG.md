@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added 
+- VAEM Valve Terminal for CPX-AP
 - Enums for configure functions
 - Systemtests for VABX
 - Examples for cyclic access with threading
