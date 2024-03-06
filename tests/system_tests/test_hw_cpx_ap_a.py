@@ -15,6 +15,7 @@ from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
+from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     ChannelRange,
@@ -89,6 +90,7 @@ def test_modules(test_cpxap):
     assert isinstance(test_cpxap.modules[4], CpxAp8Di)
     assert isinstance(test_cpxap.modules[5], CpxAp4Iol)
     assert isinstance(test_cpxap.modules[6], VabxAP)
+    assert isinstance(test_cpxap.modules[7], VaemAP)
 
     assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
 
@@ -116,6 +118,9 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[6].information.module_code in VabxAP.module_codes
     assert test_cpxap.modules[6].position == 6
 
+    assert test_cpxap.modules[7].information.module_code in VaemAP.module_codes
+    assert test_cpxap.modules[7].position == 7
+
     assert test_cpxap.modules[0].output_register is None  # EP
     assert test_cpxap.modules[1].output_register == 0  # 16di
     assert test_cpxap.modules[2].output_register == 0  # 12DiDo, adds 1
@@ -123,6 +128,7 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[4].output_register == 2  # 8Di
     assert test_cpxap.modules[5].output_register == 2  # 4Iol
     assert test_cpxap.modules[6].output_register == 18  # Vabx
+    assert test_cpxap.modules[7].output_register == 20  # Vaem
 
     assert test_cpxap.modules[0].input_register is None  # EP
     assert test_cpxap.modules[1].input_register == 5000  # 16Di, adds 1
@@ -131,6 +137,7 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[4].input_register == 5002  # 8Di, adds 1
     assert test_cpxap.modules[5].input_register == 5003  # 4Iol
     assert test_cpxap.modules[6].input_register == 5021  # Vabx
+    assert test_cpxap.modules[7].input_register == 5021  # Vaem
 
 
 def test_16Di(test_cpxap):
@@ -989,6 +996,85 @@ def test_vabx_configures_enums(test_cpxap):
     # reset to default
     vabx.configure_diagnosis_for_defect_valve(True)
     time.sleep(0.05)
+    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
+    time.sleep(0.05)
+    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+
+
+def test_vaem_read_channels(test_cpxap):
+    "test vaem 24 channel"
+    POSITION = 7
+    assert isinstance(test_cpxap.modules[POSITION], VaemAP)
+    channels = test_cpxap.modules[POSITION].read_channels()
+    assert channels == [False] * 24
+
+
+def test_vaem_read_channel(test_cpxap):
+    "test vaem"
+    POSITION = 7
+    assert isinstance(test_cpxap.modules[POSITION], VaemAP)
+    channel = test_cpxap.modules[POSITION].read_channel(0)
+    assert channel is False
+
+
+def test_vaem_write(test_cpxap):
+    "test vaem"
+    POSITION = 7
+    assert isinstance(test_cpxap.modules[POSITION], VaemAP)
+    test_cpxap.modules[POSITION].write_channel(0, True)
+    time.sleep(0.05)
+    assert test_cpxap.modules[POSITION].read_channel(0) is True
+    time.sleep(0.05)
+    test_cpxap.modules[POSITION].write_channel(0, False)
+    time.sleep(0.05)
+    assert test_cpxap.modules[POSITION].read_channel(0) is False
+
+
+def test_vaem_configures(test_cpxap):
+    "test configure functions of vaem"
+    POSITION = 7
+    vabx = test_cpxap.modules[POSITION]
+
+    vabx.configure_monitoring_load_supply(2)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        == 2
+    )
+
+    vabx.configure_behaviour_in_fail_state(1)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+    )
+
+    time.sleep(0.05)
+    # reset to default
+    vabx.configure_monitoring_load_supply(1)
+    time.sleep(0.05)
+    vabx.configure_behaviour_in_fail_state(0)
+
+
+def test_vaem_configures_enums(test_cpxap):
+    "test configure functions of vaem"
+    POSITION = 7
+    vabx = test_cpxap.modules[POSITION]
+
+    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        == 2
+    )
+
+    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+    )
+
+    time.sleep(0.05)
+    # reset to default
     vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
     time.sleep(0.05)
     vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
