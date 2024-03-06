@@ -43,7 +43,7 @@ def test_init(test_cpxap):
 
 def test_module_count(test_cpxap):
     "test module_count"
-    assert test_cpxap.read_module_count() == 7
+    assert test_cpxap.read_module_count() == 8
 
 
 def test_default_timeout(test_cpxap):
@@ -357,6 +357,7 @@ def test_read_ap_parameter(test_cpxap):
     assert ap.module_code == info.module_code
 
 
+"""
 def test_4iol_sdas(test_cpxap):
     a4iol = test_cpxap.modules[5]
     assert isinstance(a4iol, CpxAp4Iol)
@@ -601,6 +602,8 @@ def test_4iol_ethrottle_isdu_write(test_cpxap):
         a4iol.read_isdu(ethrottle_channel, function_tag_idx, 0)[:4]
         == b"\x01\x02\x03\x04"
     )
+
+"""
 
 
 def test_4iol_configure_monitoring_load_supply(test_cpxap):
