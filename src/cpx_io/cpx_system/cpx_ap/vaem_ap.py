@@ -82,7 +82,9 @@ class VaemAP(CpxApModule):
         :type value: bool
         """
         if channel not in range(self.information.output_channels):
-            raise ValueError("Channel must be in range 0...31")
+            raise ValueError(
+                f"Channel must be in range 0...{self.information.output_channels - 1}"
+            )
 
         # read current values
         data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
