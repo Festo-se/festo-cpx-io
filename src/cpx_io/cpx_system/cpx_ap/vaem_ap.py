@@ -81,7 +81,7 @@ class VaemAP(CpxApModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        if channel not in range(self.information.output_channels + 1):
+        if channel not in range(self.information.output_channels):
             raise ValueError("Channel must be in range 0...31")
 
         # read current values
