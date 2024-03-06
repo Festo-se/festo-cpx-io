@@ -7,6 +7,7 @@ import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
@@ -409,8 +410,7 @@ class CpxE4AiUI(CpxEModule):
         if isinstance(value, ChannelRange):
             value = value.value
 
-        if value not in range(10):
-            raise ValueError(f"'{value}' is not an option for channel range")
+        value_range_check(value, 10)
 
         function_number = 4828 + 64 * self.position
 
@@ -448,8 +448,7 @@ class CpxE4AiUI(CpxEModule):
         :type value: int
         """
 
-        if value > 15:
-            raise ValueError(f"'{value}' is not an option")
+        value_range_check(value, 16)
 
         bitmask = value
 

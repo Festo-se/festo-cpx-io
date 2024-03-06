@@ -7,6 +7,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.boollist import bytes_to_boollist
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime
 
@@ -64,8 +65,7 @@ class CpxAp16Di(CpxApModule):
         if isinstance(value, DebounceTime):
             value = value.value
 
-        if value not in range(4):
-            raise ValueError(f"Value {value} must be between 0 and 3")
+        value_range_check(value, 4)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, value

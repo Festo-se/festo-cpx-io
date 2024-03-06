@@ -8,6 +8,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.logging import Logging
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
 
 
@@ -63,8 +64,7 @@ class CpxAp4AiUI(CpxApModule):
         if isinstance(value, TempUnit):
             value = value.value
 
-        if value not in range(3):
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        value_range_check(value, 3)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value, channel
@@ -101,8 +101,7 @@ class CpxAp4AiUI(CpxApModule):
         if isinstance(value, ChannelRange):
             value = value.value
 
-        if value not in range(10):
-            raise ValueError(f"Value {value} must be between 0 and 9")
+        value_range_check(value, 10)
 
         self.base.write_parameter(
             self.position,
@@ -185,8 +184,7 @@ class CpxAp4AiUI(CpxApModule):
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        if not 0 <= value <= 0xFFFF:
-            raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
+        value_range_check(value, 65536)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, value, channel
@@ -210,8 +208,7 @@ class CpxAp4AiUI(CpxApModule):
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        if value not in range(16):
-            raise ValueError(f"'{value}' is not an option")
+        value_range_check(value, 16)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.SMOOTH_FACTOR, value, channel

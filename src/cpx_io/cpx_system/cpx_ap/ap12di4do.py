@@ -7,6 +7,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     LoadSupply,
@@ -143,8 +144,7 @@ class CpxAp12Di4Do(CpxApModule):
         if isinstance(value, DebounceTime):
             value = value.value
 
-        if value not in range(4):
-            raise ValueError(f"Value {value} must be between 0 and 3")
+        value_range_check(value, 4)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, value
@@ -168,8 +168,7 @@ class CpxAp12Di4Do(CpxApModule):
         if isinstance(value, LoadSupply):
             value = value.value
 
-        if value not in range(3):
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        value_range_check(value, 3)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
@@ -192,8 +191,7 @@ class CpxAp12Di4Do(CpxApModule):
         if isinstance(value, FailState):
             value = value.value
 
-        if value not in range(2):
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        value_range_check(value, 2)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, value

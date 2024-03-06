@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import (
     DigInDebounceTime,
@@ -179,13 +180,12 @@ class CpxE1Ci(CpxEModule):
         if isinstance(value, SignalType):
             value = value.value
 
-        if value in range(3):
-            function_number = 4828 + 64 * self.position + 6
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"value {value} must be in range 0 ... 3")
+        value_range_check(value, 3)
+
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: Set signal type to {value}")
 
@@ -204,13 +204,12 @@ class CpxE1Ci(CpxEModule):
         if isinstance(value, SignalEvaluation):
             value = value.value
 
-        if value in range(4):
-            function_number = 4828 + 64 * self.position + 7
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"value {value} must be in range 0 ... 3")
+        value_range_check(value, 4)
+
+        function_number = 4828 + 64 * self.position + 7
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: Set signal evaluation to {value}")
 
@@ -303,13 +302,11 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 11
 
-        if value in range(65536):
-            regs = [value & 0xFF, value >> 8]
-            self.base.write_function_number(function_number, regs[0])
-            self.base.write_function_number(function_number + 1, regs[1])
+        value_range_check(value, 65536)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 65535")
+        regs = [value & 0xFF, value >> 8]
+        self.base.write_function_number(function_number, regs[0])
+        self.base.write_function_number(function_number + 1, regs[1])
 
         Logging.logger.info(f"{self.name}: set pulses per zero pulse to {value}")
 
@@ -351,13 +348,12 @@ class CpxE1Ci(CpxEModule):
         if isinstance(value, LatchingEvent):
             value = value.value
 
-        if value in range(1, 4):
-            function_number = 4828 + 64 * self.position + 14
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"Value {value} must be in range 1 ... 3")
+        value_range_check(value, 1, 4)
+
+        function_number = 4828 + 64 * self.position + 14
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: set latching event to {value}")
 
@@ -394,14 +390,12 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 16
 
-        if value in range(2**32):
-            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
-            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
-            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
-            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
+        value_range_check(value, 2**32)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... (2^32 - 1)")
+        self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+        self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+        self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+        self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         Logging.logger.info(f"{self.name}: set upper counter limit to {value}")
 
@@ -419,14 +413,12 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 20
 
-        if value in range(2**32):
-            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
-            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
-            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
-            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
+        value_range_check(value, 2**32)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 2^32")
+        self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+        self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+        self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+        self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         Logging.logger.info(f"{self.name}: set lower counter limit to {value}")
 
@@ -442,14 +434,12 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 24
 
-        if value in range(2**32):
-            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
-            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
-            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
-            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
+        value_range_check(value, 2**32)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 2^32")
+        self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+        self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+        self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+        self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         Logging.logger.info(f"{self.name}: set load value to {value}")
 
@@ -470,13 +460,12 @@ class CpxE1Ci(CpxEModule):
         if isinstance(value, DigInDebounceTime):
             value = value.value
 
-        if value in range(3):
-            function_number = 4828 + 64 * self.position + 28
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 2")
+        value_range_check(value, 3)
+
+        function_number = 4828 + 64 * self.position + 28
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: set debounce time to {value}")
 
@@ -497,12 +486,11 @@ class CpxE1Ci(CpxEModule):
         if isinstance(value, IntegrationTime):
             value = value.value
 
-        if value in range(3):
-            function_number = 4828 + 64 * self.position + 29
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 3")
+        value_range_check(value, 3)
+
+        function_number = 4828 + 64 * self.position + 29
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: set debounce time to {value}")

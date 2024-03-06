@@ -7,6 +7,7 @@ import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
@@ -344,8 +345,7 @@ class CpxE4AoUI(CpxEModule):
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        if value not in range(1, 8):
-            raise ValueError(f"'{value}' is not an option for channel range")
+        value_range_check(value, 1, 8)
 
         function_number = 4828 + 64 * self.position
 

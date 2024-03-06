@@ -6,6 +6,7 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import DebounceTime, SignalExtension
 
@@ -121,8 +122,7 @@ class CpxE16Di(CpxEModule):
         if isinstance(value, DebounceTime):
             value = value.value
 
-        if value not in range(4):
-            raise ValueError(f"Value {value} must be between 0 and 3")
+        value_range_check(value, 4)
 
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)
@@ -153,8 +153,7 @@ class CpxE16Di(CpxEModule):
         if isinstance(value, SignalExtension):
             value = value.value
 
-        if value not in range(4):
-            raise ValueError(f"Value {value} must be between 0 and 3")
+        value_range_check(value, 4)
 
         function_number = 4828 + 64 * self.position + 1
         reg = self.base.read_function_number(function_number)
