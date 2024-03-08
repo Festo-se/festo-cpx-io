@@ -296,39 +296,27 @@ class CpxAp(CpxBase):
         param_id = param_id.to_bytes(2, byteorder="little")
         instance = instance.to_bytes(2, byteorder="little")
         # length in 16 bit registers
-        length = (len(data) // 2).to_bytes(2, byteorder="little")
+        length = (div_ceil(len(data), 2)).to_bytes(2, byteorder="little")
         command = (2).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
-        # Strangely this sending has to be repeated several times,
-        # actually it is tried up to 1000 times.
-        tries = 1000
-        for i in range(tries):
-            # prepare the command
-            self.write_reg_data(module_index + param_id + instance + length, param_reg)
-            # write data to register
-            self.write_reg_data(data, param_reg + 10)
-            # execute the command
-            self.write_reg_data(command, param_reg + 3)
+        # prepare the command
+        self.write_reg_data(module_index + param_id + instance, param_reg)
+        # write length
+        self.write_reg_data(length, param_reg + 4)
+        # write data to register
+        self.write_reg_data(data, param_reg + 10)
+        # execute the command
+        self.write_reg_data(command, param_reg + 3)
 
-            exe_code = 0
-            while exe_code < 16:
-                exe_code = int.from_bytes(
-                    self.read_reg_data(param_reg + 3), byteorder="little"
-                )
-                # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-                if exe_code == 4:
-                    raise CpxRequestError
-
-            # Validation check according to datasheet
-            read_registers = self.read_reg_data(param_reg + 10, len(data) // 2)
-
-            if read_registers == data:
-                break
-
-        if i >= tries - 1:
-            raise CpxRequestError(
-                f"Parameter might not have been written correctly after {tries} tries"
+        exe_code = 0
+        while exe_code < 16:
+            exe_code = int.from_bytes(
+                self.read_reg_data(param_reg + 3), byteorder="little"
             )
+            # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            if exe_code == 4:
+                raise CpxRequestError
+
         Logging.logger.debug(f"Wrote data {data} to module position: {position - 1}")
 
     def read_parameter(
