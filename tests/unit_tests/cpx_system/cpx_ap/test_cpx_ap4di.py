@@ -5,6 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime
 
 
 class TestCpxAp4Di:
@@ -62,7 +63,19 @@ class TestCpxAp4Di:
         # Assert
         assert channel_values == [False, True, False, True]
 
-    @pytest.mark.parametrize("input_value, expected_value", [(1, 1), (2, 2), (3, 3)])
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (DebounceTime.T_100US, 0),
+            (DebounceTime.T_3MS, 1),
+            (DebounceTime.T_10MS, 2),
+            (DebounceTime.T_20MS, 3),
+        ],
+    )
     def test_configure_debounce_time_successful_configuration(
         self, input_value, expected_value
     ):

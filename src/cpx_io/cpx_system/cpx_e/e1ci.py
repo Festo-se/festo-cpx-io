@@ -8,7 +8,15 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import (
+    DigInDebounceTime,
+    IntegrationTime,
+    SignalType,
+    SignalEvaluation,
+    LatchingEvent,
+)
 
 
 class CpxE1Ci(CpxEModule):
@@ -158,49 +166,50 @@ class CpxE1Ci(CpxEModule):
         return ret
 
     @CpxBase.require_base
-    def configure_signal_type(self, value: int) -> None:
+    def configure_signal_type(self, value: SignalType | int) -> None:
         """The parameter “Signal type/encoder type” defines the encoder supply and connection
         type of the encoder.
 
-        Accepted values are
           * 0: Encoder 5 Vdc differential (default)
           * 1: Encoder 5 Vdc single ended
           * 2: Encoder 24 Vdc single ended
-          * 3: Invalid setting
 
-        :param value: Signal type (see datasheet)
-        :type value: int
+        :param value: Signal type. Use SignalType from cpx_e_enums or see datasheet.
+        :type value: SignalType | int
         """
-        if value in range(4):
-            function_number = 4828 + 64 * self.position + 6
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"value {value} must be in range 0 ... 3")
+        if isinstance(value, SignalType):
+            value = value.value
+
+        value_range_check(value, 3)
+
+        function_number = 4828 + 64 * self.position + 6
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: Set signal type to {value}")
 
     @CpxBase.require_base
-    def configure_signal_evaluation(self, value: int) -> None:
+    def configure_signal_evaluation(self, value: SignalEvaluation | int) -> None:
         """The “Signal evaluation” parameter defines the encoder type and evaluation
 
-        Accepted values are
          * 0: Incremental encoder with single evaluation
          * 1: Incremental encoder with double evaluation
          * 2: Incremental encoder with quadruple evaluation (default)
          * 3: Pulse generator with or without direction signal
 
-        :param value: Signal evaluation (see datasheet)
-        :type value: int
+        :param value: Signal evaluation. Use SignalEvaluation from cpx_e_enums or see datasheet.
+        :type value: SignalEvaluation | int
         """
-        if value in range(4):
-            function_number = 4828 + 64 * self.position + 7
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"value {value} must be in range 0 ... 3")
+        if isinstance(value, SignalEvaluation):
+            value = value.value
+
+        value_range_check(value, 4)
+
+        function_number = 4828 + 64 * self.position + 7
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: Set signal evaluation to {value}")
 
@@ -209,7 +218,6 @@ class CpxE1Ci(CpxEModule):
         """The “Monitoring of cable break” parameter defines whether a diagnostic message
         should be output when a cable break of the encoder cable is detected.
 
-        Accepted values are
           * False: No diagnostic message (default)
           * True: Diagnostic message active
 
@@ -235,7 +243,6 @@ class CpxE1Ci(CpxEModule):
         """The “Monitoring of tracking error” parameter defines whether a diagnostic message
         should be output when a tracking error is detected.
 
-        Accepted values are
           * False: No diagnostic message (default)
           * True: Diagnostic message active
 
@@ -261,7 +268,6 @@ class CpxE1Ci(CpxEModule):
         """The “Monitoring of zero pulse” parameter defines whether a diagnostic message should be
         output when a zero pulse error is detected.
 
-        Accepted values are
           * False: No diagnostic message (default)
           * True: Diagnostic message active
 
@@ -296,13 +302,11 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 11
 
-        if value in range(65536):
-            regs = [value & 0xFF, value >> 8]
-            self.base.write_function_number(function_number, regs[0])
-            self.base.write_function_number(function_number + 1, regs[1])
+        value_range_check(value, 65536)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 65535")
+        regs = [value & 0xFF, value >> 8]
+        self.base.write_function_number(function_number, regs[0])
+        self.base.write_function_number(function_number + 1, regs[1])
 
         Logging.logger.info(f"{self.name}: set pulses per zero pulse to {value}")
 
@@ -311,7 +315,6 @@ class CpxE1Ci(CpxEModule):
         """The “Latching signal” parameter defines whether the digital input I0 or the
         zero pulse (track 0) is used as signal source to trigger the “Latching” function.
 
-        Accepted values are
           * False: Evaluate input I0 (default)
           * True: Evaluate zero pulse
 
@@ -330,26 +333,27 @@ class CpxE1Ci(CpxEModule):
         Logging.logger.info(f"{self.name}: set latching signal to {value}")
 
     @CpxBase.require_base
-    def configure_latching_event(self, value: int) -> None:
+    def configure_latching_event(self, value: LatchingEvent | int) -> None:
         """The “Latching event” parameter defines whether the “Latching” function is
         triggered on a rising and/or falling edge.
 
-        Accepted values are
-          * 0: Invalid setting
           * 1: Latching on rising edge (default)
           * 2: Latching on falling edge
           * 3: Latching on rising and falling edge
 
-        :param value: Latching event parameter
-        :type value: int
+        :param value: Latching event parameter. Use LatchingEvent from cpx_e_enums or see datasheet
+        :type value: LatchingEvent | int
         """
-        if value in range(4):
-            function_number = 4828 + 64 * self.position + 14
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 3")
+
+        if isinstance(value, LatchingEvent):
+            value = value.value
+
+        value_range_check(value, 1, 4)
+
+        function_number = 4828 + 64 * self.position + 14
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
 
         Logging.logger.info(f"{self.name}: set latching event to {value}")
 
@@ -386,14 +390,12 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 16
 
-        if value in range(2**32):
-            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
-            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
-            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
-            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
+        value_range_check(value, 2**32)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... (2^32 - 1)")
+        self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+        self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+        self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+        self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         Logging.logger.info(f"{self.name}: set upper counter limit to {value}")
 
@@ -411,14 +413,12 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 20
 
-        if value in range(2**32):
-            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
-            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
-            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
-            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
+        value_range_check(value, 2**32)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 2^32")
+        self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+        self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+        self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+        self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         Logging.logger.info(f"{self.name}: set lower counter limit to {value}")
 
@@ -434,65 +434,63 @@ class CpxE1Ci(CpxEModule):
 
         function_number = 4828 + 64 * self.position + 24
 
-        if value in range(2**32):
-            self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
-            self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
-            self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
-            self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
+        value_range_check(value, 2**32)
 
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 2^32")
+        self.base.write_function_number(function_number + 0, (value >> 0) & 0xFF)
+        self.base.write_function_number(function_number + 1, (value >> 8) & 0xFF)
+        self.base.write_function_number(function_number + 2, (value >> 16) & 0xFF)
+        self.base.write_function_number(function_number + 3, (value >> 24) & 0xFF)
 
         Logging.logger.info(f"{self.name}: set load value to {value}")
 
     @CpxBase.require_base
-    def configure_debounce_time_for_digital_inputs(self, value: int) -> None:
+    def configure_debounce_time_for_digital_inputs(
+        self, value: DigInDebounceTime | int
+    ) -> None:
         """The parameter “Debounce time for digital inputs” defines the total debounce time
         for all digital inputs I0 ... I3
 
-        Accepted values are
           * 0: 20 us (default)
           * 1: 100 us
           * 2: 3 ms
-          * 3: Invalid setting
 
-        :param value: debounce time option
-        :type value: int
+        :param value: debounce time option. Use DigInDebounceTime from cpx_e_enums or see datasheet
+        :type value: DigInDebounceTime | int
         """
+        if isinstance(value, DigInDebounceTime):
+            value = value.value
 
-        if value in range(4):
-            function_number = 4828 + 64 * self.position + 28
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 3")
+        value_range_check(value, 3)
 
-        value_str = ["20 us", "100 us", "3 ms", "Invalid setting"]
-        Logging.logger.info(f"{self.name}: set debounce time to {value_str[value]}")
+        function_number = 4828 + 64 * self.position + 28
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
+
+        Logging.logger.info(f"{self.name}: set debounce time to {value}")
 
     @CpxBase.require_base
-    def configure_integration_time_for_speed_measurement(self, value: int) -> None:
+    def configure_integration_time_for_speed_measurement(
+        self, value: IntegrationTime | int
+    ) -> None:
         """The parameter “Integration time for speed measurement” defines the length of the
         measurement cycles for determining the measured value in the “Speed measurement” function
 
-        Accepted values are
-        * 0: 1 ms
+         * 0: 1 ms
          * 1: 10 ms (default)
          * 2: 100 ms
-         * 3: Invalid setting
 
-        :param value: integration time parameter
-        :type value: int
+        :param value: integration time. Use IntegrationTime from cpx_e_enums or see datasheet
+        :type value: IntegrationTime | int
         """
+        if isinstance(value, IntegrationTime):
+            value = value.value
 
-        if value in range(4):
-            function_number = 4828 + 64 * self.position + 29
-            reg = self.base.read_function_number(function_number)
-            value_to_write = (reg & 0xFC) | value
-            self.base.write_function_number(function_number, value_to_write)
-        else:
-            raise ValueError(f"Value {value} must be in range 0 ... 3")
+        value_range_check(value, 3)
 
-        value_str = ["1 ms", "10 ms", "100 ms", "Invalid setting"]
-        Logging.logger.info(f"{self.name}: set debounce time to {value_str[value]}")
+        function_number = 4828 + 64 * self.position + 29
+        reg = self.base.read_function_number(function_number)
+        value_to_write = (reg & 0xFC) | value
+        self.base.write_function_number(function_number, value_to_write)
+
+        Logging.logger.info(f"{self.name}: set debounce time to {value}")

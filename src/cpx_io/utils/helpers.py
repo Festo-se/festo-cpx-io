@@ -37,3 +37,23 @@ def module_list_from_typecode(typecode: str, module_id_dict: dict) -> list:
                 module_list.append(value())
 
     return module_list
+
+
+def value_range_check(value: int, *args):
+    """Raises ValueError if value is not in the given range.
+    If one argument is provided, will check range(0, arg)
+    If two arguments are provided, will check range(arg[0], arg[1])"""
+    num_args = len(args)
+    if num_args == 0:
+        raise TypeError("Expected at least 1 argument, got 0")
+    if num_args == 1:
+        start = 0
+        stop = args[0]
+    elif num_args == 2:
+        start = args[0]
+        stop = args[1]
+    else:
+        raise TypeError(f"Expected at most 2 arguments, got {num_args}")
+
+    if value not in range(start, stop):
+        raise ValueError(f"Value {value} must be in range({start}, {stop})")

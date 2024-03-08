@@ -7,7 +7,9 @@ import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
 
 class CpxE4AiUI(CpxEModule):
@@ -57,13 +59,11 @@ class CpxE4AiUI(CpxEModule):
     def configure_diagnostics(
         self, short_circuit: bool = None, param_error: bool = None
     ) -> None:
-        """The "Diagnostics of sensor supply short circuit" defines whether
-        the diagnostics of the sensor supply in regard to short circuit or
-        overload should be activated ("True", default) or deactivated ("False").
-        The parameter "Diagnostics of parameterisation error" defines
-        if the diagnostics for the
-        subsequently listed parameters must be activated ("True", default) or deactivated ("False)
-        with regard to unapproved settings:
+        """The "Diagnostics of sensor supply short circuit" defines whether the diagnostics
+        of the sensor supply in regard to short circuit or overload should be activated
+        ("True", default) or deactivated ("False"). The parameter "Diagnostics of parameterisation
+        error" defines if the diagnostics for the subsequently listed parameters must be activated
+        ("True", default) or deactivated ("False) with regard to unapproved settings:
           * Hysteresis < 0
           * Signal range (sensor type)
           * Lower limit > upper limit
@@ -122,7 +122,6 @@ class CpxE4AiUI(CpxEModule):
     def configure_data_format(self, value: bool) -> None:
         """The parameter "Data format" defines the “Sign + 15 bit” or “linear scaling”.
 
-        Accepted values:
         * False (default): Sign + 15 bit
         * True: Linear scaled
 
@@ -388,33 +387,30 @@ class CpxE4AiUI(CpxEModule):
         )
 
     @CpxBase.require_base
-    def configure_channel_range(self, channel: int, value: str) -> None:
+    def configure_channel_range(self, channel: int, value: ChannelRange | int) -> None:
         """The parameter "Signal range" defines the signal range of the channels 0 … 3
         independently of each other
 
+          * 0: None
+          * 1: 0...10 V
+          * 2: -10...+10 V
+          * 3: -5...+5 V
+          * 4: 1...5 V
+          * 5: 0...20 mA
+          * 6: 4...20 mA
+          * 7: -20...+20 mA
+          * 8: 0...20 mA oU
+          * 9: 4...20 mA oU
+
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param value: signal range
-        :type value: str
+        :param value: Channel range. Use ChannelRange from cpx_e_enums or see datasheet
+        :type value: ChannelRange | int
         """
+        if isinstance(value, ChannelRange):
+            value = value.value
 
-        bitmask = {
-            "None": 0b0000,
-            "0-10V": 0b0001,
-            "-10-+10V": 0b0010,
-            "-5-+5V": 0b0011,
-            "1-5V": 0b0100,
-            "0-20mA": 0b0101,
-            "4-20mA": 0b0110,
-            "-20-+20mA": 0b0111,
-            "0-10VoU": 0b1000,
-            "0-20mAoU": 0b1001,
-            "4-20mAoU": 0b1010,
-        }
-        if value not in bitmask:
-            raise ValueError(
-                f"'{value}' is not an option. Choose from {bitmask.keys()}"
-            )
+        value_range_check(value, 10)
 
         function_number = 4828 + 64 * self.position
 
@@ -423,16 +419,16 @@ class CpxE4AiUI(CpxEModule):
 
         if channel == 0:
             function_number += 13
-            value_to_write = (reg_01 & 0xF0) | bitmask[value]
+            value_to_write = (reg_01 & 0xF0) | value
         elif channel == 1:
             function_number += 13
-            value_to_write = (reg_01 & 0x0F) | bitmask[value] << 4
+            value_to_write = (reg_01 & 0x0F) | (value << 4)
         elif channel == 2:
             function_number += 14
-            value_to_write = (reg_23 & 0xF0) | bitmask[value]
+            value_to_write = (reg_23 & 0xF0) | value
         elif channel == 3:
             function_number += 14
-            value_to_write = (reg_23 & 0x0F) | bitmask[value] << 4
+            value_to_write = (reg_23 & 0x0F) | (value << 4)
         else:
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
 
@@ -452,8 +448,7 @@ class CpxE4AiUI(CpxEModule):
         :type value: int
         """
 
-        if value > 15:
-            raise ValueError(f"'{value}' is not an option")
+        value_range_check(value, 16)
 
         bitmask = value
 
@@ -467,13 +462,13 @@ class CpxE4AiUI(CpxEModule):
             value_to_write = (reg_01 & 0xF0) | bitmask
         elif channel == 1:
             function_number += 15
-            value_to_write = (reg_01 & 0x0F) | bitmask << 4
+            value_to_write = (reg_01 & 0x0F) | (bitmask << 4)
         elif channel == 2:
             function_number += 16
             value_to_write = (reg_23 & 0xF0) | bitmask
         elif channel == 3:
             function_number += 16
-            value_to_write = (reg_23 & 0x0F) | bitmask << 4
+            value_to_write = (reg_23 & 0x0F) | (bitmask << 4)
         else:
             raise ValueError(f"Channel '{channel}' is not in range 0...3")
 

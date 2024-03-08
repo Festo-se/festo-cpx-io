@@ -6,6 +6,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
 
 
 class TestCpxAp4AiUI:
@@ -66,7 +67,15 @@ class TestCpxAp4AiUI:
         assert channel_values == [0, 32767, -32768, -1]
 
     @pytest.mark.parametrize(
-        "input_value, expected_value", [("C", 0), ("F", 1), ("K", 2)]
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (TempUnit.CELSIUS, 0),
+            (TempUnit.FARENHEIT, 1),
+            (TempUnit.KELVIN, 2),
+        ],
     )
     def test_configure_channel_temp_unit(self, input_value, expected_value):
         """Test configure_channel_temp_unit and expect success"""
@@ -119,16 +128,26 @@ class TestCpxAp4AiUI:
     @pytest.mark.parametrize(
         "input_value, expected_value",
         [
-            ("None", 0),
-            ("-10-+10V", 1),
-            ("-5-+5V", 2),
-            ("0-10V", 3),
-            ("1-5V", 4),
-            ("0-20mA", 5),
-            ("4-20mA", 6),
-            ("0-500R", 7),
-            ("PT100", 8),
-            ("NI100", 9),
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+            (6, 6),
+            (7, 7),
+            (8, 8),
+            (9, 9),
+            (ChannelRange.NONE, 0),
+            (ChannelRange.B_10V, 1),
+            (ChannelRange.B_5V, 2),
+            (ChannelRange.U_10V, 3),
+            (ChannelRange.U_1_5V, 4),
+            (ChannelRange.U_20MA, 5),
+            (ChannelRange.U_4_20MA, 6),
+            (ChannelRange.U_500R, 7),
+            (ChannelRange.PT100, 8),
+            (ChannelRange.NI100, 9),
         ],
     )
     def test_configure_channel_range(self, input_value, expected_value):
@@ -149,7 +168,7 @@ class TestCpxAp4AiUI:
             MODULE_POSITION, cpx_ap_parameters.CHANNEL_INPUT_MODE, expected_value, 0
         )
 
-    @pytest.mark.parametrize("input_value", ["A", "1"])
+    @pytest.mark.parametrize("input_value", [-1, 10])
     def test_configure_channel_range_raise_error(self, input_value):
         """Test configure_channel_range and expect error"""
         # Arrange
@@ -253,8 +272,6 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act
-        PARAMETER_ID_UPPER = 20044  # pylint: disable=invalid-name
-        PARAMETER_ID_LOWER = 20045  # pylint: disable=invalid-name
         cpxap4aiui.configure_channel_limits(0, upper=input_value, lower=input_value)
 
         # Assert

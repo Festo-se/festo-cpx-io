@@ -3,8 +3,14 @@
 from unittest.mock import Mock, call
 import pytest
 
-from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import (
+    DigInDebounceTime,
+    IntegrationTime,
+    SignalType,
+    SignalEvaluation,
+    LatchingEvent,
+)
 
 
 class TestCpxE1Ci:
@@ -160,7 +166,14 @@ class TestCpxE1Ci:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4828 + 64 + 6, 0xA8)), (3, (4828 + 64 + 6, 0xAB))],
+        [
+            (0, (4828 + 64 + 6, 0xA8)),
+            (1, (4828 + 64 + 6, 0xA9)),
+            (2, (4828 + 64 + 6, 0xAA)),
+            (SignalType.ENCODER_5V_DIFFERENTIAL, (4828 + 64 + 6, 0xA8)),
+            (SignalType.ENCODER_5V_SINGLE_ENDED, (4828 + 64 + 6, 0xA9)),
+            (SignalType.ENCODER_24V_SINGLE_ENDED, (4828 + 64 + 6, 0xAA)),
+        ],
     )
     def test_configure_signal_type(self, input_value, expected_value):
         """Test configure_signal_type"""
@@ -177,7 +190,7 @@ class TestCpxE1Ci:
         # Assert
         cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    @pytest.mark.parametrize("input_value", [-1, 4])
+    @pytest.mark.parametrize("input_value", [-1, 3])
     def test_configure_signal_type_raise_error(self, input_value):
         """Test configure_signal_type"""
         # Arrange
@@ -191,7 +204,12 @@ class TestCpxE1Ci:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4828 + 64 + 7, 0xA8)), (3, (4828 + 64 + 7, 0xAB))],
+        [
+            (0, (4828 + 64 + 7, 0xA8)),
+            (3, (4828 + 64 + 7, 0xAB)),
+            (SignalEvaluation.INCREMENTAL_SINGLE_EVALUATION, (4828 + 64 + 7, 0xA8)),
+            (SignalEvaluation.PULSE_GENERATOR, (4828 + 64 + 7, 0xAB)),
+        ],
     )
     def test_configure_signal_evaluation(self, input_value, expected_value):
         """Test configure_signal_evaluation"""
@@ -210,6 +228,7 @@ class TestCpxE1Ci:
 
     @pytest.mark.parametrize("input_value", [-1, 4])
     def test_configure_signal_evaluation_raise_error(self, input_value):
+        """Test configure_signal_evaluation"""
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.position = 1
@@ -333,7 +352,12 @@ class TestCpxE1Ci:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4828 + 64 + 14, 0xA8)), (3, (4828 + 64 + 14, 0xAB))],
+        [
+            (1, (4828 + 64 + 14, 0xA9)),
+            (3, (4828 + 64 + 14, 0xAB)),
+            (LatchingEvent.RISING_EDGE, (4828 + 64 + 14, 0xA9)),
+            (LatchingEvent.BOTH_EDGES, (4828 + 64 + 14, 0xAB)),
+        ],
     )
     def test_configure_latching_event(self, input_value, expected_value):
         """Test configure_latching_event"""
@@ -350,8 +374,9 @@ class TestCpxE1Ci:
         # Assert
         cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    @pytest.mark.parametrize("input_value", [-1, 4])
+    @pytest.mark.parametrize("input_value", [0, 4])
     def test_configure_latching_event_raise_error(self, input_value):
+        """Test configure_latching_event"""
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.position = 1
@@ -559,7 +584,12 @@ class TestCpxE1Ci:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4828 + 64 + 28, 0xA8)), (3, (4828 + 64 + 28, 0xAB))],
+        [
+            (0, (4828 + 64 + 28, 0xA8)),
+            (2, (4828 + 64 + 28, 0xAA)),
+            (DigInDebounceTime.T_20US, (4828 + 64 + 28, 0xA8)),
+            (DigInDebounceTime.T_3MS, (4828 + 64 + 28, 0xAA)),
+        ],
     )
     def test_configure_debounce_time_for_digital_inputs(
         self, input_value, expected_value
@@ -578,7 +608,7 @@ class TestCpxE1Ci:
         # Assert
         cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    @pytest.mark.parametrize("input_value", [-1, 4])
+    @pytest.mark.parametrize("input_value", [-1, 3])
     def test_configure_debounce_time_for_digital_inputs_raise_error(self, input_value):
         """Test configure_debounce_time_for_digital_inputs"""
         # Arrange
@@ -592,7 +622,12 @@ class TestCpxE1Ci:
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
-        [(0, (4828 + 64 + 29, 0xA8)), (3, (4828 + 64 + 29, 0xAB))],
+        [
+            (0, (4828 + 64 + 29, 0xA8)),
+            (2, (4828 + 64 + 29, 0xAA)),
+            (IntegrationTime.T_1MS, (4828 + 64 + 29, 0xA8)),
+            (IntegrationTime.T_100MS, (4828 + 64 + 29, 0xAA)),
+        ],
     )
     def test_configure_integration_time_for_speed_measurement(
         self, input_value, expected_value
@@ -611,7 +646,7 @@ class TestCpxE1Ci:
         # Assert
         cpxe1ci.base.write_function_number.assert_called_with(*expected_value)
 
-    @pytest.mark.parametrize("input_value", [-1, 4])
+    @pytest.mark.parametrize("input_value", [-1, 3])
     def test_configure_integration_time_for_speed_measurement_raise_error(
         self, input_value
     ):

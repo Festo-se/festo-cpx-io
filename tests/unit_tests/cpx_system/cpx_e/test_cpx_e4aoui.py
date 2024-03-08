@@ -3,6 +3,7 @@
 from unittest.mock import Mock
 import pytest
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
 
 class TestCpxE4AoUI:
@@ -447,10 +448,10 @@ class TestCpxE4AoUI:
     @pytest.mark.parametrize(
         "input_value, expected_value",
         [
-            ((0, "0-10V"), (4892 + 11, 0xA1)),
-            ((1, "4-20mA"), (4892 + 11, 0x6A)),
-            ((2, "1-5V"), (4892 + 12, 0xA4)),
-            ((3, "-20-+20mA"), (4892 + 12, 0x7A)),
+            ((0, ChannelRange.U_10V), (4892 + 11, 0xA1)),
+            ((1, ChannelRange.U_4_20MA), (4892 + 11, 0x6A)),
+            ((2, ChannelRange.U_1_5V), (4892 + 12, 0xA4)),
+            ((3, ChannelRange.B_20MA), (4892 + 12, 0x7A)),
         ],
     )
     def test_configure_channel_range(self, input_value, expected_value):
@@ -470,9 +471,9 @@ class TestCpxE4AoUI:
     @pytest.mark.parametrize(
         "input_value",
         [
-            (0, "not_implemented"),
-            (4, "0-10V"),
-            (-1, "None"),
+            (0, -1),
+            (4, 8),
+            (-1, 0),
         ],
     )
     def test_configure_channel_range_raise_error(self, input_value):

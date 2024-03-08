@@ -8,6 +8,8 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.logging import Logging
+from cpx_io.utils.helpers import value_range_check
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
 
 
 class CpxAp4AiUI(CpxApModule):
@@ -44,87 +46,71 @@ class CpxAp4AiUI(CpxApModule):
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def configure_channel_temp_unit(self, channel: int, unit: str) -> None:
-        """
-        set the channel temperature unit ("C": Celsius (default), "F": Fahrenheit, "K": Kelvin)
+    def configure_channel_temp_unit(self, channel: int, value: TempUnit | int) -> None:
+        """set the channel temperature unit.
+          * 0: Celsius (default)
+          * 1: Farenheit
+          * 2: Kelvin
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param unit: Channel unit. One of "C", "F", "K"
-        :type unit: str
+        :param value: Channel unit. Use TempUnit from cpx_ap_enums or see datasheet.
+        :type value: TempUnit | int
         """
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        value = {
-            "C": 0,
-            "F": 1,
-            "K": 2,
-        }
-        if unit not in value:
-            raise ValueError(f"'{unit}' is not an option. Choose from {value.keys()}")
+        if isinstance(value, TempUnit):
+            value = value.value
+
+        value_range_check(value, 3)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value[unit], channel
+            self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value, channel
         )
 
         Logging.logger.info(
-            f"{self.name}: Setting channel {channel} temperature unit to {unit}"
+            f"{self.name}: Setting channel {channel} temperature unit to {value}"
         )
 
     @CpxBase.require_base
-    def configure_channel_range(self, channel: int, signalrange: str) -> None:
+    def configure_channel_range(self, channel: int, value: ChannelRange | int) -> None:
         """set the signal range and type of one channel
 
-        Accepted values are
-          * "None",
-          * "-10-+10V",
-          * "-5-+5V",
-          * "0-10V",
-          * "1-5V",
-          * "0-20mA",
-          * "4-20mA",
-          * "0-500R",
-          * "PT100",
-          * "NI100"
+          * 0: None
+          * 1: -10...+10 V
+          * 2: -5...+5 V
+          * 3: 0...10 V
+          * 4: 1...5 V
+          * 5: 0...20 mA
+          * 6: 4...20 mA
+          * 7: 0...500 R
+          * 8: PT100
+          * 9: NI100
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param signalrange: Channel range string
-        :type signalrange: str
+        :param value: Channel range. Use ChannelRange from cpx_ap_enums or see datasheet.
+        :type value: ChannelRange | int
         """
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        value = {
-            "None": 0,
-            "-10-+10V": 1,
-            "-5-+5V": 2,
-            "0-10V": 3,
-            "1-5V": 4,
-            "0-20mA": 5,
-            "4-20mA": 6,
-            "0-500R": 7,
-            "PT100": 8,
-            "NI100": 9,
-        }
-        if signalrange not in value:
-            raise ValueError(
-                f"'{signalrange}' is not an option. Choose from {value.keys()}"
-            )
+        if isinstance(value, ChannelRange):
+            value = value.value
+
+        value_range_check(value, 10)
 
         self.base.write_parameter(
             self.position,
             cpx_ap_parameters.CHANNEL_INPUT_MODE,
-            value[signalrange],
+            value,
             channel,
         )
 
-        Logging.logger.info(
-            f"{self.name}: Setting channel {channel} range to {signalrange}"
-        )
+        Logging.logger.info(f"{self.name}: Setting channel {channel} range to {value}")
 
     @CpxBase.require_base
     def configure_channel_limits(
@@ -198,8 +184,7 @@ class CpxAp4AiUI(CpxApModule):
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        if not 0 <= value <= 0xFFFF:
-            raise ValueError(f"Value {value} must be between 0 and 65535 (uint16)")
+        value_range_check(value, 65536)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, value, channel
@@ -216,15 +201,14 @@ class CpxAp4AiUI(CpxApModule):
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param value: Channel smoothing potency in range of 0 ... 16
+        :param value: Channel smoothing potency in range of 0 ... 15
         :type value: int
         """
 
         if channel not in range(4):
             raise ValueError(f"Channel {channel} must be between 0 and 3")
 
-        if value not in range(16):
-            raise ValueError(f"'{value}' is not an option")
+        value_range_check(value, 16)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.SMOOTH_FACTOR, value, channel

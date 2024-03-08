@@ -8,6 +8,12 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
+    LoadSupply,
+    CycleTime,
+    PortMode,
+    ReviewBackup,
+)
 
 
 class TestCpxAp4Iol:
@@ -261,7 +267,17 @@ class TestCpxAp4Iol:
         # Assert
         assert all(p == expected for p in pqi)
 
-    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (1, 1), (2, 2)])
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (LoadSupply.INACTIVE, 0),
+            (LoadSupply.ACTIVE_DIAG_OFF, 1),
+            (LoadSupply.ACTIVE, 2),
+        ],
+    )
     def test_configure_monitoring_load_supply(self, input_value, expected_value):
         """Test configure_monitoring_load_supply and expect success"""
         # Arrange
@@ -277,7 +293,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, input_value
+            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -296,7 +312,15 @@ class TestCpxAp4Iol:
             cpxap4iol.configure_monitoring_load_supply(input_value)
 
     @pytest.mark.parametrize(
-        "input_value, expected_value", [(0, 0), (16, 16), (183, 183)]
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (16, 16),
+            (183, 183),
+            (CycleTime.FAST, 0),
+            (CycleTime.T_1600US, 16),
+            (CycleTime.T_120MS, 183),
+        ],
     )
     def test_configure_target_cycle_time_all_channels(
         self, input_value, expected_value
@@ -454,7 +478,19 @@ class TestCpxAp4Iol:
         )
 
     @pytest.mark.parametrize(
-        "input_value, expected_value", [(0, 0), (1, 1), (2, 2), (3, 3), (97, 97)]
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (97, 97),
+            (PortMode.DEACTIVATED, 0),
+            (PortMode.IOL_MANUAL, 1),
+            (PortMode.IOL_AUTOSTART, 2),
+            (PortMode.DI_CQ, 3),
+            (PortMode.PREOPERATE, 97),
+        ],
     )
     def test_configure_port_mode_single_channel(self, input_value, expected_value):
         """Test configure_port_mode and expect success"""
@@ -573,7 +609,19 @@ class TestCpxAp4Iol:
             cpxap4iol.configure_port_mode(input_value, 0)
 
     @pytest.mark.parametrize(
-        "input_value, expected_value", [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (ReviewBackup.NO_TEST, 0),
+            (ReviewBackup.COMPATIBLE_V1_0, 1),
+            (ReviewBackup.COMPATIBLE_V1_1, 2),
+            (ReviewBackup.COMPATIBLE_V1_1_DATA_BACKUP_RESTORE, 3),
+            (ReviewBackup.COMPATIBLE_V1_1_DATE_RESTORE, 4),
+        ],
     )
     def test_configure_review_and_backup_single_channel(
         self, input_value, expected_value

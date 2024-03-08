@@ -7,7 +7,13 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
+    LoadSupply,
+    FailState,
+    DebounceTime,
+)
 
 
 class CpxAp4Di4Do(CpxApModule):
@@ -120,76 +126,76 @@ class CpxAp4Di4Do(CpxApModule):
         self.write_channel(channel, not value)
 
     @CpxBase.require_base
-    def configure_debounce_time(self, value: int) -> None:
-        """The "Input debounce time" parameter defines when an edge change of the sensor signal
+    def configure_debounce_time(self, value: DebounceTime | int) -> None:
+        """
+        The "Input debounce time" parameter defines when an edge change of the sensor signal
         shall be assumed as a logical input signal. In this way, unwanted signal edge changes
         can be suppressed during switching operations (bouncing of the input signal).
 
-        Accepted values are
           * 0: 0.1 ms
           * 1: 3 ms (default)
           * 2: 10 ms
           * 3: 20 ms
 
-        :param value: Debounce time for all channels in range 0..3 (see datasheet)
-        :type value: int
+        :param value: Debounce time for all channels. Use DebounceTime from cpx_ap_enums or
+        see datasheet.
+        :type value: DebounceTime | int
         """
 
-        if not 0 <= value <= 3:
-            raise ValueError(f"Value {value} must be between 0 and 3")
+        if isinstance(value, DebounceTime):
+            value = value.value
+
+        value_range_check(value, 4)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, value
         )
 
-        time_str = ["0.1 ms", "3 ms", "10 ms", "20 ms"]
-        Logging.logger.info(f"{self.name}: Setting debounce time to {time_str[value]}")
+        Logging.logger.info(f"{self.name}: Setting debounce time to {value}")
 
     @CpxBase.require_base
-    def configure_monitoring_load_supply(self, value: int) -> None:
-        """Configures the monitoring load supply.
+    def configure_monitoring_load_supply(self, value: LoadSupply | int) -> None:
+        """Configures the monitoring load supply for all channels.
 
-        Accepted values are
           * 0: Load supply monitoring inactive
           * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
           * 2: Load supply monitoring active
 
-        :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
-        :type value: int
+        :param value: Monitoring load supply for all channels. Use LoadSupply from cpx_ap_enums
+        or see datasheet.
+        :type value: LoadSupply | int
         """
 
-        if not 0 <= value <= 2:
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        if isinstance(value, LoadSupply):
+            value = value.value
+
+        value_range_check(value, 3)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
         )
 
-        value_str = [
-            "inactive",
-            "active, diagnosis suppressed in case of switch-off",
-            "active",
-        ]
-        Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")
+        Logging.logger.info(f"{self.name}: Setting Load supply monitoring to {value}")
 
     @CpxBase.require_base
-    def configure_behaviour_in_fail_state(self, value: int) -> None:
-        """Configures the behaviour in fail state.
+    def configure_behaviour_in_fail_state(self, value: FailState | int) -> None:
+        """Configures the behaviour in fail state for all channels.
 
-        Accepted values are
           * 0: Reset Outputs (default)
           * 1: Hold last state
 
-        :param value: Setting for behaviour in fail state in range 0..3 (see datasheet)
-        :type value: int
+        :param value: Setting for behaviour in fail state for all channels. Use FailState
+        from cpx_ap_enums or see datasheet.
+        :type value: FailState | int
         """
 
-        if not 0 <= value <= 1:
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        if isinstance(value, FailState):
+            value = value.value
+
+        value_range_check(value, 2)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, value
         )
 
-        value_str = ["Reset Outputs", "Hold last state"]
-        Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")
+        Logging.logger.info(f"{self.name}: Setting fail state behaviour to {value}")

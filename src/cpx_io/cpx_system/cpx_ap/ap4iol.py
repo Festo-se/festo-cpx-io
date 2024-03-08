@@ -8,8 +8,14 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.cpx_system.cpx_base import CpxRequestError
-from cpx_io.utils.helpers import div_ceil
+from cpx_io.utils.helpers import div_ceil, value_range_check
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
+    LoadSupply,
+    CycleTime,
+    PortMode,
+    ReviewBackup,
+)
 
 
 class CpxAp4Iol(CpxApModule):
@@ -185,40 +191,36 @@ class CpxAp4Iol(CpxApModule):
         return channels_pqi[channel]
 
     @CpxBase.require_base
-    def configure_monitoring_load_supply(self, value: int) -> None:
-        """Configure the monitoring of the load supply.
+    def configure_monitoring_load_supply(self, value: LoadSupply | int) -> None:
+        """Configures the monitoring load supply for all channels.
 
-        Accepted values are
           * 0: Load supply monitoring inactive
           * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
           * 2: Load supply monitoring active
 
-        :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
-        :type value: int
+        :param value: Monitoring load supply for all channels. Use LoadSupply from cpx_ap_enums
+        or see datasheet.
+        :type value: LoadSupply | int
         """
 
-        if not 0 <= value <= 2:
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        if isinstance(value, LoadSupply):
+            value = value.value
+
+        value_range_check(value, 3)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
         )
 
-        value_str = [
-            "inactive",
-            "active, diagnosis suppressed in case of switch-off",
-            "active",
-        ]
-        Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")
+        Logging.logger.info(f"{self.name}: Setting Load supply monitoring to {value}")
 
     @CpxBase.require_base
     def configure_target_cycle_time(
-        self, value: int, channel: int | list[int] = None
+        self, value: CycleTime | int, channel: int | list[int] = None
     ) -> None:
         """Target cycle time in ms for the given channels. If no channel is specified,
         target cycle time is applied to all channels.
 
-        Accepted values are
           *  0: as fast as possible (default)
           * 16: 1.6 ms
           * 32: 3.2 ms
@@ -232,8 +234,8 @@ class CpxAp4Iol(CpxApModule):
           * 158: 80.0 ms
           * 183: 120.0 ms
 
-        :param value: target cycle time (see datasheet)
-        :type value: int
+        :param value: target cycle time. Use CycleTime from cpx_ap_enums or see datasheet.
+        :type value: CycleTime | int
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
@@ -255,6 +257,9 @@ class CpxAp4Iol(CpxApModule):
             158: "80.0 ms",
             183: "120.0 ms",
         }
+
+        if isinstance(value, CycleTime):
+            value = value.value
 
         if value not in allowed_values:
             raise ValueError(
@@ -303,18 +308,19 @@ class CpxAp4Iol(CpxApModule):
         )
 
     @CpxBase.require_base
-    def configure_port_mode(self, value: int, channel: int | list[int] = None) -> None:
+    def configure_port_mode(
+        self, value: PortMode | int, channel: int | list[int] = None
+    ) -> None:
         """configure the port mode
 
-        Accepted values are
           * 0: DEACTIVATED (factory setting)
           * 1: IOL_MANUAL
           * 2: IOL_AUTOSTART
           * 3: DI_CQ
           * 97: PREOPERATE (Only supported in combination with IO-Link V1.1 devices)
 
-        :param value: port mode (see datasheet)
-        :type value: int
+        :param value: port mode. Use PortMode from cpx_ap_enums or see datasheet
+        :type value: PortMode | int
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
@@ -329,6 +335,9 @@ class CpxAp4Iol(CpxApModule):
             3: "DI_CQ",
             97: "PREOPERATE",
         }
+
+        if isinstance(value, PortMode):
+            value = value.value
 
         if value not in allowed_values:
             raise ValueError("Value {value} not valid")
@@ -347,23 +356,25 @@ class CpxAp4Iol(CpxApModule):
 
     @CpxBase.require_base
     def configure_review_and_backup(
-        self, value: int, channel: int | list[int] = None
+        self, value: ReviewBackup | int, channel: int | list[int] = None
     ) -> None:
         """Review and backup.
 
-        Accepted values are
           * 0: no test (factory setting)
           * 1: device compatible V1.0
           * 2: device compatible V1.1
-          * 3: device compatible V1.1 Data storage Backup+ Restore
+          * 3: device compatible V1.1 Data storage Backup + Restore
           * 4: device compatible V1.1 Data storage Restore
-        Changes only become effective when the port mode is changed (ID 20071).
+        Changes only become effective when the port mode is changed with "configure_port_mode()".
 
         :param value: review and backup option (see datasheet)
-        :type value: int
+        :type value: ReviewBackup | int
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
+
+        if isinstance(value, ReviewBackup):
+            value = value.value
 
         if channel is None:
             channel = [0, 1, 2, 3]
@@ -372,7 +383,7 @@ class CpxAp4Iol(CpxApModule):
             0: "no test",
             1: "device compatible V1.0",
             2: "device compatible V1.1",
-            3: "device compatible V1.1 Data storage Backup+ Restore",
+            3: "device compatible V1.1 Data storage Backup + Restore",
             4: "device compatible V1.1 Data storage Restore",
         }
 
@@ -391,7 +402,8 @@ class CpxAp4Iol(CpxApModule):
             )
 
         Logging.logger.info(
-            f"{self.name}: Setting channel(s) {channel} port mode to {allowed_values[value]}"
+            f"{self.name}: Setting channel(s) {channel} review and backup "
+            f"to {allowed_values[value]}"
         )
 
     @CpxBase.require_base
@@ -419,7 +431,7 @@ class CpxAp4Iol(CpxApModule):
             )
 
         Logging.logger.info(
-            f"{self.name}: Setting channel(s) {channel} port mode to {value}"
+            f"{self.name}: Setting channel(s) {channel} vendor id to {value}"
         )
 
     @CpxBase.require_base

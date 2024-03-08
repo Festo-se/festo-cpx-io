@@ -6,26 +6,34 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
+from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import OperatingMode, AddressSpace
 
 
 class CpxE4Iol(CpxEModule):
     """Class for CPX-E-4IOL io-link master module"""
 
-    def __init__(self, address_space: int = 2, **kwargs):
+    def __init__(self, address_space: int | AddressSpace = 2, **kwargs):
         """The address space (inputs/outputs) provided by the module is set using DIL
         switches (see Datasheet CPX-E-4IOL-...)
 
-        Accepted values are:
           * 2: Per port: 2 E / 2 A  Module: 8 E / 8 A (default)
           * 4: Per port: 4 E / 4 A  Module: 16 E / 16 A
           * 8: Per port: 8 E / 8 A  Module: 32 E / 32 A
           * 16: Per port: 16 E / 16 A  Module: 32 E /32 A
           * 32: Per port: 32 E / 32 A  Module: 32 E / 32 A
+
+        :param address_space: Use AddressSpace from cpx_e_enums or see datasheet
+        :type address_space: int | AddressSpace
         """
         super().__init__(**kwargs)
+        if isinstance(address_space, AddressSpace):
+            address_space = address_space.value
+
         if address_space not in [2, 4, 8, 16, 32]:
             raise ValueError("address_space must be 2, 4, 8, 16 or 32")
+
         self.module_input_size = address_space // 2
         self.module_output_size = address_space // 2
 
@@ -288,22 +296,26 @@ class CpxE4Iol(CpxEModule):
         )
 
     @CpxBase.require_base
-    def configure_operating_mode(self, value: int, channel: int | list = None) -> None:
+    def configure_operating_mode(
+        self, value: OperatingMode | int, channel: int | list = None
+    ) -> None:
         """The "Operating mode" parameter defines the operating mode of the
         IO-Link® interface (port). The setting can be made separately for
         each IO-Link interface (port).
 
-        Possible Values are:
           * 0: Inactive: Port is not in use (default)
           * 1: DI: Port acts like a digital input
           * 2: [DO]: reserved
           * 3: IO-Link: IO-Link communication
 
-        :param value: operating mode
-        :type value: int
+        :param value: operating mode. Use OperatingMode from cpx_e_enums or see datasheet.
+        :type value: OperatingMode | int
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
+        if isinstance(value, OperatingMode):
+            value = value.value
+
         if channel is None:
             channel = [0, 1, 2, 3]
 
@@ -314,8 +326,7 @@ class CpxE4Iol(CpxEModule):
             4828 + 64 * self.position + 23,
         ]
 
-        if value not in range(4):
-            raise ValueError("Operating mode must be between 0 and 3")
+        value_range_check(value, 4)
 
         if isinstance(channel, int):
             channel = [channel]
@@ -332,7 +343,7 @@ class CpxE4Iol(CpxEModule):
             self.base.write_function_number(function_number[item], value_to_write)
 
         Logging.logger.info(
-            f"{self.name}: setting channel(s) {channel} pl supply to {value}"
+            f"{self.name}: setting channel(s) {channel} operating mode to {value}"
         )
 
     @CpxBase.require_base

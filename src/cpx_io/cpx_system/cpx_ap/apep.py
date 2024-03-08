@@ -9,8 +9,10 @@ from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.utils.helpers import (
     convert_uint32_to_octett,
     convert_to_mac_string,
+    value_range_check,
 )
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply
 
 
 class CpxApEp(CpxApModule):
@@ -117,28 +119,25 @@ class CpxApEp(CpxApModule):
         return params
 
     @CpxBase.require_base
-    def configure_monitoring_load_supply(self, value: int) -> None:
-        """Configure the monitoring of the load supply.
+    def configure_monitoring_load_supply(self, value: LoadSupply | int) -> None:
+        """Configures the monitoring load supply for all channels.
 
-        Accepted values are
           * 0: Load supply monitoring inactive
           * 1: Load supply monitoring active, diagnosis suppressed in case of switch-off (default)
           * 2: Load supply monitoring active
 
-        :param value: Setting of monitoring of load supply in range 0..3 (see datasheet)
-        :type value: int
+        :param value: Monitoring load supply for all channels. Use LoadSupply from cpx_ap_enums
+        or see datasheet.
+        :type value: LoadSupply | int
         """
 
-        if not 0 <= value <= 2:
-            raise ValueError(f"Value {value} must be between 0 and 2")
+        if isinstance(value, LoadSupply):
+            value = value.value
+
+        value_range_check(value, 3)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
         )
 
-        value_str = [
-            "inactive",
-            "active, diagnosis suppressed in case of switch-off",
-            "active",
-        ]
-        Logging.logger.info(f"{self.name}: Setting debounce time to {value_str[value]}")
+        Logging.logger.info(f"{self.name}: Setting Load supply monitoring to {value}")

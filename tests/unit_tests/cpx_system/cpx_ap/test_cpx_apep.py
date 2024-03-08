@@ -5,6 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply
 
 
 class TestCpxApEp:
@@ -77,7 +78,17 @@ class TestCpxApEp:
         # Assert
         assert params == expected
 
-    @pytest.mark.parametrize("input_value, expected_value", [(0, 0), (1, 1), (2, 2)])
+    @pytest.mark.parametrize(
+        "input_value, expected_value",
+        [
+            (0, 0),
+            (1, 1),
+            (2, 2),
+            (LoadSupply.INACTIVE, 0),
+            (LoadSupply.ACTIVE_DIAG_OFF, 1),
+            (LoadSupply.ACTIVE, 2),
+        ],
+    )
     def test_configure_monitoring_load_supply(self, input_value, expected_value):
         """Test configure_monitoring_load_supply and expect success"""
         # Arrange
