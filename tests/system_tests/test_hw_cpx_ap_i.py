@@ -19,6 +19,7 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     FailState,
     ChannelRange,
     TempUnit,
+    PortMode,
 )
 
 
@@ -632,15 +633,17 @@ def test_4iol_ehps(test_cpxap):
 
     # example EHPS-20-A-LK on port 1
     ehps_channel = 1
-    a4iol.configure_port_mode(2, channel=ehps_channel)
+    a4iol.configure_port_mode(PortMode.IOL_AUTOSTART, channel=ehps_channel)
 
-    time.sleep(0.05)
-
+    # wait for operate
     param = a4iol.read_fieldbus_parameters()
-    assert param[ehps_channel]["Port status information"] == "OPERATE"
+    while param[ehps_channel]["Port status information"] != "OPERATE":
+        param = a4iol.read_fieldbus_parameters()
 
+    # wait for ready
     process_data_in = read_process_data_in(a4iol, ehps_channel)
-    assert process_data_in["Ready"] is True
+    while not process_data_in["Ready"]:
+        process_data_in = read_process_data_in(a4iol, ehps_channel)
 
     # demo of process data out
     control_word_msb = 0x00
@@ -685,6 +688,12 @@ def test_4iol_ehps(test_cpxap):
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
     assert process_data_in["OpenedPositionFlag"] is False
+
+    a4iol.configure_port_mode(PortMode.DEACTIVATED, channel=ehps_channel)
+    # wait for inactive
+    param = a4iol.read_fieldbus_parameters()
+    while param[ehps_channel]["Port status information"] != "DEACTIVATED":
+        param = a4iol.read_fieldbus_parameters()
 
 
 def test_4iol_ethrottle(test_cpxap):
