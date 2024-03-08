@@ -300,8 +300,9 @@ class CpxAp(CpxBase):
         command = (2).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
         # Strangely this sending has to be repeated several times,
-        # actually it is tried up to 10 times.
-        for i in range(10):
+        # actually it is tried up to 1000 times.
+        tries = 1000
+        for i in range(tries):
             # prepare the command
             self.write_reg_data(module_index + param_id + instance + length, param_reg)
             # write data to register
@@ -324,9 +325,9 @@ class CpxAp(CpxBase):
             if read_registers == data:
                 break
 
-        if i >= 9:
+        if i >= tries - 1:
             raise CpxRequestError(
-                "Parameter might not have been written correctly after 10 tries"
+                f"Parameter might not have been written correctly after {tries} tries"
             )
         Logging.logger.debug(f"Wrote data {data} to module position: {position - 1}")
 
