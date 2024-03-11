@@ -26,11 +26,13 @@ def read_parameter_map_file(parameter_map_file: str = None) -> list:
             files("cpx_io") / "cpx_system" / "data" / "parameter_map.csv"
         )
     with open(parameter_map_file, encoding="ascii") as csvfile:
+        Logging.logger.info(f"Load parameter map file: {parameter_map_file}")
         reader = csv.reader(csvfile, delimiter=";")
+        header = next(reader, None)
+        Logging.logger.info(f"Header: {header}")
         # Use the following line to determine namedtuple fields directly from header
         # ParameterMapItem = namedtuple("ParameterMapItem", next(reader, None))
 
-        Logging.logger.info(f"Load parameter map file: {parameter_map_file}")
         # Interpret the first row element (parameter_id) as int
         return [ParameterMapItem(int(row[0]), *row[1:]) for row in reader]
 
