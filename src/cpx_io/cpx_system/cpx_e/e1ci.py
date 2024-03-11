@@ -102,10 +102,10 @@ class CpxE1Ci(CpxEModule):
         :rtype: StatusWord"""
         reg = self.base.read_reg_data(self.input_register + 4)
 
-        sw = self.StatusWord.from_bytes(reg)
+        status_word = self.StatusWord.from_bytes(reg)
 
-        Logging.logger.info(f"{self.name}: Read status word: {sw}")
-        return sw
+        Logging.logger.info(f"{self.name}: Read status word: {status_word}")
+        return status_word
 
     @CpxBase.require_base
     def read_process_data(self) -> ProcessData:
@@ -116,10 +116,10 @@ class CpxE1Ci(CpxEModule):
         # echo output data bit 0 ... 15 are in input_register + 6
         reg = self.base.read_reg_data(self.input_register + 6)
 
-        pd = self.ProcessData.from_bytes(reg[:1])  # take only first byte
+        process_data = self.ProcessData.from_bytes(reg[:1])  # take only first byte
 
-        Logging.logger.info(f"{self.name}: Read process data: {pd}")
-        return pd
+        Logging.logger.info(f"{self.name}: Read process data: {process_data}")
+        return process_data
 
     @CpxBase.require_base
     def write_process_data(self, **kwargs) -> None:

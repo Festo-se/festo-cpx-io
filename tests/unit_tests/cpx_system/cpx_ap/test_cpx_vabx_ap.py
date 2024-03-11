@@ -5,7 +5,7 @@ import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply, FailState
 
 
@@ -396,7 +396,7 @@ class TestVabxAP:
         # Assert
         vabx_ap.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE,
+            ParameterNameMap()["ValveDefectDiagEnable"],
             expected_value,
         )
 
@@ -427,7 +427,7 @@ class TestVabxAP:
         # Assert
         vabx_ap.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP,
+            ParameterNameMap()["LoadSupplyDiagSetup"],
             expected_value,
         )
 
@@ -466,7 +466,7 @@ class TestVabxAP:
         # Assert
         vabx_ap.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.FAIL_STATE_BEHAVIOUR,
+            ParameterNameMap()["FailStateBehaviour"],
             expected_value,
         )
 

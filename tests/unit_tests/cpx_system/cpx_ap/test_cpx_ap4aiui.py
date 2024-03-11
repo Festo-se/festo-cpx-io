@@ -5,7 +5,7 @@ import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
 
 
@@ -92,7 +92,7 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.TEMPERATURE_UNIT, expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["TemperatureUnit"], expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", ["A", "1"])
@@ -165,7 +165,7 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.CHANNEL_INPUT_MODE, expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["ChannelInputMode"], expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [-1, 10])
@@ -222,7 +222,10 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, expected_value, 0
+            MODULE_POSITION,
+            ParameterNameMap()["UpperThresholdValue"],
+            expected_value,
+            0,
         )
 
     @pytest.mark.parametrize(
@@ -249,7 +252,10 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, expected_value, 0
+            MODULE_POSITION,
+            ParameterNameMap()["LowerThresholdValue"],
+            expected_value,
+            0,
         )
 
     @pytest.mark.parametrize(
@@ -279,13 +285,13 @@ class TestCpxAp4AiUI:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.UPPER_THRESHOLD_VALUE,
+                    ParameterNameMap()["UpperThresholdValue"],
                     expected_value,
                     0,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.LOWER_THRESHOLD_VALUE,
+                    ParameterNameMap()["LowerThresholdValue"],
                     expected_value,
                     0,
                 ),
@@ -390,7 +396,10 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, expected_value, 0
+            MODULE_POSITION,
+            ParameterNameMap()["DiagnosisHysteresis"],
+            expected_value,
+            0,
         )
 
     @pytest.mark.parametrize("input_value", [-1, 65536])
@@ -446,7 +455,7 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.SMOOTH_FACTOR, expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["SmoothFactor"], expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [-1, 16])
@@ -501,7 +510,10 @@ class TestCpxAp4AiUI:
 
         # Assert
         cpxap4aiui.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.LINEAR_SCALING_ENABLE, expected_value, 0
+            MODULE_POSITION,
+            ParameterNameMap()["LinearScalingEnable"],
+            expected_value,
+            0,
         )
 
     @pytest.mark.parametrize("input_value", [1, "A"])

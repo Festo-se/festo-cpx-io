@@ -5,7 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import div_ceil
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 
 
 class CpxApModule(CpxModule):
@@ -53,30 +53,30 @@ class CpxApModule(CpxModule):
         """
         params = self.ModuleParameters(
             fieldbus_serial_number=self.base.read_parameter(
-                self.position, cpx_ap_parameters.FIELDBUS_SERIAL_NUMBER
+                self.position, ParameterNameMap()["FieldbusSerialNumber"]
             ),
             product_key=self.base.read_parameter(
-                self.position, cpx_ap_parameters.PRODUCT_KEY
+                self.position, ParameterNameMap()["ProductKey"]
             ),
             firmware_version=self.base.read_parameter(
-                self.position, cpx_ap_parameters.FIRMWARE_VERSION_STRING
+                self.position, ParameterNameMap()["FirmwareVersionString"]
             ),
             module_code=self.base.read_parameter(
-                self.position, cpx_ap_parameters.MODULE_CODE
+                self.position, ParameterNameMap()["ModuleCode"]
             ),
             temp_asic=self.base.read_parameter(
-                self.position, cpx_ap_parameters.TEMPERATURE_VALUE_ASIC
+                self.position, ParameterNameMap()["TemperatureValueAsic"]
             ),
             logic_voltage=self.base.read_parameter(
-                self.position, cpx_ap_parameters.U_ELSEN_VALUE
+                self.position, ParameterNameMap()["UElsenValue"]
             )
             / 1000.0,
             load_voltage=self.base.read_parameter(
-                self.position, cpx_ap_parameters.U_LOAD_VALUE
+                self.position, ParameterNameMap()["ULoadValue"]
             )
             / 1000.0,
             hw_version=self.base.read_parameter(
-                self.position, cpx_ap_parameters.HARDWARE_VERSION
+                self.position, ParameterNameMap()["HardwareVersion"]
             ),
         )
         Logging.logger.info(f"{self.name}: Reading AP parameters: {params}")

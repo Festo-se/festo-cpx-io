@@ -3,7 +3,7 @@
 import struct
 from typing import Any
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterMapItem
 
 TYPE_TO_FORMAT_CHAR = {
     "BOOL": "?",
@@ -22,10 +22,10 @@ TYPE_TO_FORMAT_CHAR = {
 
 
 def parameter_unpack(
-    parameter: cpx_ap_parameters.ParameterMapItem, raw: bytes, forced_format: str = None
+    parameter: ParameterMapItem, raw: bytes, forced_format: str = None
 ) -> Any:
     """Unpacks a raw byte value to specific type.
-    The type is determined by the parameters included in cpx_ap_parameters.
+    The type is determined by the parameters included in ParameterMap.
 
     param parameter: Parameter that should be unpacked.
     type parameter: ParameterMapItem
@@ -41,7 +41,7 @@ def parameter_unpack(
         Logging.logger.info(f"Parameter {parameter} forced to type ({forced_format})")
         unpack_data_type = forced_format
     else:
-        parameter_data_type = parameter.dtype
+        parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
         # if "Arraysize" is given, set array_size
@@ -75,10 +75,10 @@ def parameter_unpack(
 
 
 def parameter_pack(
-    parameter: cpx_ap_parameters.ParameterMapItem, value: Any, forced_format: str = None
+    parameter: ParameterMapItem, value: Any, forced_format: str = None
 ) -> bytes:
     """Packs a provided value to raw bytes object.
-    The type is determined by the parameters included in cpx_ap_parameters.
+    The type is determined by the parameters included in ParameterMap.
 
      param parameter: Parameter of value that should be unpacked.
      type parameter: ParameterMapItem
@@ -92,7 +92,7 @@ def parameter_pack(
     """
     if not forced_format:
         array_size = 1
-        parameter_data_type = parameter.dtype
+        parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
         # for char arrays, ignore the "Arraysize" and use length of the bytes object instead

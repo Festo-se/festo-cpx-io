@@ -6,7 +6,7 @@ import struct
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
@@ -207,15 +207,15 @@ def test_ep_configure(test_cpxap):
 
     ep.configure_monitoring_load_supply(0)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
 
     ep.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
 
     ep.configure_monitoring_load_supply(1)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
 
 
 def test_4AiUI_configures_channel_unit(test_cpxap):
@@ -224,19 +224,19 @@ def test_4AiUI_configures_channel_unit(test_cpxap):
 
     a4aiui.configure_channel_temp_unit(0, "C")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.TEMPERATURE_UNIT, 0) == 0
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 0) == 0
 
     a4aiui.configure_channel_temp_unit(1, "F")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.TEMPERATURE_UNIT, 1) == 1
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 1) == 1
 
     a4aiui.configure_channel_temp_unit(2, "K")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.TEMPERATURE_UNIT, 2) == 2
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 2) == 2
 
     a4aiui.configure_channel_temp_unit(3, "F")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.TEMPERATURE_UNIT, 3) == 1
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 3) == 1
 
     # reset
     a4aiui.configure_channel_temp_unit(0, "C")
@@ -251,19 +251,19 @@ def test_4AiUI_configures_channel_range(test_cpxap):
 
     a4aiui.configure_channel_range(0, "-10-+10V")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.CHANNEL_INPUT_MODE, 0) == 1
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 0) == 1
 
     a4aiui.configure_channel_range(1, "0-10V")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.CHANNEL_INPUT_MODE, 1) == 3
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 1) == 3
 
     a4aiui.configure_channel_range(2, "-5-+5V")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.CHANNEL_INPUT_MODE, 2) == 2
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 2) == 2
 
     a4aiui.configure_channel_range(3, "1-5V")
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.CHANNEL_INPUT_MODE, 3) == 4
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 3) == 4
 
     # reset
     a4aiui.configure_channel_range(0, "None")
@@ -280,24 +280,28 @@ def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
     a4aiui.configure_hysteresis_limit_monitoring(0, 101)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, 0) == 101
+        a4aiui.base.read_parameter(3, ParameterNameMap()["DiagnosisHysteresis"], 0)
+        == 101
     )
 
     a4aiui.configure_hysteresis_limit_monitoring(1, 0)
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, 1) == 0
+    assert (
+        a4aiui.base.read_parameter(3, ParameterNameMap()["DiagnosisHysteresis"], 1) == 0
+    )
 
     a4aiui.configure_hysteresis_limit_monitoring(2, 65535)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, 2)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["DiagnosisHysteresis"], 2)
         == 65535
     )
 
     a4aiui.configure_hysteresis_limit_monitoring(3, 99)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, 4) == 99
+        a4aiui.base.read_parameter(3, ParameterNameMap()["DiagnosisHysteresis"], 4)
+        == 99
     )
 
     # reset
@@ -313,19 +317,19 @@ def test_4AiUI_configures_channel_smoothing(test_cpxap):
 
     a4aiui.configure_channel_smoothing(0, 1)
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.SMOOTH_FACTOR, 0) == 1
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["SmoothFactor"], 0) == 1
 
     a4aiui.configure_channel_smoothing(1, 2)
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.SMOOTH_FACTOR, 1) == 2
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["SmoothFactor"], 1) == 2
 
     a4aiui.configure_channel_smoothing(2, 3)
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.SMOOTH_FACTOR, 2) == 3
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["SmoothFactor"], 2) == 3
 
     a4aiui.configure_channel_smoothing(3, 4)
     time.sleep(0.05)
-    assert a4aiui.base.read_parameter(3, cpx_ap_parameters.SMOOTH_FACTOR, 3) == 4
+    assert a4aiui.base.read_parameter(3, ParameterNameMap()["SmoothFactor"], 3) == 4
 
     # reset
     a4aiui.configure_channel_smoothing(0, 5)
@@ -341,28 +345,28 @@ def test_4AiUI_configures_linear_scaling(test_cpxap):
     a4aiui.configure_linear_scaling(0, True)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LINEAR_SCALING_ENABLE, 0)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LinearScalingEnable"], 0)
         is True
     )
 
     a4aiui.configure_linear_scaling(1, False)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LINEAR_SCALING_ENABLE, 1)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LinearScalingEnable"], 1)
         is False
     )
 
     a4aiui.configure_linear_scaling(2, True)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LINEAR_SCALING_ENABLE, 2)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LinearScalingEnable"], 2)
         is True
     )
 
     a4aiui.configure_linear_scaling(3, False)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LINEAR_SCALING_ENABLE, 3)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LinearScalingEnable"], 3)
         is False
     )
 
@@ -380,44 +384,44 @@ def test_4AiUI_configures_channel_limits(test_cpxap):
     a4aiui.configure_channel_limits(0, upper=1111, lower=-1111)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, 0)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["UpperThresholdValue"], 0)
         == 1111
     )
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, 0)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LowerThresholdValue"], 0)
         == -1111
     )
 
     a4aiui.configure_channel_limits(1, upper=2222, lower=-2222)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, 1)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["UpperThresholdValue"], 1)
         == 2222
     )
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, 1)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LowerThresholdValue"], 1)
         == -2222
     )
 
     a4aiui.configure_channel_limits(2, upper=3333, lower=-3333)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, 2)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["UpperThresholdValue"], 2)
         == 3333
     )
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, 2)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LowerThresholdValue"], 2)
         == -3333
     )
 
     a4aiui.configure_channel_limits(3, upper=4444, lower=-4444)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, 3)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["UpperThresholdValue"], 3)
         == 4444
     )
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, 3)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["LowerThresholdValue"], 3)
         == -4444
     )
 
@@ -435,15 +439,17 @@ def test_4Di4Do_configures(test_cpxap):
 
     a4di4do.configure_debounce_time(3)
     time.sleep(0.05)
-    assert a4di4do.base.read_parameter(2, cpx_ap_parameters.INPUT_DEBOUNCE_TIME) == 3
+    assert a4di4do.base.read_parameter(2, ParameterNameMap()["InputDebounceTime"]) == 3
 
     a4di4do.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert a4di4do.base.read_parameter(2, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert (
+        a4di4do.base.read_parameter(2, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
+    )
 
     a4di4do.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
-    assert a4di4do.base.read_parameter(2, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+    assert a4di4do.base.read_parameter(2, ParameterNameMap()["FailStateBehaviour"]) == 1
 
     time.sleep(0.05)
     # reset to default
@@ -731,15 +737,15 @@ def test_4iol_configure_monitoring_load_supply(test_cpxap):
 
     a4iol.configure_monitoring_load_supply(0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
 
     a4iol.configure_monitoring_load_supply(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
 
     a4iol.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
 
     a4iol.configure_monitoring_load_supply(1)
 
@@ -751,19 +757,27 @@ def test_4iol_configure_target_cycle_time(test_cpxap):
     time.sleep(0.05)
     a4iol.configure_target_cycle_time(16, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 16
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 0) == 16
 
     a4iol.configure_target_cycle_time(73, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 73
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 73
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 1) == 73
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 2) == 73
 
     a4iol.configure_target_cycle_time(158)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 158
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 158
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 158
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 3) == 158
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 0) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 1) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 2) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 3) == 158
+    )
 
     a4iol.configure_target_cycle_time(0)
 
@@ -776,37 +790,37 @@ def test_4iol_configure_device_lost_diagnostics(test_cpxap):
     a4iol.configure_device_lost_diagnostics(False, channel=0)
     time.sleep(0.05)
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"])
         is False
     )
 
     a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 1)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
         is False
     )
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 2)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
         is False
     )
 
     a4iol.configure_device_lost_diagnostics(False)
     time.sleep(0.05)
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 0)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 0)
         is False
     )
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 1)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
         is False
     )
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 2)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
         is False
     )
     assert (
-        a4iol.base.read_parameter(4, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 3)
+        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 3)
         is False
     )
 
@@ -820,19 +834,19 @@ def test_4iol_configure_port_mode(test_cpxap):
 
     a4iol.configure_port_mode(0, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 0) == 0
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 0) == 0
 
     a4iol.configure_port_mode(3, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 1) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 2) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 1) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 2) == 3
 
     a4iol.configure_port_mode(97)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 0) == 97
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 1) == 97
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 2) == 97
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.PORT_MODE, 3) == 97
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 0) == 97
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 1) == 97
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 2) == 97
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 3) == 97
 
     a4iol.configure_port_mode(0)
 
@@ -844,19 +858,33 @@ def test_4iol_configure_review_and_backup(test_cpxap):
 
     a4iol.configure_review_and_backup(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 1
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 0) == 1
+    )
 
     a4iol.configure_review_and_backup(2, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 2
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 2
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 1) == 2
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 2) == 2
+    )
 
     a4iol.configure_review_and_backup(3)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.VALIDATION_AND_BACKUP, 3) == 3
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 0) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 1) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 2) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 3) == 3
+    )
 
     a4iol.configure_review_and_backup(0)
 
@@ -870,21 +898,21 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0) == 1
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 0) == 1
 
     a4iol.configure_target_vendor_id(2, channel=[1, 2])
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 1) == 2
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 2) == 2
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 1) == 2
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 2) == 2
 
     a4iol.configure_target_vendor_id(3)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 1) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 2) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_VENDOR_ID, 3) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 0) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 1) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 2) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorId"], 3) == 3
 
     a4iol.configure_target_vendor_id(0)
     a4iol.configure_port_mode(0)
@@ -899,23 +927,23 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 1
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 0) == 1
 
     a4iol.configure_setpoint_device_id(2, channel=[1, 2])
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 2
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 2
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 1) == 2
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 2) == 2
 
     a4iol.configure_setpoint_device_id(3)
     time.sleep(0.05)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 1) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 2) == 3
-    assert a4iol.base.read_parameter(4, cpx_ap_parameters.NOMINAL_DEVICE_ID, 3) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 0) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 1) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 2) == 3
+    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceId"], 3) == 3
 
     a4iol.configure_setpoint_device_id(0)
     time.sleep(0.05)
