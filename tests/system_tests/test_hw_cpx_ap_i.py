@@ -342,7 +342,7 @@ def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
     a4aiui.configure_hysteresis_limit_monitoring(3, 99)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, 4) == 99
+        a4aiui.base.read_parameter(3, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, 3) == 99
     )
 
     # reset
