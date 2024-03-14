@@ -7,7 +7,7 @@ import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
-from cpx_io.utils.helpers import value_range_check
+from cpx_io.utils.helpers import value_range_check, channel_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
@@ -269,8 +269,7 @@ class CpxE4AiUI(CpxEModule):
         :type upper: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 9 + channel
 
@@ -307,8 +306,7 @@ class CpxE4AiUI(CpxEModule):
         :type value: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 9 + channel
 
@@ -337,8 +335,7 @@ class CpxE4AiUI(CpxEModule):
         :type value: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 9 + channel
 
@@ -371,8 +368,7 @@ class CpxE4AiUI(CpxEModule):
         :type value: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 9 + channel
 
@@ -500,8 +496,7 @@ class CpxE4AiUI(CpxEModule):
         :type lower: int
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel '{channel}' is not in range 0...3")
+        channel_range_check(channel, 4)
 
         function_number_lower = 4828 + 64 * self.position + 17 + channel * 2
         function_number_upper = 4828 + 64 * self.position + 25 + channel * 2

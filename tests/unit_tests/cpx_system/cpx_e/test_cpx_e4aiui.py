@@ -278,7 +278,7 @@ class TestCpxE4AiUI:
         cpxe4aiui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aiui.configure_channel_diagnostics_limits(input_value)
 
     @pytest.mark.parametrize(
@@ -320,7 +320,7 @@ class TestCpxE4AiUI:
         cpxe4aiui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aiui.configure_channel_diagnostics_wire_break(*input_value)
 
     @pytest.mark.parametrize(
@@ -364,7 +364,7 @@ class TestCpxE4AiUI:
         cpxe4aiui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aiui.configure_channel_diagnostics_underflow_overflow(*input_value)
 
     @pytest.mark.parametrize(
@@ -408,7 +408,7 @@ class TestCpxE4AiUI:
         cpxe4aiui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aiui.configure_channel_diagnostics_parameter_error(*input_value)
 
     @pytest.mark.parametrize(
@@ -520,9 +520,24 @@ class TestCpxE4AiUI:
 
     @pytest.mark.parametrize(
         "input_value",
-        [(0, None, 50000), (0, -50000, None), (4, None, 0), (0, None, None)],
+        [(4, None, 0), (-1, 0, None)],
     )
-    def test_configure_channel_limits_raise_error(self, input_value):
+    def test_configure_channel_limits_wrong_channel(self, input_value):
+        """Test configure_channel_diagnostics_parameter_error"""
+        # Arrange
+        cpxe4aiui = CpxE4AiUI()
+        cpxe4aiui.position = 1
+        cpxe4aiui.base = Mock()
+
+        # Act & Assert
+        with pytest.raises(IndexError):
+            cpxe4aiui.configure_channel_limits(*input_value)
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [(0, None, 50000), (1, -50000, None), (2, None, None)],
+    )
+    def test_configure_channel_limits_wrong_input(self, input_value):
         """Test configure_channel_diagnostics_parameter_error"""
         # Arrange
         cpxe4aiui = CpxE4AiUI()

@@ -8,7 +8,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
 from cpx_io.utils.logging import Logging
-from cpx_io.utils.helpers import value_range_check
+from cpx_io.utils.helpers import value_range_check, channel_range_check
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
 
 
@@ -58,8 +58,7 @@ class CpxAp4AiUI(CpxApModule):
         :type value: TempUnit | int
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         if isinstance(value, TempUnit):
             value = value.value
@@ -95,8 +94,7 @@ class CpxAp4AiUI(CpxApModule):
         :type value: ChannelRange | int
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         if isinstance(value, ChannelRange):
             value = value.value
@@ -129,8 +127,7 @@ class CpxAp4AiUI(CpxApModule):
         :type lower: int
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         self.configure_linear_scaling(channel, True)
 
@@ -181,8 +178,7 @@ class CpxAp4AiUI(CpxApModule):
         :type value: int
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         value_range_check(value, 65536)
 
@@ -205,8 +201,7 @@ class CpxAp4AiUI(CpxApModule):
         :type value: int
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         value_range_check(value, 16)
 
@@ -230,8 +225,7 @@ class CpxAp4AiUI(CpxApModule):
         if not isinstance(value, bool):
             raise TypeError(f"State {value} must be of type bool (True or False)")
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         self.base.write_parameter(
             self.position, cpx_ap_parameters.LINEAR_SCALING_ENABLE, int(value), channel
