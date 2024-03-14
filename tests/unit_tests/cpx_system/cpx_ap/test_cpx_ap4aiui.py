@@ -122,7 +122,7 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxap4aiui.configure_channel_temp_unit(input_value, "None")
 
     @pytest.mark.parametrize(
@@ -195,7 +195,7 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxap4aiui.configure_channel_range(input_value, "None")
 
     @pytest.mark.parametrize(
@@ -364,7 +364,7 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxap4aiui.configure_channel_limits(input_value, upper=0, lower=0)
 
     @pytest.mark.parametrize(
@@ -420,7 +420,7 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxap4aiui.configure_hysteresis_limit_monitoring(input_value, 0)
 
     @pytest.mark.parametrize(
@@ -476,7 +476,7 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxap4aiui.configure_channel_smoothing(input_value, 0)
 
     @pytest.mark.parametrize(
@@ -531,5 +531,5 @@ class TestCpxAp4AiUI:
         cpxap4aiui.base = Mock(write_parameter=Mock())
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxap4aiui.configure_linear_scaling(input_value, True)
