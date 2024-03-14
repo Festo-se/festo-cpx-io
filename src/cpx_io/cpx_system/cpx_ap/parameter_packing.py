@@ -17,7 +17,7 @@ TYPE_TO_FORMAT_CHAR = {
     "UINT64": "Q",
     "FLOAT": "f",
     "CHAR": "s",
-    "ENUM_ID": "H",  # interpret ENUM_ID as UINT16
+    "ENUM_ID": "B",  # interpret ENUM_ID as UINT8
 }
 
 
@@ -118,10 +118,6 @@ def parameter_pack(
             value = float(value)
         if "BOOL" in parameter_data_type:
             value = bool(value)
-
-        if any(type_str in parameter_data_type for type_str in ["INT8", "BOOL"]):
-            # bool and uint8 needs to be in MSbyte, so fill it with 0
-            return struct.pack(pack_data_type, value) + b"\x00"
 
         return struct.pack(pack_data_type, value)
 

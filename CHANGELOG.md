@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added 
+- VAEM Valve Terminal for CPX-AP
 - Enums for configure functions
 - Systemtests for VABX
 - Examples for cyclic access with threading
@@ -30,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deleted obsolete cpx-e "read_module_count" function
 
 ### Fixed
+- AP Parameter length register is now interpreted correctly as "in bytes"
+- Removed unnecessary validation check in write_parameter_raw
 - Many logger.info strings in modules
 - Docstring in e4aoui configure_channel_range
 - ip-address octetts now in correct order
