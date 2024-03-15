@@ -4,6 +4,7 @@ import time
 import struct
 import pytest
 
+from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
@@ -17,6 +18,7 @@ from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
 from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
 from cpx_io.cpx_system.cpx_ap.vmpal_ap import VmpalAP
+from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     ChannelRange,
@@ -154,6 +156,21 @@ def test_16Di(test_cpxap):
 def test_16Di_configure(test_cpxap):
     test_cpxap.modules[1].configure_debounce_time(1)
 
+def test_generic12Di4Do(test_cpxap):
+    Logging(logging_level="DEBUG")
+    test_cpxap.get_module_at_address(2).read_channels()
+    test_cpxap.modules[2].read_channels()
+    assert isinstance(test_cpxap.modules[2], GenericApModule)
+    channels = test_cpxap.genericapmodule.read_channels()
+
+    data = [True, False, True, False]
+    test_cpxap.modules[2].write_channels(data)
+    time.sleep(0.05)
+    channels = test_cpxap.modules[2].read_channels()
+    assert channels[:12] == [False] * 12
+    assert channels[12:] == data
+
+    pass
 
 def test_12Di4Do(test_cpxap):
     assert test_cpxap.modules[2].read_channels() == [False] * 16

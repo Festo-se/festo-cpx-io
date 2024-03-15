@@ -34,7 +34,7 @@ CPX_AP_MODULE_ID_DICT = {
     "VABX": VabxAP,
     "VAEM": VaemAP,
     "VMPAL": VmpalAP,
-    "generic": GenericApModule("APDD/CPX-AP-A-12DI4DO-M12-5P.json")
+    "generic": GenericApModule,
 }
 
 CPX_AP_MODULE_ID_LIST = CPX_AP_MODULE_ID_DICT.values()
