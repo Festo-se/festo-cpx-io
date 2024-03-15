@@ -1,0 +1,778 @@
+{
+  "ChannelGroups": [
+    {
+      "ChannelGroupId": 0,
+      "Channels": [
+        {
+          "ChannelId": 0,
+          "Count": 12,
+          "Offset": 0
+        }
+      ],
+      "Name": "12DI",
+      "ParameterGroupIds": [
+        1
+      ]
+    },
+    {
+      "ChannelGroupId": 1,
+      "Channels": [
+        {
+          "ChannelId": 1,
+          "Count": 4,
+          "Offset": 0
+        }
+      ],
+      "Name": "4DO",
+      "ParameterGroupIds": [
+        2
+      ]
+    }
+  ],
+  "Channels": [
+    {
+      "Bits": 1,
+      "ChannelId": 0,
+      "DataType": "BOOL",
+      "Description": "Digital input channel, 24VDC, PNP",
+      "Direction": "in",
+      "Name": "Input %d",
+      "ProfileList": [
+        3
+      ]
+    },
+    {
+      "Bits": 1,
+      "ChannelId": 1,
+      "DataType": "BOOL",
+      "Description": "Digital output channel, 24VDC, max 0.5A, PNP",
+      "Direction": "out",
+      "Name": "Output %d",
+      "ProfileList": [
+        4
+      ]
+    }
+  ],
+  "CommunicationConfiguration": {
+    "ApPorts": {
+      "FieldbusList": [
+        {
+          "FieldbusPortList": [
+            {
+              "$ref": "#port1"
+            },
+            {
+              "$ref": "#port2"
+            }
+          ],
+          "FieldbusType": 21,
+          "Role": 2
+        }
+      ],
+      "PortList": [
+        {
+          "$id": "#port1",
+          "ConnectorType": 10,
+          "Latency": 0,
+          "Name": "BP10",
+          "PhyMapping": 1,
+          "PortPriority": 1,
+          "Type": 1
+        },
+        {
+          "$id": "#port2",
+          "ConnectorType": 10,
+          "Latency": 0,
+          "Name": "BP20",
+          "PhyMapping": 0,
+          "PortPriority": 0,
+          "Type": 2
+        }
+      ]
+    },
+    "ProcessData": {
+      "MinimumCycleTime": 200000,
+      "Synchronisation": {
+        "InputProcessingTime": 0,
+        "OutputProcessingTime": 0
+      }
+    },
+    "StartupDelay": 100000000
+  },
+  "Description": {
+    "ApddSchemaVersion": 16,
+    "FileVersion": 29,
+    "FileVersionDate": "2023-10-16",
+    "GeneratedBy": "Buildserver at 15:19:28",
+    "Language": "en"
+  },
+  "Diagnoses": {
+    "DiagnosisList": [
+      {
+        "Description": "A short circuit/overload of the sensor supply was detected",
+        "DiagnosisId": "0x0101010B",
+        "Guideline": "- Check the connected sensors for proper function, especially current consumption.\n- Check sensor cable.",
+        "Name": "Short circuit / Overload sensor supply"
+      },
+      {
+        "Description": "Connected digital output load exceeds allowed power consumption.",
+        "DiagnosisId": "0x0101010C",
+        "Guideline": "- Check the connected load for proper function, especially current consumption.\n- Check cable.\n- The output must be reset after the fault is resolved.\n",
+        "Name": "Short circuit / Overload output signal"
+      },
+      {
+        "Description": "Undervoltage in logic supply (PS) 24 V DC",
+        "DiagnosisId": "0x02010016",
+        "Guideline": "- Check power supply.",
+        "Name": "Undervoltage in logic supply (PS) 24 V DC"
+      },
+      {
+        "Description": "Overvoltage in logic supply (PS) 24 V DC",
+        "DiagnosisId": "0x02010017",
+        "Guideline": "- Check power supply.",
+        "Name": "Overvoltage in logic supply (PS) 24 V DC"
+      },
+      {
+        "Description": "Undervoltage in load supply (PL) 24 V DC",
+        "DiagnosisId": "0x02010105",
+        "Guideline": "- Check power supply (load) \n- Check for short circuit.",
+        "Name": "Undervoltage in load supply (PL) 24 V DC"
+      },
+      {
+        "Description": "Load supply (PL) 24 V DC switched off",
+        "DiagnosisId": "0x02010106",
+        "Guideline": "- Check if emergency stop is active\n- Check load supply",
+        "Name": "Load supply (PL) 24 V DC switched off"
+      },
+      {
+        "Description": "Overvoltage in load supply (PL) 24 V DC",
+        "DiagnosisId": "0x0201013F",
+        "Guideline": "- Check power supply.",
+        "Name": "Overvoltage in load supply (PL) 24 V DC"
+      },
+      {
+        "Description": "No communication with AP master possible.",
+        "DiagnosisId": "0x08010124",
+        "Guideline": "- Restart AP master.\n- Check communication cable (AP)",
+        "Name": "AP master lost"
+      },
+      {
+        "Description": "The process data watchdog for the outputs timed out in the module",
+        "DiagnosisId": "0x08010130",
+        "Guideline": "- Restart AP master.\n- Check wiring.",
+        "Name": "AP module process data output watchdog timed out"
+      },
+      {
+        "Description": "The process data watchdog for the inputs timed out in the module",
+        "DiagnosisId": "0x08010131",
+        "Guideline": "- Restart AP master.\n- Check wiring.",
+        "Name": "AP module process data input watchdog timed out"
+      },
+      {
+        "Description": "The system initialization (module recognition) failed. The system is in maintenance mode.  No I/O function is available.",
+        "DiagnosisId": "0x080101A2",
+        "Guideline": "- Restart system\n- Update firmware to latest version\n- Contact Festo service",
+        "Name": "System State Emergency Operation mode"
+      }
+    ]
+  },
+  "Metadata": {
+    "EnumDataTypes": [
+      {
+        "Bits": 2,
+        "DataType": "UINT8",
+        "EnumValues": [
+          {
+            "Text": "0.1ms",
+            "Value": 0
+          },
+          {
+            "Text": "3ms",
+            "Value": 1
+          },
+          {
+            "Text": "10ms",
+            "Value": 2
+          },
+          {
+            "Text": "20ms",
+            "Value": 3
+          }
+        ],
+        "EthercatEnumId": 2050,
+        "Id": 2003,
+        "Name": "InputDebounceTimeValues"
+      },
+      {
+        "Bits": 2,
+        "DataType": "UINT8",
+        "EnumValues": [
+          {
+            "Text": "Load supply monitoring inactive",
+            "Value": 0
+          },
+          {
+            "Text": "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
+            "Value": 1
+          },
+          {
+            "Text": "Load supply monitoring active",
+            "Value": 2
+          }
+        ],
+        "EthercatEnumId": 2063,
+        "Id": 2016,
+        "Name": "LoadSupplyBehaviour"
+      },
+      {
+        "Bits": 1,
+        "DataType": "UINT8",
+        "EnumValues": [
+          {
+            "Text": "Reset Outputs",
+            "Value": 0
+          },
+          {
+            "Text": "Hold last state",
+            "Value": 1
+          }
+        ],
+        "EthercatEnumId": 2064,
+        "Id": 2017,
+        "Name": "FailStateBehaviour"
+      }
+    ],
+    "PhysicalQuantities": [
+      {
+        "Name": "Voltage",
+        "PhysicalQuantityId": 6,
+        "PhysicalUnits": [
+          {
+            "FormatString": "mV",
+            "Name": "Millivolt",
+            "PhysicalUnitId": 61
+          }
+        ]
+      },
+      {
+        "Name": "Time",
+        "PhysicalQuantityId": 7,
+        "PhysicalUnits": [
+          {
+            "FormatString": "s",
+            "Name": "Second",
+            "PhysicalUnitId": 70
+          }
+        ]
+      },
+      {
+        "Name": "Temperature",
+        "PhysicalQuantityId": 10,
+        "PhysicalUnits": [
+          {
+            "FormatString": "°C",
+            "Name": "Degrees Celsius",
+            "PhysicalUnitId": 100
+          }
+        ]
+      }
+    ]
+  },
+  "ParameterGroups": [
+    {
+      "Name": "Module Parameters",
+      "ParameterGroupId": 0,
+      "ParameterIds": [
+        246,
+        791,
+        960,
+        20000,
+        20010,
+        20011,
+        20069,
+        20085,
+        20087,
+        20088,
+        20089,
+        20092,
+        20093
+      ]
+    },
+    {
+      "Name": "Input Parameters",
+      "ParameterGroupId": 1,
+      "ParameterIds": [
+        20014
+      ]
+    },
+    {
+      "Name": "Output Parameters",
+      "ParameterGroupId": 2,
+      "ParameterIds": [
+        20022,
+        20052,
+        20081,
+        20082
+      ]
+    }
+  ],
+  "Parameters": {
+    "ParameterList": [
+      {
+        "DataDefinition": {
+          "DataType": "UINT32",
+          "DefaultValue": 0,
+          "Description": "Fieldbus specific serial number",
+          "Name": "Fieldbus Serial Number"
+        },
+        "IsWritable": false,
+        "ParameterId": 246,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "StorageLocation": 201
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 12,
+          "DataType": "CHAR",
+          "DefaultValue": "",
+          "Description": "Product Key of the device",
+          "Name": "Product key"
+        },
+        "IsWritable": false,
+        "ParameterId": 791,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "StorageLocation": 201
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 30,
+          "DataType": "CHAR",
+          "DefaultValue": "",
+          "Description": "Firmware Version",
+          "Name": "Firmware Version"
+        },
+        "IsWritable": false,
+        "ParameterId": 960,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "StorageLocation": 201
+      },
+      {
+        "DataDefinition": {
+          "DataType": "UINT32",
+          "DefaultValue": 0,
+          "Description": "The module code of the AP device.",
+          "Name": "Module Code"
+        },
+        "IsWritable": false,
+        "ParameterId": 20000,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          20
+        ],
+        "StorageLocation": 201
+      },
+      {
+        "DataDefinition": {
+          "DataType": "UINT16",
+          "DefaultValue": 0,
+          "Description": "Hardware version of the AP-ASIC chip.",
+          "Name": "AP-ASIC Hardware Version"
+        },
+        "IsWritable": false,
+        "ParameterId": 20010,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "StorageLocation": 201
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 30,
+          "DataType": "CHAR",
+          "DefaultValue": "",
+          "Description": "The current version of the libAP communication stack.",
+          "Name": "libAP Version"
+        },
+        "IsWritable": false,
+        "ParameterId": 20011,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "StorageLocation": 201
+      },
+      {
+        "DataDefinition": {
+          "DataType": "ENUM_ID",
+          "DefaultValue": 1,
+          "Description": "Input debounce time of corresponding input.",
+          "LimitEnumValues": {
+            "EnumDataType": 2003
+          },
+          "Name": "Input Debounce Time"
+        },
+        "FieldbusSettings": {
+          "BitOffset": 2,
+          "IsStartupParameter": true
+        },
+        "IsWritable": true,
+        "ParameterId": 20014,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          1
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "ENUM_ID",
+          "DefaultValue": 1,
+          "Description": "Setup behaviour of monitoring of load supply (PL) 24 V DC. This also effects the diagnostic LEDs on the module.",
+          "LimitEnumValues": {
+            "EnumDataType": 2016
+          },
+          "Name": "Setup monitoring load supply (PL) 24 V DC"
+        },
+        "FieldbusSettings": {
+          "BitOffset": 0,
+          "IsStartupParameter": true
+        },
+        "IsWritable": true,
+        "ParameterId": 20022,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          2
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "ENUM_ID",
+          "DefaultValue": 0,
+          "Description": "Output behaviour in case of failure",
+          "LimitEnumValues": {
+            "EnumDataType": 2017
+          },
+          "Name": "Behaviour in fail state"
+        },
+        "FieldbusSettings": {
+          "BitOffset": 4,
+          "IsStartupParameter": true
+        },
+        "IsWritable": true,
+        "ParameterId": 20052,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          2
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 7,
+          "DataType": "UINT16",
+          "DefaultValue": 0,
+          "Description": "CRC error counter",
+          "Name": "CRC Error Counter"
+        },
+        "IsWritable": false,
+        "ParameterId": 20069,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 3,
+          "Type": 2
+        },
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 1,
+          "DataType": "UINT8",
+          "DefaultValue": 0,
+          "Description": "Output force mask",
+          "Name": "Output force mask"
+        },
+        "IsWritable": true,
+        "ParameterId": 20081,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          18
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 1,
+          "DataType": "UINT8",
+          "DefaultValue": 0,
+          "Description": "Output force value",
+          "Name": "Output force value"
+        },
+        "IsWritable": true,
+        "ParameterId": 20082,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          18
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "INT16",
+          "DefaultValue": 0,
+          "Description": "Internal temperature of the AP-ASIC",
+          "Name": "Temperature Value AP-ASIC",
+          "PhysicalUnitId": 100,
+          "ValidPhysicalUnitIds": [
+            100
+          ]
+        },
+        "IsWritable": false,
+        "ParameterId": 20085,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          20
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "UINT16",
+          "DefaultValue": 0,
+          "Description": "Current value of the sensor supply voltage",
+          "Name": "Current value UElsen",
+          "PhysicalUnitId": 61,
+          "ValidPhysicalUnitIds": [
+            61
+          ]
+        },
+        "IsWritable": false,
+        "ParameterId": 20087,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          20
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "UINT16",
+          "DefaultValue": 0,
+          "Description": "Current value of the load supply voltage",
+          "Name": "Current value ULoad",
+          "PhysicalUnitId": 61,
+          "ValidPhysicalUnitIds": [
+            61
+          ]
+        },
+        "IsWritable": false,
+        "ParameterId": 20088,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          20
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "ArraySize": 21,
+          "DataType": "UINT16",
+          "DefaultValue": 0,
+          "Description": "Provides raw hardware register values to estimate channel quality.",
+          "Name": "Channel quality"
+        },
+        "IsWritable": false,
+        "ParameterId": 20089,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 3,
+          "Type": 2
+        },
+        "ProfileList": [
+          20
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "UINT32",
+          "DefaultValue": 0,
+          "Description": "Module's operating hours since last power-on.",
+          "Name": "Uptime",
+          "PhysicalUnitId": 70,
+          "ValidPhysicalUnitIds": [
+            70
+          ]
+        },
+        "IsWritable": false,
+        "ParameterId": 20092,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "ProfileList": [
+          20
+        ],
+        "StorageLocation": 200
+      },
+      {
+        "DataDefinition": {
+          "DataType": "UINT8",
+          "DefaultValue": 0,
+          "Description": "Hardware revision of the assembled PCB.",
+          "Name": "Hardware Version"
+        },
+        "IsWritable": false,
+        "ParameterId": 20093,
+        "ParameterInstances": {
+          "FirstIndex": 0,
+          "NumberOfInstances": 1
+        },
+        "StorageLocation": 201
+      }
+    ],
+    "StartupParameterSize": 1
+  },
+  "Profiles": {
+    "SupportedProfiles": [
+      25,
+      31,
+      54,
+      55,
+      100,
+      102
+    ]
+  },
+  "Services": {
+    "BaseInterface": {
+      "GetFullDiagnosticImage": [
+        {
+          "ServiceId": 20027,
+          "ServiceInstance": 0
+        }
+      ],
+      "ReadFile": [
+        {
+          "ServiceId": 20061,
+          "ServiceInstance": 0
+        }
+      ],
+      "ReadParameter": [
+        {
+          "ServiceId": 20007,
+          "ServiceInstance": 0
+        }
+      ],
+      "WriteFile": [
+        {
+          "ServiceId": 20062,
+          "ServiceInstance": 0
+        }
+      ],
+      "WriteParameter": [
+        {
+          "ServiceId": 20008,
+          "ServiceInstance": 0
+        }
+      ]
+    },
+    "SupportedEngpVersions": []
+  },
+  "Variants": {
+    "DefaultModuleCode": 12290,
+    "DeviceIdentification": {
+      "ApAsicHardwareVersion": {
+        "ParameterId": 20010,
+        "ParameterInstance": 0
+      },
+      "FieldbusSerialNumber": {
+        "ParameterId": 246,
+        "ParameterInstance": 0
+      },
+      "FirmwareVersion": {
+        "ParameterId": 960,
+        "ParameterInstance": 0
+      },
+      "HardwareVersion": {
+        "ParameterId": 20093,
+        "ParameterInstance": 0
+      },
+      "LibApVersion": {
+        "ParameterId": 20011,
+        "ParameterInstance": 0
+      },
+      "ProductCategory": 30,
+      "ProductFamily": "CPX-AP-A",
+      "ProductKey": {
+        "ParameterId": 791,
+        "ParameterInstance": 0
+      },
+      "VendorId": 1
+    },
+    "DeviceImage": "CPX-AP-A-12DI4DO-M12-5P.svg",
+    "VariantList": [
+      {
+        "ChannelGroupIds": [
+          0,
+          1
+        ],
+        "Description": "I/O module with 12 inputs and 4 outputs M12, galvanically isolated, 0.5 A, IP65/IP67, PNP, 5-pin conductor",
+        "Name": "CPX-AP-A-12DI4DO-M12-5P",
+        "ParameterGroupIds": [
+          0
+        ],
+        "Profile": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "VariantIdentification": {
+          "ConfiguratorCode": "AM",
+          "FestoPartNumberDevice": 8129111,
+          "ModuleClass": 200,
+          "ModuleCode": 12290,
+          "NumberOfApNodes": 1,
+          "OrderText": "CPX-AP-A-12DI4DO-M12-5P"
+        }
+      }
+    ]
+  }
+}
