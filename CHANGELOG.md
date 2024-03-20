@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deleted obsolete cpx-e "read_module_count" function
 
 ### Fixed
+- 4DI4DO and 12DI4DO modules toggle channel now working as expected
 - AP Parameter length register is now interpreted correctly as "in bytes"
 - Removed unnecessary validation check in write_parameter_raw
 - Many logger.info strings in modules
