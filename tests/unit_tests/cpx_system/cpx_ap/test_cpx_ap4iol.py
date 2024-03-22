@@ -759,7 +759,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, ParameterNameMap()["NominalVendorId"], expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["NominalVendorID"], expected_value, 0
         )
 
     def test_configure_target_vendor_id_more_channels(self):
@@ -778,9 +778,9 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 0, 1),
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 0, 2),
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 0, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 0, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 0, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 0, 3),
             ]
         )
 
@@ -800,10 +800,10 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 4, 0),
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 4, 1),
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 4, 2),
-                call(MODULE_POSITION, ParameterNameMap()["NominalVendorId"], 4, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 0),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 3),
             ]
         )
 
@@ -825,7 +825,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], expected_value, 0
         )
 
     def testconfigure_setpoint_device_id_more_channels(self):
@@ -844,9 +844,9 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 0, 1),
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 0, 2),
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 0, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 0, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 0, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 0, 3),
             ]
         )
 
@@ -866,10 +866,10 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 4, 0),
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 4, 1),
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 4, 2),
-                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceId"], 4, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 0),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 3),
             ]
         )
 

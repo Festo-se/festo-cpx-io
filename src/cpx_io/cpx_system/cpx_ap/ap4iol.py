@@ -434,7 +434,7 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(
                 self.position,
-                ParameterNameMap()["NominalVendorId"],
+                ParameterNameMap()["NominalVendorID"],
                 value,
                 channel_item,
             )
@@ -465,7 +465,7 @@ class CpxAp4Iol(CpxApModule):
         for channel_item in channel:
             self.base.write_parameter(
                 self.position,
-                ParameterNameMap()["NominalDeviceId"],
+                ParameterNameMap()["NominalDeviceID"],
                 value,
                 channel_item,
             )
@@ -505,7 +505,7 @@ class CpxAp4Iol(CpxApModule):
             )
 
             revision_id = self.base.read_parameter(
-                self.position, ParameterNameMap()["RevisionId"], channel_item
+                self.position, ParameterNameMap()["RevisionID"], channel_item
             )
 
             transmission_rate = transmission_rate_dict.get(
@@ -519,11 +519,11 @@ class CpxAp4Iol(CpxApModule):
             )
 
             actual_vendor_id = self.base.read_parameter(
-                self.position, ParameterNameMap()["ActualVendorId"], channel_item
+                self.position, ParameterNameMap()["ActualVendorID"], channel_item
             )
 
             actual_device_id = self.base.read_parameter(
-                self.position, ParameterNameMap()["ActualDeviceId"], channel_item
+                self.position, ParameterNameMap()["ActualDeviceID"], channel_item
             )
 
             input_data_length = self.base.read_parameter(
