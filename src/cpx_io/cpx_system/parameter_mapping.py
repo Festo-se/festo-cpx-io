@@ -15,11 +15,11 @@ ParameterMapItem = namedtuple("ParameterMapItem", "parameter_id, name, data_type
 def read_parameter_map_file(parameter_map_file: str = None) -> list:
     """Creates a list of parameter map items based on a provided parameter type map file
 
-    Parameters:
-        parameter_map_file (str): Optional file to use for mapping.
+    :param parameter_map_file: Optional file to use for mapping.
                                 If nothing provided try to load mapping shipped with package.
-    Returns:
-        list: Containing parameter map items with fieldnames from the header parameter_map_file.
+    :type parameter_map_file: str
+    :return: Containing parameter map items with fieldnames from the header parameter_map_file.
+    :rtype: list
     """
     if not parameter_map_file:
         parameter_map_file = PurePath(
@@ -42,8 +42,8 @@ def create_parameter_map() -> dict:
     """Creates a dict based on a provided parameter map item list.
         It maps parameter ids to provided parameter map items
 
-    Returns:
-        dict: parameter ids (key) and parameter items (value)
+    :return: parameter ids (key) and parameter items (value)
+    :rtype: dict
     """
     parameter_list = read_parameter_map_file()
     Logging.logger.info("Create mapping from parameter ids to parameter items")
@@ -55,8 +55,8 @@ def create_parameter_name_map() -> dict:
     """Creates a dict based on a provided parameter map item list.
         It maps parameter names to provided parameter map items
 
-    Returns:
-        dict: parameter name (key) and parameter items (value)
+    :return: parameter name (key) and parameter items (value)
+    :rtype: dict
     """
     parameter_list = read_parameter_map_file()
     Logging.logger.info("Create mapping from parameter names to parameter items")
@@ -75,10 +75,10 @@ class ParameterMap:
     def __getitem__(self, parameter: int):
         """Determines the corresponding parameter_map_item from a provided parameter number
 
-        Parameters:
-            parameter (int): parameter number.
-        Returns:
-            value: parameter_map_item
+        :param parameter: parameter number.
+        :type parameter: int
+        :return: value
+        :rtype: parameter_map_item
         """
         if parameter not in self.mapping:
             Logging.logger.error(
@@ -103,10 +103,10 @@ class ParameterNameMap:
     def __getitem__(self, parameter_name: str):
         """Determines the corresponding parameter_map_item from a provided parameter name
 
-        Parameters:
-            parameter (str): parameter name.
-        Returns:
-            value: parameter_map_item
+        :param parameter: parameter name.
+        :type parameter: str
+        :return: value
+        :rtype: parameter_map_item
         """
         if parameter_name not in self.mapping:
             Logging.logger.error(
