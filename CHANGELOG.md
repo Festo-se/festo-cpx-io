@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added 
+- CLI command `parameter` (options `--list` and `--meta`) showing parameter meta data
 - channel_range_check in helpers, now raises IndexError instead of ValueError
 - VMPAL Valve Terminal for CPX-AP
 - VAEM Valve Terminal for CPX-AP
