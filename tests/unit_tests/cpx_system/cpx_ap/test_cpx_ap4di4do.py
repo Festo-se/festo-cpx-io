@@ -213,15 +213,17 @@ class TestCpxAp4Di4Do:
         # Arange
         cpxap4di4do = CpxAp4Di4Do()
 
-        cpxap4di4do.base = Mock(write_reg_data=Mock())
+        # cpxap4di4do.base = Mock(write_reg_data=Mock())
         cpxap4di4do.base = Mock(read_reg_data=Mock(return_value=b"\xBA"))
+        cpxap4di4do.read_channel = Mock()
         cpxap4di4do.write_channel = Mock()
 
         # Act
         cpxap4di4do.toggle_channel(0)
 
         # Assert
-        cpxap4di4do.write_channel.assert_called_with(0, True)
+        cpxap4di4do.read_channel.assert_called_with(0, output_numbering=True)
+        cpxap4di4do.write_channel.assert_called_with(0, False)
 
     def test_set_item(self):
         """Test set item"""
