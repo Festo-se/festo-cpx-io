@@ -1100,14 +1100,15 @@ def test_vaem_configures(test_cpxap):
     vabx.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1125,14 +1126,15 @@ def test_vaem_configures_enums(test_cpxap):
     vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1179,14 +1181,15 @@ def test_vmpal_configures(test_cpxap):
     vabx.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1204,14 +1207,15 @@ def test_vmpal_configures_enums(test_cpxap):
     vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
