@@ -122,7 +122,7 @@ class CpxAp4Di4Do(CpxApModule):
         :type channel: int
         """
         # get the relevant value from the register and write the inverse
-        value = self.read_channel(channel)
+        value = self.read_channel(channel, output_numbering=True)
         self.write_channel(channel, not value)
 
     @CpxBase.require_base

@@ -297,39 +297,28 @@ class CpxAp(CpxBase):
         module_index = (position + 1).to_bytes(2, byteorder="little")
         param_id = param_id.to_bytes(2, byteorder="little")
         instance = instance.to_bytes(2, byteorder="little")
-        # length in 16 bit registers
-        length = (len(data) // 2).to_bytes(2, byteorder="little")
+        # length in bytes
+        length_bytes = len(data).to_bytes(2, byteorder="little")
         command = (2).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
-        # Strangely this sending has to be repeated several times,
-        # actually it is tried up to 10 times.
-        for i in range(10):
-            # prepare the command
-            self.write_reg_data(module_index + param_id + instance + length, param_reg)
-            # write data to register
-            self.write_reg_data(data, param_reg + 10)
-            # execute the command
-            self.write_reg_data(command, param_reg + 3)
+        # prepare the command
+        self.write_reg_data(module_index + param_id + instance, param_reg)
+        # write length in bytes
+        self.write_reg_data(length_bytes, param_reg + 4)
+        # write data to register
+        self.write_reg_data(data, param_reg + 10)
+        # execute the command
+        self.write_reg_data(command, param_reg + 3)
 
-            exe_code = 0
-            while exe_code < 16:
-                exe_code = int.from_bytes(
-                    self.read_reg_data(param_reg + 3), byteorder="little"
-                )
-                # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-                if exe_code == 4:
-                    raise CpxRequestError
-
-            # Validation check according to datasheet
-            read_registers = self.read_reg_data(param_reg + 10, len(data) // 2)
-
-            if read_registers == data:
-                break
-
-        if i >= 9:
-            raise CpxRequestError(
-                "Parameter might not have been written correctly after 10 tries"
+        exe_code = 0
+        while exe_code != 16:
+            exe_code = int.from_bytes(
+                self.read_reg_data(param_reg + 3), byteorder="little"
             )
+            # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            if exe_code == 4:
+                raise CpxRequestError
+
         Logging.logger.debug(f"Wrote data {data} to module position: {position - 1}")
 
     def read_parameter(
@@ -379,7 +368,7 @@ class CpxAp(CpxBase):
 
         # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
         exe_code = 0
-        while exe_code < 16:
+        while exe_code != 16:
             exe_code = int.from_bytes(
                 self.read_reg_data(param_reg + 3), byteorder="little"
             )
@@ -387,9 +376,15 @@ class CpxAp(CpxBase):
                 raise CpxRequestError
 
         # get datalength in bytes from register 10004
-        data_length = div_ceil(
-            int.from_bytes(self.read_reg_data(param_reg + 4), byteorder="little"),
-            2,
+        length_bytes = int.from_bytes(
+            self.read_reg_data(param_reg + 4), byteorder="little"
+        )
+        # read 16 bit registers
+        length_registers = div_ceil(length_bytes, 2)
+        data = self.read_reg_data(param_reg + 10, length_registers)
+
+        Logging.logger.debug(
+            f"Read parameter {param_id}: {data} from module position: {position - 1}"
         )
 
-        return self.read_reg_data(param_reg + 10, data_length)
+        return data

@@ -127,7 +127,7 @@ class TestCpxE4AoUI:
         cpxe4aoui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aoui.read_channel(input_value)
 
     @pytest.mark.parametrize("input_value", [-1, 4])
@@ -139,7 +139,7 @@ class TestCpxE4AoUI:
         cpxe4aoui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aoui.write_channel(input_value, 0)
 
     @pytest.mark.parametrize("input_value", [[0], [0, 1], [0, 1, 2], [0, 1, 2, 3, 4]])
@@ -334,7 +334,7 @@ class TestCpxE4AoUI:
             (-1, False),
         ],
     )
-    def test_configure_channel_diagnostics_wire_break_raise_error(self, input_value):
+    def test_configure_channel_diagnostics_wire_break_wrong_channel(self, input_value):
         """Test configure_channel_diagnostics_wire_break"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
@@ -342,7 +342,7 @@ class TestCpxE4AoUI:
         cpxe4aoui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aoui.configure_channel_diagnostics_wire_break(*input_value)
 
     @pytest.mark.parametrize(
@@ -382,7 +382,7 @@ class TestCpxE4AoUI:
             (-1, False),
         ],
     )
-    def test_configure_channel_diagnostics_overload_short_circuit_raise_error(
+    def test_configure_channel_diagnostics_overload_short_circuit_wrong_channel(
         self, input_value
     ):
         """Test configure_channel_diagnostics_overload_short_circuit"""
@@ -392,7 +392,7 @@ class TestCpxE4AoUI:
         cpxe4aoui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aoui.configure_channel_diagnostics_overload_short_circuit(*input_value)
 
     @pytest.mark.parametrize(
@@ -432,7 +432,7 @@ class TestCpxE4AoUI:
             (-1, False),
         ],
     )
-    def test_configure_channel_diagnostics_parameter_error_raise_error(
+    def test_configure_channel_diagnostics_parameter_error_wrong_channel(
         self, input_value
     ):
         """Test configure_channel_diagnostics_parameter_error"""
@@ -442,7 +442,7 @@ class TestCpxE4AoUI:
         cpxe4aoui.base = Mock()
 
         # Act & Assert
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             cpxe4aoui.configure_channel_diagnostics_parameter_error(*input_value)
 
     @pytest.mark.parametrize(
@@ -471,12 +471,29 @@ class TestCpxE4AoUI:
     @pytest.mark.parametrize(
         "input_value",
         [
-            (0, -1),
             (4, 8),
             (-1, 0),
         ],
     )
-    def test_configure_channel_range_raise_error(self, input_value):
+    def test_configure_channel_range_raise_error_wrong_channel(self, input_value):
+        """Test channel range"""
+        # Arrange
+        cpxe4aoui = CpxE4AoUI()
+        cpxe4aoui.position = 1
+        cpxe4aoui.base = Mock()
+
+        # Act & Assert
+        with pytest.raises(IndexError):
+            cpxe4aoui.configure_channel_range(*input_value)
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [
+            (0, -1),
+            (1, 50000),
+        ],
+    )
+    def test_configure_channel_range_raise_error_wrong_input(self, input_value):
         """Test channel range"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()

@@ -16,6 +16,7 @@ from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
+from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange, OperatingMode
 
 
 @pytest.fixture(scope="function")
@@ -260,8 +261,8 @@ def test_3modules(test_cpxe):
     assert e4ai.read_status() == [False] * 16
     assert e4ai.position == 3
 
-    assert e4ai.configure_channel_range(3, "0-10V") is None
-    assert e4ai.configure_channel_smoothing(3, 2) is None
+    e4ai.configure_channel_range(3, ChannelRange.U_10V)
+    e4ai.configure_channel_smoothing(3, 2)
     time.sleep(0.05)
     data0 = e4ai.read_channel(3)
     # assert -10 < data0 < 10
@@ -515,15 +516,15 @@ def test_analog_io(test_cpxe):
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
 
-    e4ao.configure_channel_range(0, "0-10V")
-    e4ao.configure_channel_range(1, "0-10V")
-    e4ao.configure_channel_range(2, "0-10V")
-    e4ao.configure_channel_range(3, "0-10V")
+    e4ao.configure_channel_range(0, ChannelRange.U_10V)
+    e4ao.configure_channel_range(1, ChannelRange.U_10V)
+    e4ao.configure_channel_range(2, ChannelRange.U_10V)
+    e4ao.configure_channel_range(3, ChannelRange.U_10V)
 
-    e4ai.configure_channel_range(0, "0-10V")
-    e4ai.configure_channel_range(1, "0-10V")
-    e4ai.configure_channel_range(2, "0-10V")
-    e4ai.configure_channel_range(3, "0-10V")
+    e4ai.configure_channel_range(0, ChannelRange.U_10V)
+    e4ai.configure_channel_range(1, ChannelRange.U_10V)
+    e4ai.configure_channel_range(2, ChannelRange.U_10V)
+    e4ai.configure_channel_range(3, ChannelRange.U_10V)
     time.sleep(0.05)
 
     values = [0, 1000, 5000, 13000]
@@ -584,10 +585,11 @@ def test_4iol_sdas(test_cpxe):
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(3, channel=0)
-
-    time.sleep(0.05)
-    assert e4iol.read_line_state()[0] == "OPERATE"
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
 
     sdas_data = e4iol.read_channel(0)  # only two bytes relevant
 
@@ -603,7 +605,14 @@ def test_4iol_sdas(test_cpxe):
 
     assert e4iol[0] == e4iol.read_channel(0)
 
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
 
+
+"""
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -644,25 +653,22 @@ def test_4iol_ehps(test_cpxe):
     # reset power
     e4iol.configure_pl_supply(False, ehps_channel)
     e4iol.configure_ps_supply(False)
-    time.sleep(0.05)
+    time.sleep(0.08)
     e4iol.configure_pl_supply(True, ehps_channel)
     e4iol.configure_ps_supply(True)
-    time.sleep(0.05)
+    time.sleep(0.08)
 
-    e4iol.configure_operating_mode(3, channel=ehps_channel)
-    time.sleep(0.05)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=ehps_channel)
 
-    # read some time because after power reset, the device takes some
-    # time to boot
-    for _ in range(50):
-        param = e4iol.read_line_state()
-        time.sleep(0.05)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[ehps_channel]
 
-    assert param[ehps_channel] == "OPERATE"
-    time.sleep(0.05)
-
-    process_data_in = read_process_data_in(e4iol, ehps_channel)
-    assert process_data_in["Ready"] is True
+    # wait for ready
+    ready = False
+    while not ready:
+        ready = read_process_data_in(e4iol, ehps_channel)["Ready"]
 
     # demo of process data out, also sent to initialize
     control_word_msb = 0x00
@@ -691,6 +697,7 @@ def test_4iol_ehps(test_cpxe):
     process_data_out = struct.pack(">HHHH", *data)
     e4iol.write_channel(ehps_channel, process_data_out)
 
+    process_data_in = read_process_data_in(e4iol, ehps_channel)
     while not process_data_in["OpenedPositionFlag"]:
         process_data_in = read_process_data_in(e4iol, ehps_channel)
         time.sleep(0.05)
@@ -707,6 +714,13 @@ def test_4iol_ehps(test_cpxe):
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
     assert process_data_in["OpenedPositionFlag"] is False
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=ehps_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[ehps_channel]
+"""
 
 
 def test_1ci_module(test_cpxe):

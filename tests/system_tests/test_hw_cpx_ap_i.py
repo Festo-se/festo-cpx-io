@@ -13,6 +13,14 @@ from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
+from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
+from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
+    LoadSupply,
+    FailState,
+    ChannelRange,
+    TempUnit,
+    PortMode,
+)
 
 
 @pytest.fixture(scope="function")
@@ -29,7 +37,7 @@ def test_init(test_cpxap):
 
 def test_module_count(test_cpxap):
     "test module_count"
-    assert test_cpxap.read_module_count() == 6
+    assert test_cpxap.read_module_count() == 7
 
 
 def test_timeout(test_cpxap):
@@ -68,7 +76,8 @@ def test_modules(test_cpxap):
     assert isinstance(test_cpxap.modules[2], CpxAp4Di4Do)
     assert isinstance(test_cpxap.modules[3], CpxAp4AiUI)
     assert isinstance(test_cpxap.modules[4], CpxAp4Iol)
-    assert isinstance(test_cpxap.modules[5], CpxAp4Di)
+    assert isinstance(test_cpxap.modules[5], VabxAP)
+    assert isinstance(test_cpxap.modules[6], CpxAp4Di)
 
     assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
 
@@ -90,22 +99,27 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[4].information.module_code in CpxAp4Iol.module_codes
     assert test_cpxap.modules[4].position == 4
 
-    assert test_cpxap.modules[5].information.module_code in CpxAp4Di.module_codes
+    assert test_cpxap.modules[5].information.module_code in VabxAP.module_codes
     assert test_cpxap.modules[5].position == 5
+
+    assert test_cpxap.modules[6].information.module_code in CpxAp4Di.module_codes
+    assert test_cpxap.modules[6].position == 6
 
     assert test_cpxap.modules[0].output_register is None  # EP
     assert test_cpxap.modules[1].output_register == 0  # 8DI
     assert test_cpxap.modules[2].output_register == 0  # 4DI4DO, adds 1
     assert test_cpxap.modules[3].output_register == 1  # 4AIUI
     assert test_cpxap.modules[4].output_register == 1  # 4IOL, adds 16
-    assert test_cpxap.modules[5].output_register == 17  # 4Di
+    assert test_cpxap.modules[5].output_register == 17  # VABX adds 2
+    assert test_cpxap.modules[6].output_register == 19  # 4Di
 
     assert test_cpxap.modules[0].input_register is None  # EP
     assert test_cpxap.modules[1].input_register == 5000  # 8DI, adds 1
     assert test_cpxap.modules[2].input_register == 5001  # 4DI4DO, adds 1
     assert test_cpxap.modules[3].input_register == 5002  # 4AIUI, adds 4
     assert test_cpxap.modules[4].input_register == 5006  # 4IOL, adds 18
-    assert test_cpxap.modules[5].input_register == 5024  # 4Di
+    assert test_cpxap.modules[5].input_register == 5024  # VABX
+    assert test_cpxap.modules[6].input_register == 5024  # 4Di
 
 
 def test_8Di(test_cpxap):
@@ -116,8 +130,39 @@ def test_8Di_configure(test_cpxap):
     test_cpxap.modules[1].configure_debounce_time(1)
 
 
+def test_vabx_read_channels(test_cpxap):
+    "test vabx"
+    POSITION = 5
+    assert isinstance(test_cpxap.modules[POSITION], VabxAP)
+    channels = test_cpxap.modules[POSITION].read_channels()
+    assert channels == [False] * 32
+
+
+def test_vabx_read_channel(test_cpxap):
+    "test vabx"
+    POSITION = 5
+    assert isinstance(test_cpxap.modules[POSITION], VabxAP)
+    channels = test_cpxap.modules[POSITION].read_channel(0)
+    assert channels is False
+
+
+def test_vabx_write(test_cpxap):
+    "test vabx"
+    POSITION = 5
+    assert isinstance(test_cpxap.modules[POSITION], VabxAP)
+    test_cpxap.modules[POSITION].write_channel(0, True)
+    time.sleep(0.05)
+    assert test_cpxap.modules[POSITION].read_channel(0) is True
+    time.sleep(0.05)
+    test_cpxap.modules[POSITION].write_channel(0, False)
+    time.sleep(0.05)
+    assert test_cpxap.modules[POSITION].read_channel(0) is False
+
+
 def test_4Di(test_cpxap):
-    assert test_cpxap.modules[5].read_channels() == [False] * 4
+    POSITION = 6
+    assert isinstance(test_cpxap.modules[POSITION], CpxAp4Di)
+    assert test_cpxap.modules[POSITION].read_channels() == [False] * 4
 
 
 def test_4Di4Do(test_cpxap):
@@ -162,7 +207,7 @@ def test_4AiUI_None(test_cpxap):
 
 def test_4AiUI_5V_CH1(test_cpxap):
     a4aiui = test_cpxap.modules[3]
-    a4aiui.configure_channel_range(1, "0-10V")
+    a4aiui.configure_channel_range(1, ChannelRange.U_10V)
     time.sleep(0.05)
     a4aiui.configure_linear_scaling(1, False)
     time.sleep(0.05)
@@ -172,7 +217,7 @@ def test_4AiUI_5V_CH1(test_cpxap):
 
 def test_4AiUI_5V_CH1_with_scaling(test_cpxap):
     a4aiui = test_cpxap.modules[3]
-    a4aiui.configure_channel_range(1, "0-10V")
+    a4aiui.configure_channel_range(1, ChannelRange.U_10V)
     time.sleep(0.05)
     a4aiui.configure_channel_limits(1, upper=10000)
     time.sleep(0.05)
@@ -222,54 +267,54 @@ def test_4AiUI_configures_channel_unit(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     assert isinstance(a4aiui, CpxAp4AiUI)
 
-    a4aiui.configure_channel_temp_unit(0, "C")
+    a4aiui.configure_channel_temp_unit(0, TempUnit.CELSIUS)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 0) == 0
 
-    a4aiui.configure_channel_temp_unit(1, "F")
+    a4aiui.configure_channel_temp_unit(1, TempUnit.FARENHEIT)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 1) == 1
 
-    a4aiui.configure_channel_temp_unit(2, "K")
+    a4aiui.configure_channel_temp_unit(2, TempUnit.KELVIN)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 2) == 2
 
-    a4aiui.configure_channel_temp_unit(3, "F")
+    a4aiui.configure_channel_temp_unit(3, TempUnit.FARENHEIT)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["TemperatureUnit"], 3) == 1
 
     # reset
-    a4aiui.configure_channel_temp_unit(0, "C")
-    a4aiui.configure_channel_temp_unit(1, "C")
-    a4aiui.configure_channel_temp_unit(2, "C")
-    a4aiui.configure_channel_temp_unit(3, "C")
+    a4aiui.configure_channel_temp_unit(0, TempUnit.CELSIUS)
+    a4aiui.configure_channel_temp_unit(1, TempUnit.CELSIUS)
+    a4aiui.configure_channel_temp_unit(2, TempUnit.CELSIUS)
+    a4aiui.configure_channel_temp_unit(3, TempUnit.CELSIUS)
 
 
 def test_4AiUI_configures_channel_range(test_cpxap):
     a4aiui = test_cpxap.modules[3]
     assert isinstance(a4aiui, CpxAp4AiUI)
 
-    a4aiui.configure_channel_range(0, "-10-+10V")
+    a4aiui.configure_channel_range(0, ChannelRange.B_10V)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 0) == 1
 
-    a4aiui.configure_channel_range(1, "0-10V")
+    a4aiui.configure_channel_range(1, ChannelRange.U_10V)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 1) == 3
 
-    a4aiui.configure_channel_range(2, "-5-+5V")
+    a4aiui.configure_channel_range(2, ChannelRange.B_5V)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 2) == 2
 
-    a4aiui.configure_channel_range(3, "1-5V")
+    a4aiui.configure_channel_range(3, ChannelRange.U_1_5V)
     time.sleep(0.05)
     assert a4aiui.base.read_parameter(3, ParameterNameMap()["ChannelInputMode"], 3) == 4
 
     # reset
-    a4aiui.configure_channel_range(0, "None")
-    a4aiui.configure_channel_range(1, "None")
-    a4aiui.configure_channel_range(2, "None")
-    a4aiui.configure_channel_range(3, "None")
+    a4aiui.configure_channel_range(0, ChannelRange.NONE)
+    a4aiui.configure_channel_range(1, ChannelRange.NONE)
+    a4aiui.configure_channel_range(2, ChannelRange.NONE)
+    a4aiui.configure_channel_range(3, ChannelRange.NONE)
 
 
 def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
@@ -300,7 +345,7 @@ def test_4AiUI_configures_hysteresis_monitoring(test_cpxap):
     a4aiui.configure_hysteresis_limit_monitoring(3, 99)
     time.sleep(0.05)
     assert (
-        a4aiui.base.read_parameter(3, ParameterNameMap()["DiagnosisHysteresis"], 4)
+        a4aiui.base.read_parameter(3, ParameterNameMap()["DiagnosisHysteresis"], 3)
         == 99
     )
 
@@ -594,15 +639,17 @@ def test_4iol_ehps(test_cpxap):
 
     # example EHPS-20-A-LK on port 1
     ehps_channel = 1
-    a4iol.configure_port_mode(2, channel=ehps_channel)
+    a4iol.configure_port_mode(PortMode.IOL_AUTOSTART, channel=ehps_channel)
 
-    time.sleep(0.05)
-
+    # wait for operate
     param = a4iol.read_fieldbus_parameters()
-    assert param[ehps_channel]["Port status information"] == "OPERATE"
+    while param[ehps_channel]["Port status information"] != "OPERATE":
+        param = a4iol.read_fieldbus_parameters()
 
+    # wait for ready
     process_data_in = read_process_data_in(a4iol, ehps_channel)
-    assert process_data_in["Ready"] is True
+    while not process_data_in["Ready"]:
+        process_data_in = read_process_data_in(a4iol, ehps_channel)
 
     # demo of process data out
     control_word_msb = 0x00
@@ -647,6 +694,12 @@ def test_4iol_ehps(test_cpxap):
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
     assert process_data_in["OpenedPositionFlag"] is False
+
+    a4iol.configure_port_mode(PortMode.DEACTIVATED, channel=ehps_channel)
+    # wait for inactive
+    param = a4iol.read_fieldbus_parameters()
+    while param[ehps_channel]["Port status information"] != "DEACTIVATED":
+        param = a4iol.read_fieldbus_parameters()
 
 
 def test_4iol_ethrottle(test_cpxap):
@@ -948,3 +1001,71 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol.configure_setpoint_device_id(0)
     time.sleep(0.05)
     a4iol.configure_port_mode(0)
+
+
+def test_vabx_configures(test_cpxap):
+    "test configure functions of vabx"
+    POSITION = 5
+    vabx = test_cpxap.modules[POSITION]
+
+    vabx.configure_diagnosis_for_defect_valve(False)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE)
+        == 0
+    )
+
+    vabx.configure_monitoring_load_supply(2)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        == 2
+    )
+
+    vabx.configure_behaviour_in_fail_state(1)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+    )
+
+    time.sleep(0.05)
+    # reset to default
+    vabx.configure_diagnosis_for_defect_valve(True)
+    time.sleep(0.05)
+    vabx.configure_monitoring_load_supply(1)
+    time.sleep(0.05)
+    vabx.configure_behaviour_in_fail_state(0)
+
+
+def test_vabx_configures_enums(test_cpxap):
+    "test configure functions of vabx"
+    POSITION = 5
+    vabx = test_cpxap.modules[POSITION]
+
+    vabx.configure_diagnosis_for_defect_valve(False)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE)
+        == 0
+    )
+
+    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        == 2
+    )
+
+    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+    )
+
+    time.sleep(0.05)
+    # reset to default
+    vabx.configure_diagnosis_for_defect_valve(True)
+    time.sleep(0.05)
+    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
+    time.sleep(0.05)
+    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)

@@ -7,7 +7,7 @@ import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
 from cpx_io.utils.boollist import bytes_to_boollist
-from cpx_io.utils.helpers import value_range_check
+from cpx_io.utils.helpers import value_range_check, channel_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
 
@@ -57,8 +57,7 @@ class CpxE4AoUI(CpxEModule):
         :param channel: Channel number, starting with 0
         :type channel: int"""
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         return self.read_channels()[channel]
 
@@ -85,8 +84,7 @@ class CpxE4AoUI(CpxEModule):
         :param value: Value to write to the channel
         :type value: int"""
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         reg_data = value.to_bytes(2, byteorder="little", signed=True)
         self.base.write_reg_data(reg_data, self.output_register + channel)
@@ -247,8 +245,7 @@ class CpxE4AoUI(CpxEModule):
         :type value: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 7 + channel
 
@@ -277,8 +274,7 @@ class CpxE4AoUI(CpxEModule):
         :type value: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 7 + channel
 
@@ -307,8 +303,7 @@ class CpxE4AoUI(CpxEModule):
         :type value: bool
         """
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         function_number = 4828 + 64 * self.position + 7 + channel
 
@@ -342,8 +337,7 @@ class CpxE4AoUI(CpxEModule):
         if isinstance(value, ChannelRange):
             value = value.value
 
-        if channel not in range(4):
-            raise ValueError(f"Channel {channel} must be between 0 and 3")
+        channel_range_check(channel, 4)
 
         value_range_check(value, 1, 8)
 
