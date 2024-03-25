@@ -11,7 +11,7 @@ from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap, ParameterMapItem
 
 
 class TestCpxAp:
@@ -175,8 +175,11 @@ class TestCpxAp:
         test_cpxap.read_parameter = Mock(return_value=ret)
         test_cpxap.read_module_count = Mock(return_value=4)
 
-        ap_diagnosis_parameter = cpx_ap_parameters.ParameterMapItem(
-            cpx_ap_parameters.AP_DIAGNOSIS_STATUS.id, "UINT8[5]"
+        ap_diagnosis_parameter = ParameterMapItem(
+            ParameterNameMap()["ApDiagnosisStatus"].parameter_id,
+            name="ApDiagnosisStatus",
+            data_type="UINT8",
+            size=5,
         )
         expected = CpxAp.Diagnostics.from_int(0xAA)
 

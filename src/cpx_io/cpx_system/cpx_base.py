@@ -37,8 +37,8 @@ class CpxBase:
     def __init__(self, ip_address: str = None):
         """Constructor of CpxBase class.
 
-        Parameters:
-            ip_address (str): Required IP address as string e.g. ('192.168.1.1')
+        :param ip_address: Required IP address as string e.g. ('192.168.1.1')
+        :type ip_address: str
         """
         self._modules = []
         self._module_names = []

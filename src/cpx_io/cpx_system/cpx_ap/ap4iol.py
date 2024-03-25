@@ -6,7 +6,7 @@
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.utils.helpers import div_ceil, value_range_check
 from cpx_io.utils.logging import Logging
@@ -68,11 +68,11 @@ class CpxAp4Iol(CpxApModule):
         params = super().read_ap_parameter()
 
         io_link_variant = self.base.read_parameter(
-            self.position, cpx_ap_parameters.VARIANT_SWITCH
+            self.position, ParameterNameMap()["VariantSwitch"]
         )
 
         activation_operating_voltage = self.base.read_parameter(
-            self.position, cpx_ap_parameters.SENSOR_SUPPLY_ENABLE
+            self.position, ParameterNameMap()["SensorSupplyEnable"]
         )
 
         params.io_link_variant = self.__class__.module_codes[io_link_variant]
@@ -209,7 +209,7 @@ class CpxAp4Iol(CpxApModule):
         value_range_check(value, 3)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
+            self.position, ParameterNameMap()["LoadSupplyDiagSetup"], value
         )
 
         Logging.logger.info(f"{self.name}: Setting Load supply monitoring to {value}")
@@ -269,9 +269,12 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for c in channel:
+        for channel_item in channel:
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.NOMINAL_CYCLE_TIME, value, c
+                self.position,
+                ParameterNameMap()["NominalCycleTime"],
+                value,
+                channel_item,
             )
 
         Logging.logger.info(
@@ -298,9 +301,12 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for c in channel:
+        for channel_item in channel:
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, value, c
+                self.position,
+                ParameterNameMap()["DeviceLostDiagnosisEnable"],
+                value,
+                channel_item,
             )
 
         Logging.logger.info(
@@ -345,9 +351,9 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for c in channel:
+        for channel_item in channel:
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.PORT_MODE, value, c
+                self.position, ParameterNameMap()["PortMode"], value, channel_item
             )
 
         Logging.logger.info(
@@ -393,12 +399,12 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for c in channel:
+        for channel_item in channel:
             self.base.write_parameter(
                 self.position,
-                cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                ParameterNameMap()["ValidationAndBackup"],
                 value,
-                c,
+                channel_item,
             )
 
         Logging.logger.info(
@@ -425,9 +431,12 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for c in channel:
+        for channel_item in channel:
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.NOMINAL_VENDOR_ID, value, c
+                self.position,
+                ParameterNameMap()["NominalVendorID"],
+                value,
+                channel_item,
             )
 
         Logging.logger.info(
@@ -453,9 +462,12 @@ class CpxAp4Iol(CpxApModule):
         if isinstance(channel, int):
             channel = [channel]
 
-        for c in channel:
+        for channel_item in channel:
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.NOMINAL_DEVICE_ID, value, c
+                self.position,
+                ParameterNameMap()["NominalDeviceID"],
+                value,
+                channel_item,
             )
 
         Logging.logger.info(
@@ -485,41 +497,43 @@ class CpxAp4Iol(CpxApModule):
         }
         transmission_rate_dict = {0: "not detected", 1: "COM1", 2: "COM2", 3: "COM3"}
 
-        for c in range(4):
+        for channel_item in range(4):
             port_status_information = port_status_dict.get(
                 self.base.read_parameter(
-                    self.position, cpx_ap_parameters.PORT_STATUS_INFO, c
+                    self.position, ParameterNameMap()["PortStatusInfo"], channel_item
                 ),
             )
 
             revision_id = self.base.read_parameter(
-                self.position, cpx_ap_parameters.REVISION_ID, c
+                self.position, ParameterNameMap()["RevisionID"], channel_item
             )
 
             transmission_rate = transmission_rate_dict.get(
                 self.base.read_parameter(
-                    self.position, cpx_ap_parameters.TRANSMISSION_RATE, c
+                    self.position, ParameterNameMap()["TransmissionRate"], channel_item
                 ),
             )
 
             actual_cycle_time = self.base.read_parameter(
-                self.position, cpx_ap_parameters.ACTUAL_CYCLE_TIME, c
+                self.position, ParameterNameMap()["ActualCycleTime"], channel_item
             )
 
             actual_vendor_id = self.base.read_parameter(
-                self.position, cpx_ap_parameters.ACTUAL_VENDOR_ID, c
+                self.position, ParameterNameMap()["ActualVendorID"], channel_item
             )
 
             actual_device_id = self.base.read_parameter(
-                self.position, cpx_ap_parameters.ACTUAL_DEVICE_ID, c
+                self.position, ParameterNameMap()["ActualDeviceID"], channel_item
             )
 
             input_data_length = self.base.read_parameter(
-                self.position, cpx_ap_parameters.IO_LINK_INPUT_DATA_LENGTH, c
+                self.position, ParameterNameMap()["IolinkInputDataLength"], channel_item
             )
 
             output_data_length = self.base.read_parameter(
-                self.position, cpx_ap_parameters.IO_LINK_OUTPUT_DATA_LENGTH, c
+                self.position,
+                ParameterNameMap()["IolinkOutputDataLength"],
+                channel_item,
             )
 
             channel_params.append(

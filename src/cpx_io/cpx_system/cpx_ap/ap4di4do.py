@@ -5,7 +5,7 @@
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
@@ -148,7 +148,7 @@ class CpxAp4Di4Do(CpxApModule):
         value_range_check(value, 4)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, value
+            self.position, ParameterNameMap()["InputDebounceTime"], value
         )
 
         Logging.logger.info(f"{self.name}: Setting debounce time to {value}")
@@ -172,7 +172,7 @@ class CpxAp4Di4Do(CpxApModule):
         value_range_check(value, 3)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
+            self.position, ParameterNameMap()["LoadSupplyDiagSetup"], value
         )
 
         Logging.logger.info(f"{self.name}: Setting Load supply monitoring to {value}")
@@ -195,7 +195,7 @@ class CpxAp4Di4Do(CpxApModule):
         value_range_check(value, 2)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, value
+            self.position, ParameterNameMap()["FailStateBehaviour"], value
         )
 
         Logging.logger.info(f"{self.name}: Setting fail state behaviour to {value}")

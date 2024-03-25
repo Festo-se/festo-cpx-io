@@ -6,7 +6,7 @@
 import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import value_range_check, channel_range_check
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
@@ -66,7 +66,7 @@ class CpxAp4AiUI(CpxApModule):
         value_range_check(value, 3)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.TEMPERATURE_UNIT, value, channel
+            self.position, ParameterNameMap()["TemperatureUnit"], value, channel
         )
 
         Logging.logger.info(
@@ -103,7 +103,7 @@ class CpxAp4AiUI(CpxApModule):
 
         self.base.write_parameter(
             self.position,
-            cpx_ap_parameters.CHANNEL_INPUT_MODE,
+            ParameterNameMap()["ChannelInputMode"],
             value,
             channel,
         )
@@ -144,21 +144,21 @@ class CpxAp4AiUI(CpxApModule):
 
         if lower is None and isinstance(upper, int):
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, upper, channel
+                self.position, ParameterNameMap()["UpperThresholdValue"], upper, channel
             )
         elif upper is None and isinstance(lower, int):
             self.base.write_parameter(
                 self.position,
-                cpx_ap_parameters.LOWER_THRESHOLD_VALUE,
+                ParameterNameMap()["LowerThresholdValue"],
                 lower,
                 channel,
             )
         elif isinstance(upper, int) and isinstance(lower, int):
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.UPPER_THRESHOLD_VALUE, upper, channel
+                self.position, ParameterNameMap()["UpperThresholdValue"], upper, channel
             )
             self.base.write_parameter(
-                self.position, cpx_ap_parameters.LOWER_THRESHOLD_VALUE, lower, channel
+                self.position, ParameterNameMap()["LowerThresholdValue"], lower, channel
             )
         else:
             raise ValueError("Value must be given for upper, lower or both")
@@ -183,7 +183,7 @@ class CpxAp4AiUI(CpxApModule):
         value_range_check(value, 65536)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.DIAGNOSIS_HYSTERESIS, value, channel
+            self.position, ParameterNameMap()["DiagnosisHysteresis"], value, channel
         )
 
         Logging.logger.info(
@@ -206,7 +206,7 @@ class CpxAp4AiUI(CpxApModule):
         value_range_check(value, 16)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.SMOOTH_FACTOR, value, channel
+            self.position, ParameterNameMap()["SmoothFactor"], value, channel
         )
 
         Logging.logger.info(
@@ -228,7 +228,10 @@ class CpxAp4AiUI(CpxApModule):
         channel_range_check(channel, 4)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.LINEAR_SCALING_ENABLE, int(value), channel
+            self.position,
+            ParameterNameMap()["LinearScalingEnable"],
+            int(value),
+            channel,
         )
 
         Logging.logger.info(

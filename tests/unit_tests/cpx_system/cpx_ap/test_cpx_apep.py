@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply
 
 
@@ -104,7 +104,7 @@ class TestCpxApEp:
 
         # Assert
         cpxapep.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
+            MODULE_POSITION, ParameterNameMap()["LoadSupplyDiagSetup"], expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])

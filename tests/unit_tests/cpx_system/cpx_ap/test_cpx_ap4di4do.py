@@ -5,7 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.utils.boollist import boollist_to_bytes
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime, LoadSupply, FailState
 
 
@@ -272,7 +272,7 @@ class TestCpxAp4Di4Do:
 
         # Assert
         cpxap4di4do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.INPUT_DEBOUNCE_TIME, expected_value
+            MODULE_POSITION, ParameterNameMap()["InputDebounceTime"], expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 4])
@@ -316,7 +316,7 @@ class TestCpxAp4Di4Do:
 
         # Assert
         cpxap4di4do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
+            MODULE_POSITION, ParameterNameMap()["LoadSupplyDiagSetup"], expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -353,7 +353,7 @@ class TestCpxAp4Di4Do:
 
         # Assert
         cpxap4di4do.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR, expected_value
+            MODULE_POSITION, ParameterNameMap()["FailStateBehaviour"], expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 2])

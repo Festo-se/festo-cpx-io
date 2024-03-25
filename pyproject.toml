@@ -32,6 +32,9 @@ Changelog = "https://gitlab.festo.company/festo/electric-automation/remote-io/fe
 [project.scripts]
 festo-cpx-io = "cpx_io.cli.cli:main"
 
+[tool.setuptools.package-data]
+parameter_map = ["cpx_io/cpx_system/data/parameter_map.csv"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["tests"]
