@@ -12,6 +12,7 @@ from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
 from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
 from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
 from cpx_io.cpx_system.cpx_ap.vmpal_ap import VmpalAP
+from cpx_io.cpx_system.cpx_ap.vaba_ap import VabaAP
 
 # Dict that maps from module ids to corresponding module classes
 CPX_AP_MODULE_ID_DICT = {
@@ -33,6 +34,7 @@ CPX_AP_MODULE_ID_DICT = {
     "VABX": VabxAP,
     "VAEM": VaemAP,
     "VMPAL": VmpalAP,
+    "VABA": VabaAP,
 }
 
 CPX_AP_MODULE_ID_LIST = CPX_AP_MODULE_ID_DICT.values()
