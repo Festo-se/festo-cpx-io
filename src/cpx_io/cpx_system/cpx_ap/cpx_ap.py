@@ -4,10 +4,13 @@ import struct
 from typing import Any
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
+from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import CpxApModuleBuilder
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module_definitions import CPX_AP_MODULE_ID_LIST
+from cpx_io.cpx_system.cpx_ap.DELETE_cpx_ap_module_definitions import (
+    CPX_AP_MODULE_ID_LIST,
+)
 from cpx_io.cpx_system.cpx_ap.parameter_packing import parameter_pack, parameter_unpack
 from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
@@ -61,9 +64,23 @@ class CpxAp(CpxBase):
 
         self.set_timeout(int(timeout * 1000))
 
+        # TODO: parse all available apdds here!!!
+        # wenn Pfad nicht da oder beim laden nicht die richtige APDD findet, dann Fehlermeldung: 
+        # funktion ausführen load_apdds() die dann den Ordner anlegt und 
+
+        if refresh_apdds:
+
+        for f in filesystem:
+            all_appdds.append(json.load(f))
+
+        all_apdds = {module_code: apdd_json_dict, ...}
+
         module_count = self.read_module_count()
         for i in range(module_count):
-            self.add_module(self.read_module_information(i))
+            info = self.read_module_information(i)
+            # search all apdds for info.module_code
+            module = CpxApModuleBuilder().build(all_apdds[info.module_code])
+            self.add_module(module)
 
     @property
     def modules(self):
@@ -89,27 +106,15 @@ class CpxAp(CpxBase):
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
-    def add_module(self, info: ModuleInformation) -> None:
+    # TODO: 
+    def add_module(self, module: CpxApModule) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
 
         :param info: ModuleInformation object containing the read-out info from the module
         :type info: ModuleInformation
         """
-        module = next(
-            (
-                module_class()
-                for module_class in CPX_AP_MODULE_ID_LIST
-                if info.module_code in module_class.module_codes
-            ),
-            None,
-        )
-
-        if module is None:
-            raise NotImplementedError(
-                f"Module code {info.module_code} is not yet implemented or not available"
-            )
-
+        # TODO: What happens with info?
         module.update_information(info)
         module.configure(self, len(self._modules))
         self._modules.append(module)

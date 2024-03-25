@@ -1,9 +1,9 @@
-"""Generic AP module implementation from APDD"""
+"""AP module Builder from APDD"""
 
 import json
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import div_ceil, channel_range_check
 from cpx_io.utils.logging import Logging
@@ -59,12 +59,55 @@ class ChannelBuilder:
         )
 
 
-class GenericApModule(CpxApModule):
+class CpxApModuleBuilder:
 
-    def __init__(self, input_channels, output_channels, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.input_channels = input_channels
-        self.output_channels = output_channels
+    def build(self, apdd):
+
+        # set module code(s)
+        module_codes = {}
+        for variant in apdd["Variants"]["VariantList"]:
+            self.module_codes[variant["VariantIdentification"]["ModuleCode"]] = variant[
+                "VariantIdentification"
+            ]["OrderText"]
+
+        # setup all channel types
+        channel_types = []
+        for channel_dict in apdd["Channels"]:
+            channel_types.append(ChannelBuilder().build_channel(channel_dict))
+
+        Logging.logger.debug(f"Set up Channel Types: {channel_types}")
+
+        # setup all channel groups
+        channel_groups = []
+        for channel_group_dict in apdd["ChannelGroups"]:
+            channel_groups.append(
+                ChannelGroupBuilder().build_channel_group(channel_group_dict)
+            )
+
+        Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
+
+        # setup all channels for the module
+        channels = []
+        for channel_group in channel_groups:
+            for channel in channel_group.channels:
+                for channel_type in channel_types:
+                    if channel_type.channel_id == channel.get("ChannelId"):
+                        break
+
+                for _ in range(channel["Count"]):
+                    channels.append(channel_type)
+
+        Logging.logger.debug(f"Set up Channels: {channels}")
+
+        # split in in/out channels and set instance variables
+        input_channels = [c for c in channels if c.direction == "in"]
+        output_channels = [c for c in channels if c.direction == "out"]
+
+        # TODO: parameter may be dataclass
+        return GenericApModule(
+            input_channels,
+            output_channels,
+        )
 
     def __getitem__(self, key):
         return self.read_channel(key)
@@ -208,3 +251,10 @@ class GenericApModule(CpxApModule):
         # get the relevant value from the register and write the inverse
         value = self.read_channel(channel)
         self.write_channel(channel, not value)
+
+
+if __name__ == "__main__":
+    Logging(logging_level="DEBUG")
+    test = GenericApModule(
+        "src/cpx_io/cpx_system/cpx_ap/apdd/CPX-AP-A-12DI4DO-M12-5P.json"
+    )
