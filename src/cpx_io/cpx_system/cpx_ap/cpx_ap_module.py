@@ -56,7 +56,7 @@ class CpxApModule(CpxModule):
                 self.position, ParameterNameMap()["FieldbusSerialNumber"]
             ),
             product_key=self.base.read_parameter(
-                self.position, ParameterNameMap()["ProductKey"]
+                self.position, ParameterNameMap()["Productkey"]
             ),
             firmware_version=self.base.read_parameter(
                 self.position, ParameterNameMap()["FirmwareVersionString"]
@@ -65,7 +65,7 @@ class CpxApModule(CpxModule):
                 self.position, ParameterNameMap()["ModuleCode"]
             ),
             temp_asic=self.base.read_parameter(
-                self.position, ParameterNameMap()["TemperatureValueAsic"]
+                self.position, ParameterNameMap()["TemperatureValueASIC"]
             ),
             logic_voltage=self.base.read_parameter(
                 self.position, ParameterNameMap()["UElsenValue"]
