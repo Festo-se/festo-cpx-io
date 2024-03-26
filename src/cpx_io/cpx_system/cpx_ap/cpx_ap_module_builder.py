@@ -32,6 +32,16 @@ class ChannelGroup:
     parameter_group_ids: list
 
 
+@dataclass
+class Variant:
+    """Variant dataclass"""
+
+    description: str
+    name: str
+    parameter_group_ids: list
+    variant_identification: dict
+
+
 class ChannelGroupBuilder:
     """ChannelGroupBuilder"""
 
@@ -59,32 +69,65 @@ class ChannelBuilder:
         )
 
 
+class VariantBuilder:
+    """VariantBuilder"""
+
+    def build_variant(self, variant_dict):
+        return Variant(
+            variant_dict.get("Description"),
+            variant_dict.get("Name"),
+            variant_dict.get("ParameterGroupIds"),
+            variant_dict.get("VariantIdentification"),
+        )
+
+
 class CpxApModuleBuilder:
 
-    def build(self, apdd):
+    def build(self, apdd, module_code):
 
         # set module code(s)
-        module_codes = {}
-        for variant in apdd["Variants"]["VariantList"]:
-            self.module_codes[variant["VariantIdentification"]["ModuleCode"]] = variant[
-                "VariantIdentification"
-            ]["OrderText"]
+        # default_module_code = apdd["Variants"]["DefaultModuleCode"]
+
+        variants = []
+        for variant_dict in apdd["Variants"]["VariantList"]:
+            variants.append(VariantBuilder().build_variant(variant_dict))
+
+        Logging.logger.debug(f"Set up Variants: {variants}")
+
+        for v in variants:
+            if v.variant_identification["ModuleCode"] == module_code:
+                actual_variant = v
+
+        if actual_variant:
+            Logging.logger.debug(f"Set module variant to: {actual_variant}")
+        else:
+            raise FileNotFoundError(f"Could not variant for ModuleCode {module_code}")
+
+        description = actual_variant.description
+        # TODO: Make better names
+        name = actual_variant.name.lower().replace("-", "_").replace(" ", "_")
+        module_type = actual_variant.name
+        configurator_code = actual_variant.variant_identification["ConfiguratorCode"]
+        part_number = actual_variant.variant_identification["FestoPartNumberDevice"]
+        module_class = actual_variant.variant_identification["ModuleClass"]
+        module_code = actual_variant.variant_identification["ModuleCode"]
+        order_text = actual_variant.variant_identification["OrderText"]
 
         # setup all channel types
         channel_types = []
-        for channel_dict in apdd["Channels"]:
-            channel_types.append(ChannelBuilder().build_channel(channel_dict))
-
-        Logging.logger.debug(f"Set up Channel Types: {channel_types}")
+        if apdd.get("Channels"):
+            for channel_dict in apdd.get("Channels"):
+                channel_types.append(ChannelBuilder().build_channel(channel_dict))
+            Logging.logger.debug(f"Set up Channel Types: {channel_types}")
 
         # setup all channel groups
         channel_groups = []
-        for channel_group_dict in apdd["ChannelGroups"]:
-            channel_groups.append(
-                ChannelGroupBuilder().build_channel_group(channel_group_dict)
-            )
-
-        Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
+        if apdd.get("ChannelGroups"):
+            for channel_group_dict in apdd.get("ChannelGroups"):
+                channel_groups.append(
+                    ChannelGroupBuilder().build_channel_group(channel_group_dict)
+                )
+            Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
 
         # setup all channels for the module
         channels = []
@@ -104,157 +147,10 @@ class CpxApModuleBuilder:
         output_channels = [c for c in channels if c.direction == "out"]
 
         # TODO: parameter may be dataclass
+        # TODO: more information?
         return GenericApModule(
+            name,
+            module_type,
             input_channels,
             output_channels,
         )
-
-    def __getitem__(self, key):
-        return self.read_channel(key)
-
-    def __setitem__(self, key, value):
-        self.write_channel(key, value)
-
-    @CpxBase.require_base
-    def read_channels(self):
-        # if available, read inputs
-        values = []
-        if self.input_channels:
-            data = self.base.read_reg_data(
-                self.input_register, length=div_ceil(self.information.input_size, 2)
-            )
-            if all(c.data_type == "BOOL" for c in self.input_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
-
-        # if available, read outputs
-        if self.output_channels:
-            data = self.base.read_reg_data(
-                self.output_register, length=div_ceil(self.information.output_size, 2)
-            )
-            if all(c.data_type == "BOOL" for c in self.output_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-
-        Logging.logger.info(f"{self.name}: Reading channels: {values}")
-        return values
-
-    # TODO: This is very unique with the output numbering. Maybe this needs to be omitted
-    @CpxBase.require_base
-    def read_channel(self, channel: int, output_numbering=False) -> bool:
-        """read back the value of one channel
-        Optional parameter 'output_numbering' defines
-        if the outputs are numbered with the inputs ("False", default),
-        so the range of output channels is 12..15 (as 0..11 are the input channels).
-        If "True", the outputs are numbered from 0..3, the inputs cannot be accessed this way.
-
-        :param channel: Channel number, starting with 0
-        :type channel: int
-        :param output_numbering: Set 'True' if outputs should be numbered from 0 ... 3, optional
-        :type output_numbering: bool
-        :return: Value of the channel
-        :rtype: bool
-        """
-        if output_numbering:
-            channel += 12
-
-        return self.read_channels()[channel]
-
-    @CpxBase.require_base
-    def write_channels(self, data: list) -> None:
-        """write all channels with a list of values
-
-        :param data: list of values for each output channel
-        :type data: list
-        """
-        if len(data) != len(self.output_channels):
-            raise ValueError(
-                f"Data must be list of {len(self.output_channels)} elements"
-            )
-
-        if self.output_channels:
-            if all(c.data_type == "BOOL" for c in self.output_channels) and all(
-                isinstance(d, bool) for d in data
-            ):
-                reg = boollist_to_bytes(data)
-            else:
-                raise NotImplementedError(
-                    f"{self.output_channels.data_type} is not supported"
-                )
-
-            self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting channels to {data}")
-
-        else:
-            raise NotImplementedError(
-                f"Module {self.information.order_text} has no outputs to write to"
-            )
-
-    # TODO: datatypes according to module?
-    @CpxBase.require_base
-    def write_channel(self, channel: int, value: bool | int | bytes) -> None:
-        """set one channel value
-
-        :param channel: Channel number, starting with 0
-        :type channel: int
-        :value: Value that should be written to the channel
-        :type value: bool
-        """
-        if self.output_channels:
-            channel_range_check(channel, self.output_channels)
-
-            if all(c.data_type == "BOOL" for c in self.output_channels) and all(
-                isinstance(d, bool) for d in data
-            ):
-                data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
-                data[channel] = value
-                reg = boollist_to_bytes(data)
-                self.base.write_reg_data(reg, self.output_register)
-
-                Logging.logger.info(
-                    f"{self.name}: Setting channel {channel} to {value}"
-                )
-
-            else:
-                raise NotImplementedError(
-                    f"{self.output_channels.data_type} is not supported"
-                )
-
-        else:
-            raise NotImplementedError(
-                f"Module {self.information.ordercode} has no outputs to write to"
-            )
-
-    @CpxBase.require_base
-    def set_channel(self, channel: int) -> None:
-        """set one channel to logic high level
-
-        :param channel: Channel number, starting with 0
-        :type channel: int
-        """
-        self.write_channel(channel, True)
-
-    @CpxBase.require_base
-    def clear_channel(self, channel: int) -> None:
-        """set one channel to logic low level
-
-        :param channel: Channel number, starting with 0
-        :type channel: int
-        """
-        self.write_channel(channel, False)
-
-    @CpxBase.require_base
-    def toggle_channel(self, channel: int) -> None:
-        """set one channel the inverted of current logic level
-
-        :param channel: Channel number, starting with 0
-        :type channel: int
-        """
-        # get the relevant value from the register and write the inverse
-        value = self.read_channel(channel)
-        self.write_channel(channel, not value)
-
-
-if __name__ == "__main__":
-    Logging(logging_level="DEBUG")
-    test = GenericApModule(
-        "src/cpx_io/cpx_system/cpx_ap/apdd/CPX-AP-A-12DI4DO-M12-5P.json"
-    )

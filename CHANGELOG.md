@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added 
+- ap_module_builder that configures a generic_ap_module by its apdd
 - channel_range_check in helpers, now raises IndexError instead of ValueError
 - VMPAL Valve Terminal for CPX-AP
 - VAEM Valve Terminal for CPX-AP

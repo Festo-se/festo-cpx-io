@@ -1,10 +1,15 @@
 """CPX-AP module implementations"""
 
+import os
+import pathlib
 import struct
+import requests
+import json
 from typing import Any
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import CpxApModuleBuilder
+from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
@@ -65,22 +70,62 @@ class CpxAp(CpxBase):
         self.set_timeout(int(timeout * 1000))
 
         # TODO: parse all available apdds here!!!
-        # wenn Pfad nicht da oder beim laden nicht die richtige APDD findet, dann Fehlermeldung: 
-        # funktion ausführen load_apdds() die dann den Ordner anlegt und 
-
-        if refresh_apdds:
-
-        for f in filesystem:
-            all_appdds.append(json.load(f))
-
-        all_apdds = {module_code: apdd_json_dict, ...}
+        # wenn Pfad nicht da oder beim laden nicht die richtige APDD findet, dann Fehlermeldung:
+        # funktion ausführen load_apdds() die dann den Ordner anlegt und
+        self.apdd_path = self.create_apdd_path()
 
         module_count = self.read_module_count()
         for i in range(module_count):
             info = self.read_module_information(i)
+            # TODO: if apdd exists in folder, use this and don't grab
+            module_apdd = self.grab_apdd(i, info.fw_version, self.apdd_path)
             # search all apdds for info.module_code
-            module = CpxApModuleBuilder().build(all_apdds[info.module_code])
-            self.add_module(module)
+            module = CpxApModuleBuilder().build(module_apdd, info.module_code)
+            self.add_module(module, info)
+
+    @staticmethod
+    def create_apdd_path() -> str:
+        """Creates the apdd directory depending on the operating system and returns the path"""
+        # Determine the appropriate directory based on the operating system
+        if os.name == "posix":  # Linux, macOS, Unix
+            # TODO: make a better path not in installation directory
+            data_dir = pathlib.Path("apdds")
+        elif os.name == "nt":  # Windows
+            data_dir = pathlib.Path("C:/ProgramData/cpx_io/apdds")
+        else:
+            # Handle other operating systems or fallback to a default directory
+            data_dir = pathlib.Path.home() / ".apdds"
+
+        # Create the directory if it doesn't exist
+        data_dir.mkdir(parents=True, exist_ok=True)
+        return str(data_dir)
+
+    def grab_apdd(
+        self, module_index: int, firmware_version: str, apdd_path: str
+    ) -> json:
+        """Grabs all apdd from module and saves them in apdd_path"""
+        # Module indexs in ap start with 1
+        url = f"http://{self.ip_address}/cgi-bin/ap-file-get?slot={module_index + 1}&filenumber=6"
+        response = requests.get(url)
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            json_data = response.json()
+            # TODO: handle more than one Variant (-> [0])
+            file_name = json_data["Variants"]["VariantList"][0]["Name"]
+            output_file_path = (
+                apdd_path
+                + "/"
+                + file_name
+                + "_v"
+                + firmware_version.replace(".", "-")
+                + ".json"
+            )
+            with open(output_file_path, "w", encoding="ascii") as f:
+                f.write(json.dumps(json_data))
+            Logging.logger.debug(f"JSON data has been written to: {output_file_path}")
+            return json_data
+        else:
+            raise ConnectionError(f"Failed to fetch APDD: {response.status_code}")
 
     @property
     def modules(self):
@@ -106,16 +151,19 @@ class CpxAp(CpxBase):
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
-    # TODO: 
-    def add_module(self, module: CpxApModule) -> None:
+    def add_module(self, module: CpxApModule, info: ModuleInformation) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
 
         :param info: ModuleInformation object containing the read-out info from the module
         :type info: ModuleInformation
         """
-        # TODO: What happens with info?
         module.update_information(info)
+        # if the module is a bus-module, the in- and output registers have to be set initially for base
+        # TODO: check if this module_class is correct!
+        if info.module_class == 100:
+            self.next_output_register = cpx_ap_registers.OUTPUTS.register_address
+            self.next_input_register = cpx_ap_registers.INPUTS.register_address
         module.configure(self, len(self._modules))
         self._modules.append(module)
         self.update_module_names()

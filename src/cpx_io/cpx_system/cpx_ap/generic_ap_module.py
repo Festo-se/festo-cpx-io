@@ -61,10 +61,17 @@ class ChannelBuilder:
 
 class GenericApModule(CpxApModule):
 
-    def __init__(self, input_channels, output_channels, *args, **kwargs):
+    def __init__(
+        self, name, module_type, input_channels, output_channels, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
+        self.name = name
+        self.module_type = module_type
         self.input_channels = input_channels
         self.output_channels = output_channels
+
+    def __repr__(self):
+        return f"{self.name} (idx: {self.position}, type: {self.module_type})"
 
     def __getitem__(self, key):
         return self.read_channel(key)
