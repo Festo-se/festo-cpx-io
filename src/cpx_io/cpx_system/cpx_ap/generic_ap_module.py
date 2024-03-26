@@ -1,6 +1,7 @@
 """Generic AP module implementation from APDD"""
 
-import json
+import struct
+import inspect
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
@@ -89,6 +90,13 @@ class GenericApModule(CpxApModule):
             )
             if all(c.data_type == "BOOL" for c in self.input_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+            elif all(c.data_type == "INT16" for c in self.input_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            else:
+                raise NotImplementedError(
+                    f"Input data type {self.input_channels[0].data_type} are not supported or "
+                    "types are not the same for each channel"
+                )
 
         # if available, read outputs
         if self.output_channels:
@@ -97,11 +105,16 @@ class GenericApModule(CpxApModule):
             )
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            else:
+                raise NotImplementedError(
+                    f"Output data type {self.output_channels[0].data_type} are not supported or "
+                    "types are not the same for each channel"
+                )
 
         Logging.logger.info(f"{self.name}: Reading channels: {values}")
         return values
 
-    # TODO: This is very unique with the output numbering. Maybe this needs to be omitted
+    # TODO: This is very unique for xDIxDO modules with the output numbering. Maybe this needs to be omitted
     @CpxBase.require_base
     def read_channel(self, channel: int, output_numbering=False) -> bool:
         """read back the value of one channel
@@ -152,7 +165,6 @@ class GenericApModule(CpxApModule):
                 f"Module {self.information.order_text} has no outputs to write to"
             )
 
-    # TODO: datatypes according to module?
     @CpxBase.require_base
     def write_channel(self, channel: int, value: bool | int | bytes) -> None:
         """set one channel value
@@ -163,24 +175,22 @@ class GenericApModule(CpxApModule):
         :type value: bool
         """
         if self.output_channels:
-            channel_range_check(channel, self.output_channels)
+            channel_range_check(channel, len(self.output_channels))
 
-            if all(c.data_type == "BOOL" for c in self.output_channels) and all(
-                isinstance(d, bool) for d in data
+            if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
+                value, bool
             ):
                 data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
                 data[channel] = value
                 reg = boollist_to_bytes(data)
                 self.base.write_reg_data(reg, self.output_register)
 
-                Logging.logger.info(
-                    f"{self.name}: Setting channel {channel} to {value}"
-                )
-
             else:
                 raise NotImplementedError(
-                    f"{self.output_channels.data_type} is not supported"
+                    f"{self.output_channels.data_type} is not supported or type(value) "
+                    f"is not compatible"
                 )
+            Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
 
         else:
             raise NotImplementedError(
@@ -194,7 +204,12 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        self.write_channel(channel, True)
+        if self.output_channels[channel].data_type == "BOOL":
+            self.write_channel(channel, True)
+        else:
+            raise NotImplementedError(
+                f"{self} has no {inspect.currentframe().f_code.co_name}"
+            )
 
     @CpxBase.require_base
     def clear_channel(self, channel: int) -> None:
@@ -203,7 +218,12 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        self.write_channel(channel, False)
+        if self.output_channels[channel].data_type == "BOOL":
+            self.write_channel(channel, False)
+        else:
+            raise NotImplementedError(
+                f"{self} has no {inspect.currentframe().f_code.co_name}"
+            )
 
     @CpxBase.require_base
     def toggle_channel(self, channel: int) -> None:
@@ -212,6 +232,11 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # get the relevant value from the register and write the inverse
-        value = self.read_channel(channel)
-        self.write_channel(channel, not value)
+        if self.output_channels[channel].data_type == "BOOL":
+            # get the relevant value from the register and write the inverse
+            value = self.read_channel(channel)
+            self.write_channel(channel, not value)
+        else:
+            raise NotImplementedError(
+                f"{self} has no {inspect.currentframe().f_code.co_name}"
+            )

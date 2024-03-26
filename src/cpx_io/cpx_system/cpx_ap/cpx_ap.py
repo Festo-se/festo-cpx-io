@@ -66,17 +66,33 @@ class CpxAp(CpxBase):
 
         self.set_timeout(int(timeout * 1000))
 
-        # TODO: parse all available apdds here!!!
-        # wenn Pfad nicht da oder beim laden nicht die richtige APDD findet, dann Fehlermeldung:
-        # funktion ausführen load_apdds() die dann den Ordner anlegt und
         self.apdd_path = self.create_apdd_path()
 
         module_count = self.read_module_count()
         for i in range(module_count):
             info = self.read_module_information(i)
-            # TODO: if apdd exists in folder, use this and don't grab
-            module_apdd = self.grab_apdd(i, info.fw_version, self.apdd_path)
-            # search all apdds for info.module_code
+            apdd_name = (
+                info.order_text + "_v" + info.fw_version.replace(".", "-") + ".json"
+            )
+
+            # if correct apdd exists in folder, use it!
+            apdds = os.listdir(self.apdd_path)
+            if apdd_name in apdds:
+                with open(self.apdd_path + "/" + apdd_name, "r", encoding="ascii") as f:
+                    module_apdd = json.load(f)
+                Logging.logger.debug(
+                    f"Loaded apdd {apdd_name} for module index {i} from filesystem"
+                )
+
+            # if it does not exist, load it from the module
+            else:
+                module_apdd = self.grab_apdd(
+                    self.ip_address, i, self.apdd_path, info.fw_version
+                )
+                Logging.logger.debug(
+                    f"Loaded apdd {apdd_name} from module index {i} and saved to {self.apdd_path}"
+                )
+
             module = CpxApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
@@ -97,32 +113,32 @@ class CpxAp(CpxBase):
         data_dir.mkdir(parents=True, exist_ok=True)
         return str(data_dir)
 
+    @staticmethod
     def grab_apdd(
-        self, module_index: int, firmware_version: str, apdd_path: str
+        ip_address, module_index: int, apdd_path: str, fw_version: str
     ) -> json:
         """Grabs all apdd from module and saves them in apdd_path"""
         # Module indexs in ap start with 1
-        url = f"http://{self.ip_address}/cgi-bin/ap-file-get?slot={module_index + 1}&filenumber=6"
-        response = requests.get(url)
+        url = f"http://{ip_address}/cgi-bin/ap-file-get?slot={module_index + 1}&filenumber=6"
+        response = requests.get(url, timeout=100)
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             json_data = response.json()
-            # TODO: handle more than one Variant (-> [0])
-            file_name = json_data["Variants"]["VariantList"][0]["Name"]
+            apdd_name = json_data["Variants"]["DeviceImage"].rstrip(".svg")
             output_file_path = (
                 apdd_path
                 + "/"
-                + file_name
+                + apdd_name
                 + "_v"
-                + firmware_version.replace(".", "-")
+                + fw_version.replace(".", "-")
                 + ".json"
             )
             with open(output_file_path, "w", encoding="ascii") as f:
-                f.write(json.dumps(json_data))
+                f.write(json.dumps(json_data, indent=4))
             Logging.logger.debug(f"JSON data has been written to: {output_file_path}")
             return json_data
-        else:
-            raise ConnectionError(f"Failed to fetch APDD: {response.status_code}")
+
+        raise ConnectionError(f"Failed to fetch APDD: {response.status_code}")
 
     @property
     def modules(self):
