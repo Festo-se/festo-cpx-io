@@ -1,7 +1,7 @@
 """CPX-AP module implementations"""
 
 import os
-import pathlib
+import platformdirs
 import struct
 import requests
 import json
@@ -96,22 +96,30 @@ class CpxAp(CpxBase):
             module = CpxApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
+    def delete_apdds(self) -> None:
+        """Delete all downloaded apdds in the apdds path.
+        This forces a refresh when a new CPX-AP System is instantiated
+        """
+        if os.path.isdir(self.apdd_path):
+            for file_name in os.listdir(self.apdd_path):
+                file_path = os.path.join(self.apdd_path, file_name)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+            Logging.logger.debug(f"Deleted all apdds from {self.apdd_path}")
+        else:
+            Logging.logger.warning("Apdd folder does not exist. Nothing was deleted")
+
     @staticmethod
     def create_apdd_path() -> str:
         """Creates the apdd directory depending on the operating system and returns the path"""
-        # Determine the appropriate directory based on the operating system
-        if os.name == "posix":  # Linux, macOS, Unix
-            # TODO: make a better path not in installation directory
-            data_dir = pathlib.Path("apdds")
-        elif os.name == "nt":  # Windows
-            data_dir = pathlib.Path("C:/ProgramData/cpx_io/apdds")
-        else:
-            # Handle other operating systems or fallback to a default directory
-            data_dir = pathlib.Path.home() / ".apdds"
+        app_directory = platformdirs.user_data_dir(
+            appname="festo-cpx-io", appauthor="Festo SE & Co.KG"
+        )
 
         # Create the directory if it doesn't exist
-        data_dir.mkdir(parents=True, exist_ok=True)
-        return str(data_dir)
+        apdd_path = os.path.join(app_directory, "apdds")
+        os.makedirs(apdd_path, exist_ok=True)
+        return apdd_path
 
     @staticmethod
     def grab_apdd(
