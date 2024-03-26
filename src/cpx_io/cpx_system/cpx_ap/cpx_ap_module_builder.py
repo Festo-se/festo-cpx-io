@@ -85,14 +85,16 @@ class CpxApModuleBuilder:
 
     def build(self, apdd, module_code):
 
-        # set module code(s)
-        # default_module_code = apdd["Variants"]["DefaultModuleCode"]
-
         variants = []
         for variant_dict in apdd["Variants"]["VariantList"]:
             variants.append(VariantBuilder().build_variant(variant_dict))
 
         Logging.logger.debug(f"Set up Variants: {variants}")
+
+        # TODO: module_code is only needed if one apdd includes more than one ModulCode.
+        # this is currently only known for IO-Link modules. Due to its complexity
+        # it might be generally better to make an expeption for this type of module and use
+        # the existing hardcoded file.
 
         for v in variants:
             if v.variant_identification["ModuleCode"] == module_code:
@@ -142,12 +144,28 @@ class CpxApModuleBuilder:
 
         Logging.logger.debug(f"Set up Channels: {channels}")
 
+        # TODO: Maybe it would be better to just provide amount of i/o channels and type to module
         # split in in/out channels and set instance variables
         input_channels = [c for c in channels if c.direction == "in"]
         output_channels = [c for c in channels if c.direction == "out"]
 
-        # TODO: parameter may be dataclass
-        # TODO: more information?
+        # setup enums used in the module
+        metadata = apdd.get("Metadata")
+        if metadata:
+            enum_data_types = metadata.get("EnumDataTypes")
+
+        # setup parameter groups, including list of all used parameters
+        parameter_ids = {}
+        parameter_groups = apdd.get("ParameterGroups")
+        for pg in parameter_groups:
+            parameter_ids[pg.get("Name")] = pg.get("ParameterIds")
+
+        # setup parameters
+        parameters = apdd.get("Parameters")
+        if parameters:
+            parameter_list = parameters.get("ParameterList")
+
+        # TODO: provide more information for module
         return GenericApModule(
             name,
             module_type,

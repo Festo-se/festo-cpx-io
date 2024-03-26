@@ -162,7 +162,8 @@ class GenericApModule(CpxApModule):
 
         else:
             raise NotImplementedError(
-                f"Module {self.information.order_text} has no outputs to write to"
+                f"Module {self.information.order_text} at index {self.position} "
+                "has no outputs to write to"
             )
 
     @CpxBase.require_base
