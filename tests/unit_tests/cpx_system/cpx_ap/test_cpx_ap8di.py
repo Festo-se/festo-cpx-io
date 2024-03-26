@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime
 
 
@@ -121,7 +121,7 @@ class TestCpxAp8Di:
         # Assert
         cpxap8di.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.INPUT_DEBOUNCE_TIME,
+            ParameterNameMap()["InputDebounceTime"],
             expected_value,
         )
 

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.utils.helpers import (
     convert_uint32_to_octett,
@@ -42,7 +42,7 @@ class CpxApEp(CpxApModule):
         """Setup a module with the according base and position in the system.
         This overwrites the inherited configure function because the Busmodule -EP is
         always on position 0 in the system and needs to pull its registers directly from
-        the cpx_ap_parameters.
+        the ParameterMap.
 
         :param base: Base module that implements the modbus functions
         :type base: CpxBase
@@ -79,39 +79,43 @@ class CpxApEp(CpxApModule):
         """
         params = self.__class__.Parameters(
             dhcp_enable=self.base.read_parameter(
-                self.position, cpx_ap_parameters.DHCP_ENABLE
+                self.position, ParameterNameMap()["dhcpenable"]
             ),
             ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, cpx_ap_parameters.IP_ADDRESS)
+                self.base.read_parameter(self.position, ParameterNameMap()["ipaddress"])
             ),
             subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, cpx_ap_parameters.SUBNET_MASK),
+                self.base.read_parameter(
+                    self.position, ParameterNameMap()["subnetmask"]
+                ),
             ),
             gateway_address=convert_uint32_to_octett(
                 self.base.read_parameter(
-                    self.position, cpx_ap_parameters.GATEWAY_ADDRESS
+                    self.position, ParameterNameMap()["gatewayAddress"]
                 )
             ),
             active_ip_address=convert_uint32_to_octett(
                 self.base.read_parameter(
-                    self.position, cpx_ap_parameters.IP_ADDRESS_ACTIVE
+                    self.position, ParameterNameMap()["ipaddressActive"]
                 )
             ),
             active_subnet_mask=convert_uint32_to_octett(
                 self.base.read_parameter(
-                    self.position, cpx_ap_parameters.SUBNET_MASK_ACTIVE
+                    self.position, ParameterNameMap()["subnetmaskActive"]
                 )
             ),
             active_gateway_address=convert_uint32_to_octett(
                 self.base.read_parameter(
-                    self.position, cpx_ap_parameters.GATEWAY_ACTIVE
+                    self.position, ParameterNameMap()["gatewayActive"]
                 )
             ),
             mac_address=convert_to_mac_string(
-                self.base.read_parameter(self.position, cpx_ap_parameters.MAC_ADDRESS)
+                self.base.read_parameter(
+                    self.position, ParameterNameMap()["macAddress"]
+                )
             ),
             setup_monitoring_load_supply=self.base.read_parameter(
-                self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP
+                self.position, ParameterNameMap()["LoadSupplyDiagSetup"]
             )
             & 0xFF,
         )
@@ -137,7 +141,7 @@ class CpxApEp(CpxApModule):
         value_range_check(value, 3)
 
         self.base.write_parameter(
-            self.position, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, value
+            self.position, ParameterNameMap()["LoadSupplyDiagSetup"], value
         )
 
         Logging.logger.info(f"{self.name}: Setting Load supply monitoring to {value}")

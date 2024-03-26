@@ -1,36 +1,36 @@
-"""Contains tests for VaemAP class"""
+"""Contains tests for VabaAP class"""
 
 from unittest.mock import Mock, call
 import struct
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
+from cpx_io.cpx_system.cpx_ap.vaba_ap import VabaAP
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply, FailState
 
 
-class TestVaemAP48:
-    "Test VaemAP"
+class TestVabaAP:
+    "Test VabaAP"
 
     def test_constructor_correct_type(self):
         """Test constructor"""
         # Arrange
 
         # Act
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         # Assert
-        assert isinstance(vaem_ap, VaemAP)
+        assert isinstance(vaem_ap, VabaAP)
 
     def test_read_channels_correct_values(self):
-        """Test read 48 channels"""
+        """Test read 24 channels"""
         # Arrange
-        vaem_ap = VaemAP()
-        ret_data = struct.pack("<HHH", *[0xDEAD, 0xBEEF, 0xDEAD])
+        vaem_ap = VabaAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vaem_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act
         channel_values = vaem_ap.read_channels()
@@ -61,43 +61,19 @@ class TestVaemAP48:
             True,
             True,
             True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
         ]
 
     def test_read_channel_correct_values(self):
         """Test read one of 24 channels"""
         # Arrange
-        vaem_ap = VaemAP()
-        ret_data = struct.pack("<HHH", *[0xDEAD, 0xBEEF, 0xDEAD])
+        vaem_ap = VabaAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vaem_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act
-        channel_values = [vaem_ap.read_channel(idx) for idx in range(48)]
+        channel_values = [vaem_ap.read_channel(idx) for idx in range(24)]
 
         # Assert
         assert channel_values == [
@@ -123,30 +99,6 @@ class TestVaemAP48:
             True,
             False,
             True,
-            True,
-            True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            False,
             True,
             True,
         ]
@@ -154,14 +106,14 @@ class TestVaemAP48:
     def test_get_item_correct_values(self):
         """Test get item"""
         # Arrange
-        vaem_ap = VaemAP()
-        ret_data = struct.pack("<HHH", *[0xDEAD, 0xBEEF, 0xDEAD])
+        vaem_ap = VabaAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vaem_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act
-        channel_values = [vaem_ap[idx] for idx in range(48)]
+        channel_values = [vaem_ap[idx] for idx in range(24)]
 
         # Assert
         assert channel_values == [
@@ -189,40 +141,16 @@ class TestVaemAP48:
             True,
             True,
             True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
         ]
 
     def test_write_channels_correct_values(self):
         """Test write channels"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
         vaem_ap.output_register = 0
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act
         bool_list = [
@@ -250,65 +178,41 @@ class TestVaemAP48:
             True,
             True,
             True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            True,
-            True,
-            True,
-            True,
-            False,
-            True,
-            True,
         ]
 
         vaem_ap.write_channels(bool_list)
 
         # Assert
-        vaem_ap.base.write_reg_data.assert_called_with(b"\xad\xde\xef\xbe\xad\xde", 0)
+        vaem_ap.base.write_reg_data.assert_called_with(b"\xad\xde\xef", 0)
 
     def test_write_channels_too_long(self):
         """Test write channels, expect error"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act and assert
         with pytest.raises(ValueError):
-            vaem_ap.write_channels([0] * 49)
+            vaem_ap.write_channels([0] * 25)
 
     def test_write_channels_too_short(self):
         """Test write channels, expect error"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act and assert
         with pytest.raises(ValueError):
-            vaem_ap.write_channels([0] * 47)
+            vaem_ap.write_channels([0] * 23)
 
     def test_write_channels_wrong_type(self):
         """Test write channels, expect error"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
 
@@ -319,46 +223,46 @@ class TestVaemAP48:
     def test_write_channel_true(self):
         """Test write channel"""
         # Arange
-        vaem_ap = VaemAP()
-        ret_data = struct.pack("<HHH", *[0xDEAD, 0xBEEF, 0xDEAD])
+        vaem_ap = VabaAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vaem_ap.base = Mock(write_reg_data=Mock())
         vaem_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
         vaem_ap.output_register = 0
 
         # Act
         vaem_ap.write_channel(0, False)
 
         # Assert
-        # exected is DEAC BEEF DEAD
-        vaem_ap.base.write_reg_data.assert_called_with(b"\xac\xde\xef\xbe\xad\xde", 0)
+        # exected is DEAC BEEF
+        vaem_ap.base.write_reg_data.assert_called_with(b"\xac\xde\xef\xbe", 0)
 
     def test_write_channel_false(self):
         """Test write channel"""
         # Arange
-        vaem_ap = VaemAP()
-        ret_data = struct.pack("<HHH", *[0xDEAD, 0xBEEF, 0xDEAD])
+        vaem_ap = VabaAP()
+        ret_data = struct.pack("<HH", *[0xDEAD, 0xBEEF])
 
         vaem_ap.base = Mock(write_reg_data=Mock())
         vaem_ap.base = Mock(read_reg_data=Mock(return_value=ret_data))
         vaem_ap.output_register = 0
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act
         vaem_ap.write_channel(1, True)
 
         # Assert
         # exected is DEAF BEEF
-        vaem_ap.base.write_reg_data.assert_called_with(b"\xaf\xde\xef\xbe\xad\xde", 0)
+        vaem_ap.base.write_reg_data.assert_called_with(b"\xaf\xde\xef\xbe", 0)
 
-    @pytest.mark.parametrize("input_value", [-1, 48])
+    @pytest.mark.parametrize("input_value", [-1, 24])
     def test_write_wrong_channel(self, input_value):
         """Test write channel"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
         vaem_ap.base = Mock(write_reg_data=Mock())
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act & Assert
         with pytest.raises(ValueError):
@@ -367,7 +271,7 @@ class TestVaemAP48:
     def test_set_item(self):
         """Test set item"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock()
         vaem_ap.write_channel = Mock()
@@ -383,10 +287,10 @@ class TestVaemAP48:
         vaem_ap[7] = False
         vaem_ap[8] = True
         vaem_ap[9] = False
-        vaem_ap[44] = True
-        vaem_ap[45] = False
-        vaem_ap[46] = True
-        vaem_ap[47] = False
+        vaem_ap[20] = True
+        vaem_ap[21] = False
+        vaem_ap[22] = True
+        vaem_ap[23] = False
 
         # Assert
         vaem_ap.write_channel.assert_has_calls(
@@ -401,17 +305,17 @@ class TestVaemAP48:
                 call(7, False),
                 call(8, True),
                 call(9, False),
-                call(44, True),
-                call(45, False),
-                call(46, True),
-                call(47, False),
+                call(20, True),
+                call(21, False),
+                call(22, True),
+                call(23, False),
             ]
         )
 
     def test_set_channel(self):
         """Test set channel"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
         vaem_ap.write_channel = Mock()
@@ -425,7 +329,7 @@ class TestVaemAP48:
     def test_clear_channel(self):
         """Test clear channel"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
         vaem_ap.write_channel = Mock()
@@ -439,12 +343,12 @@ class TestVaemAP48:
     def test_toggle_channel(self):
         """Test toggle channel"""
         # Arange
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
 
         vaem_ap.base = Mock(write_reg_data=Mock())
         vaem_ap.base = Mock(read_reg_data=Mock(return_value=[0xBA]))
         vaem_ap.write_channel = Mock()
-        vaem_ap.information = CpxAp.ModuleInformation(output_channels=48, output_size=6)
+        vaem_ap.information = CpxAp.ModuleInformation(output_channels=24, output_size=3)
 
         # Act
         vaem_ap.toggle_channel(0)
@@ -468,7 +372,7 @@ class TestVaemAP48:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
         vaem_ap.position = MODULE_POSITION
 
         vaem_ap.base = Mock(write_parameter=Mock())
@@ -489,7 +393,7 @@ class TestVaemAP48:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
         vaem_ap.position = MODULE_POSITION
 
         vaem_ap.base = Mock(write_parameter=Mock())
@@ -507,7 +411,7 @@ class TestVaemAP48:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
         vaem_ap.position = MODULE_POSITION
 
         vaem_ap.base = Mock(write_parameter=Mock())
@@ -528,7 +432,7 @@ class TestVaemAP48:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        vaem_ap = VaemAP()
+        vaem_ap = VabaAP()
         vaem_ap.position = MODULE_POSITION
 
         vaem_ap.base = Mock(write_parameter=Mock())

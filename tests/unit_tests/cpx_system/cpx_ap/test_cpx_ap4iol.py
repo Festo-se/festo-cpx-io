@@ -6,7 +6,7 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     LoadSupply,
@@ -61,8 +61,8 @@ class TestCpxAp4Iol:
         mock_read_ap_parameter.assert_called_once()
         cpxap4iol.base.read_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, cpx_ap_parameters.VARIANT_SWITCH),
-                call(MODULE_POSITION, cpx_ap_parameters.SENSOR_SUPPLY_ENABLE),
+                call(MODULE_POSITION, ParameterNameMap()["VariantSwitch"]),
+                call(MODULE_POSITION, ParameterNameMap()["SensorSupplyEnable"]),
             ],
             any_order=True,
         )
@@ -293,7 +293,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP, expected_value
+            MODULE_POSITION, ParameterNameMap()["LoadSupplyDiagSetup"], expected_value
         )
 
     @pytest.mark.parametrize("input_value", [-1, 3])
@@ -342,25 +342,25 @@ class TestCpxAp4Iol:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    ParameterNameMap()["NominalCycleTime"],
                     expected_value,
                     0,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    ParameterNameMap()["NominalCycleTime"],
                     expected_value,
                     1,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    ParameterNameMap()["NominalCycleTime"],
                     expected_value,
                     2,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.NOMINAL_CYCLE_TIME,
+                    ParameterNameMap()["NominalCycleTime"],
                     expected_value,
                     3,
                 ),
@@ -385,7 +385,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.NOMINAL_CYCLE_TIME, expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["NominalCycleTime"], expected_value, 0
         )
 
     @pytest.mark.parametrize("input_value", [-1, 1])
@@ -426,25 +426,25 @@ class TestCpxAp4Iol:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    ParameterNameMap()["DeviceLostDiagnosisEnable"],
                     expected_value,
                     0,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    ParameterNameMap()["DeviceLostDiagnosisEnable"],
                     expected_value,
                     1,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    ParameterNameMap()["DeviceLostDiagnosisEnable"],
                     expected_value,
                     2,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+                    ParameterNameMap()["DeviceLostDiagnosisEnable"],
                     expected_value,
                     3,
                 ),
@@ -472,7 +472,7 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE,
+            ParameterNameMap()["DeviceLostDiagnosisEnable"],
             expected_value,
             0,
         )
@@ -508,7 +508,7 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.PORT_MODE,
+            ParameterNameMap()["PortMode"],
             expected_value,
             0,
         )
@@ -531,19 +531,19 @@ class TestCpxAp4Iol:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     0,
                     1,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     0,
                     2,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     0,
                     3,
                 ),
@@ -568,25 +568,25 @@ class TestCpxAp4Iol:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     97,
                     0,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     97,
                     1,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     97,
                     2,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.PORT_MODE,
+                    ParameterNameMap()["PortMode"],
                     97,
                     3,
                 ),
@@ -641,7 +641,7 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
             MODULE_POSITION,
-            cpx_ap_parameters.VALIDATION_AND_BACKUP,
+            ParameterNameMap()["ValidationAndBackup"],
             expected_value,
             0,
         )
@@ -664,19 +664,19 @@ class TestCpxAp4Iol:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     0,
                     1,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     0,
                     2,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     0,
                     3,
                 ),
@@ -701,25 +701,25 @@ class TestCpxAp4Iol:
             [
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     4,
                     0,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     4,
                     1,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     4,
                     2,
                 ),
                 call(
                     MODULE_POSITION,
-                    cpx_ap_parameters.VALIDATION_AND_BACKUP,
+                    ParameterNameMap()["ValidationAndBackup"],
                     4,
                     3,
                 ),
@@ -759,7 +759,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["NominalVendorID"], expected_value, 0
         )
 
     def test_configure_target_vendor_id_more_channels(self):
@@ -778,9 +778,9 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0, 1),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0, 2),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 0, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 0, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 0, 3),
             ]
         )
 
@@ -800,10 +800,10 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 0),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 1),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 2),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_VENDOR_ID, 4, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 0),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalVendorID"], 4, 3),
             ]
         )
 
@@ -825,7 +825,7 @@ class TestCpxAp4Iol:
 
         # Assert
         cpxap4iol.base.write_parameter.assert_called_with(
-            MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, expected_value, 0
+            MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], expected_value, 0
         )
 
     def testconfigure_setpoint_device_id_more_channels(self):
@@ -844,9 +844,9 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0, 1),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0, 2),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 0, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 0, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 0, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 0, 3),
             ]
         )
 
@@ -866,10 +866,10 @@ class TestCpxAp4Iol:
         # Assert
         cpxap4iol.base.write_parameter.assert_has_calls(
             [
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 0),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 1),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 2),
-                call(MODULE_POSITION, cpx_ap_parameters.NOMINAL_DEVICE_ID, 4, 3),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 0),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 1),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 2),
+                call(MODULE_POSITION, ParameterNameMap()["NominalDeviceID"], 4, 3),
             ]
         )
 

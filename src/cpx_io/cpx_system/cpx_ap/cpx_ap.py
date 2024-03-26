@@ -12,10 +12,7 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import CpxApModuleBuilder
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
-from cpx_io.cpx_system.cpx_ap.DELETE_cpx_ap_module_definitions import (
-    CPX_AP_MODULE_ID_LIST,
-)
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap, ParameterMapItem
 from cpx_io.cpx_system.cpx_ap.parameter_packing import parameter_pack, parameter_unpack
 from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
@@ -295,10 +292,12 @@ class CpxAp(CpxBase):
         :ret value: Diagnostics status for every module
         :rtype: list[Diagnostics]
         """
-        # overwrite the type UINT8[n] with the actual module count + 1 (see datasheet)
-        ap_diagnosis_parameter = cpx_ap_parameters.ParameterMapItem(
-            id=cpx_ap_parameters.AP_DIAGNOSIS_STATUS.id,
-            dtype=f"UINT8[{self.read_module_count() + 1}]",
+        # overwrite the type size with the actual module count + 1 (see datasheet)
+        ap_diagnosis_parameter = ParameterMapItem(
+            ParameterNameMap()["ApDiagnosisStatus"].parameter_id,
+            name="ApDiagnosisStatus",
+            data_type="UINT8",
+            size=self.read_module_count() + 1,
         )
 
         reg = self.read_parameter(0, ap_diagnosis_parameter)
@@ -307,7 +306,7 @@ class CpxAp(CpxBase):
     def write_parameter(
         self,
         position: int,
-        parameter: cpx_ap_parameters.ParameterMapItem,
+        parameter: ParameterMapItem,
         data: list[int] | int | bool,
         instance: int = 0,
     ) -> None:
@@ -325,7 +324,7 @@ class CpxAp(CpxBase):
         :type instance: int
         """
         raw = parameter_pack(parameter, data)
-        self._write_parameter_raw(position, parameter.id, instance, raw)
+        self._write_parameter_raw(position, parameter.parameter_id, instance, raw)
 
     def _write_parameter_raw(
         self, position: int, param_id: int, instance: int, data: bytes
@@ -375,7 +374,7 @@ class CpxAp(CpxBase):
     def read_parameter(
         self,
         position: int,
-        parameter: cpx_ap_parameters.ParameterMapItem,
+        parameter: ParameterMapItem,
         instance: int = 0,
     ) -> Any:
         """Read parameter
@@ -389,7 +388,7 @@ class CpxAp(CpxBase):
         :return: Parameter value
         :rtype: Any
         """
-        raw = self._read_parameter_raw(position, parameter.id, instance)
+        raw = self._read_parameter_raw(position, parameter.parameter_id, instance)
         data = parameter_unpack(parameter, raw)
         return data
 

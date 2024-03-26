@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added 
 - ap_module_builder that configures a generic_ap_module by its apdd
+- Added VABA (electric interface for VTSA valve terminal)
+- CLI command `parameter` (options `--list` and `--meta`) showing parameter meta data
 - channel_range_check in helpers, now raises IndexError instead of ValueError
 - VMPAL Valve Terminal for CPX-AP
 - VAEM Valve Terminal for CPX-AP
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More examples
 
 ### Changed
+- Determine parameter ids based on .csv.
 - configure functions don't accept strings anymore. Instead use enums from cpx_ap/e_enums
 - Moved read_diagnostics_status from CpxApEp to CpxAp
 - Renamed ApParameter to ParameterMapItem,

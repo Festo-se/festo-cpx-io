@@ -1,4 +1,4 @@
-"""VABX-A-P-EL-E12-AP* module implementation"""
+"""VABA-S6-1-AP module implementation"""
 
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
@@ -8,7 +8,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
-from cpx_io.utils.helpers import value_range_check
+from cpx_io.utils.helpers import value_range_check, div_ceil
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     LoadSupply,
@@ -16,12 +16,11 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
 )
 
 
-class VabxAP(CpxApModule):
-    """Class for VABX-A-P-EL-E12-AP* module"""
+class VabaAP(CpxApModule):
+    """Class for VABA-S6-1-AP module"""
 
     module_codes = {
-        8232: "VABX-A-P-EL-E12-API",
-        8233: "VABX-A-P-EL-E12-APA",
+        8226: "VABA-S6-1-AP",
     }
 
     def __getitem__(self, key):
@@ -33,14 +32,14 @@ class VabxAP(CpxApModule):
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
         """read all channels as a list of bool values.
-        Returns a list of all 32 coils
+        Returns a list of all coils
 
         :return: Values of all channels
         :rtype: list[bool]
         """
-
-        data = self.base.read_reg_data(self.output_register, length=2)
-        values = bytes_to_boollist(data)
+        length = div_ceil(self.information.output_size, 2)
+        data = self.base.read_reg_data(self.output_register, length=length)
+        values = bytes_to_boollist(data, self.information.output_size)
         Logging.logger.info(f"{self.name}: Reading channels: {values}")
         return values
 
@@ -59,11 +58,13 @@ class VabxAP(CpxApModule):
     def write_channels(self, data: list[bool]) -> None:
         """write all channels with a list of bool values
 
-        :param data: list of bool values containing exactly 32 elements for each output channel
+        :param data: list of bool values containing exactly the amount of output channels (24/48)
         :type data: list[bool]
         """
-        if len(data) != 32:
-            raise ValueError("Data must be list of 32 elements")
+        if len(data) != self.information.output_channels:
+            raise ValueError(
+                f"Data must be list of {self.information.output_channels} elements"
+            )
 
         reg = boollist_to_bytes(data)
         self.base.write_reg_data(reg, self.output_register)
@@ -79,8 +80,10 @@ class VabxAP(CpxApModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        if channel not in range(32):
-            raise ValueError("Channel must be in range 0...31")
+        if channel not in range(self.information.output_channels):
+            raise ValueError(
+                f"Channel must be in range 0...{self.information.output_channels - 1}"
+            )
 
         # read current values
         data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
@@ -118,21 +121,6 @@ class VabxAP(CpxApModule):
         # get the relevant value from the register and write the inverse
         value = self.read_channel(channel)
         self.write_channel(channel, not value)
-
-    @CpxBase.require_base
-    def configure_diagnosis_for_defect_valve(self, value: bool) -> None:
-        """Enable (True, default) or disable (False) diagnosis for defect valve.
-
-        :param value: Value to write to the module (True to enable diagnosis)
-        :type value: bool
-        """
-
-        self.base.write_parameter(
-            self.position, ParameterNameMap()["ValveDefectDiagEnable"], value
-        )
-        Logging.logger.info(
-            f"{self.name}: Setting diagnosis for defect valve to {value}"
-        )
 
     @CpxBase.require_base
     def configure_monitoring_load_supply(self, value: LoadSupply | int) -> None:

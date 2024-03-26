@@ -7,7 +7,7 @@ import pytest
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
@@ -19,6 +19,7 @@ from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
 from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
 from cpx_io.cpx_system.cpx_ap.vmpal_ap import VmpalAP
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
+from cpx_io.cpx_system.cpx_ap.vaba_ap import VabaAP
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
     ChannelRange,
@@ -46,7 +47,7 @@ def test_init(test_cpxap):
 
 def test_module_count(test_cpxap):
     "test module_count"
-    assert test_cpxap.read_module_count() == 9
+    assert test_cpxap.read_module_count() == 10
 
 
 def test_default_timeout(test_cpxap):
@@ -95,6 +96,7 @@ def test_modules(test_cpxap):
     assert isinstance(test_cpxap.modules[6], VabxAP)
     assert isinstance(test_cpxap.modules[7], VaemAP)
     assert isinstance(test_cpxap.modules[8], VmpalAP)
+    assert isinstance(test_cpxap.modules[9], VabaAP)
 
     assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
 
@@ -128,6 +130,9 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[8].information.module_code in VmpalAP.module_codes
     assert test_cpxap.modules[8].position == 8
 
+    assert test_cpxap.modules[9].information.module_code in VabaAP.module_codes
+    assert test_cpxap.modules[9].position == 9
+
     assert test_cpxap.modules[0].output_register is None  # EP
     assert test_cpxap.modules[1].output_register == 0  # 16di
     assert test_cpxap.modules[2].output_register == 0  # 12DiDo, adds 1
@@ -137,6 +142,7 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[6].output_register == 18  # Vabx
     assert test_cpxap.modules[7].output_register == 20  # Vaem
     assert test_cpxap.modules[8].output_register == 22  # Vmpal
+    assert test_cpxap.modules[9].output_register == 24  # Vaba
 
     assert test_cpxap.modules[0].input_register is None  # EP
     assert test_cpxap.modules[1].input_register == 5000  # 16Di, adds 1
@@ -147,6 +153,7 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[6].input_register == 5021  # Vabx
     assert test_cpxap.modules[7].input_register == 5021  # Vaem
     assert test_cpxap.modules[8].input_register == 5021  # Vmpal
+    assert test_cpxap.modules[9].input_register == 5021  # Vaba
 
 
 def test_16Di(test_cpxap):
@@ -155,6 +162,7 @@ def test_16Di(test_cpxap):
 
 def test_16Di_configure(test_cpxap):
     test_cpxap.modules[1].configure_debounce_time(1)
+
 
 def test_generic12Di4Do(test_cpxap):
     Logging(logging_level="DEBUG")
@@ -171,6 +179,7 @@ def test_generic12Di4Do(test_cpxap):
     assert channels[12:] == data
 
     pass
+
 
 def test_12Di4Do(test_cpxap):
     assert test_cpxap.modules[2].read_channels() == [False] * 16
@@ -244,15 +253,15 @@ def test_ep_configure(test_cpxap):
 
     ep.configure_monitoring_load_supply(0)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
 
     ep.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
 
     ep.configure_monitoring_load_supply(1)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
 
 
 def test_ep_configure_enum(test_cpxap):
@@ -260,15 +269,15 @@ def test_ep_configure_enum(test_cpxap):
 
     ep.configure_monitoring_load_supply(LoadSupply.INACTIVE)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
 
     ep.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
 
     ep.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
     time.sleep(0.05)
-    assert ep.base.read_parameter(0, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
 
 
 def test_12Di4Do_configures(test_cpxap):
@@ -279,18 +288,21 @@ def test_12Di4Do_configures(test_cpxap):
 
     a12di4do.configure_debounce_time(3)
     time.sleep(0.05)
-    assert a12di4do.base.read_parameter(idx, cpx_ap_parameters.INPUT_DEBOUNCE_TIME) == 3
+    assert (
+        a12di4do.base.read_parameter(idx, ParameterNameMap()["InputDebounceTime"]) == 3
+    )
 
     a12di4do.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        a12di4do.base.read_parameter(idx, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+        a12di4do.base.read_parameter(idx, ParameterNameMap()["LoadSupplyDiagSetup"])
+        == 2
     )
 
     a12di4do.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        a12di4do.base.read_parameter(idx, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        a12di4do.base.read_parameter(idx, ParameterNameMap()["FailStateBehaviour"]) == 1
     )
 
     time.sleep(0.05)
@@ -310,18 +322,21 @@ def test_12Di4Do_configures_enum(test_cpxap):
 
     a12di4do.configure_debounce_time(DebounceTime.T_20MS)
     time.sleep(0.05)
-    assert a12di4do.base.read_parameter(idx, cpx_ap_parameters.INPUT_DEBOUNCE_TIME) == 3
+    assert (
+        a12di4do.base.read_parameter(idx, ParameterNameMap()["InputDebounceTime"]) == 3
+    )
 
     a12di4do.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
     assert (
-        a12di4do.base.read_parameter(idx, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+        a12di4do.base.read_parameter(idx, ParameterNameMap()["LoadSupplyDiagSetup"])
+        == 2
     )
 
     a12di4do.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
     time.sleep(0.05)
     assert (
-        a12di4do.base.read_parameter(idx, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        a12di4do.base.read_parameter(idx, ParameterNameMap()["FailStateBehaviour"]) == 1
     )
 
     time.sleep(0.05)
@@ -636,15 +651,15 @@ def test_4iol_configure_monitoring_load_supply(test_cpxap):
 
     a4iol.configure_monitoring_load_supply(0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
 
     a4iol.configure_monitoring_load_supply(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
 
     a4iol.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
 
     a4iol.configure_monitoring_load_supply(1)
 
@@ -655,15 +670,15 @@ def test_4iol_configure_monitoring_load_supply_enums(test_cpxap):
 
     a4iol.configure_monitoring_load_supply(LoadSupply.INACTIVE)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 0
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
 
     a4iol.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 1
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
 
     a4iol.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP) == 2
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
 
     a4iol.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
 
@@ -675,19 +690,27 @@ def test_4iol_configure_target_cycle_time(test_cpxap):
     time.sleep(0.05)
     a4iol.configure_target_cycle_time(16, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 16
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 16
 
     a4iol.configure_target_cycle_time(73, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 73
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 73
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 73
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 73
 
     a4iol.configure_target_cycle_time(158)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 158
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 158
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 158
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 3) == 158
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 3) == 158
+    )
 
     a4iol.configure_target_cycle_time(0)
 
@@ -699,19 +722,27 @@ def test_4iol_configure_target_cycle_time_enum(test_cpxap):
     time.sleep(0.05)
     a4iol.configure_target_cycle_time(CycleTime.T_1600US, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 16
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 16
 
     a4iol.configure_target_cycle_time(CycleTime.T_10MS, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 73
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 73
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 73
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 73
 
     a4iol.configure_target_cycle_time(CycleTime.T_80MS)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 0) == 158
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 1) == 158
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 2) == 158
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_CYCLE_TIME, 3) == 158
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 158
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 3) == 158
+    )
 
     a4iol.configure_target_cycle_time(CycleTime.FAST)
 
@@ -724,37 +755,37 @@ def test_4iol_configure_device_lost_diagnostics(test_cpxap):
     a4iol.configure_device_lost_diagnostics(False, channel=0)
     time.sleep(0.05)
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"])
         is False
     )
 
     a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
     time.sleep(0.05)
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 1)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
         is False
     )
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 2)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
         is False
     )
 
     a4iol.configure_device_lost_diagnostics(False)
     time.sleep(0.05)
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 0)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 0)
         is False
     )
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 1)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
         is False
     )
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 2)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
         is False
     )
     assert (
-        a4iol.base.read_parameter(5, cpx_ap_parameters.DEVICE_LOST_DIAGNOSIS_ENABLE, 3)
+        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 3)
         is False
     )
 
@@ -768,19 +799,19 @@ def test_4iol_configure_port_mode(test_cpxap):
 
     a4iol.configure_port_mode(0, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 0) == 0
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 0
 
     a4iol.configure_port_mode(3, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 2) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 3
 
     a4iol.configure_port_mode(97)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 0) == 97
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 1) == 97
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 2) == 97
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 3) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 3) == 97
 
     a4iol.configure_port_mode(0)
 
@@ -792,19 +823,19 @@ def test_4iol_configure_port_mode_enum(test_cpxap):
 
     a4iol.configure_port_mode(PortMode.DEACTIVATED, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 0) == 0
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 0
 
     a4iol.configure_port_mode(PortMode.DI_CQ, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 2) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 3
 
     a4iol.configure_port_mode(PortMode.PREOPERATE)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 0) == 97
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 1) == 97
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 2) == 97
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.PORT_MODE, 3) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 97
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 3) == 97
 
     a4iol.configure_port_mode(PortMode.DEACTIVATED)
 
@@ -816,19 +847,33 @@ def test_4iol_configure_review_and_backup(test_cpxap):
 
     a4iol.configure_review_and_backup(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 1
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 1
+    )
 
     a4iol.configure_review_and_backup(2, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 2
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 2
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 2
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 2
+    )
 
     a4iol.configure_review_and_backup(3)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 3) == 3
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 3) == 3
+    )
 
     a4iol.configure_review_and_backup(0)
 
@@ -840,19 +885,33 @@ def test_4iol_configure_review_and_backup_enum(test_cpxap):
 
     a4iol.configure_review_and_backup(ReviewBackup.COMPATIBLE_V1_0, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 1
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 1
+    )
 
     a4iol.configure_review_and_backup(ReviewBackup.COMPATIBLE_V1_1, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 2
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 2
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 2
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 2
+    )
 
     a4iol.configure_review_and_backup(ReviewBackup.COMPATIBLE_V1_1_DATA_BACKUP_RESTORE)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 0) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 2) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.VALIDATION_AND_BACKUP, 3) == 3
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 3
+    )
+    assert (
+        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 3) == 3
+    )
 
     a4iol.configure_review_and_backup(ReviewBackup.NO_TEST)
 
@@ -866,21 +925,21 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0) == 1
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 0) == 1
 
     a4iol.configure_target_vendor_id(2, channel=[1, 2])
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 1) == 2
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 2) == 2
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 1) == 2
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 2) == 2
 
     a4iol.configure_target_vendor_id(3)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 0) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 1) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 2) == 3
-    assert a4iol.base.read_parameter(5, cpx_ap_parameters.NOMINAL_VENDOR_ID, 3) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 0) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 1) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 2) == 3
+    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 3) == 3
 
     a4iol.configure_target_vendor_id(0)
     a4iol.configure_port_mode(0)
@@ -902,7 +961,7 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     time.sleep(0.05)
     assert (
         a4iol.base.read_parameter(
-            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+            position, ParameterNameMap()["NominalDeviceID"], channel
         )
         == 1
     )
@@ -913,7 +972,7 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     time.sleep(0.05)
     assert (
         a4iol.base.read_parameter(
-            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+            position, ParameterNameMap()["NominalDeviceID"], channel
         )
         == 2
     )
@@ -924,7 +983,7 @@ def test_4iol_configure_setpoint_device_id(test_cpxap):
     time.sleep(0.05)
     assert (
         a4iol.base.read_parameter(
-            position, cpx_ap_parameters.NOMINAL_DEVICE_ID, channel
+            position, ParameterNameMap()["NominalDeviceID"], channel
         )
         == 3
     )
@@ -968,21 +1027,22 @@ def test_vabx_configures(test_cpxap):
     vabx.configure_diagnosis_for_defect_valve(False)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["ValveDefectDiagEnable"])
         == 0
     )
 
     vabx.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1002,21 +1062,22 @@ def test_vabx_configures_enums(test_cpxap):
     vabx.configure_diagnosis_for_defect_valve(False)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.VALVE_DEFECT_DIAG_ENABLE)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["ValveDefectDiagEnable"])
         == 0
     )
 
     vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1065,14 +1126,15 @@ def test_vaem_configures(test_cpxap):
     vabx.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1090,14 +1152,15 @@ def test_vaem_configures_enums(test_cpxap):
     vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1108,7 +1171,7 @@ def test_vaem_configures_enums(test_cpxap):
 
 
 def test_vmpal_read_channels(test_cpxap):
-    "test vmpal 24 channel"
+    "test vmpal 32 channel"
     POSITION = 8
     assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
     channels = test_cpxap.modules[POSITION].read_channels()
@@ -1144,14 +1207,15 @@ def test_vmpal_configures(test_cpxap):
     vabx.configure_monitoring_load_supply(2)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(1)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)
@@ -1169,14 +1233,96 @@ def test_vmpal_configures_enums(test_cpxap):
     vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.LOAD_SUPPLY_DIAG_SETUP)
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
         == 2
     )
 
     vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
     time.sleep(0.05)
     assert (
-        vabx.base.read_parameter(POSITION, cpx_ap_parameters.FAIL_STATE_BEHAVIOUR) == 1
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
+    )
+
+    time.sleep(0.05)
+    # reset to default
+    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
+    time.sleep(0.05)
+    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+
+
+def test_vaba_read_channels(test_cpxap):
+    "test vaba 24 channel"
+    POSITION = 9
+    assert isinstance(test_cpxap.modules[POSITION], VabaAP)
+    channels = test_cpxap.modules[POSITION].read_channels()
+    assert channels == [False] * 24
+
+
+def test_vaba_read_channel(test_cpxap):
+    "test vaba"
+    POSITION = 9
+    assert isinstance(test_cpxap.modules[POSITION], VabaAP)
+    channel = test_cpxap.modules[POSITION].read_channel(0)
+    assert channel is False
+
+
+def test_vaba_write(test_cpxap):
+    "test vaba"
+    POSITION = 9
+    assert isinstance(test_cpxap.modules[POSITION], VabaAP)
+    test_cpxap.modules[POSITION].write_channel(0, True)
+    time.sleep(0.05)
+    assert test_cpxap.modules[POSITION].read_channel(0) is True
+    time.sleep(0.05)
+    test_cpxap.modules[POSITION].write_channel(0, False)
+    time.sleep(0.05)
+    assert test_cpxap.modules[POSITION].read_channel(0) is False
+
+
+def test_vaba_configures(test_cpxap):
+    "test configure functions of vaba"
+    POSITION = 9
+    vabx = test_cpxap.modules[POSITION]
+
+    vabx.configure_monitoring_load_supply(2)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
+        == 2
+    )
+
+    vabx.configure_behaviour_in_fail_state(1)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
+    )
+
+    time.sleep(0.05)
+    # reset to default
+    vabx.configure_monitoring_load_supply(1)
+    time.sleep(0.05)
+    vabx.configure_behaviour_in_fail_state(0)
+
+
+def test_vaba_configures_enums(test_cpxap):
+    "test configure functions of vaba"
+    POSITION = 9
+    vabx = test_cpxap.modules[POSITION]
+
+    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
+        == 2
+    )
+
+    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
+    time.sleep(0.05)
+    assert (
+        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
+        == 1
     )
 
     time.sleep(0.05)

@@ -3,7 +3,7 @@
 import struct
 from typing import Any
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.cpx_ap import cpx_ap_parameters
+from cpx_io.cpx_system.parameter_mapping import ParameterMapItem
 
 TYPE_TO_FORMAT_CHAR = {
     "BOOL": "?",
@@ -22,10 +22,10 @@ TYPE_TO_FORMAT_CHAR = {
 
 
 def parameter_unpack(
-    parameter: cpx_ap_parameters.ParameterMapItem, raw: bytes, forced_format: str = None
+    parameter: ParameterMapItem, raw: bytes, forced_format: str = None
 ) -> Any:
     """Unpacks a raw byte value to specific type.
-    The type is determined by the parameters included in cpx_ap_parameters.
+    The type is determined by the parameters included in ParameterMap.
 
     param parameter: Parameter that should be unpacked.
     type parameter: ParameterMapItem
@@ -36,24 +36,16 @@ def parameter_unpack(
     return: Unpacked value with determined type
     rtype: Any
     """
-    array_size = 1
+    array_size = int(parameter.size) if parameter.size != "-" else 1
+
     if forced_format:
         Logging.logger.info(f"Parameter {parameter} forced to type ({forced_format})")
         unpack_data_type = forced_format
     else:
-        parameter_data_type = parameter.dtype
+        parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
-        # if "Arraysize" is given, set array_size
-        if "[" in parameter_data_type:
-            parameter_data_type, array_size = parameter_data_type.rstrip("]").split("[")
-            array_size = int(array_size)
-            unpack_data_type = (
-                f"{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
-            )
-
-        else:
-            unpack_data_type = TYPE_TO_FORMAT_CHAR[parameter_data_type]
+        unpack_data_type = f"<{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
 
     if "s" in unpack_data_type:
         # for strings, ignore array_size and use length of bytes instead
@@ -75,10 +67,10 @@ def parameter_unpack(
 
 
 def parameter_pack(
-    parameter: cpx_ap_parameters.ParameterMapItem, value: Any, forced_format: str = None
+    parameter: ParameterMapItem, value: Any, forced_format: str = None
 ) -> bytes:
     """Packs a provided value to raw bytes object.
-    The type is determined by the parameters included in cpx_ap_parameters.
+    The type is determined by the parameters included in ParameterMap.
 
      param parameter: Parameter of value that should be unpacked.
      type parameter: ParameterMapItem
@@ -91,26 +83,15 @@ def parameter_pack(
      rtype: bytes
     """
     if not forced_format:
-        array_size = 1
-        parameter_data_type = parameter.dtype
+        array_size = int(parameter.size) if parameter.size != "-" else 1
+        parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
         # for char arrays, ignore the "Arraysize" and use length of the bytes object instead
         if "CHAR" in parameter_data_type:
             return struct.pack("s", bytes(value, encoding="ascii"))
 
-        # handle arrays
-        if "[" in parameter_data_type:
-            parameter_data_type, array_size = parameter_data_type.rstrip("]").split("[")
-            array_size = int(array_size)
-            if array_size != len(value):
-                Logging.logger.warning(
-                    f"Length of value {value} does not fit length "
-                    f"of ParameterMapItem ({array_size})"
-                )
-            pack_data_type = f"{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
-        else:
-            pack_data_type = TYPE_TO_FORMAT_CHAR[parameter_data_type]
+        pack_data_type = f"<{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
 
         if "INT" in parameter_data_type:
             value = int(value)
