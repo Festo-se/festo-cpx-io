@@ -53,7 +53,7 @@ class CpxAp(CpxBase):
         module_present: bool
         _7: None  # spacer for not-used bit
 
-    def __init__(self, timeout: float = 0.1, **kwargs):
+    def __init__(self, timeout: float = 0.1, apdd_path: str = None, **kwargs):
         """Constructor of the CpxAp class.
 
         :param timeout: Modbus timeout (in s) that should be configured on the slave
@@ -66,7 +66,10 @@ class CpxAp(CpxBase):
 
         self.set_timeout(int(timeout * 1000))
 
-        self.apdd_path = self.create_apdd_path()
+        if apdd_path:
+            self.apdd_path = apdd_path
+        else:
+            self.apdd_path = self.create_apdd_path()
 
         module_count = self.read_module_count()
         for i in range(module_count):

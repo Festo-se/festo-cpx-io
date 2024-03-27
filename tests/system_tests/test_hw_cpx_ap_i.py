@@ -33,6 +33,7 @@ def test_cpxap():
 
 def test_init(test_cpxap):
     "test init"
+    # test_cpxap.modules[0].set_channel(0)
     assert test_cpxap
 
 

@@ -5,6 +5,7 @@ import inspect
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import div_ceil, channel_range_check
 from cpx_io.utils.logging import Logging
@@ -63,11 +64,19 @@ class ChannelBuilder:
 class GenericApModule(CpxApModule):
 
     def __init__(
-        self, name, module_type, input_channels, output_channels, *args, **kwargs
+        self,
+        name,
+        module_type,
+        product_category,
+        input_channels,
+        output_channels,
+        *args,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.name = name
         self.module_type = module_type
+        self.product_category = product_category
         self.input_channels = input_channels
         self.output_channels = output_channels
 
@@ -82,6 +91,16 @@ class GenericApModule(CpxApModule):
 
     @CpxBase.require_base
     def read_channels(self):
+        # check if supported
+        supported_product_categories = [
+            ProductCategory.ANALOG.value,
+            ProductCategory.DIGITAL.value,
+        ]
+        if self.product_category not in supported_product_categories:
+            raise NotImplementedError(
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
+            )
+
         # if available, read inputs
         values = []
         if self.input_channels:
@@ -131,7 +150,7 @@ class GenericApModule(CpxApModule):
         :rtype: bool
         """
         if output_numbering:
-            channel += 12
+            channel += len(self.input_channels)
 
         return self.read_channels()[channel]
 
@@ -142,19 +161,30 @@ class GenericApModule(CpxApModule):
         :param data: list of values for each output channel
         :type data: list
         """
-        if len(data) != len(self.output_channels):
-            raise ValueError(
-                f"Data must be list of {len(self.output_channels)} elements"
+        # check if supported
+        supported_product_categories = [
+            ProductCategory.ANALOG.value,
+            ProductCategory.DIGITAL.value,
+        ]
+        if self.product_category not in supported_product_categories:
+            raise NotImplementedError(
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         if self.output_channels:
+            if len(data) != len(self.output_channels):
+                raise ValueError(
+                    f"Data must be list of {len(self.output_channels)} elements"
+                )
+
             if all(c.data_type == "BOOL" for c in self.output_channels) and all(
                 isinstance(d, bool) for d in data
             ):
                 reg = boollist_to_bytes(data)
             else:
                 raise NotImplementedError(
-                    f"{self.output_channels.data_type} is not supported"
+                    f"Output data type {self.output_channels[0].data_type} are not supported or "
+                    "types are not the same for each channel"
                 )
 
             self.base.write_reg_data(reg, self.output_register)
@@ -175,6 +205,16 @@ class GenericApModule(CpxApModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
+        # check if supported
+        supported_product_categories = [
+            ProductCategory.ANALOG.value,
+            ProductCategory.DIGITAL.value,
+        ]
+        if self.product_category not in supported_product_categories:
+            raise NotImplementedError(
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
+            )
+
         if self.output_channels:
             channel_range_check(channel, len(self.output_channels))
 
@@ -205,12 +245,23 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        if self.output_channels[channel].data_type == "BOOL":
-            self.write_channel(channel, True)
-        else:
+        # check if supported
+        supported_product_categories = [
+            ProductCategory.DIGITAL.value,
+        ]
+        if self.product_category not in supported_product_categories:
             raise NotImplementedError(
-                f"{self} has no {inspect.currentframe().f_code.co_name}"
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
+
+        if self.output_channels:
+            if self.output_channels[channel].data_type == "BOOL":
+                self.write_channel(channel, True)
+            else:
+                raise TypeError(
+                    f"{self} has has incompatible datatype "
+                    f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+                )
 
     @CpxBase.require_base
     def clear_channel(self, channel: int) -> None:
@@ -219,12 +270,23 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        if self.output_channels[channel].data_type == "BOOL":
-            self.write_channel(channel, False)
-        else:
+        # check if supported
+        supported_product_categories = [
+            ProductCategory.DIGITAL.value,
+        ]
+        if self.product_category not in supported_product_categories:
             raise NotImplementedError(
-                f"{self} has no {inspect.currentframe().f_code.co_name}"
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
+
+        if self.output_channels:
+            if self.output_channels[channel].data_type == "BOOL":
+                self.write_channel(channel, False)
+            else:
+                raise TypeError(
+                    f"{self} has has incompatible datatype "
+                    f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+                )
 
     @CpxBase.require_base
     def toggle_channel(self, channel: int) -> None:
@@ -233,11 +295,22 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        if self.output_channels[channel].data_type == "BOOL":
-            # get the relevant value from the register and write the inverse
-            value = self.read_channel(channel)
-            self.write_channel(channel, not value)
-        else:
+        # check if supported
+        supported_product_categories = [
+            ProductCategory.DIGITAL.value,
+        ]
+        if self.product_category not in supported_product_categories:
             raise NotImplementedError(
-                f"{self} has no {inspect.currentframe().f_code.co_name}"
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
+
+        if self.output_channels:
+            if self.output_channels[channel].data_type == "BOOL":
+                # get the relevant value from the register and write the inverse
+                value = self.read_channel(channel)
+                self.write_channel(channel, not value)
+            else:
+                raise TypeError(
+                    f"{self} has has incompatible datatype "
+                    f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+                )

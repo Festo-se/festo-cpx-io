@@ -85,14 +85,17 @@ class CpxApModuleBuilder:
 
     def build(self, apdd, module_code):
 
+        product_category = apdd["Variants"]["DeviceIdentification"]["ProductCategory"]
+        product_family = apdd["Variants"]["DeviceIdentification"]["ProductFamily"]
+
         variants = []
         for variant_dict in apdd["Variants"]["VariantList"]:
             variants.append(VariantBuilder().build_variant(variant_dict))
 
         Logging.logger.debug(f"Set up Variants: {variants}")
 
-        # TODO: module_code is only needed if one apdd includes more than one ModulCode.
-        # this is currently only known for IO-Link modules. Due to its complexity
+        # TODO: the build parameter <module_code> is only needed if one apdd includes more than
+        # one ModulCode. this is currently only known for IO-Link modules. Due to its complexity
         # it might be generally better to make an expeption for this type of module and use
         # the existing hardcoded file.
 
@@ -103,10 +106,10 @@ class CpxApModuleBuilder:
         if actual_variant:
             Logging.logger.debug(f"Set module variant to: {actual_variant}")
         else:
-            raise FileNotFoundError(f"Could not variant for ModuleCode {module_code}")
+            raise IndexError(f"Could not find variant for ModuleCode {module_code}")
 
         description = actual_variant.description
-        # TODO: Make better names
+        # TODO: Make better names??
         name = actual_variant.name.lower().replace("-", "_").replace(" ", "_")
         module_type = actual_variant.name
         configurator_code = actual_variant.variant_identification["ConfiguratorCode"]
@@ -169,6 +172,7 @@ class CpxApModuleBuilder:
         return GenericApModule(
             name,
             module_type,
+            product_category,
             input_channels,
             output_channels,
         )
