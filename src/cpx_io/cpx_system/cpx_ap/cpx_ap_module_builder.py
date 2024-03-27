@@ -2,6 +2,7 @@
 
 import json
 from dataclasses import dataclass
+from itertools import chain
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
@@ -168,11 +169,15 @@ class CpxApModuleBuilder:
         if parameters:
             parameter_list = parameters.get("ParameterList")
 
-        # TODO: provide more information for module
+        supported_parameter_ids = list(
+            chain.from_iterable(group.get("ParameterIds") for group in parameter_groups)
+        )
+
         return GenericApModule(
             name,
             module_type,
             product_category,
             input_channels,
             output_channels,
+            supported_parameter_ids,
         )

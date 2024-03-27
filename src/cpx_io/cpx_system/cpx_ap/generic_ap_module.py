@@ -6,8 +6,10 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
+import cpx_io.cpx_system.cpx_ap.cpx_ap_enums as ap_enums
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
-from cpx_io.utils.helpers import div_ceil, channel_range_check
+from cpx_io.utils.helpers import div_ceil, channel_range_check, value_range_check
 from cpx_io.utils.logging import Logging
 
 
@@ -70,6 +72,7 @@ class GenericApModule(CpxApModule):
         product_category,
         input_channels,
         output_channels,
+        supported_parameter_ids,
         *args,
         **kwargs,
     ):
@@ -79,6 +82,7 @@ class GenericApModule(CpxApModule):
         self.product_category = product_category
         self.input_channels = input_channels
         self.output_channels = output_channels
+        self.supported_parameter_ids = supported_parameter_ids
 
     def __repr__(self):
         return f"{self.name} (idx: {self.position}, type: {self.module_type})"
@@ -350,3 +354,75 @@ class GenericApModule(CpxApModule):
                     f"{self} has has incompatible datatype "
                     f"{self.output_channels[channel].data_type} (should be 'BOOL')"
                 )
+
+    # TODO: Maybe better to rename the configure functions to the actual parameter name
+    # because there might be similar functions for different modules that will be
+    # difficult to differentiate
+
+    @CpxBase.require_base
+    def configure_channel_range(
+        self, channel: int, value: ap_enums.ChannelRange | int
+    ) -> None:
+        """set the signal range and type of one channel
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: Channel range. Use ChannelRange from cpx_ap_enums or see datasheet.
+        :type value: ChannelRange | int
+        """
+
+        parameter_id = ParameterNameMap()["ChannelInputMode"].parameter_id
+
+        if parameter_id not in self.supported_parameter_ids:
+            raise NotImplementedError(
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
+            )
+
+        channel_range_check(channel, len(self.input_channels))
+
+        if isinstance(value, ap_enums.ChannelRange):
+            value = value.value
+
+        value_range_check(value, 10)
+
+        self.base.write_parameter(
+            self.position,
+            ParameterNameMap()["ChannelInputMode"],
+            value,
+            channel,
+        )
+
+        Logging.logger.info(f"{self.name}: Setting channel {channel} range to {value}")
+
+    @CpxBase.require_base
+    def configure_linear_scaling(self, channel: int, value: bool) -> None:
+        """Set linear scaling (Factory setting "False")
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param value: Channel linear scaling activated (True) or deactivated (False)
+        :type value: bool
+        """
+        # check if supported
+        parameter_id = ParameterNameMap()["ChannelInputMode"].parameter_id
+
+        if parameter_id not in self.supported_parameter_ids:
+            raise NotImplementedError(
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
+            )
+
+        if not isinstance(value, bool):
+            raise TypeError(f"State {value} must be of type bool (True or False)")
+
+        channel_range_check(channel, 4)
+
+        self.base.write_parameter(
+            self.position,
+            ParameterNameMap()["LinearScalingEnable"],
+            int(value),
+            channel,
+        )
+
+        Logging.logger.info(
+            f"{self.name}: Setting channel {channel} linear scaling to {value}"
+        )

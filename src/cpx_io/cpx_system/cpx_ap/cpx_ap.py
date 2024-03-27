@@ -99,6 +99,8 @@ class CpxAp(CpxBase):
             module = CpxApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
+    # TODO: This should also generate the ParameterMap and the cpx_ap_enums from the apdds
+
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated
