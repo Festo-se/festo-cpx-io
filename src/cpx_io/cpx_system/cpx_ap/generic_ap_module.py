@@ -95,6 +95,12 @@ class GenericApModule(CpxApModule):
         supported_product_categories = [
             ProductCategory.ANALOG.value,
             ProductCategory.DIGITAL.value,
+            ProductCategory.MPA_L.value,
+            ProductCategory.MPA_S.value,
+            ProductCategory.VTSA.value,
+            ProductCategory.VTUG.value,
+            ProductCategory.VTUX.value,
+            ProductCategory.VTOM.value,
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
@@ -165,6 +171,12 @@ class GenericApModule(CpxApModule):
         supported_product_categories = [
             ProductCategory.ANALOG.value,
             ProductCategory.DIGITAL.value,
+            ProductCategory.MPA_L.value,
+            ProductCategory.MPA_S.value,
+            ProductCategory.VTSA.value,
+            ProductCategory.VTUG.value,
+            ProductCategory.VTUX.value,
+            ProductCategory.VTOM.value,
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
@@ -209,6 +221,12 @@ class GenericApModule(CpxApModule):
         supported_product_categories = [
             ProductCategory.ANALOG.value,
             ProductCategory.DIGITAL.value,
+            ProductCategory.MPA_L.value,
+            ProductCategory.MPA_S.value,
+            ProductCategory.VTSA.value,
+            ProductCategory.VTUG.value,
+            ProductCategory.VTUX.value,
+            ProductCategory.VTOM.value,
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
@@ -248,6 +266,12 @@ class GenericApModule(CpxApModule):
         # check if supported
         supported_product_categories = [
             ProductCategory.DIGITAL.value,
+            ProductCategory.MPA_L.value,
+            ProductCategory.MPA_S.value,
+            ProductCategory.VTSA.value,
+            ProductCategory.VTUG.value,
+            ProductCategory.VTUX.value,
+            ProductCategory.VTOM.value,
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
@@ -273,6 +297,12 @@ class GenericApModule(CpxApModule):
         # check if supported
         supported_product_categories = [
             ProductCategory.DIGITAL.value,
+            ProductCategory.MPA_L.value,
+            ProductCategory.MPA_S.value,
+            ProductCategory.VTSA.value,
+            ProductCategory.VTUG.value,
+            ProductCategory.VTUX.value,
+            ProductCategory.VTOM.value,
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
@@ -298,6 +328,12 @@ class GenericApModule(CpxApModule):
         # check if supported
         supported_product_categories = [
             ProductCategory.DIGITAL.value,
+            ProductCategory.MPA_L.value,
+            ProductCategory.MPA_S.value,
+            ProductCategory.VTSA.value,
+            ProductCategory.VTUG.value,
+            ProductCategory.VTUX.value,
+            ProductCategory.VTOM.value,
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
