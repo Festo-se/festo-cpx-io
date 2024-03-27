@@ -132,7 +132,11 @@ class CpxAp(CpxBase):
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             json_data = response.json()
-            apdd_name = json_data["Variants"]["DeviceImage"].rstrip(".svg")
+            # currently the only module with more than one variant is 4IOL. The order text for all
+            # variants is the same, so OrderText of the first variant is used for naming the apdd
+            apdd_name = json_data["Variants"]["VariantList"][0][
+                "VariantIdentification"
+            ]["OrderText"]
             output_file_path = (
                 apdd_path
                 + "/"
