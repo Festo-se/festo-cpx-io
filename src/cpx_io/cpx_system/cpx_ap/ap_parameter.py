@@ -1,9 +1,22 @@
 """Contains functions which provide mapping of parameter types."""
 
 import struct
+from dataclasses import dataclass
 from typing import Any
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.cpx_ap.parameter import Parameter
+
+
+@dataclass
+class Parameter:
+    """Parameter dataclass"""
+
+    parameter_id: int
+    array_size: int
+    data_type: str
+    default_value: int
+    description: str
+    name: str
+
 
 TYPE_TO_FORMAT_CHAR = {
     "BOOL": "?",

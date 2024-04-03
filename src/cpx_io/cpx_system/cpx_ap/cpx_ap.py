@@ -10,10 +10,13 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import CpxApModuleBuilder
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap.parameter import Parameter
 
-from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
-from cpx_io.cpx_system.cpx_ap.parameter_packing import parameter_pack, parameter_unpack
+from cpx_io.cpx_system.cpx_ap import ap_registers
+from cpx_io.cpx_system.cpx_ap.ap_parameter import (
+    Parameter,
+    parameter_pack,
+    parameter_unpack,
+)
 from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
 
@@ -170,11 +173,11 @@ class CpxAp(CpxBase):
         """
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
         registers = timeout_ms.to_bytes(length=4, byteorder="little")
-        self.write_reg_data(registers, cpx_ap_registers.TIMEOUT.register_address)
+        self.write_reg_data(registers, ap_registers.TIMEOUT.register_address)
 
         # Check if it actually succeeded
         indata = int.from_bytes(
-            self.read_reg_data(*cpx_ap_registers.TIMEOUT),
+            self.read_reg_data(*ap_registers.TIMEOUT),
             byteorder="little",
             signed=False,
         )
@@ -192,8 +195,8 @@ class CpxAp(CpxBase):
         # if the module is a bus-module, the in- and output registers have to be set initially for base
         # TODO: check if this module_class is correct!
         if info.module_class == 100:
-            self.next_output_register = cpx_ap_registers.OUTPUTS.register_address
-            self.next_input_register = cpx_ap_registers.INPUTS.register_address
+            self.next_output_register = ap_registers.OUTPUTS.register_address
+            self.next_input_register = ap_registers.INPUTS.register_address
         module.configure(self, len(self._modules))
         self._modules.append(module)
         self.update_module_names()
@@ -206,7 +209,7 @@ class CpxAp(CpxBase):
         :return: Number of the total amount of connected modules
         :rtype: int
         """
-        reg = self.read_reg_data(*cpx_ap_registers.MODULE_COUNT)
+        reg = self.read_reg_data(*ap_registers.MODULE_COUNT)
         value = int.from_bytes(reg, byteorder="little")
         Logging.logger.debug(f"Total module count: {value}")
         return value
@@ -227,58 +230,56 @@ class CpxAp(CpxBase):
         info = self.ModuleInformation(
             module_code=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.MODULE_CODE, position)
+                    *self._module_offset(ap_registers.MODULE_CODE, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             module_class=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.MODULE_CLASS, position)
+                    *self._module_offset(ap_registers.MODULE_CLASS, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             communication_profiles=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(
-                        cpx_ap_registers.COMMUNICATION_PROFILE, position
-                    )
+                    *self._module_offset(ap_registers.COMMUNICATION_PROFILE, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             input_size=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.INPUT_SIZE, position)
+                    *self._module_offset(ap_registers.INPUT_SIZE, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             input_channels=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.INPUT_CHANNELS, position)
+                    *self._module_offset(ap_registers.INPUT_CHANNELS, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             output_size=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.OUTPUT_SIZE, position)
+                    *self._module_offset(ap_registers.OUTPUT_SIZE, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             output_channels=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.OUTPUT_CHANNELS, position)
+                    *self._module_offset(ap_registers.OUTPUT_CHANNELS, position)
                 ),
                 byteorder="little",
                 signed=False,
             ),
             hw_version=int.from_bytes(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.HW_VERSION, position)
+                    *self._module_offset(ap_registers.HW_VERSION, position)
                 ),
                 byteorder="little",
                 signed=False,
@@ -288,14 +289,14 @@ class CpxAp(CpxBase):
                 for x in struct.unpack(
                     "<HHH",
                     self.read_reg_data(
-                        *self._module_offset(cpx_ap_registers.FW_VERSION, position)
+                        *self._module_offset(ap_registers.FW_VERSION, position)
                     ),
                 )
             ),
             serial_number=hex(
                 int.from_bytes(
                     self.read_reg_data(
-                        *self._module_offset(cpx_ap_registers.SERIAL_NUMBER, position)
+                        *self._module_offset(ap_registers.SERIAL_NUMBER, position)
                     ),
                     byteorder="little",
                     signed=False,
@@ -303,14 +304,14 @@ class CpxAp(CpxBase):
             ),
             product_key=(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.PRODUCT_KEY, position)
+                    *self._module_offset(ap_registers.PRODUCT_KEY, position)
                 )
                 .decode("ascii")
                 .strip("\x00")
             ),
             order_text=(
                 self.read_reg_data(
-                    *self._module_offset(cpx_ap_registers.ORDER_TEXT, position)
+                    *self._module_offset(ap_registers.ORDER_TEXT, position)
                 )
                 .decode("ascii")
                 .strip("\x00")
@@ -377,7 +378,7 @@ class CpxAp(CpxBase):
         :type data: bytes
         """
 
-        param_reg = cpx_ap_registers.PARAMETERS.register_address
+        param_reg = ap_registers.PARAMETERS.register_address
         # module indexing starts with 1 (see datasheet)
         module_index = (position + 1).to_bytes(2, byteorder="little")
         param_id = param_id.to_bytes(2, byteorder="little")
@@ -441,7 +442,7 @@ class CpxAp(CpxBase):
         :rtype: bytes
         """
 
-        param_reg = cpx_ap_registers.PARAMETERS.register_address
+        param_reg = ap_registers.PARAMETERS.register_address
         # module indexing starts with 1 (see datasheet)
         module_index = (position + 1).to_bytes(2, byteorder="little")
         param_id = param_id.to_bytes(2, byteorder="little")

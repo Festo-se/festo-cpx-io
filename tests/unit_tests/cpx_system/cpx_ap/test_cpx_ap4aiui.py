@@ -6,7 +6,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import TempUnit, ChannelRange
+from cpx_io.cpx_system.cpx_ap.ap_enums import TempUnit, ChannelRange
 
 
 class TestCpxAp4AiUI:

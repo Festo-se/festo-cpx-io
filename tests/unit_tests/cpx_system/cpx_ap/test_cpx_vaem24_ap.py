@@ -7,7 +7,7 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply, FailState
+from cpx_io.cpx_system.cpx_ap.ap_enums import LoadSupply, FailState
 
 
 class TestVaemAP24:

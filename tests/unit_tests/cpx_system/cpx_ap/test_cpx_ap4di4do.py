@@ -6,7 +6,7 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
 from cpx_io.utils.boollist import boollist_to_bytes
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime, LoadSupply, FailState
+from cpx_io.cpx_system.cpx_ap.ap_enums import DebounceTime, LoadSupply, FailState
 
 
 class TestCpxAp4Di4Do:

@@ -5,7 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import DebounceTime
+from cpx_io.cpx_system.cpx_ap.ap_enums import DebounceTime
 
 
 class TestCpxAp8Di:

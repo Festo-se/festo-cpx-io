@@ -1,15 +1,12 @@
 """Tests for cpx-ap system"""
 
 import time
-import pytest
 import struct
+import pytest
 
-from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
+from cpx_io.cpx_system.cpx_ap.ap_enums import (
     LoadSupply,
     FailState,
     ChannelRange,

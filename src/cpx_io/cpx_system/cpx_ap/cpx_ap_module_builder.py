@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from itertools import chain
-from cpx_io.cpx_system.cpx_ap.parameter import Parameter
+from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.logging import Logging
 

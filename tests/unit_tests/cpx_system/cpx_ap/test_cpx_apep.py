@@ -5,7 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply
+from cpx_io.cpx_system.cpx_ap.ap_enums import LoadSupply
 
 
 class TestCpxApEp:

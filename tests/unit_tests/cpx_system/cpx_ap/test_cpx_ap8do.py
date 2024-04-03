@@ -6,7 +6,7 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
 from cpx_io.utils.boollist import boollist_to_bytes
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import LoadSupply, FailState
+from cpx_io.cpx_system.cpx_ap.ap_enums import LoadSupply, FailState
 
 
 class TestCpxAp8Do:
