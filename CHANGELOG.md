@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More examples
 
 ### Changed
+- Exchanged parameter mapping with read out information from ap system
+- CPX-AP-*-EP: read_parameters() renamed to read_system_parameters()
 - Determine parameter ids based on .csv.
 - configure functions don't accept strings anymore. Instead use enums from cpx_ap/e_enums
 - Moved read_diagnostics_status from CpxApEp to CpxAp

@@ -3,7 +3,7 @@
 import struct
 from typing import Any
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.parameter_mapping import ParameterMapItem
+from cpx_io.cpx_system.cpx_ap.parameter import Parameter
 
 TYPE_TO_FORMAT_CHAR = {
     "BOOL": "?",
@@ -22,13 +22,13 @@ TYPE_TO_FORMAT_CHAR = {
 
 
 def parameter_unpack(
-    parameter: ParameterMapItem, raw: bytes, forced_format: str = None
+    parameter: Parameter, raw: bytes, forced_format: str = None
 ) -> Any:
     """Unpacks a raw byte value to specific type.
     The type is determined by the parameters included in ParameterMap.
 
     param parameter: Parameter that should be unpacked.
-    type parameter: ParameterMapItem
+    type parameter: Parameter
     param raw: Raw bytes value that should be unpacked.
     type raw: bytes
     param forced_format: Optional format char (see struct) to force the unpacking strategy.
@@ -36,7 +36,7 @@ def parameter_unpack(
     return: Unpacked value with determined type
     rtype: Any
     """
-    array_size = int(parameter.size) if parameter.size != "-" else 1
+    array_size = parameter.array_size if parameter.array_size else 1
 
     if forced_format:
         Logging.logger.info(f"Parameter {parameter} forced to type ({forced_format})")
@@ -67,13 +67,13 @@ def parameter_unpack(
 
 
 def parameter_pack(
-    parameter: ParameterMapItem, value: Any, forced_format: str = None
+    parameter: Parameter, value: Any, forced_format: str = None
 ) -> bytes:
     """Packs a provided value to raw bytes object.
     The type is determined by the parameters included in ParameterMap.
 
      param parameter: Parameter of value that should be unpacked.
-     type parameter: ParameterMapItem
+     type parameter: Parameter
      param value: Value that should be packed.
      type value: Any
      param forced_format: Optional format char (see struct) to force the packing strategy.
@@ -83,7 +83,7 @@ def parameter_pack(
      rtype: bytes
     """
     if not forced_format:
-        array_size = int(parameter.size) if parameter.size != "-" else 1
+        array_size = parameter.array_size if parameter.array_size else 1
         parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 

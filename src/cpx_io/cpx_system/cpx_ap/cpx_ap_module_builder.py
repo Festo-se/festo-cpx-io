@@ -1,12 +1,9 @@
 """AP module Builder from APDD"""
 
-import json
 from dataclasses import dataclass
 from itertools import chain
-from cpx_io.cpx_system.cpx_base import CpxBase
+from cpx_io.cpx_system.cpx_ap.parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
-from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
-from cpx_io.utils.helpers import div_ceil, channel_range_check
 from cpx_io.utils.logging import Logging
 
 
@@ -82,9 +79,24 @@ class VariantBuilder:
         )
 
 
+class ParameterBuilder:
+    """ParameterBuilder"""
+
+    def build_parameter(self, parameter_id, parameter_dict):
+        return Parameter(
+            parameter_id,
+            parameter_dict.get("ArraySize"),
+            parameter_dict.get("DataType"),
+            parameter_dict.get("DefaultValue"),
+            parameter_dict.get("Description"),
+            parameter_dict.get("Name"),
+        )
+
+
 class CpxApModuleBuilder:
 
     def build(self, apdd, module_code):
+        # TODO: Eventuell: Wenn IO-Link Modul, dann lege das nicht-generische an (könnte auch woanders sein, z.B. beim add_module von cpx_ap)
 
         product_category = apdd["Variants"]["DeviceIdentification"]["ProductCategory"]
         product_family = apdd["Variants"]["DeviceIdentification"]["ProductFamily"]
@@ -110,7 +122,7 @@ class CpxApModuleBuilder:
             raise IndexError(f"Could not find variant for ModuleCode {module_code}")
 
         description = actual_variant.description
-        # TODO: Make better names??
+        # TODO: Make better names?? Names seem to be numbered always and not only if duplicate modules
         name = actual_variant.name.lower().replace("-", "_").replace(" ", "_")
         module_type = actual_variant.name
         configurator_code = actual_variant.variant_identification["ConfiguratorCode"]
@@ -165,10 +177,18 @@ class CpxApModuleBuilder:
             parameter_ids[pg.get("Name")] = pg.get("ParameterIds")
 
         # setup parameters
-        parameters = apdd.get("Parameters")
-        if parameters:
-            parameter_list = parameters.get("ParameterList")
+        apdd_parameters = apdd.get("Parameters")
+        if apdd_parameters:
+            parameter_list = apdd_parameters.get("ParameterList")
 
+        parameters = {
+            p["ParameterId"]: ParameterBuilder().build_parameter(
+                p["ParameterId"], p["DataDefinition"]
+            )
+            for p in parameter_list
+        }
+
+        # TODO: Not needed, can be extracted from parameters
         supported_parameter_ids = list(
             chain.from_iterable(group.get("ParameterIds") for group in parameter_groups)
         )
@@ -180,4 +200,5 @@ class CpxApModuleBuilder:
             input_channels,
             output_channels,
             supported_parameter_ids,
+            parameters,
         )

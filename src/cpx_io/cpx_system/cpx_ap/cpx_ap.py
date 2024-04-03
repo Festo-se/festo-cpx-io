@@ -10,9 +10,9 @@ from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import CpxApModuleBuilder
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap.parameter import Parameter
 
 from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
-from cpx_io.cpx_system.parameter_mapping import ParameterNameMap, ParameterMapItem
 from cpx_io.cpx_system.cpx_ap.parameter_packing import parameter_pack, parameter_unpack
 from cpx_io.utils.helpers import div_ceil
 from cpx_io.utils.logging import Logging
@@ -326,11 +326,13 @@ class CpxAp(CpxBase):
         :rtype: list[Diagnostics]
         """
         # overwrite the type size with the actual module count + 1 (see datasheet)
-        ap_diagnosis_parameter = ParameterMapItem(
-            ParameterNameMap()["ApDiagnosisStatus"].parameter_id,
-            name="ApDiagnosisStatus",
-            data_type="UINT8",
-            size=self.read_module_count() + 1,
+        ap_diagnosis_parameter = Parameter(
+            parameter_id=20196,
+            array_size=self.read_module_count() + 1,
+            data_type="UINT8",  # might be CHAR??
+            default_value=0,
+            description="AP diagnosis status for each Module",
+            name="AP diagnosis status",
         )
 
         reg = self.read_parameter(0, ap_diagnosis_parameter)
@@ -339,7 +341,7 @@ class CpxAp(CpxBase):
     def write_parameter(
         self,
         position: int,
-        parameter: ParameterMapItem,
+        parameter: Parameter,
         data: list[int] | int | bool,
         instance: int = 0,
     ) -> None:
@@ -350,7 +352,7 @@ class CpxAp(CpxBase):
         :param position: Module position index starting with 0
         :type position: int
         :param parameter: AP Parameter
-        :type parameter: ParameterMapItem
+        :type parameter: Parameter
         :param data: list of 16 bit signed integers, one signed 16 bit integer or bool to write
         :type data: list | int | bool
         :param instance: Parameter Instance (typically used to define the channel, see datasheet)
@@ -407,7 +409,7 @@ class CpxAp(CpxBase):
     def read_parameter(
         self,
         position: int,
-        parameter: ParameterMapItem,
+        parameter: Parameter,
         instance: int = 0,
     ) -> Any:
         """Read parameter
@@ -415,7 +417,7 @@ class CpxAp(CpxBase):
         :param position: Module position index starting with 0
         :type position: int
         :param parameter: AP Parameter
-        :type parameter: ParameterMapItem
+        :type parameter: Parameter
         :param instance: (optional) Parameter Instance (typically the channel, see datasheet)
         :type instance: int
         :return: Parameter value

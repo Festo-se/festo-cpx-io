@@ -5,7 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import div_ceil
-from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
+from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import Parameter
 
 
 class CpxApModule(CpxModule):
@@ -53,30 +53,94 @@ class CpxApModule(CpxModule):
         """
         params = self.ModuleParameters(
             fieldbus_serial_number=self.base.read_parameter(
-                self.position, ParameterNameMap()["FieldbusSerialNumber"]
+                self.position,
+                Parameter(
+                    parameter_id=246,
+                    array_size=None,
+                    data_type="UINT32",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             ),
             product_key=self.base.read_parameter(
-                self.position, ParameterNameMap()["Productkey"]
+                self.position,
+                Parameter(
+                    parameter_id=791,
+                    array_size=12,
+                    data_type="CHAR",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             ),
             firmware_version=self.base.read_parameter(
-                self.position, ParameterNameMap()["FirmwareVersionString"]
+                self.position,
+                Parameter(
+                    parameter_id=960,
+                    array_size=30,
+                    data_type="CHAR",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             ),
             module_code=self.base.read_parameter(
-                self.position, ParameterNameMap()["ModuleCode"]
+                self.position,
+                Parameter(
+                    parameter_id=20000,
+                    array_size=None,
+                    data_type="UINT32",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             ),
             temp_asic=self.base.read_parameter(
-                self.position, ParameterNameMap()["TemperatureValueASIC"]
+                self.position,
+                Parameter(
+                    parameter_id=20085,
+                    array_size=None,
+                    data_type="INT16",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             ),
             logic_voltage=self.base.read_parameter(
-                self.position, ParameterNameMap()["UElsenValue"]
+                self.position,
+                Parameter(
+                    parameter_id=20087,
+                    array_size=None,
+                    data_type="UINT16",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             )
             / 1000.0,
             load_voltage=self.base.read_parameter(
-                self.position, ParameterNameMap()["ULoadValue"]
+                self.position,
+                Parameter(
+                    parameter_id=20088,
+                    array_size=None,
+                    data_type="UINT16",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             )
             / 1000.0,
             hw_version=self.base.read_parameter(
-                self.position, ParameterNameMap()["HardwareVersion"]
+                self.position,
+                Parameter(
+                    parameter_id=20093,
+                    array_size=None,
+                    data_type="UINT8",
+                    default_value=0,
+                    description="",
+                    name="",
+                ),
             ),
         )
         Logging.logger.info(f"{self.name}: Reading AP parameters: {params}")
