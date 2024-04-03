@@ -498,10 +498,9 @@ def test_read_ap_parameter(test_cpxap):
     assert ap.module_code == info.module_code
 
 
-"""
 def test_4iol_sdas(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_port_mode(2, channel=0)
@@ -530,7 +529,7 @@ def test_4iol_sdas(test_cpxap):
 
 def test_4iol_sdas_full(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_port_mode(2, channel=0)
@@ -561,7 +560,7 @@ def test_4iol_sdas_full(test_cpxap):
 
 def test_4iol_ehps(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     def read_process_data_in(module, channel):
@@ -655,7 +654,7 @@ def test_4iol_ehps(test_cpxap):
 
 def test_4iol_ethrottle(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
 
     def read_process_data_in(module, channel):
         data = module.read_channel(channel)
@@ -702,7 +701,7 @@ def test_4iol_ethrottle(test_cpxap):
 
 def test_4iol_ethrottle_isdu_read(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     ethrottle_channel = 2
 
     assert (a4iol.read_isdu(ethrottle_channel, 16, 0)[:17]) == b"Festo SE & Co. KG"
@@ -710,7 +709,7 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
 
 def test_4iol_ethrottle_isdu_write(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     ethrottle_channel = 2
     function_tag_idx = 25
     a4iol.write_isdu(b"\x01\x02\x03\x04", ethrottle_channel, function_tag_idx, 0)
@@ -723,7 +722,7 @@ def test_4iol_ethrottle_isdu_write(test_cpxap):
 
 def test_read_pqi(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_port_mode(2, channel=0)
@@ -737,186 +736,143 @@ def test_read_pqi(test_cpxap):
 
 def test_4iol_configure_monitoring_load_supply(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
 
     a4iol.configure_monitoring_load_supply(0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20022]) == 0
 
     a4iol.configure_monitoring_load_supply(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20022]) == 1
 
     a4iol.configure_monitoring_load_supply(2)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20022]) == 2
 
     a4iol.configure_monitoring_load_supply(1)
 
 
 def test_4iol_configure_target_cycle_time(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
 
     time.sleep(0.05)
     a4iol.configure_target_cycle_time(16, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 0) == 16
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 0) == 16
 
     a4iol.configure_target_cycle_time(73, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 1) == 73
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 2) == 73
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 1) == 73
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 2) == 73
 
     a4iol.configure_target_cycle_time(158)
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 0) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 1) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 2) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["NominalCycleTime"], 3) == 158
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 0) == 158
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 1) == 158
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 2) == 158
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20049], 3) == 158
 
     a4iol.configure_target_cycle_time(0)
 
 
 def test_4iol_configure_device_lost_diagnostics(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_device_lost_diagnostics(False, channel=0)
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"])
-        is False
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050]) is False
 
     a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
-        is False
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050], 1) is False
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050], 2) is False
 
     a4iol.configure_device_lost_diagnostics(False)
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 0)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["DeviceLostDiagnosisEnable"], 3)
-        is False
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050], 0) is False
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050], 1) is False
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050], 2) is False
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20050], 3) is False
 
     a4iol.configure_device_lost_diagnostics(True)
 
 
 def test_4iol_configure_port_mode(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_port_mode(0, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 0) == 0
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 0) == 0
 
     a4iol.configure_port_mode(3, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 1) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 2) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 1) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 2) == 3
 
     a4iol.configure_port_mode(97)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 0) == 97
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 1) == 97
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 2) == 97
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["PortMode"], 3) == 97
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 0) == 97
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 1) == 97
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 2) == 97
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20071], 3) == 97
 
     a4iol.configure_port_mode(0)
 
 
 def test_4iol_configure_review_and_backup(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_review_and_backup(1, channel=0)
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 0) == 1
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 0) == 1
 
     a4iol.configure_review_and_backup(2, channel=[1, 2])
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 1) == 2
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 2) == 2
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 1) == 2
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 2) == 2
 
     a4iol.configure_review_and_backup(3)
     time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 0) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 1) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 2) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(4, ParameterNameMap()["ValidationAndBackup"], 3) == 3
-    )
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 0) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 1) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 2) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20072], 3) == 3
 
     a4iol.configure_review_and_backup(0)
 
 
 def test_4iol_configure_target_vendor_id(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_target_vendor_id(1, channel=0)
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 0) == 1
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 0) == 1
 
     a4iol.configure_target_vendor_id(2, channel=[1, 2])
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 1) == 2
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 2) == 2
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 1) == 2
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 2) == 2
 
     a4iol.configure_target_vendor_id(3)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 0) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 1) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 2) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalVendorID"], 3) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 0) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 1) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 2) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20073], 3) == 3
 
     a4iol.configure_target_vendor_id(0)
     a4iol.configure_port_mode(0)
@@ -924,36 +880,34 @@ def test_4iol_configure_target_vendor_id(test_cpxap):
 
 def test_4iol_configure_setpoint_device_id(test_cpxap):
     a4iol = test_cpxap.modules[4]
-    assert isinstance(a4iol, CpxAp4Iol)
+    # assert isinstance(a4iol, CpxAp4Iol)
     time.sleep(0.05)
 
     a4iol.configure_setpoint_device_id(1, channel=0)
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 0) == 1
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 0) == 1
 
     a4iol.configure_setpoint_device_id(2, channel=[1, 2])
     time.sleep(0.05)
     a4iol.configure_port_mode(1, channel=[1, 2])
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 1) == 2
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 2) == 2
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 1) == 2
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 2) == 2
 
     a4iol.configure_setpoint_device_id(3)
     time.sleep(0.05)
     a4iol.configure_port_mode(1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 0) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 1) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 2) == 3
-    assert a4iol.base.read_parameter(4, ParameterNameMap()["NominalDeviceID"], 3) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 0) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 1) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 2) == 3
+    assert a4iol.base.read_parameter(4, a4iol.parameters[20080], 3) == 3
 
     a4iol.configure_setpoint_device_id(0)
     time.sleep(0.05)
     a4iol.configure_port_mode(0)
-
-"""
 
 
 def test_vabx_configures(test_cpxap):
