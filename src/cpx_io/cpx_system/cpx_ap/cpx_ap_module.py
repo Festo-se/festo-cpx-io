@@ -5,7 +5,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import div_ceil
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import Parameter
+from cpx_io.cpx_system.cpx_ap.ap_module_builder import Parameter
 
 
 class CpxApModule(CpxModule):

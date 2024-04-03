@@ -1,7 +1,6 @@
 """AP module Builder from APDD"""
 
 from dataclasses import dataclass
-from itertools import chain
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.logging import Logging
@@ -44,6 +43,7 @@ class ChannelGroupBuilder:
     """ChannelGroupBuilder"""
 
     def build_channel_group(self, channel_group_dict):
+        """Builds one channel group"""
         return ChannelGroup(
             channel_group_dict.get("ChannelGroupId"),
             channel_group_dict.get("Channels"),
@@ -56,6 +56,7 @@ class ChannelBuilder:
     """ChannelBuilder"""
 
     def build_channel(self, channel_dict):
+        """Builds one channel"""
         return Channel(
             channel_dict.get("Bits"),
             channel_dict.get("ChannelId"),
@@ -71,6 +72,7 @@ class VariantBuilder:
     """VariantBuilder"""
 
     def build_variant(self, variant_dict):
+        """Builds one variant"""
         return Variant(
             variant_dict.get("Description"),
             variant_dict.get("Name"),
@@ -83,6 +85,7 @@ class ParameterBuilder:
     """ParameterBuilder"""
 
     def build_parameter(self, parameter_id, parameter_dict):
+        """Builds one parameter"""
         return Parameter(
             parameter_id,
             parameter_dict.get("ArraySize"),
@@ -96,7 +99,7 @@ class ParameterBuilder:
 class CpxApModuleBuilder:
 
     def build(self, apdd, module_code):
-        # TODO: Eventuell: Wenn IO-Link Modul, dann lege das nicht-generische an (könnte auch woanders sein, z.B. beim add_module von cpx_ap)
+        """Build function for generic ap module"""
 
         product_category = apdd["Variants"]["DeviceIdentification"]["ProductCategory"]
         product_family = apdd["Variants"]["DeviceIdentification"]["ProductFamily"]
@@ -106,11 +109,6 @@ class CpxApModuleBuilder:
             variants.append(VariantBuilder().build_variant(variant_dict))
 
         Logging.logger.debug(f"Set up Variants: {variants}")
-
-        # TODO: the build parameter <module_code> is only needed if one apdd includes more than
-        # one ModulCode. this is currently only known for IO-Link modules. Due to its complexity
-        # it might be generally better to make an expeption for this type of module and use
-        # the existing hardcoded file.
 
         for v in variants:
             if v.variant_identification["ModuleCode"] == module_code:
@@ -123,6 +121,7 @@ class CpxApModuleBuilder:
 
         description = actual_variant.description
         # TODO: Make better names?? Names seem to be numbered always and not only if duplicate modules
+        # TODO: Use more information?
         name = actual_variant.name.lower().replace("-", "_").replace(" ", "_")
         module_type = actual_variant.name
         configurator_code = actual_variant.variant_identification["ConfiguratorCode"]
@@ -160,8 +159,6 @@ class CpxApModuleBuilder:
 
         Logging.logger.debug(f"Set up Channels: {channels}")
 
-        # TODO: Maybe it would be better to just provide amount of i/o channels and type to module
-        # split in in/out channels and set instance variables
         input_channels = [c for c in channels if c.direction == "in"]
         output_channels = [c for c in channels if c.direction == "out"]
 
@@ -188,17 +185,12 @@ class CpxApModuleBuilder:
             for p in parameter_list
         }
 
-        # TODO: Not needed, can be extracted from parameters
-        supported_parameter_ids = list(
-            chain.from_iterable(group.get("ParameterIds") for group in parameter_groups)
-        )
-
         return GenericApModule(
             name,
             module_type,
             product_category,
             input_channels,
             output_channels,
-            supported_parameter_ids,
             parameters,
+            enum_data_types,
         )

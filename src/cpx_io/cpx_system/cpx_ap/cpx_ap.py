@@ -1,15 +1,16 @@
 """CPX-AP module implementations"""
 
-import os
-import platformdirs
-import struct
-import requests
 import json
+import struct
 from typing import Any
 from dataclasses import dataclass
+import os
+import platformdirs
+import requests
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module_builder import CpxApModuleBuilder
+from cpx_io.cpx_system.cpx_ap.ap_module_builder import CpxApModuleBuilder
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 
 from cpx_io.cpx_system.cpx_ap import ap_registers
 from cpx_io.cpx_system.cpx_ap.ap_parameter import (
@@ -102,8 +103,6 @@ class CpxAp(CpxBase):
             module = CpxApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
-    # TODO: This should also generate the ParameterMap and the cpx_ap_enums from the apdds
-
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated
@@ -192,11 +191,12 @@ class CpxAp(CpxBase):
         :type info: ModuleInformation
         """
         module.update_information(info)
-        # if the module is a bus-module, the in- and output registers have to be set initially for base
-        # TODO: check if this module_class is correct!
-        if info.module_class == 100:
+
+        # if the module is a bus-module, the in- and output registers have to be set initially
+        if info.module_class == ProductCategory.INTERFACE:
             self.next_output_register = ap_registers.OUTPUTS.register_address
             self.next_input_register = ap_registers.INPUTS.register_address
+
         module.configure(self, len(self._modules))
         self._modules.append(module)
         self.update_module_names()

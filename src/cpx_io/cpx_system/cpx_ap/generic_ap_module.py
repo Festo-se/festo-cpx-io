@@ -2,6 +2,7 @@
 
 import struct
 import inspect
+from typing import Any
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
@@ -94,8 +95,8 @@ class GenericApModule(CpxApModule):
         product_category,
         input_channels,
         output_channels,
-        supported_parameter_ids,
         parameters,
+        enum_data_types,
         *args,
         **kwargs,
     ):
@@ -105,8 +106,8 @@ class GenericApModule(CpxApModule):
         self.product_category = product_category
         self.input_channels = input_channels
         self.output_channels = output_channels
-        self.supported_parameter_ids = supported_parameter_ids
         self.parameters = parameters
+        self.enum_data_types = enum_data_types
         self.fieldbus_parameters = None
 
     def configure(self, *args, **kwargs):
@@ -134,11 +135,11 @@ class GenericApModule(CpxApModule):
 
         if self.product_category == ProductCategory.IO_LINK:
             io_link_variant = self.base.read_parameter(
-                self.position, self.parameters[20090]
+                self.position, self.parameters.get(20090)
             )
 
             activation_operating_voltage = self.base.read_parameter(
-                self.position, self.parameters[20097]
+                self.position, self.parameters.get(20097)
             )
 
             params.io_link_variant = io_link_variant
@@ -146,7 +147,8 @@ class GenericApModule(CpxApModule):
         return params
 
     @CpxBase.require_base
-    def read_channels(self):
+    def read_channels(self) -> Any:
+        """Read all channels from module and interpret them as the module intends"""
         # check if supported
         supported_product_categories = [
             ProductCategory.ANALOG.value,
@@ -161,7 +163,7 @@ class GenericApModule(CpxApModule):
         ]
         if self.product_category not in supported_product_categories:
             raise NotImplementedError(
-                f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         # IO-Link special read
@@ -219,7 +221,7 @@ class GenericApModule(CpxApModule):
     @CpxBase.require_base
     def read_channel(
         self, channel: int, outputs_only: bool = False, full_size: bool = False
-    ) -> bool:
+    ) -> Any:
         """read back the value of one channel
         For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
         if the outputs are numbered WITH (after) the inputs ("False", default), so the range
@@ -231,6 +233,9 @@ class GenericApModule(CpxApModule):
         :type channel: int
         :param outputs_only: Outputs should be numbered independend from inputs, optional
         :type outputs_only: bool
+        :param full_size: IO-Link channes should be returned in full datalength and not
+        limited to the slave information datalength
+        :type full_size: bool
         :return: Value of the channel
         :rtype: bool
         """
@@ -255,7 +260,8 @@ class GenericApModule(CpxApModule):
     def write_channels(self, data: list) -> None:
         """write all channels with a list of values
 
-        :param data: list of values for each output channel
+        :param data: list of values for each output channel. The type of the list elements must
+        fit to the module type
         :type data: list
         """
         # check if supported
@@ -273,6 +279,7 @@ class GenericApModule(CpxApModule):
             raise NotImplementedError(
                 f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
             )
+
         # IO-Link special (comment)
         # IO-Link does not support multiple channel writes as it seems to be unnessesary
 
@@ -303,13 +310,13 @@ class GenericApModule(CpxApModule):
             )
 
     @CpxBase.require_base
-    def write_channel(self, channel: int, value: bool | int | bytes) -> None:
+    def write_channel(self, channel: int, value: Any) -> None:
         """set one channel value
 
         :param channel: Channel number, starting with 0
         :type channel: int
         :value: Value that should be written to the channel
-        :type value: bool
+        :type value: Any
         """
         # check if supported
         supported_product_categories = [
@@ -456,12 +463,6 @@ class GenericApModule(CpxApModule):
                     f"{self.output_channels[channel].data_type} (should be 'BOOL')"
                 )
 
-    # TODO: Maybe better to rename the configure functions to the actual parameter name
-    # because there might be similar functions for different modules that will be
-    # difficult to differentiate
-
-    # TODO: Delete all the parametermap stuff and data folder ...
-
     @CpxBase.require_base
     def configure_channel_temp_unit(
         self, channel: int, value: ap_enums.TempUnit | int
@@ -476,15 +477,15 @@ class GenericApModule(CpxApModule):
         :param value: Channel unit. Use TempUnit from cpx_ap_enums or see datasheet.
         :type value: TempUnit | int
         """
-        parameter = self.parameters[20032]
+        parameter = self.parameters.get(20032)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         channel_range_check(channel, len(self.input_channels))
-
+        # TODO: Do this with self.enum_data_types
         if isinstance(value, ap_enums.TempUnit):
             value = value.value
 
@@ -523,9 +524,9 @@ class GenericApModule(CpxApModule):
         :param value: Channel range. Use ChannelRange from cpx_ap_enums or see datasheet.
         :type value: ChannelRange | int
         """
-        parameter = self.parameters[20043]
+        parameter = self.parameters.get(20043)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -562,11 +563,14 @@ class GenericApModule(CpxApModule):
         :param lower: Channel lower limit in range -32768 ... 32767
         :type lower: int
         """
-        parameter_upper = self.parameters[20044]
-        parameter_lower = self.parameters[20045]
+        parameter_upper = self.parameters.get(20044)
+        parameter_lower = self.parameters.get(20045)
+
+        min_value = parameter_lower.default_value
+        max_value = parameter_upper.default_value
 
         if any(
-            p not in self.supported_parameter_ids
+            p is None
             for p in [parameter_upper.parameter_id, parameter_lower.parameter_id]
         ):
             raise NotImplementedError(
@@ -576,16 +580,16 @@ class GenericApModule(CpxApModule):
         channel_range_check(channel, len(self.input_channels))
 
         self.configure_linear_scaling(channel, True)
-        # TODO: Add min/max limits from parameter instead of hardcoding
+
         if isinstance(lower, int):
-            if not -32768 <= lower <= 32767:
+            if not min_value <= lower <= max_value:
                 raise ValueError(
-                    f"Values for low {lower} must be between -32768 and 32767"
+                    f"Values for low {lower} must be between {min_value} and {max_value}"
                 )
         if isinstance(upper, int):
-            if not -32768 <= upper <= 32767:
+            if not min_value <= upper <= max_value:
                 raise ValueError(
-                    f"Values for high {upper} must be between -32768 and 32767"
+                    f"Values for high {upper} must be between {min_value} and {max_value}"
                 )
 
         if lower is None and isinstance(upper, int):
@@ -632,9 +636,9 @@ class GenericApModule(CpxApModule):
         :param value: Channel hysteresis limit in range 0 ... 65535
         :type value: int
         """
-        parameter = self.parameters[20046]
+        parameter = self.parameters.get(20046)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -664,9 +668,9 @@ class GenericApModule(CpxApModule):
         :param value: Channel smoothing potency in range of 0 ... 15
         :type value: int
         """
-        parameter = self.parameters[20107]
+        parameter = self.parameters.get(20107)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -695,9 +699,9 @@ class GenericApModule(CpxApModule):
         :param value: Channel linear scaling activated (True) or deactivated (False)
         :type value: bool
         """
-        parameter = self.parameters[20111]
+        parameter = self.parameters.get(20111)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -734,9 +738,9 @@ class GenericApModule(CpxApModule):
         see datasheet.
         :type value: DebounceTime | int
         """
-        parameter = self.parameters[20014]
+        parameter = self.parameters.get(20014)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -768,9 +772,9 @@ class GenericApModule(CpxApModule):
         or see datasheet.
         :type value: LoadSupply | int
         """
-        parameter = self.parameters[20022]
+        parameter = self.parameters.get(20022)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -801,9 +805,9 @@ class GenericApModule(CpxApModule):
         from cpx_ap_enums or see datasheet.
         :type value: FailState | int
         """
-        parameter = self.parameters[20052]
+        parameter = self.parameters.get(20052)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -829,30 +833,32 @@ class GenericApModule(CpxApModule):
         :rtype: Parameters
         """
         params = SystemParameters(
-            dhcp_enable=self.base.read_parameter(self.position, self.parameters[12000]),
+            dhcp_enable=self.base.read_parameter(
+                self.position, self.parameters.get(12000)
+            ),
             ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters[12001])
+                self.base.read_parameter(self.position, self.parameters.get(12001))
             ),
             subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters[12002]),
+                self.base.read_parameter(self.position, self.parameters.get(12002)),
             ),
             gateway_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters[12003])
+                self.base.read_parameter(self.position, self.parameters.get(12003))
             ),
             active_ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters[12004])
+                self.base.read_parameter(self.position, self.parameters.get(12004))
             ),
             active_subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters[12005])
+                self.base.read_parameter(self.position, self.parameters.get(12005))
             ),
             active_gateway_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters[12006])
+                self.base.read_parameter(self.position, self.parameters.get(12006))
             ),
             mac_address=convert_to_mac_string(
-                self.base.read_parameter(self.position, self.parameters[12007])
+                self.base.read_parameter(self.position, self.parameters.get(12007))
             ),
             setup_monitoring_load_supply=self.base.read_parameter(
-                self.position, self.parameters[20022]
+                self.position, self.parameters.get(20022)
             )
             & 0xFF,
         )
@@ -866,12 +872,9 @@ class GenericApModule(CpxApModule):
         :param value: Value to write to the module (True to enable diagnosis)
         :type value: bool
         """
+        parameter = self.parameters.get(20021)
 
-        # TODO: this should be self.parameters.get(20021) so it returns None if parameter does not exist
-        parameter = self.parameters[20021]
-
-        # TODO: then this can be "if parameter is None:"
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -967,15 +970,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        parameter = self.parameters[20049]
+        parameter = self.parameters.get(20049)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         if channel is None:
-            channel = [0, 1, 2, 3]
+            channel = range(self.information.output_channels)
 
         allowed_values = {
             0: "0 ms",
@@ -1028,15 +1031,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        parameter = self.parameters[20050]
+        parameter = self.parameters.get(20050)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         if channel is None:
-            channel = [0, 1, 2, 3]
+            channel = range(self.information.output_channels)
 
         if isinstance(channel, int):
             channel = [channel]
@@ -1070,16 +1073,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        parameter = self.parameters[20071]
+        parameter = self.parameters.get(20071)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         if channel is None:
-            # TODO: get info from self
-            channel = [0, 1, 2, 3]
+            channel = range(self.information.output_channels)
 
         allowed_values = {
             0: "DEACTIVATED",
@@ -1123,9 +1125,9 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        parameter = self.parameters[20072]
+        parameter = self.parameters.get(20072)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
@@ -1134,7 +1136,7 @@ class GenericApModule(CpxApModule):
             value = value.value
 
         if channel is None:
-            channel = [0, 1, 2, 3]
+            channel = range(self.information.output_channels)
 
         allowed_values = {
             0: "no test",
@@ -1175,15 +1177,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        parameter = self.parameters[20073]
+        parameter = self.parameters.get(20073)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         if channel is None:
-            channel = [0, 1, 2, 3]
+            channel = range(self.information.output_channels)
 
         if isinstance(channel, int):
             channel = [channel]
@@ -1212,15 +1214,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0 or list of channels e.g. [0, 2], optional
         :type channel: int | list[int]
         """
-        parameter = self.parameters[20080]
+        parameter = self.parameters.get(20080)
 
-        if parameter.parameter_id not in self.supported_parameter_ids:
+        if parameter is None:
             raise NotImplementedError(
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
         if channel is None:
-            channel = [0, 1, 2, 3]
+            channel = range(self.information.output_channels)
 
         if isinstance(channel, int):
             channel = [channel]
@@ -1249,14 +1251,14 @@ class GenericApModule(CpxApModule):
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
-        param_port_status_info = self.parameters[20074]
-        param_revision_id = self.parameters[20075]
-        param_transmission_rate = self.parameters[20076]
-        param_actual_cycle_time = self.parameters[20077]
-        param_actual_vendor_id = self.parameters[20078]
-        param_actual_device_id = self.parameters[20079]
-        param_iolink_input_data_length = self.parameters[20108]
-        param_iolink_output_data_length = self.parameters[20109]
+        param_port_status_info = self.parameters.get(20074)
+        param_revision_id = self.parameters.get(20075)
+        param_transmission_rate = self.parameters.get(20076)
+        param_actual_cycle_time = self.parameters.get(20077)
+        param_actual_vendor_id = self.parameters.get(20078)
+        param_actual_device_id = self.parameters.get(20079)
+        param_iolink_input_data_length = self.parameters.get(20108)
+        param_iolink_output_data_length = self.parameters.get(20109)
 
         channel_params = []
 
