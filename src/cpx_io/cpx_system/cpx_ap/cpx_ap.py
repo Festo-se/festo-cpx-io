@@ -193,7 +193,9 @@ class CpxAp(CpxBase):
         module.update_information(info)
 
         # if the module is a bus-module, the in- and output registers have to be set initially
-        if info.module_class == ProductCategory.INTERFACE:
+        # TODO: this is probably wrong. module_class is probably something different than
+        # product category. This works because the values match but this needs investigation
+        if info.module_class == ProductCategory.CONTROLLERS.value:
             self.next_output_register = ap_registers.OUTPUTS.register_address
             self.next_input_register = ap_registers.INPUTS.register_address
 
