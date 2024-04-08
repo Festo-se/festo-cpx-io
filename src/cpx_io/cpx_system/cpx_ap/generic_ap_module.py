@@ -96,7 +96,7 @@ class GenericApModule(CpxApModule):
         input_channels,
         output_channels,
         parameters,
-        enum_data_types,
+        enums,
         *args,
         **kwargs,
     ):
@@ -107,7 +107,7 @@ class GenericApModule(CpxApModule):
         self.input_channels = input_channels
         self.output_channels = output_channels
         self.parameters = parameters
-        self.enum_data_types = enum_data_types
+        self.enums = enums
         self.fieldbus_parameters = None
 
     def configure(self, *args, **kwargs):
@@ -1441,3 +1441,91 @@ class GenericApModule(CpxApModule):
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
         )
+
+    @CpxBase.require_base
+    def get_available_parameters(self) -> dict:
+        """returns all available parameters from the module
+        :return: All available parameters
+        :rtype: dict
+        """
+        return {v.name: k for k, v in self.parameters.items()}
+
+    @CpxBase.require_base
+    def get_available_enums(self) -> dict:
+        """returns all enums for the module"""
+        return
+
+    @CpxBase.require_base
+    def write_module_parameter(  # TODO: correct enum
+        self,
+        value: int | bool | ap_enums.TempUnit,
+        parameter: str | int,
+        channel: int | list = 0,
+    ) -> None:
+        """Write module parameter if available"""
+        # TODO: fill in docstring
+
+        if isinstance(parameter, int):
+            parameter = self.parameters.get(parameter)
+        elif isinstance(parameter, str):
+            # iterate over available parameters and extract the one with the correct name
+            parameter_list = [
+                p for p in self.parameters.values() if p.name == parameter
+            ]
+            parameter = parameter_list[0] if len(parameter_list) == 1 else None
+
+        if parameter is None:
+            raise NotImplementedError(f"{self} has no parameter {parameter}")
+
+        # TODO: here, get the correct types or enums and check them
+
+        if isinstance(value, ap_enums.FailState):
+            value = value.value
+
+        # TODO: here, do the correct range check
+        value_range_check(value, 2)
+
+        self.base.write_parameter(
+            self.position,
+            parameter,
+            value,
+            channel,
+        )
+        # TODO: add log output for channels if set
+        Logging.logger.info(f"{self.name}: Setting {parameter.name} to {value}")
+
+    @CpxBase.require_base
+    def read_module_parameter(
+        self,
+        parameter: str | int,
+        channel: int | list = 0,
+    ) -> Any:
+        """Read module parameter if available"""
+        # TODO: fill in docstring
+
+        if isinstance(parameter, int):
+            parameter = self.parameters.get(parameter)
+        elif isinstance(parameter, str):
+            # iterate over available parameters and extract the one with the correct name
+            parameter_list = [
+                p for p in self.parameters.values() if p.name == parameter
+            ]
+            parameter = parameter_list[0] if len(parameter_list) == 1 else None
+
+        if parameter is None:
+            raise NotImplementedError(f"{self} has no parameter {parameter}")
+
+        # TODO: should get the correct enums/datatype and convert
+
+        # TODO: should do channel range check for parameter instances
+
+        value = self.base.read_parameter(
+            self.position,
+            parameter,
+            channel,
+        )
+        # TODO: add log output for channels if set
+        Logging.logger.info(
+            f"{self.name}: Read {value} from parameter {parameter.name}"
+        )
+        return value

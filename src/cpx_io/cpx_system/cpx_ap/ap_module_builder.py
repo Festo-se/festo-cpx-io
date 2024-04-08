@@ -39,11 +39,23 @@ class Variant:
     variant_identification: dict
 
 
+@dataclass
+class ParameterEnum:
+    """ParameterEnum dataclass"""
+
+    enum_id: int
+    bits: int
+    data_type: str
+    enum_values: list
+    ethercat_enum_id: int
+    name: int
+
+
 class ChannelGroupBuilder:
     """ChannelGroupBuilder"""
 
     def build_channel_group(self, channel_group_dict):
-        """Builds one channel group"""
+        """Builds one ChannelGroup"""
         return ChannelGroup(
             channel_group_dict.get("ChannelGroupId"),
             channel_group_dict.get("Channels"),
@@ -56,7 +68,7 @@ class ChannelBuilder:
     """ChannelBuilder"""
 
     def build_channel(self, channel_dict):
-        """Builds one channel"""
+        """Builds one Channel"""
         return Channel(
             channel_dict.get("Bits"),
             channel_dict.get("ChannelId"),
@@ -72,7 +84,7 @@ class VariantBuilder:
     """VariantBuilder"""
 
     def build_variant(self, variant_dict):
-        """Builds one variant"""
+        """Builds one Variant"""
         return Variant(
             variant_dict.get("Description"),
             variant_dict.get("Name"),
@@ -85,7 +97,7 @@ class ParameterBuilder:
     """ParameterBuilder"""
 
     def build_parameter(self, parameter_id, parameter_dict):
-        """Builds one parameter"""
+        """Builds one Parameter"""
         return Parameter(
             parameter_id,
             parameter_dict.get("ArraySize"),
@@ -93,6 +105,21 @@ class ParameterBuilder:
             parameter_dict.get("DefaultValue"),
             parameter_dict.get("Description"),
             parameter_dict.get("Name"),
+        )
+
+
+class ParameterEnumBuilder:
+    """ParameterEnumBuilder"""
+
+    def build_parameter_enum(self, enum_dict):
+        """Builds one ParameterEnum"""
+        return ParameterEnum(
+            enum_dict.get("Id"),
+            enum_dict.get("Bits"),
+            enum_dict.get("DataType"),
+            enum_dict.get("EnumValues"),
+            enum_dict.get("EthercatEnumId"),
+            enum_dict.get("Name"),
         )
 
 
@@ -165,7 +192,11 @@ class CpxApModuleBuilder:
         # setup enums used in the module
         metadata = apdd.get("Metadata")
         if metadata:
-            enum_data_types = metadata.get("EnumDataTypes")
+            enum_list = metadata.get("EnumDataTypes")
+
+        enums = {
+            e["Id"]: ParameterEnumBuilder().build_parameter_enum(e) for e in enum_list
+        }
 
         # setup parameter groups, including list of all used parameters
         parameter_ids = {}
@@ -192,5 +223,5 @@ class CpxApModuleBuilder:
             input_channels,
             output_channels,
             parameters,
-            enum_data_types,
+            enums,
         )
