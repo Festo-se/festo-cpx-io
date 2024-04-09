@@ -827,14 +827,6 @@ class GenericApModule(CpxApModule):
                 f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
             )
 
-        if isinstance(instances, int):
-            self.base.write_parameter(
-                self.position,
-                parameter,
-                value,
-                instances,
-            )
-
         if isinstance(instances, list):
             for i in instances:
                 self.base.write_parameter(
@@ -874,7 +866,7 @@ class GenericApModule(CpxApModule):
             parameter.data_type = parameter.enums.data_type
 
         # INSTANCE HANDLING
-        # TODO: Instance handling is the same for read/write parameter
+        # TODO: Instance handling is the same for read/write parameter and repeats some lines itself
         if isinstance(instances, int):
             instance_range_check(
                 instances,
@@ -902,11 +894,6 @@ class GenericApModule(CpxApModule):
         # VALUE HANDLING
         values = []
         for i in instances:
-            instance_range_check(
-                i,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
             values.append(
                 self.base.read_parameter(
                     self.position,

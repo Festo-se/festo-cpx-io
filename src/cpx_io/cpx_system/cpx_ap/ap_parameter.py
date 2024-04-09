@@ -18,8 +18,10 @@ class Parameter:
     data_type: str
     default_value: int
     description: str
-    enums: dict
     name: str
+    physical_unit_id: int = None
+    valid_physical_unit_ids: list = None
+    enums: dict = None
 
     def __repr__(self):
         return f"{self.name}; Type: {self.data_type}; Writeable: {self.is_writable}; Enums: {self.enums}\n"

@@ -31,6 +31,15 @@ class ChannelGroup:
 
 
 @dataclass
+class PhysicalQuantity:
+    """PhysicalQuantity dataclass"""
+
+    physical_quantity_id: int
+    name: str
+    units: dict
+
+
+@dataclass
 class Variant:
     """Variant dataclass"""
 
@@ -85,7 +94,7 @@ class VariantBuilder:
 class ParameterBuilder:
     """ParameterBuilder"""
 
-    def build_parameter(self, parameter_item, enums):
+    def build_parameter(self, parameter_item, enums=None, units=None):
         """Builds one Parameter"""
 
         return Parameter(
@@ -96,6 +105,13 @@ class ParameterBuilder:
             parameter_item.get("DataDefinition").get("DataType"),
             parameter_item.get("DataDefinition").get("DefaultValue"),
             parameter_item.get("DataDefinition").get("Description"),
+            parameter_item.get("DataDefinition").get("Name"),
+            (  # TODO: get correct unit class with id
+                units.get(parameter_item.get("DataDefinition").get("PhysicalUnitId"))
+                if units
+                else None
+            ),
+            parameter_item.get("DataDefinition").get("ValidPhysicalUnitIds"),
             enums.get(
                 parameter_item.get("DataDefinition")
                 .get("LimitEnumValues")
@@ -103,7 +119,6 @@ class ParameterBuilder:
                 if parameter_item.get("DataDefinition").get("LimitEnumValues")
                 else None
             ),
-            parameter_item.get("DataDefinition").get("Name"),
         )
 
 
@@ -123,6 +138,25 @@ class ParameterEnumBuilder:
             enum_values,
             enum_dict.get("EthercatEnumId"),
             enum_dict.get("Name"),
+        )
+
+
+class PhysicalQuantitiesBuilder:
+    """PhysicalQuantities"""
+
+    def build_physical_quantity(self, physical_quantity_dict):
+        """Builds one PhysicalQuantity"""
+        physical_units = {}
+        for p in physical_quantity_dict.get("EnumValues"):
+            physical_units[p.get("PhysicalUnitId")] = {
+                "Name": p.get("Name"),
+                "FormatString": p.get("FormatString"),
+            }
+
+        return PhysicalQuantity(
+            physical_quantity_dict.get("PhysicalQuantityId"),
+            physical_quantity_dict.get("Name"),
+            physical_units,
         )
 
 
@@ -192,14 +226,19 @@ class CpxApModuleBuilder:
         input_channels = [c for c in channels if c.direction == "in"]
         output_channels = [c for c in channels if c.direction == "out"]
 
-        # setup enums used in the module
+        # setup metadata
         metadata = apdd.get("Metadata")
         if metadata:
             enum_list = metadata.get("EnumDataTypes")
+            physical_quantities_list = metadata.get("PhysicalQuantities")
 
+        ## setup enums used in the module
         enums = {
             e["Id"]: ParameterEnumBuilder().build_parameter_enum(e) for e in enum_list
         }
+
+        ## setup quantities used in the module
+        quantities = {q["PhysicalQuantityId"]: q for q in physical_quantities_list}
 
         # setup parameter groups, including list of all used parameters
         parameter_ids = {}

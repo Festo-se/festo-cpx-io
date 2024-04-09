@@ -337,7 +337,6 @@ class CpxAp(CpxBase):
             data_type="UINT8",  # TODO: is CHAR in list but it does not work
             default_value=0,
             description="AP diagnosis status for each Module",
-            enums=None,
             name="AP diagnosis status",
         )
 

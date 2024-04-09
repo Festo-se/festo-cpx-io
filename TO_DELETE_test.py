@@ -16,4 +16,9 @@ with CpxAp(ip_address="172.16.1.41") as cpxap:
     m = cpxap.modules[IDX]
 
     for i, p in m.parameters.items():
-        print(f"Read: {i} ({p.name}): {m.read_module_parameter(i)}")
+        print(
+            f"Read: {i} ({p.name}): {m.read_module_parameter(i)} {p.physical_unit_id}"
+        )
+
+    test = m.parameters.get(20087)
+    pass
