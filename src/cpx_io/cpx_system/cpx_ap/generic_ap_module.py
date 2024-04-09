@@ -792,19 +792,19 @@ class GenericApModule(CpxApModule):
         :return: All available parameters
         :rtype: dict
         """
-        return {v.name: k for k, v in self.parameters.items()}
+        return self.parameters
 
     @CpxBase.require_base
-    def get_available_enums(self) -> dict:
+    def get_parameter_enums(self, parameter_id) -> dict:
         """returns all enums for the module"""
-        return
+        return self.parameters.get(parameter_id).enums
 
     @CpxBase.require_base
-    def write_module_parameter(  # TODO: correct enum
+    def write_module_parameter(
         self,
-        value: int | bool | ParameterEnum,
         parameter: str | int,
-        channel: int | list = 0,
+        value: int | bool | str,
+        instances: int | list = 0,
     ) -> None:
         """Write module parameter if available"""
         # TODO: fill in docstring
@@ -821,20 +821,25 @@ class GenericApModule(CpxApModule):
         if parameter is None:
             raise NotImplementedError(f"{self} has no parameter {parameter}")
 
-        # TODO: here, get the correct types or enums and check them
+        if isinstance(value, str):
+            value_str = value
+            value = parameter.enums.enum_values.get(value)
+            # overwrite the parameter datatype from enum
+            parameter.data_type = parameter.enums.data_type
 
-        if isinstance(value, ParameterEnum):
-            # TODO: make work
-            value = value.value
+        # TODO: should do instance check
 
-        # TODO: here, do the correct range check
-        value_range_check(value, 2)
+        if value is None:
+            raise TypeError(
+                f"'{value_str}' is not supported for '{parameter.name}'. "
+                f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
+            )
 
         self.base.write_parameter(
             self.position,
             parameter,
             value,
-            channel,
+            instances,
         )
         # TODO: add log output for channels if set
         Logging.logger.info(f"{self.name}: Setting {parameter.name} to {value}")
@@ -843,7 +848,7 @@ class GenericApModule(CpxApModule):
     def read_module_parameter(
         self,
         parameter: str | int,
-        channel: int | list = 0,
+        instance: int | list = 0,
     ) -> Any:
         """Read module parameter if available"""
         # TODO: fill in docstring
@@ -862,7 +867,7 @@ class GenericApModule(CpxApModule):
             raise NotImplementedError(f"{self} has no parameter {parameter}")
 
         if parameter.enums:
-            # overwrite the parameter datatype
+            # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
 
         # TODO: should do channel range check for parameter instances
@@ -870,14 +875,16 @@ class GenericApModule(CpxApModule):
         value = self.base.read_parameter(
             self.position,
             parameter,
-            channel,
+            instance,
         )
-        # TODO: add log output for channels if set
+        # TODO: add log output for channels if set + log for enums
         Logging.logger.info(
             f"{self.name}: Read {value} from parameter {parameter.name}"
         )
 
+        # if parameter is ENUM, return the according string. Indexing should always work here
+        # because the check that value is available was done before
         if parameter.enums:
-            return parameter.enums.enum_values.get(value)
+            return [k for k, v in parameter.enums.enum_values.items() if v == value][0]
 
         return value

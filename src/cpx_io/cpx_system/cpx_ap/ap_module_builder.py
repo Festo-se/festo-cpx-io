@@ -111,7 +111,7 @@ class ParameterEnumBuilder:
             enum_dict.get("Id"),
             enum_dict.get("Bits"),
             enum_dict.get("DataType"),
-            {e.get("Value"): e.get("Text") for e in enum_dict.get("EnumValues")},
+            {e.get("Text"): e.get("Value") for e in enum_dict.get("EnumValues")},
             enum_dict.get("EthercatEnumId"),
             enum_dict.get("Name"),
         )
