@@ -1,7 +1,7 @@
 """AP module Builder from APDD"""
 
 from dataclasses import dataclass
-from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
+from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter, ParameterEnum
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.logging import Logging
 
@@ -37,18 +37,6 @@ class Variant:
     name: str
     parameter_group_ids: list
     variant_identification: dict
-
-
-@dataclass
-class ParameterEnum:
-    """ParameterEnum dataclass"""
-
-    enum_id: int
-    bits: int
-    data_type: str
-    enum_values: list
-    ethercat_enum_id: int
-    name: int
 
 
 class ChannelGroupBuilder:
@@ -96,14 +84,20 @@ class VariantBuilder:
 class ParameterBuilder:
     """ParameterBuilder"""
 
-    def build_parameter(self, parameter_id, parameter_dict):
+    def build_parameter(self, parameter_id, parameter_dict, enums):
         """Builds one Parameter"""
+
         return Parameter(
             parameter_id,
             parameter_dict.get("ArraySize"),
             parameter_dict.get("DataType"),
             parameter_dict.get("DefaultValue"),
             parameter_dict.get("Description"),
+            enums.get(
+                parameter_dict.get("LimitEnumValues").get("EnumDataType")
+                if parameter_dict.get("LimitEnumValues")
+                else None
+            ),
             parameter_dict.get("Name"),
         )
 
@@ -117,7 +111,7 @@ class ParameterEnumBuilder:
             enum_dict.get("Id"),
             enum_dict.get("Bits"),
             enum_dict.get("DataType"),
-            enum_dict.get("EnumValues"),
+            {e.get("Value"): e.get("Text") for e in enum_dict.get("EnumValues")},
             enum_dict.get("EthercatEnumId"),
             enum_dict.get("Name"),
         )
@@ -211,7 +205,7 @@ class CpxApModuleBuilder:
 
         parameters = {
             p["ParameterId"]: ParameterBuilder().build_parameter(
-                p["ParameterId"], p["DataDefinition"]
+                p["ParameterId"], p["DataDefinition"], enums
             )
             for p in parameter_list
         }

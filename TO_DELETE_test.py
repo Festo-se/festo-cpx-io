@@ -9,4 +9,4 @@ with CpxAp(ip_address="172.16.1.41") as cpxap:
 
     cpxap.modules[IDX].write_module_parameter(True, PARAM)
     time.sleep(0.05)
-    print(cpxap.modules[IDX].read_module_parameter(PARAM))
+    print(cpxap.modules[IDX].read_module_parameter(20032))

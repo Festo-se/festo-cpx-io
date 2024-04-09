@@ -15,7 +15,20 @@ class Parameter:
     data_type: str
     default_value: int
     description: str
+    enums: dict
     name: str
+
+
+@dataclass
+class ParameterEnum:
+    """ParameterEnum dataclass"""
+
+    enum_id: int
+    bits: int
+    data_type: str
+    enum_values: list
+    ethercat_enum_id: int
+    name: int
 
 
 TYPE_TO_FORMAT_CHAR = {
