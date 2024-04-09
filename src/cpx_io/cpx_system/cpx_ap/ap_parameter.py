@@ -2,6 +2,7 @@
 
 import struct
 from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 from cpx_io.utils.logging import Logging
 
@@ -11,12 +12,17 @@ class Parameter:
     """Parameter dataclass"""
 
     parameter_id: int
+    parameter_instances: dict
+    is_writable: bool
     array_size: int
     data_type: str
     default_value: int
     description: str
     enums: dict
     name: str
+
+    def __repr__(self):
+        return f"{self.name}; Type: {self.data_type}; Writeable: {self.is_writable}; Enums: {self.enums}\n"
 
 
 @dataclass
@@ -26,9 +32,12 @@ class ParameterEnum:
     enum_id: int
     bits: int
     data_type: str
-    enum_values: list
+    enum_values: Enum
     ethercat_enum_id: int
-    name: int
+    name: str
+
+    def __repr__(self):
+        return f"{self.enum_values}"
 
 
 TYPE_TO_FORMAT_CHAR = {

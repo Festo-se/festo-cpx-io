@@ -72,3 +72,12 @@ def channel_range_check(channel: int, *args):
 
     if channel not in range(start, stop):
         raise IndexError(f"Channel {channel} must be in range({start}, {stop})")
+
+
+def instance_range_check(instance: int, *args):
+    """Raises IndexError if instance is not in the given range."""
+
+    start, stop = _args_to_start_stop(args)
+
+    if instance not in range(start, stop):
+        raise IndexError(f"Instance {instance} must be in range({start}, {stop})")

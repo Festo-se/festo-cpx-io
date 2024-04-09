@@ -331,10 +331,13 @@ class CpxAp(CpxBase):
         # overwrite the type size with the actual module count + 1 (see datasheet)
         ap_diagnosis_parameter = Parameter(
             parameter_id=20196,
+            parameter_instances={"FirstIndex": 0, "NumberOfInstances": 1},
+            is_writable=False,
             array_size=self.read_module_count() + 1,
-            data_type="UINT8",  # might be CHAR??
+            data_type="UINT8",  # TODO: is CHAR in list but it does not work
             default_value=0,
             description="AP diagnosis status for each Module",
+            enums=None,
             name="AP diagnosis status",
         )
 

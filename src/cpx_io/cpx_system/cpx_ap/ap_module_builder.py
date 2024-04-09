@@ -1,6 +1,7 @@
 """AP module Builder from APDD"""
 
 from dataclasses import dataclass
+from enum import Enum
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter, ParameterEnum
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.logging import Logging
@@ -84,21 +85,25 @@ class VariantBuilder:
 class ParameterBuilder:
     """ParameterBuilder"""
 
-    def build_parameter(self, parameter_id, parameter_dict, enums):
+    def build_parameter(self, parameter_item, enums):
         """Builds one Parameter"""
 
         return Parameter(
-            parameter_id,
-            parameter_dict.get("ArraySize"),
-            parameter_dict.get("DataType"),
-            parameter_dict.get("DefaultValue"),
-            parameter_dict.get("Description"),
+            parameter_item.get("ParameterId"),
+            parameter_item.get("ParameterInstances"),
+            parameter_item.get("IsWritable"),
+            parameter_item.get("DataDefinition").get("ArraySize"),
+            parameter_item.get("DataDefinition").get("DataType"),
+            parameter_item.get("DataDefinition").get("DefaultValue"),
+            parameter_item.get("DataDefinition").get("Description"),
             enums.get(
-                parameter_dict.get("LimitEnumValues").get("EnumDataType")
-                if parameter_dict.get("LimitEnumValues")
+                parameter_item.get("DataDefinition")
+                .get("LimitEnumValues")
+                .get("EnumDataType")
+                if parameter_item.get("DataDefinition").get("LimitEnumValues")
                 else None
             ),
-            parameter_dict.get("Name"),
+            parameter_item.get("DataDefinition").get("Name"),
         )
 
 
@@ -107,11 +112,15 @@ class ParameterEnumBuilder:
 
     def build_parameter_enum(self, enum_dict):
         """Builds one ParameterEnum"""
+        enum_values = {}
+        for e in enum_dict.get("EnumValues"):
+            enum_values[e.get("Text")] = e.get("Value")
+
         return ParameterEnum(
             enum_dict.get("Id"),
             enum_dict.get("Bits"),
             enum_dict.get("DataType"),
-            {e.get("Text"): e.get("Value") for e in enum_dict.get("EnumValues")},
+            enum_values,
             enum_dict.get("EthercatEnumId"),
             enum_dict.get("Name"),
         )
@@ -204,9 +213,7 @@ class CpxApModuleBuilder:
             parameter_list = apdd_parameters.get("ParameterList")
 
         parameters = {
-            p["ParameterId"]: ParameterBuilder().build_parameter(
-                p["ParameterId"], p["DataDefinition"], enums
-            )
+            p["ParameterId"]: ParameterBuilder().build_parameter(p, enums)
             for p in parameter_list
         }
 

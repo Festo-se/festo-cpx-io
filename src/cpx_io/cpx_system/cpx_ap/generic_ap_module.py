@@ -14,6 +14,7 @@ from cpx_io.utils.helpers import (
     div_ceil,
     channel_range_check,
     value_range_check,
+    instance_range_check,
     convert_uint32_to_octett,
     convert_to_mac_string,
 )
@@ -112,7 +113,7 @@ class GenericApModule(CpxApModule):
 
     def configure(self, *args, **kwargs):
         super().configure(*args, **kwargs)
-        if self.product_category == ProductCategory.IO_LINK:
+        if self.product_category == ProductCategory.IO_LINK.value:
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     def __repr__(self):
@@ -504,30 +505,6 @@ class GenericApModule(CpxApModule):
         return params
 
     @CpxBase.require_base
-    def configure_diagnosis_for_defect_valve(self, value: bool) -> None:
-        """Enable (True, default) or disable (False) diagnosis for defect valve.
-
-        :param value: Value to write to the module (True to enable diagnosis)
-        :type value: bool
-        """
-        parameter = self.parameters.get(20021)
-
-        if parameter is None:
-            raise NotImplementedError(
-                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
-            )
-
-        self.base.write_parameter(
-            self.position,
-            parameter,
-            value,
-        )
-
-        Logging.logger.info(
-            f"{self.name}: Setting diagnosis for defect valve to {value}"
-        )
-
-    @CpxBase.require_base
     def read_pqi(self, channel: int = None) -> dict | list[dict]:
         """Returns Port Qualifier Information for each channel. If no channel is given,
         returns a list of PQI dict for all channels
@@ -787,28 +764,16 @@ class GenericApModule(CpxApModule):
         )
 
     @CpxBase.require_base
-    def get_available_parameters(self) -> dict:
-        """returns all available parameters from the module
-        :return: All available parameters
-        :rtype: dict
-        """
-        return self.parameters
-
-    @CpxBase.require_base
-    def get_parameter_enums(self, parameter_id) -> dict:
-        """returns all enums for the module"""
-        return self.parameters.get(parameter_id).enums
-
-    @CpxBase.require_base
     def write_module_parameter(
         self,
         parameter: str | int,
         value: int | bool | str,
-        instances: int | list = 0,
+        instances: int | list = None,
     ) -> None:
         """Write module parameter if available"""
         # TODO: fill in docstring
 
+        # PARAMETER HANDLING
         if isinstance(parameter, int):
             parameter = self.parameters.get(parameter)
         elif isinstance(parameter, str):
@@ -821,13 +786,40 @@ class GenericApModule(CpxApModule):
         if parameter is None:
             raise NotImplementedError(f"{self} has no parameter {parameter}")
 
+        if not parameter.is_writable:
+            raise AttributeError(f"Parameter {parameter} is not writable")
+
+        # INSTANCE HANDLING
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            instance = [instance]
+        elif isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+        elif instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+        else:
+            instances = [0]
+
+        # VALUE HANDLING
         if isinstance(value, str):
             value_str = value
             value = parameter.enums.enum_values.get(value)
             # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
-
-        # TODO: should do instance check
 
         if value is None:
             raise TypeError(
@@ -835,12 +827,22 @@ class GenericApModule(CpxApModule):
                 f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
             )
 
-        self.base.write_parameter(
-            self.position,
-            parameter,
-            value,
-            instances,
-        )
+        if isinstance(instances, int):
+            self.base.write_parameter(
+                self.position,
+                parameter,
+                value,
+                instances,
+            )
+
+        if isinstance(instances, list):
+            for i in instances:
+                self.base.write_parameter(
+                    self.position,
+                    parameter,
+                    value,
+                    i,
+                )
         # TODO: add log output for channels if set
         Logging.logger.info(f"{self.name}: Setting {parameter.name} to {value}")
 
@@ -848,11 +850,12 @@ class GenericApModule(CpxApModule):
     def read_module_parameter(
         self,
         parameter: str | int,
-        instance: int | list = 0,
+        instances: int | list = None,
     ) -> Any:
         """Read module parameter if available"""
         # TODO: fill in docstring
 
+        # PARAMETER HANDLING
         if isinstance(parameter, int):
             parameter = self.parameters.get(parameter)
         elif isinstance(parameter, str):
@@ -870,21 +873,65 @@ class GenericApModule(CpxApModule):
             # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
 
-        # TODO: should do channel range check for parameter instances
+        # INSTANCE HANDLING
+        # TODO: Instance handling is the same for read/write parameter
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            instances = [instances]
+        elif isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+        elif instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+        else:
+            instances = [0]
 
-        value = self.base.read_parameter(
-            self.position,
-            parameter,
-            instance,
-        )
+        # VALUE HANDLING
+        values = []
+        for i in instances:
+            instance_range_check(
+                i,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            values.append(
+                self.base.read_parameter(
+                    self.position,
+                    parameter,
+                    i,
+                )
+            )
+
         # TODO: add log output for channels if set + log for enums
         Logging.logger.info(
-            f"{self.name}: Read {value} from parameter {parameter.name}"
+            f"{self.name}: Read {values} from parameter {parameter.name}"
         )
 
-        # if parameter is ENUM, return the according string. Indexing should always work here
+        # if parameter is ENUM, return the according string. Indexing 0 should always work here
         # because the check that value is available was done before
-        if parameter.enums:
-            return [k for k, v in parameter.enums.enum_values.items() if v == value][0]
 
-        return value
+        if parameter.enums:
+            enum_values = []
+            for val in values:
+                enum_values.append(
+                    [k for k, v in parameter.enums.enum_values.items() if v == val][0]
+                )
+            values = enum_values
+
+        if len(instances) == 1:
+            return values[0]
+
+        return values
