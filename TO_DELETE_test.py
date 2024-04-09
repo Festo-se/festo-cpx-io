@@ -1,3 +1,5 @@
+"""Test program that needs to be deleted for production"""
+
 import time
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 

@@ -796,7 +796,7 @@ class GenericApModule(CpxApModule):
                 parameter.parameter_instances.get("FirstIndex"),
                 parameter.parameter_instances.get("NumberOfInstances"),
             )
-            instance = [instance]
+            instances = [instances]
         elif isinstance(instances, list):
             for i in instances:
                 instance_range_check(
