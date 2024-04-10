@@ -23,7 +23,10 @@ class Parameter:
     enums: dict = None
 
     def __repr__(self):
-        return f"{self.name}; Type: {self.data_type}; Writeable: {self.is_writable}; Enums: {self.enums}\n"
+        return (
+            f"\n{self.name}; {self.data_type}; {'R/W' if self.is_writable else 'R'};"
+            f"Enums: {self.enums if self.enums else ''}"
+        )
 
 
 @dataclass
