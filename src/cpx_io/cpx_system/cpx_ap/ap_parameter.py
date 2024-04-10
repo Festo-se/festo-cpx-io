@@ -19,7 +19,7 @@ class Parameter:
     default_value: int
     description: str
     name: str
-    unit_format_string: str = ""
+    unit: str = ""
     enums: dict = None
 
     def __repr__(self):

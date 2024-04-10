@@ -125,6 +125,7 @@ class GenericApModule(CpxApModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
+    # TODO: Delete this function if legacy support is not required
     @CpxBase.require_base
     def read_ap_parameter(self) -> dict:
         """Read AP parameters

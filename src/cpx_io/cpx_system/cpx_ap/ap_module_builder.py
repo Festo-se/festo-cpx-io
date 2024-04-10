@@ -184,6 +184,7 @@ class PhysicalQuantitiesBuilder:
 
 
 class CpxApModuleBuilder:
+    _hidden_parameters = [20081, 20082, 20089, 20096, 20098, 20189, 1130125]
 
     def build(self, apdd, module_code):
         """Build function for generic ap module"""
@@ -285,6 +286,7 @@ class CpxApModuleBuilder:
         parameters = {
             p["ParameterId"]: ParameterBuilder().build_parameter(p, enums, units)
             for p in parameter_list
+            if p["ParameterId"] not in self._hidden_parameters
         }
 
         return GenericApModule(
