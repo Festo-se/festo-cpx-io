@@ -36,7 +36,16 @@ class PhysicalQuantity:
 
     physical_quantity_id: int
     name: str
-    units: dict
+    units: list
+
+
+@dataclass
+class PhysicalUnit:
+    """PhysicalUnits dataclass"""
+
+    format_string: str
+    name: str
+    physical_unit_id: int
 
 
 @dataclass
@@ -96,6 +105,14 @@ class ParameterBuilder:
 
     def build_parameter(self, parameter_item, enums=None, units=None):
         """Builds one Parameter"""
+        if parameter_item.get("ParameterId") == 20087:
+            pass
+        valid_unit = (
+            units.get(parameter_item.get("DataDefinition").get("PhysicalUnitId"))
+            if units
+            else None
+        )
+        format_string = valid_unit.format_string if valid_unit else ""
 
         return Parameter(
             parameter_item.get("ParameterId"),
@@ -106,12 +123,7 @@ class ParameterBuilder:
             parameter_item.get("DataDefinition").get("DefaultValue"),
             parameter_item.get("DataDefinition").get("Description"),
             parameter_item.get("DataDefinition").get("Name"),
-            (  # TODO: get correct unit class with id
-                units.get(parameter_item.get("DataDefinition").get("PhysicalUnitId"))
-                if units
-                else None
-            ),
-            parameter_item.get("DataDefinition").get("ValidPhysicalUnitIds"),
+            format_string,
             enums.get(
                 parameter_item.get("DataDefinition")
                 .get("LimitEnumValues")
@@ -141,17 +153,28 @@ class ParameterEnumBuilder:
         )
 
 
+class PhysicalUnitBuilder:
+    """PhysicalUnit"""
+
+    def build_physical_unit(self, physical_unit_dict):
+        """Builds one PhysicalUnit"""
+        return PhysicalUnit(
+            physical_unit_dict.get("FormatString"),
+            physical_unit_dict.get("Name"),
+            physical_unit_dict.get("PhysicalUnitId"),
+        )
+
+
 class PhysicalQuantitiesBuilder:
     """PhysicalQuantities"""
 
     def build_physical_quantity(self, physical_quantity_dict):
         """Builds one PhysicalQuantity"""
         physical_units = {}
-        for p in physical_quantity_dict.get("EnumValues"):
-            physical_units[p.get("PhysicalUnitId")] = {
-                "Name": p.get("Name"),
-                "FormatString": p.get("FormatString"),
-            }
+        for p in physical_quantity_dict.get("PhysicalUnits"):
+            physical_units[p.get("PhysicalUnitId")] = (
+                PhysicalUnitBuilder().build_physical_unit(p)
+            )
 
         return PhysicalQuantity(
             physical_quantity_dict.get("PhysicalQuantityId"),
@@ -238,7 +261,15 @@ class CpxApModuleBuilder:
         }
 
         ## setup quantities used in the module
-        quantities = {q["PhysicalQuantityId"]: q for q in physical_quantities_list}
+        physical_quantities = {
+            q[
+                "PhysicalQuantityId"
+            ]: PhysicalQuantitiesBuilder().build_physical_quantity(q)
+            for q in physical_quantities_list
+        }
+
+        ## setup units used in the module
+        units = {k: v for p in physical_quantities.values() for k, v in p.units.items()}
 
         # setup parameter groups, including list of all used parameters
         parameter_ids = {}
@@ -252,7 +283,7 @@ class CpxApModuleBuilder:
             parameter_list = apdd_parameters.get("ParameterList")
 
         parameters = {
-            p["ParameterId"]: ParameterBuilder().build_parameter(p, enums)
+            p["ParameterId"]: ParameterBuilder().build_parameter(p, enums, units)
             for p in parameter_list
         }
 

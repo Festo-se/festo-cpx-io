@@ -17,7 +17,7 @@ with CpxAp(ip_address="172.16.1.41") as cpxap:
 
     for i, p in m.parameters.items():
         print(
-            f"Read: {i} ({p.name}): {m.read_module_parameter(i)} {p.physical_unit_id}"
+            f"Read: {i} ({p.name}): {m.read_module_parameter(i)} {p.unit_format_string}"
         )
 
     test = m.parameters.get(20087)

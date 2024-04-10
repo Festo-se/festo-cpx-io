@@ -19,8 +19,7 @@ class Parameter:
     default_value: int
     description: str
     name: str
-    physical_unit_id: int = None
-    valid_physical_unit_ids: list = None
+    unit_format_string: str = ""
     enums: dict = None
 
     def __repr__(self):
