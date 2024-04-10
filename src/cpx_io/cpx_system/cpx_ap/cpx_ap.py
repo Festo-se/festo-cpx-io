@@ -205,6 +205,7 @@ class CpxAp(CpxBase):
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
 
+    # TODO: Check if ap_registers is still needed?
     def read_module_count(self) -> int:
         """Reads and returns IO module count as integer
 
@@ -220,6 +221,8 @@ class CpxAp(CpxBase):
         register, length = modbus_command
         return ((register + 37 * module), length)
 
+    # TODO: make function to print the parameter information from all modules
+    # TODO: Check if this is still needed or is the information available from APDD?
     def read_module_information(self, position: int) -> ModuleInformation:
         """Reads and returns detailed information for a specific IO module
 
