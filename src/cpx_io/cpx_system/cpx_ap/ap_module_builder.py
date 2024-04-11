@@ -60,7 +60,7 @@ class Variant:
 class ChannelGroupBuilder:
     """ChannelGroupBuilder"""
 
-    def build_channel_group(self, channel_group_dict):
+    def build(self, channel_group_dict):
         """Builds one ChannelGroup"""
         return ChannelGroup(
             channel_group_dict.get("ChannelGroupId"),
@@ -73,7 +73,7 @@ class ChannelGroupBuilder:
 class ChannelBuilder:
     """ChannelBuilder"""
 
-    def build_channel(self, channel_dict):
+    def build(self, channel_dict):
         """Builds one Channel"""
         return Channel(
             channel_dict.get("Bits"),
@@ -89,7 +89,7 @@ class ChannelBuilder:
 class VariantBuilder:
     """VariantBuilder"""
 
-    def build_variant(self, variant_dict):
+    def build(self, variant_dict):
         """Builds one Variant"""
         return Variant(
             variant_dict.get("Description"),
@@ -102,7 +102,7 @@ class VariantBuilder:
 class ParameterBuilder:
     """ParameterBuilder"""
 
-    def build_parameter(self, parameter_item, enums=None, units=None):
+    def build(self, parameter_item, enums=None, units=None):
         """Builds one Parameter"""
         if parameter_item.get("ParameterId") == 20087:
             pass
@@ -136,7 +136,7 @@ class ParameterBuilder:
 class ParameterEnumBuilder:
     """ParameterEnumBuilder"""
 
-    def build_parameter_enum(self, enum_dict):
+    def build(self, enum_dict):
         """Builds one ParameterEnum"""
         enum_values = {}
         for e in enum_dict.get("EnumValues"):
@@ -155,7 +155,7 @@ class ParameterEnumBuilder:
 class PhysicalUnitBuilder:
     """PhysicalUnit"""
 
-    def build_physical_unit(self, physical_unit_dict):
+    def build(self, physical_unit_dict):
         """Builds one PhysicalUnit"""
         return PhysicalUnit(
             physical_unit_dict.get("FormatString"),
@@ -167,13 +167,11 @@ class PhysicalUnitBuilder:
 class PhysicalQuantitiesBuilder:
     """PhysicalQuantities"""
 
-    def build_physical_quantity(self, physical_quantity_dict):
+    def build(self, physical_quantity_dict):
         """Builds one PhysicalQuantity"""
         physical_units = {}
         for p in physical_quantity_dict.get("PhysicalUnits"):
-            physical_units[p.get("PhysicalUnitId")] = (
-                PhysicalUnitBuilder().build_physical_unit(p)
-            )
+            physical_units[p.get("PhysicalUnitId")] = PhysicalUnitBuilder().build(p)
 
         return PhysicalQuantity(
             physical_quantity_dict.get("PhysicalQuantityId"),
@@ -183,7 +181,15 @@ class PhysicalQuantitiesBuilder:
 
 
 class CpxApModuleBuilder:
+    """Builder class for GenericApModule
+    :return: AP Module generated from the apdd
+    :rtype: GenericApModule
+    """
+
     _hidden_parameters = [20081, 20082, 20089, 20096, 20098, 20189, 1130125]
+
+    # TODO: Split build function into several individual functions to
+    # make it better readable
 
     def build(self, apdd, module_code):
         """Build function for generic ap module"""
@@ -193,7 +199,7 @@ class CpxApModuleBuilder:
 
         variants = []
         for variant_dict in apdd["Variants"]["VariantList"]:
-            variants.append(VariantBuilder().build_variant(variant_dict))
+            variants.append(VariantBuilder().build(variant_dict))
 
         Logging.logger.debug(f"Set up Variants: {variants}")
 
@@ -221,16 +227,14 @@ class CpxApModuleBuilder:
         channel_types = []
         if apdd.get("Channels"):
             for channel_dict in apdd.get("Channels"):
-                channel_types.append(ChannelBuilder().build_channel(channel_dict))
+                channel_types.append(ChannelBuilder().build(channel_dict))
             Logging.logger.debug(f"Set up Channel Types: {channel_types}")
 
         # setup all channel groups
         channel_groups = []
         if apdd.get("ChannelGroups"):
             for channel_group_dict in apdd.get("ChannelGroups"):
-                channel_groups.append(
-                    ChannelGroupBuilder().build_channel_group(channel_group_dict)
-                )
+                channel_groups.append(ChannelGroupBuilder().build(channel_group_dict))
             Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
 
         # setup all channels for the module
@@ -256,15 +260,11 @@ class CpxApModuleBuilder:
             physical_quantities_list = metadata.get("PhysicalQuantities")
 
         ## setup enums used in the module
-        enums = {
-            e["Id"]: ParameterEnumBuilder().build_parameter_enum(e) for e in enum_list
-        }
+        enums = {e["Id"]: ParameterEnumBuilder().build(e) for e in enum_list}
 
         ## setup quantities used in the module
         physical_quantities = {
-            q[
-                "PhysicalQuantityId"
-            ]: PhysicalQuantitiesBuilder().build_physical_quantity(q)
+            q["PhysicalQuantityId"]: PhysicalQuantitiesBuilder().build(q)
             for q in physical_quantities_list
         }
 
@@ -283,7 +283,7 @@ class CpxApModuleBuilder:
             parameter_list = apdd_parameters.get("ParameterList")
 
         parameters = {
-            p["ParameterId"]: ParameterBuilder().build_parameter(p, enums, units)
+            p["ParameterId"]: ParameterBuilder().build(p, enums, units)
             for p in parameter_list
             if p["ParameterId"] not in self._hidden_parameters
         }

@@ -47,7 +47,7 @@ class ChannelGroup:
 class ChannelGroupBuilder:
     """ChannelGroupBuilder"""
 
-    def build_channel_group(self, channel_group_dict):
+    def build(self, channel_group_dict):
         return ChannelGroup(
             channel_group_dict.get("ChannelGroupId"),
             channel_group_dict.get("Channels"),
@@ -59,7 +59,7 @@ class ChannelGroupBuilder:
 class ChannelBuilder:
     """ChannelBuilder"""
 
-    def build_channel(self, channel_dict):
+    def build(self, channel_dict):
         return Channel(
             channel_dict.get("Bits"),
             channel_dict.get("ChannelId"),
@@ -124,29 +124,6 @@ class GenericApModule(CpxApModule):
 
     def __setitem__(self, key, value):
         self.write_channel(key, value)
-
-    # TODO: Delete this function if legacy support is not required
-    # @CpxBase.require_base
-    # def read_ap_parameter(self) -> dict:
-    #     """Read AP parameters
-
-    #     :return: All AP parameters
-    #     :rtype: dict
-    #     """
-    #     params = super().read_ap_parameter()
-
-    #     if self.product_category == ProductCategory.IO_LINK:
-    #         io_link_variant = self.base.read_parameter(
-    #             self.position, self.parameters.get(20090)
-    #         )
-
-    #         activation_operating_voltage = self.base.read_parameter(
-    #             self.position, self.parameters.get(20097)
-    #         )
-
-    #         params.io_link_variant = io_link_variant
-    #         params.operating_supply = activation_operating_voltage
-    #     return params
 
     @CpxBase.require_base
     def read_channels(self) -> Any:
