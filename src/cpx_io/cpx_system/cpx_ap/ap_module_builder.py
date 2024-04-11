@@ -1,7 +1,6 @@
 """AP module Builder from APDD"""
 
 from dataclasses import dataclass
-from enum import Enum
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter, ParameterEnum
 from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.utils.logging import Logging
