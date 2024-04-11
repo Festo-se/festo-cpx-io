@@ -24,8 +24,11 @@ class Parameter:
 
     def __repr__(self):
         return (
-            f"\n{self.name}; {self.data_type}; {'R/W' if self.is_writable else 'R'};"
-            f"Enums: {self.enums if self.enums else ''}"
+            # TODO: use zfill to align?
+            f"{self.parameter_id} {self.name}\t"
+            f"{'Read/Write' if self.is_writable else 'Read only'}\t"
+            f"{self.data_type}"
+            f"{self.enums if self.enums else ''}"
         )
 
 

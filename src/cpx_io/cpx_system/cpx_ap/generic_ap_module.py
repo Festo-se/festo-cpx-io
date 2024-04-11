@@ -8,7 +8,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap.ap_parameter import ParameterEnum
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
-from cpx_io.cpx_system.cpx_ap import ap_registers
+from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import (
     div_ceil,
@@ -126,27 +126,27 @@ class GenericApModule(CpxApModule):
         self.write_channel(key, value)
 
     # TODO: Delete this function if legacy support is not required
-    @CpxBase.require_base
-    def read_ap_parameter(self) -> dict:
-        """Read AP parameters
+    # @CpxBase.require_base
+    # def read_ap_parameter(self) -> dict:
+    #     """Read AP parameters
 
-        :return: All AP parameters
-        :rtype: dict
-        """
-        params = super().read_ap_parameter()
+    #     :return: All AP parameters
+    #     :rtype: dict
+    #     """
+    #     params = super().read_ap_parameter()
 
-        if self.product_category == ProductCategory.IO_LINK:
-            io_link_variant = self.base.read_parameter(
-                self.position, self.parameters.get(20090)
-            )
+    #     if self.product_category == ProductCategory.IO_LINK:
+    #         io_link_variant = self.base.read_parameter(
+    #             self.position, self.parameters.get(20090)
+    #         )
 
-            activation_operating_voltage = self.base.read_parameter(
-                self.position, self.parameters.get(20097)
-            )
+    #         activation_operating_voltage = self.base.read_parameter(
+    #             self.position, self.parameters.get(20097)
+    #         )
 
-            params.io_link_variant = io_link_variant
-            params.operating_supply = activation_operating_voltage
-        return params
+    #         params.io_link_variant = io_link_variant
+    #         params.operating_supply = activation_operating_voltage
+    #     return params
 
     @CpxBase.require_base
     def read_channels(self) -> Any:
@@ -680,24 +680,32 @@ class GenericApModule(CpxApModule):
 
         # select module, starts with 1
         self.base.write_reg_data(
-            module_index, ap_registers.ISDU_MODULE_NO.register_address
+            module_index, ap_modbus_registers.ISDU_MODULE_NO.register_address
         )
         # select channel, starts with 1
-        self.base.write_reg_data(channel, ap_registers.ISDU_CHANNEL.register_address)
+        self.base.write_reg_data(
+            channel, ap_modbus_registers.ISDU_CHANNEL.register_address
+        )
         # select index
-        self.base.write_reg_data(index, ap_registers.ISDU_INDEX.register_address)
+        self.base.write_reg_data(index, ap_modbus_registers.ISDU_INDEX.register_address)
         # select subindex
-        self.base.write_reg_data(subindex, ap_registers.ISDU_SUBINDEX.register_address)
+        self.base.write_reg_data(
+            subindex, ap_modbus_registers.ISDU_SUBINDEX.register_address
+        )
         # select length of data in bytes
-        self.base.write_reg_data(length, ap_registers.ISDU_LENGTH.register_address)
+        self.base.write_reg_data(
+            length, ap_modbus_registers.ISDU_LENGTH.register_address
+        )
         # command
-        self.base.write_reg_data(command, ap_registers.ISDU_COMMAND.register_address)
+        self.base.write_reg_data(
+            command, ap_modbus_registers.ISDU_COMMAND.register_address
+        )
 
         stat = 1
         cnt = 0
         while stat > 0 and cnt < 5000:
             stat = int.from_bytes(
-                self.base.read_reg_data(*ap_registers.ISDU_STATUS),
+                self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),
                 byteorder="little",
             )
 
@@ -705,7 +713,7 @@ class GenericApModule(CpxApModule):
         if cnt >= 5000:
             raise CpxRequestError("ISDU data read failed")
 
-        ret = self.base.read_reg_data(*ap_registers.ISDU_DATA)
+        ret = self.base.read_reg_data(*ap_modbus_registers.ISDU_DATA)
         Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
 
         return ret
@@ -734,26 +742,34 @@ class GenericApModule(CpxApModule):
 
         # select module, starts with 1
         self.base.write_reg_data(
-            module_index, ap_registers.ISDU_MODULE_NO.register_address
+            module_index, ap_modbus_registers.ISDU_MODULE_NO.register_address
         )
         # select channel, starts with 1
-        self.base.write_reg_data(channel, ap_registers.ISDU_CHANNEL.register_address)
+        self.base.write_reg_data(
+            channel, ap_modbus_registers.ISDU_CHANNEL.register_address
+        )
         # select index
-        self.base.write_reg_data(index, ap_registers.ISDU_INDEX.register_address)
+        self.base.write_reg_data(index, ap_modbus_registers.ISDU_INDEX.register_address)
         # select subindex
-        self.base.write_reg_data(subindex, ap_registers.ISDU_SUBINDEX.register_address)
+        self.base.write_reg_data(
+            subindex, ap_modbus_registers.ISDU_SUBINDEX.register_address
+        )
         # select length of data in bytes
-        self.base.write_reg_data(length, ap_registers.ISDU_LENGTH.register_address)
+        self.base.write_reg_data(
+            length, ap_modbus_registers.ISDU_LENGTH.register_address
+        )
         # write data to data register
-        self.base.write_reg_data(data, ap_registers.ISDU_DATA.register_address)
+        self.base.write_reg_data(data, ap_modbus_registers.ISDU_DATA.register_address)
         # command
-        self.base.write_reg_data(command, ap_registers.ISDU_COMMAND.register_address)
+        self.base.write_reg_data(
+            command, ap_modbus_registers.ISDU_COMMAND.register_address
+        )
 
         stat = 1
         cnt = 0
         while stat > 0 and cnt < 1000:
             stat = int.from_bytes(
-                self.base.read_reg_data(*ap_registers.ISDU_STATUS),
+                self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),
                 byteorder="little",
             )
             cnt += 1

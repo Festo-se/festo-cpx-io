@@ -7,7 +7,7 @@ from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap import ap_registers
+from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.cpx_system.cpx_ap.ap_enums import (
     LoadSupply,
     CycleTime,
@@ -927,28 +927,28 @@ class TestCpxAp4Iol:
             [
                 call(
                     (MODULE_POSITION + 1).to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_MODULE_NO.register_address,
+                    ap_modbus_registers.ISDU_MODULE_NO.register_address,
                 ),
                 call(
                     (input_value + 1).to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_CHANNEL.register_address,
+                    ap_modbus_registers.ISDU_CHANNEL.register_address,
                 ),
                 call(
                     input_value.to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_INDEX.register_address,
+                    ap_modbus_registers.ISDU_INDEX.register_address,
                 ),
                 call(
                     input_value.to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_SUBINDEX.register_address,
+                    ap_modbus_registers.ISDU_SUBINDEX.register_address,
                 ),
-                call(b"\x00\x00", ap_registers.ISDU_LENGTH.register_address),
-                call(b"\x64\x00", ap_registers.ISDU_COMMAND.register_address),
+                call(b"\x00\x00", ap_modbus_registers.ISDU_LENGTH.register_address),
+                call(b"\x64\x00", ap_modbus_registers.ISDU_COMMAND.register_address),
             ]
         )
         cpxap4iol.base.read_reg_data.assert_has_calls(
             [
-                call(*ap_registers.ISDU_STATUS),
-                call(*ap_registers.ISDU_DATA),
+                call(*ap_modbus_registers.ISDU_STATUS),
+                call(*ap_modbus_registers.ISDU_DATA),
             ]
         )
         assert isdu == b"\x00\x00"
@@ -974,33 +974,33 @@ class TestCpxAp4Iol:
             [
                 call(
                     (MODULE_POSITION + 1).to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_MODULE_NO.register_address,
+                    ap_modbus_registers.ISDU_MODULE_NO.register_address,
                 ),
                 call(
                     (input_value + 1).to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_CHANNEL.register_address,
+                    ap_modbus_registers.ISDU_CHANNEL.register_address,
                 ),
                 call(
                     input_value.to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_INDEX.register_address,
+                    ap_modbus_registers.ISDU_INDEX.register_address,
                 ),
                 call(
                     input_value.to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_SUBINDEX.register_address,
+                    ap_modbus_registers.ISDU_SUBINDEX.register_address,
                 ),
                 call(
                     len(data * 2).to_bytes(2, byteorder="little"),
-                    ap_registers.ISDU_LENGTH.register_address,
+                    ap_modbus_registers.ISDU_LENGTH.register_address,
                 ),
                 call(
                     data,
-                    ap_registers.ISDU_DATA.register_address,
+                    ap_modbus_registers.ISDU_DATA.register_address,
                 ),
-                call(b"\x65\x00", ap_registers.ISDU_COMMAND.register_address),
+                call(b"\x65\x00", ap_modbus_registers.ISDU_COMMAND.register_address),
             ]
         )
         cpxap4iol.base.read_reg_data.assert_has_calls(
             [
-                call(*ap_registers.ISDU_STATUS),
+                call(*ap_modbus_registers.ISDU_STATUS),
             ]
         )

@@ -45,22 +45,9 @@ with CpxAp(ip_address="172.16.1.41", timeout=1) as cpxap:
     """
 
     # TODO: beautiful print output should be moved to cpx_ap !
-    for m in cpxap.modules:
-        print(f"\n\nModule {m}:\n_____________________________________________________")
-        print(list(p for p in m.parameters.values()))
+    cpxap.print_system_information()
 
     print("-----------------------------------------------------------------")
     print("-----------------------------------------------------------------")
 
-    for m in cpxap.modules:
-        print(f"\n\nModule {m}:\n_____________________________________________________")
-        for i, p in m.parameters.items():
-            RW = "R/W" if p.is_writable else "R"
-            print(
-                f"\tRead {p.name} (ID {i}) : {m.read_module_parameter(i)} {p.unit} ({RW})"
-            )
-
-        try:
-            print(f"\n\tChannels: {m.read_channels()}")
-        except NotImplementedError:
-            print("\t(No readable channels available)")
+    cpxap.print_all_data()
