@@ -50,4 +50,4 @@ with CpxAp(ip_address="172.16.1.41", timeout=1) as cpxap:
     print("-----------------------------------------------------------------")
     print("-----------------------------------------------------------------")
 
-    cpxap.print_all_data()
+    cpxap.print_system_state()
