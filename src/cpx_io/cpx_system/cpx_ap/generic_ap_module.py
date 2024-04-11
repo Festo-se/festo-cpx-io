@@ -6,7 +6,6 @@ from typing import Any
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.cpx_ap.ap_parameter import ParameterEnum
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
@@ -88,6 +87,7 @@ class SystemParameters:
 
 
 class GenericApModule(CpxApModule):
+    """Generic AP module class"""
 
     def __init__(
         self,
@@ -128,22 +128,6 @@ class GenericApModule(CpxApModule):
     @CpxBase.require_base
     def read_channels(self) -> Any:
         """Read all channels from module and interpret them as the module intends"""
-        # check if supported
-        supported_product_categories = [
-            ProductCategory.ANALOG.value,
-            ProductCategory.DIGITAL.value,
-            ProductCategory.IO_LINK.value,
-            ProductCategory.MPA_L.value,
-            ProductCategory.MPA_S.value,
-            ProductCategory.VTSA.value,
-            ProductCategory.VTUG.value,
-            ProductCategory.VTUX.value,
-            ProductCategory.VTOM.value,
-        ]
-        if self.product_category not in supported_product_categories:
-            raise NotImplementedError(
-                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
-            )
 
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -165,37 +149,45 @@ class GenericApModule(CpxApModule):
             return channels
 
         # All other modules
-        # if available, read inputs
-        values = []
-        if self.input_channels:
-            data = self.base.read_reg_data(
-                self.input_register, length=div_ceil(self.information.input_size, 2)
-            )
-            if all(c.data_type == "BOOL" for c in self.input_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
-            elif all(c.data_type == "INT16" for c in self.input_channels):
-                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            else:
-                raise NotImplementedError(
-                    f"Input data type {self.input_channels[0].data_type} are not supported or "
-                    "types are not the same for each channel"
+        if self.input_channels or self.output_channels:
+            # if available, read inputs
+            values = []
+            if self.input_channels:
+                data = self.base.read_reg_data(
+                    self.input_register, length=div_ceil(self.information.input_size, 2)
                 )
+                if all(c.data_type == "BOOL" for c in self.input_channels):
+                    values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+                elif all(c.data_type == "INT16" for c in self.input_channels):
+                    values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+                else:
+                    raise NotImplementedError(
+                        f"Input data type {self.input_channels[0].data_type} are not supported or "
+                        "types are not the same for each channel"
+                    )
 
-        # if available, read outputs
-        if self.output_channels:
-            data = self.base.read_reg_data(
-                self.output_register, length=div_ceil(self.information.output_size, 2)
-            )
-            if all(c.data_type == "BOOL" for c in self.output_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-            else:
-                raise NotImplementedError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported or "
-                    "types are not the same for each channel"
+            # if available, read outputs
+            if self.output_channels:
+                data = self.base.read_reg_data(
+                    self.output_register,
+                    length=div_ceil(self.information.output_size, 2),
                 )
+                if all(c.data_type == "BOOL" for c in self.output_channels):
+                    values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+                else:
+                    raise NotImplementedError(
+                        f"Output data type {self.output_channels[0].data_type} are not supported or "
+                        "types are not the same for each channel"
+                    )
 
-        Logging.logger.info(f"{self.name}: Reading channels: {values}")
-        return values
+            Logging.logger.info(f"{self.name}: Reading channels: {values}")
+            return values
+
+        else:
+            raise NotImplementedError(
+                f"Module {self.information.order_text} at index {self.position} "
+                "has no inputs to read"
+            )
 
     @CpxBase.require_base
     def read_channel(
@@ -221,13 +213,12 @@ class GenericApModule(CpxApModule):
 
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
-
-            if full_size:
-                return self.read_channels()[channel]
-
-            return self.read_channels()[channel][
-                : self.fieldbus_parameters[channel]["Input data length"]
-            ]
+            ret = self.read_channels()[channel]
+            return (
+                ret
+                if full_size
+                else ret[: self.fieldbus_parameters[channel]["Input data length"]]
+            )
 
         # Other modules:
         if self.input_channels and outputs_only:
@@ -236,31 +227,19 @@ class GenericApModule(CpxApModule):
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def write_channels(self, data: list) -> None:
-        """write all channels with a list of values
+    def write_channels(self, data: list[Any]) -> None:
+        """write all channels with a list of values. Length of the list must fit the output
+        size of the module. Get the size first by reading the channels and using len().
 
         :param data: list of values for each output channel. The type of the list elements must
         fit to the module type
         :type data: list
         """
-        # check if supported
-        supported_product_categories = [
-            ProductCategory.ANALOG.value,
-            ProductCategory.DIGITAL.value,
-            ProductCategory.MPA_L.value,
-            ProductCategory.MPA_S.value,
-            ProductCategory.VTSA.value,
-            ProductCategory.VTUG.value,
-            ProductCategory.VTUX.value,
-            ProductCategory.VTOM.value,
-        ]
-        if self.product_category not in supported_product_categories:
+        # IO-Link special
+        if self.product_category == ProductCategory.IO_LINK.value:
             raise NotImplementedError(
-                f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
+                "IO Link modules do not support multi output write. Use write_channel() instead."
             )
-
-        # IO-Link special (comment)
-        # IO-Link does not support multiple channel writes as it seems to be unnessesary
 
         # Other modules
         if self.output_channels:
@@ -275,8 +254,8 @@ class GenericApModule(CpxApModule):
                 reg = boollist_to_bytes(data)
             else:
                 raise NotImplementedError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported or "
-                    "types are not the same for each channel"
+                    f"Output data type {self.output_channels[0].data_type} is not supported or "
+                    "types are not the same for each channel (which is also not supported)"
                 )
 
             self.base.write_reg_data(reg, self.output_register)
@@ -290,29 +269,14 @@ class GenericApModule(CpxApModule):
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:
-        """set one channel value
+        """set one channel value. Value must be the correct type, typecheck is done by the function
+        Get the correct type by reading out the channel first and using type() on the value.
 
         :param channel: Channel number, starting with 0
         :type channel: int
         :value: Value that should be written to the channel
         :type value: Any
         """
-        # check if supported
-        supported_product_categories = [
-            ProductCategory.ANALOG.value,
-            ProductCategory.DIGITAL.value,
-            ProductCategory.IO_LINK.value,
-            ProductCategory.MPA_L.value,
-            ProductCategory.MPA_S.value,
-            ProductCategory.VTSA.value,
-            ProductCategory.VTUG.value,
-            ProductCategory.VTUX.value,
-            ProductCategory.VTOM.value,
-        ]
-        if self.product_category not in supported_product_categories:
-            raise NotImplementedError(
-                f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
-            )
 
         # IO-Link special
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -345,9 +309,10 @@ class GenericApModule(CpxApModule):
 
         else:
             raise NotImplementedError(
-                f"Module {self.information.ordercode} has no outputs to write to"
+                f"Module {self.information.order_text} has no outputs to write to"
             )
 
+    # Special functions for digital channels
     @CpxBase.require_base
     def set_channel(self, channel: int) -> None:
         """set one channel to logic high level
@@ -355,29 +320,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # check if supported
-        supported_product_categories = [
-            ProductCategory.DIGITAL.value,
-            ProductCategory.MPA_L.value,
-            ProductCategory.MPA_S.value,
-            ProductCategory.VTSA.value,
-            ProductCategory.VTUG.value,
-            ProductCategory.VTUX.value,
-            ProductCategory.VTOM.value,
-        ]
-        if self.product_category not in supported_product_categories:
-            raise NotImplementedError(
-                f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
-            )
-
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 self.write_channel(channel, True)
-            else:
-                raise TypeError(
-                    f"{self} has has incompatible datatype "
-                    f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-                )
+                return
+
+        raise TypeError(
+            f"{self} has has incompatible datatype "
+            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+        )
 
     @CpxBase.require_base
     def clear_channel(self, channel: int) -> None:
@@ -386,29 +337,15 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # check if supported
-        supported_product_categories = [
-            ProductCategory.DIGITAL.value,
-            ProductCategory.MPA_L.value,
-            ProductCategory.MPA_S.value,
-            ProductCategory.VTSA.value,
-            ProductCategory.VTUG.value,
-            ProductCategory.VTUX.value,
-            ProductCategory.VTOM.value,
-        ]
-        if self.product_category not in supported_product_categories:
-            raise NotImplementedError(
-                f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
-            )
-
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 self.write_channel(channel, False)
-            else:
-                raise TypeError(
-                    f"{self} has has incompatible datatype "
-                    f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-                )
+                return
+
+        raise TypeError(
+            f"{self} has has incompatible datatype "
+            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+        )
 
     @CpxBase.require_base
     def toggle_channel(self, channel: int) -> None:
@@ -417,30 +354,178 @@ class GenericApModule(CpxApModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # check if supported
-        supported_product_categories = [
-            ProductCategory.DIGITAL.value,
-            ProductCategory.MPA_L.value,
-            ProductCategory.MPA_S.value,
-            ProductCategory.VTSA.value,
-            ProductCategory.VTUG.value,
-            ProductCategory.VTUX.value,
-            ProductCategory.VTOM.value,
-        ]
-        if self.product_category not in supported_product_categories:
-            raise NotImplementedError(
-                f"{self} has no function " f"<{inspect.currentframe().f_code.co_name}>"
-            )
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 # get the relevant value from the register and write the inverse
                 value = self.read_channel(channel)
                 self.write_channel(channel, not value)
-            else:
-                raise TypeError(
-                    f"{self} has has incompatible datatype "
-                    f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+                return
+
+        raise TypeError(
+            f"{self} has has incompatible datatype "
+            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
+        )
+
+    # Parameter functions
+    @CpxBase.require_base
+    def write_module_parameter(
+        self,
+        parameter: str | int,
+        value: int | bool | str,
+        instances: int | list = None,
+    ) -> None:
+        """Write module parameter if available"""
+        # TODO: fill in docstring
+
+        # PARAMETER HANDLING
+        if isinstance(parameter, int):
+            parameter = self.parameters.get(parameter)
+        elif isinstance(parameter, str):
+            # iterate over available parameters and extract the one with the correct name
+            parameter_list = [
+                p for p in self.parameters.values() if p.name == parameter
+            ]
+            parameter = parameter_list[0] if len(parameter_list) == 1 else None
+
+        if parameter is None:
+            raise NotImplementedError(f"{self} has no parameter {parameter}")
+
+        if not parameter.is_writable:
+            raise AttributeError(f"Parameter {parameter} is not writable")
+
+        # INSTANCE HANDLING
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            instances = [instances]
+        elif isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
                 )
+        elif instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+        else:
+            instances = [0]
+
+        # VALUE HANDLING
+        if isinstance(value, str):
+            value_str = value
+            value = parameter.enums.enum_values.get(value)
+            # overwrite the parameter datatype from enum
+            parameter.data_type = parameter.enums.data_type
+
+        if value is None:
+            raise TypeError(
+                f"'{value_str}' is not supported for '{parameter.name}'. "
+                f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
+            )
+
+        if isinstance(instances, list):
+            for i in instances:
+                self.base.write_parameter(
+                    self.position,
+                    parameter,
+                    value,
+                    i,
+                )
+        # TODO: add log output for channels if set
+        Logging.logger.info(f"{self.name}: Setting {parameter.name} to {value}")
+
+    @CpxBase.require_base
+    def read_module_parameter(
+        self,
+        parameter: str | int,
+        instances: int | list = None,
+    ) -> Any:
+        """Read module parameter if available"""
+        # TODO: fill in docstring
+
+        # PARAMETER HANDLING
+        if isinstance(parameter, int):
+            parameter = self.parameters.get(parameter)
+        elif isinstance(parameter, str):
+            # iterate over available parameters and extract the one with the correct name
+            # TODO: docu that this takes longer than parameter id
+            parameter_list = [
+                p for p in self.parameters.values() if p.name == parameter
+            ]
+            parameter = parameter_list[0] if len(parameter_list) == 1 else None
+
+        if parameter is None:
+            raise NotImplementedError(f"{self} has no parameter {parameter}")
+
+        if parameter.enums:
+            # overwrite the parameter datatype from enum
+            parameter.data_type = parameter.enums.data_type
+
+        # INSTANCE HANDLING
+        # TODO: Instance handling is the same for read/write parameter and repeats some lines itself
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            instances = [instances]
+        elif isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+        elif instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+        else:
+            instances = [0]
+
+        # VALUE HANDLING
+        values = []
+        for i in instances:
+            values.append(
+                self.base.read_parameter(
+                    self.position,
+                    parameter,
+                    i,
+                )
+            )
+
+        # TODO: add log output for channels if set + log for enums
+        Logging.logger.info(
+            f"{self.name}: Read {values} from parameter {parameter.name}"
+        )
+
+        # if parameter is ENUM, return the according string. Indexing 0 should always work here
+        # because the check that value is available was done before
+
+        if parameter.enums:
+            enum_values = []
+            for val in values:
+                enum_values.append(
+                    [k for k, v in parameter.enums.enum_values.items() if v == val][0]
+                )
+            values = enum_values
+
+        if len(instances) == 1:
+            return values[0]
+
+        return values
 
     @CpxBase.require_base
     def read_system_parameters(self) -> SystemParameters:
@@ -482,6 +567,7 @@ class GenericApModule(CpxApModule):
         Logging.logger.info(f"{self.name}: Reading parameters: {params}")
         return params
 
+    # IO-Link special functions
     @CpxBase.require_base
     def read_pqi(self, channel: int = None) -> dict | list[dict]:
         """Returns Port Qualifier Information for each channel. If no channel is given,
@@ -756,163 +842,3 @@ class GenericApModule(CpxApModule):
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
         )
-
-    @CpxBase.require_base
-    def write_module_parameter(
-        self,
-        parameter: str | int,
-        value: int | bool | str,
-        instances: int | list = None,
-    ) -> None:
-        """Write module parameter if available"""
-        # TODO: fill in docstring
-
-        # PARAMETER HANDLING
-        if isinstance(parameter, int):
-            parameter = self.parameters.get(parameter)
-        elif isinstance(parameter, str):
-            # iterate over available parameters and extract the one with the correct name
-            parameter_list = [
-                p for p in self.parameters.values() if p.name == parameter
-            ]
-            parameter = parameter_list[0] if len(parameter_list) == 1 else None
-
-        if parameter is None:
-            raise NotImplementedError(f"{self} has no parameter {parameter}")
-
-        if not parameter.is_writable:
-            raise AttributeError(f"Parameter {parameter} is not writable")
-
-        # INSTANCE HANDLING
-        if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
-            instances = [instances]
-        elif isinstance(instances, list):
-            for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-        elif instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
-        else:
-            instances = [0]
-
-        # VALUE HANDLING
-        if isinstance(value, str):
-            value_str = value
-            value = parameter.enums.enum_values.get(value)
-            # overwrite the parameter datatype from enum
-            parameter.data_type = parameter.enums.data_type
-
-        if value is None:
-            raise TypeError(
-                f"'{value_str}' is not supported for '{parameter.name}'. "
-                f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
-            )
-
-        if isinstance(instances, list):
-            for i in instances:
-                self.base.write_parameter(
-                    self.position,
-                    parameter,
-                    value,
-                    i,
-                )
-        # TODO: add log output for channels if set
-        Logging.logger.info(f"{self.name}: Setting {parameter.name} to {value}")
-
-    @CpxBase.require_base
-    def read_module_parameter(
-        self,
-        parameter: str | int,
-        instances: int | list = None,
-    ) -> Any:
-        """Read module parameter if available"""
-        # TODO: fill in docstring
-
-        # PARAMETER HANDLING
-        if isinstance(parameter, int):
-            parameter = self.parameters.get(parameter)
-        elif isinstance(parameter, str):
-            # iterate over available parameters and extract the one with the correct name
-            # TODO: docu that this takes longer than parameter id
-            parameter_list = [
-                p for p in self.parameters.values() if p.name == parameter
-            ]
-            parameter = parameter_list[0] if len(parameter_list) == 1 else None
-
-        if parameter is None:
-            raise NotImplementedError(f"{self} has no parameter {parameter}")
-
-        if parameter.enums:
-            # overwrite the parameter datatype from enum
-            parameter.data_type = parameter.enums.data_type
-
-        # INSTANCE HANDLING
-        # TODO: Instance handling is the same for read/write parameter and repeats some lines itself
-        if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
-            instances = [instances]
-        elif isinstance(instances, list):
-            for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-        elif instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
-        else:
-            instances = [0]
-
-        # VALUE HANDLING
-        values = []
-        for i in instances:
-            values.append(
-                self.base.read_parameter(
-                    self.position,
-                    parameter,
-                    i,
-                )
-            )
-
-        # TODO: add log output for channels if set + log for enums
-        Logging.logger.info(
-            f"{self.name}: Read {values} from parameter {parameter.name}"
-        )
-
-        # if parameter is ENUM, return the according string. Indexing 0 should always work here
-        # because the check that value is available was done before
-
-        if parameter.enums:
-            enum_values = []
-            for val in values:
-                enum_values.append(
-                    [k for k, v in parameter.enums.enum_values.items() if v == val][0]
-                )
-            values = enum_values
-
-        if len(instances) == 1:
-            return values[0]
-
-        return values

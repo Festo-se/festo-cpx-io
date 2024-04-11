@@ -11,12 +11,25 @@ with CpxAp(ip_address="172.16.1.41", timeout=1) as cpxap:
     PARAM = 20043
     # print("Modules: ", cpxap.modules)
     # print("Parameters")
-    # print(cpxap.modules[5].parameters)
+    # print(cpxap.modules[IDX].parameters)
 
     # print(f"Channels: {cpxap.modules[IDX].read_channels()}")
 
     # cpxap.modules[IDX].write_module_parameter(PARAM, "+/- 10 V")
     # time.sleep(0.05)
+
+    # for m in cpxap.modules[1:]:
+    #     print(m)
+    #     print(f"Channels: {m.read_channels()}")
+    #     try:
+    #         m.write_channel(0, 0)
+    #         time.sleep(0.05)
+    #         print(f"Channels: {m.read_channels()}")
+    #     except NotImplementedError as e:
+    #         print(e)
+    #     print("\n")
+    # exit()
+
     # m = cpxap.modules[IDX]
 
     """used_params = []
@@ -44,7 +57,6 @@ with CpxAp(ip_address="172.16.1.41", timeout=1) as cpxap:
     print(diff)
     """
 
-    # TODO: beautiful print output should be moved to cpx_ap !
     cpxap.print_system_information()
 
     print("-----------------------------------------------------------------")

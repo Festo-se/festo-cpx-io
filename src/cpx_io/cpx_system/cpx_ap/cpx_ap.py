@@ -190,7 +190,7 @@ class CpxAp(CpxBase):
         :param info: ModuleInformation object containing the read-out info from the module
         :type info: ModuleInformation
         """
-        module.update_information(info)
+        module.information = info
 
         # if the module is a bus-module, the in- and output registers have to be set initially
         # TODO: this is probably wrong. module_class is probably something different than

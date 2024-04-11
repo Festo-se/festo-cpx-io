@@ -37,7 +37,3 @@ class CpxApModule(CpxModule):
 
         self.base.next_output_register += div_ceil(self.information.output_size, 2)
         self.base.next_input_register += div_ceil(self.information.input_size, 2)
-
-    def update_information(self, info):
-        """Update the module information"""
-        self.information = info
