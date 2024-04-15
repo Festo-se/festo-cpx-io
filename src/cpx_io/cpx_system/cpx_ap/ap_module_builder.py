@@ -186,8 +186,6 @@ class CpxApModuleBuilder:
     :rtype: GenericApModule
     """
 
-    _hidden_parameters = [20081, 20082, 20089, 20096, 20098, 20189, 1130125]
-
     # TODO: Split build function into several individual functions to
     # make it better readable
 
@@ -285,7 +283,7 @@ class CpxApModuleBuilder:
         parameters = {
             p["ParameterId"]: ParameterBuilder().build(p, enums, units)
             for p in parameter_list
-            if p["ParameterId"] not in self._hidden_parameters
+            if p.get("FieldbusSettings")
         }
 
         return GenericApModule(
