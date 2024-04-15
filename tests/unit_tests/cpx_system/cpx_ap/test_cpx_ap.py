@@ -3,14 +3,9 @@
 from unittest.mock import patch, Mock
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
-from cpx_io.cpx_system.cpx_ap.ap4aiui import CpxAp4AiUI
-from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
-from cpx_io.cpx_system.cpx_ap.ap4di4do import CpxAp4Di4Do
-from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
-from cpx_io.cpx_system.cpx_ap import cpx_ap_registers
+from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
+import cpx_io.cpx_system.cpx_ap.ap_modbus_registers as reg
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap, ParameterMapItem
 
 
@@ -51,26 +46,13 @@ class TestCpxAp:
 
         # Assert
         mock_write_reg_data.assert_called_with(
-            b"\x64\x00\x00\x00", cpx_ap_registers.TIMEOUT.register_address
+            b"\x64\x00\x00\x00", reg.TIMEOUT.register_address
         )
         mock_read_reg_data.assert_called_once()
 
         assert isinstance(cpxap, CpxAp)
         assert len(cpxap.modules) == 7
-        assert isinstance(cpxap.modules[0], CpxApEp)
-        assert isinstance(cpxap.modules[1], CpxAp8Di)
-        assert isinstance(cpxap.modules[2], CpxAp4Di4Do)
-        assert isinstance(cpxap.modules[3], CpxAp4AiUI)
-        assert isinstance(cpxap.modules[4], CpxAp4Iol)
-        assert isinstance(cpxap.modules[5], CpxAp4Di)
-        assert isinstance(cpxap.modules[6], CpxAp4Di)
-        assert isinstance(cpxap.cpxapep, CpxApEp)  # pylint: disable="no-member"
-        assert isinstance(cpxap.cpxap8di, CpxAp8Di)  # pylint: disable="no-member"
-        assert isinstance(cpxap.cpxap4di4do, CpxAp4Di4Do)  # pylint: disable="no-member"
-        assert isinstance(cpxap.cpxap4aiui, CpxAp4AiUI)  # pylint: disable="no-member"
-        assert isinstance(cpxap.cpxap4iol, CpxAp4Iol)  # pylint: disable="no-member"
-        assert isinstance(cpxap.cpxap4di, CpxAp4Di)  # pylint: disable="no-member"
-        assert isinstance(cpxap.cpxap4di_1, CpxAp4Di)  # pylint: disable="no-member"
+        assert all(isinstance(m, GenericApModule) for m in cpxap.modules)
 
     @patch.object(CpxAp, "read_module_count")
     @patch.object(CpxAp, "read_module_information")

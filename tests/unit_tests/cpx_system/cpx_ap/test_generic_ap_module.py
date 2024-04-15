@@ -1,36 +1,35 @@
-"""Contains tests for CpxAp4Di class"""
+"""Contains tests for GenericApModule class"""
 
 from unittest.mock import Mock
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.ap4di import CpxAp4Di
+from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-from cpx_io.cpx_system.cpx_ap.ap_enums import DebounceTime
 
 
-class TestCpxAp4Di:
-    "Test CpxAp4Di"
+class TestGenericApModule:
+    "Test GenericApModule"
 
     def test_constructor_correct_type(self):
         """Test constructor"""
         # Arrange
 
         # Act
-        cpxap4di = CpxAp4Di()
+        module = GenericApModule()
 
         # Assert
-        assert isinstance(cpxap4di, CpxAp4Di)
+        assert isinstance(module, GenericApModule)
 
     def test_read_channels_correct_values(self):
         """Test read channels"""
         # Arrange
-        cpxap4di = CpxAp4Di()
+        module = GenericApModule()
         ret_data = b"\xFA"
 
-        cpxap4di.base = Mock(read_reg_data=Mock(return_value=ret_data))
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
-        channel_values = cpxap4di.read_channels()
+        channel_values = module.read_channels()
 
         # Assert
         assert channel_values == [False, True, False, True]
@@ -38,13 +37,13 @@ class TestCpxAp4Di:
     def test_read_channel_correct_values(self):
         """Test read channel"""
         # Arrange
-        cpxap4di = CpxAp4Di()
+        module = GenericApModule()
         ret_data = b"\xAA"
 
-        cpxap4di.base = Mock(read_reg_data=Mock(return_value=ret_data))
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
-        channel_values = [cpxap4di.read_channel(idx) for idx in range(4)]
+        channel_values = [module.read_channel(idx) for idx in range(4)]
 
         # Assert
         assert channel_values == [False, True, False, True]
@@ -52,13 +51,13 @@ class TestCpxAp4Di:
     def test_get_item_correct_values(self):
         """Test get item"""
         # Arrange
-        cpxap4di = CpxAp4Di()
+        module = GenericApModule()
         ret_data = b"\xAA"
 
-        cpxap4di.base = Mock(read_reg_data=Mock(return_value=ret_data))
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
-        channel_values = [cpxap4di[idx] for idx in range(4)]
+        channel_values = [module[idx] for idx in range(4)]
 
         # Assert
         assert channel_values == [False, True, False, True]
@@ -83,16 +82,16 @@ class TestCpxAp4Di:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        cpxap4di = CpxAp4Di()
-        cpxap4di.position = MODULE_POSITION
+        module = GenericApModule()
+        module.position = MODULE_POSITION
 
-        cpxap4di.base = Mock(write_parameter=Mock())
+        module.base = Mock(write_parameter=Mock())
 
         # Act
-        cpxap4di.configure_debounce_time(input_value)
+        module.configure_debounce_time(input_value)
 
         # Assert
-        cpxap4di.base.write_parameter.assert_called_with(
+        module.base.write_parameter.assert_called_with(
             MODULE_POSITION,
             ParameterNameMap()["InputDebounceTime"],
             expected_value,
@@ -104,11 +103,11 @@ class TestCpxAp4Di:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        cpxap4di = CpxAp4Di()
-        cpxap4di.position = MODULE_POSITION
+        module = GenericApModule()
+        module.position = MODULE_POSITION
 
-        cpxap4di.base = Mock(write_parameter=Mock())
+        module.base = Mock(write_parameter=Mock())
 
         # Act & Assert
         with pytest.raises(ValueError):
-            cpxap4di.configure_debounce_time(input_value)
+            module.configure_debounce_time(input_value)

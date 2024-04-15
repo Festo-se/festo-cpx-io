@@ -53,9 +53,13 @@ class CpxModule:
         self.position = position
 
         # if name already exists in module list, add a counter as suffix
-        module_type_list = [type(module) for module in self.base.modules]
-        if type(self) in module_type_list:
-            self.name = f"{self.name}_{module_type_list.count(type(self))}"
+        module_name_list = [module.name for module in self.base.modules]
+        i = 1
+        temp_name = self.name
+        while temp_name in module_name_list:
+            temp_name = f"{self.name}_{i}"
+            i += 1
+        self.name = temp_name
 
         self.output_register = self.base.next_output_register
         self.input_register = self.base.next_input_register

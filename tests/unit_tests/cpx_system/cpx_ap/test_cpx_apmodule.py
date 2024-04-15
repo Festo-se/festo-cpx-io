@@ -36,42 +36,6 @@ class TestCpxApModule:
         # Assert
         assert module.position == MODULE_POSITION
 
-    def test_update_information(self):
-        """Test update_information"""
-        # Arrange
-        module = CpxApModule()
-        module.information = {}
-
-        # Act
-        module.update_information({"test": "information"})
-
-        # Assert
-        assert module.information == {"test": "information"}
-
-    def test_read_ap_parameter(self):
-        """Test read_ap_parameter"""
-        # Arrange
-        module = CpxApModule()
-
-        module.base = Mock(read_parameter=Mock(return_value=131073))
-
-        # Act
-        ret = module.read_ap_parameter()
-
-        # Assert
-        # since the real read_parameter would return values dependent on the
-        # parameter, this test only shows mostly, that all ap parameters are included
-        assert ret.fieldbus_serial_number == 131073
-        assert ret.product_key == 131073
-        assert ret.firmware_version == 131073
-        assert ret.module_code == 131073
-        assert ret.temp_asic == 131073
-        assert ret.logic_voltage == 131.073
-        assert ret.load_voltage == 131.073
-        assert ret.hw_version == 131073
-        assert ret.io_link_variant == "n.a."
-        assert ret.operating_supply is False
-
     def test_repr_correct_string(self):
         """Test repr"""
         # Arrange

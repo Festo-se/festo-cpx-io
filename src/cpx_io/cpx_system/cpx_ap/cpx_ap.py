@@ -76,6 +76,8 @@ class CpxAp(CpxBase):
             self.apdd_path = self.create_apdd_path()
 
         module_count = self.read_module_count()
+        apdds = os.listdir(self.apdd_path)
+
         for i in range(module_count):
             info = self.read_module_information(i)
             apdd_name = (
@@ -83,7 +85,6 @@ class CpxAp(CpxBase):
             )
 
             # if correct apdd exists in folder, use it!
-            apdds = os.listdir(self.apdd_path)
             if apdd_name in apdds:
                 with open(self.apdd_path + "/" + apdd_name, "r", encoding="ascii") as f:
                     module_apdd = json.load(f)
