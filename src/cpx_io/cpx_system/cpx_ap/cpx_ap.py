@@ -224,8 +224,17 @@ class CpxAp(CpxBase):
     def print_system_information(self) -> None:
         """Prints all parameters from all modules"""
         for m in self.modules:
-            print(f"\n\nModule {m}:\n__________________________________________")
-            [print(p) for p in m.parameters.values()]
+            print(f"\n\nModule {m}:")
+            print("* Information:")
+            print(f"   > {m.description}\n")
+            print("* Available Parameters: ")
+            print(
+                "   > ID      Name                                              R/W   Type       "
+            )
+            print(
+                "   > ---------------------------------------------------------------------------"
+            )
+            [print(f"   > {p}") for p in m.parameters.values()]
 
     # TODO: give a better name for this function
     def print_system_state(self) -> None:

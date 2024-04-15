@@ -210,17 +210,22 @@ class CpxApModuleBuilder:
         else:
             raise IndexError(f"Could not find variant for ModuleCode {module_code}")
 
-        description = actual_variant.description
-        # TODO: Make better names?? Names seem to be numbered always and not only if duplicate modules
-        # TODO: Use more information?
-        name = actual_variant.name.lower().replace("-", "_").replace(" ", "_")
-        module_type = actual_variant.name
-        configurator_code = actual_variant.variant_identification["ConfiguratorCode"]
-        part_number = actual_variant.variant_identification["FestoPartNumberDevice"]
-        module_class = actual_variant.variant_identification["ModuleClass"]
-        module_code = actual_variant.variant_identification["ModuleCode"]
-        order_text = actual_variant.variant_identification["OrderText"]
-
+        module_information = {
+            "Description": actual_variant.description,
+            "Name": actual_variant.name.lower().replace("-", "_").replace(" ", "_"),
+            "Module Type": actual_variant.name,
+            "Configurator Code": actual_variant.variant_identification[
+                "ConfiguratorCode"
+            ],
+            "Part Number": actual_variant.variant_identification[
+                "FestoPartNumberDevice"
+            ],
+            "Module Class": actual_variant.variant_identification["ModuleClass"],
+            "Module Code": actual_variant.variant_identification["ModuleCode"],
+            "Order Text": actual_variant.variant_identification["OrderText"],
+            "Product Category": product_category,
+            "Product Family": product_family,
+        }
         # setup all channel types
         channel_types = []
         if apdd.get("Channels"):
@@ -287,9 +292,7 @@ class CpxApModuleBuilder:
         }
 
         return GenericApModule(
-            name,
-            module_type,
-            product_category,
+            module_information,
             input_channels,
             output_channels,
             parameters,

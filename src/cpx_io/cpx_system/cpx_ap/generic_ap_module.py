@@ -91,9 +91,7 @@ class GenericApModule(CpxApModule):
 
     def __init__(
         self,
-        name,
-        module_type,
-        product_category,
+        module_information,
         input_channels,
         output_channels,
         parameters,
@@ -102,9 +100,10 @@ class GenericApModule(CpxApModule):
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.name = name
-        self.module_type = module_type
-        self.product_category = product_category
+        self.name = module_information.get("Name")
+        self.description = module_information.get("Description")
+        self.module_type = module_information.get("Module Type")
+        self.product_category = module_information.get("Product Category")
         self.input_channels = input_channels
         self.output_channels = output_channels
         self.parameters = parameters
