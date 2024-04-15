@@ -104,6 +104,8 @@ class CpxAp(CpxBase):
             module = CpxApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
+        self.generate_system_information()
+
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated
@@ -221,6 +223,16 @@ class CpxAp(CpxBase):
         register, length = modbus_command
         return ((register + 37 * module), length)
 
+    def generate_system_information(self) -> None:
+        """Saves a readable document that includes the system information in the apdd path"""
+        # TODO: add system information to data
+        data = "test"
+
+        with open(
+            self.apdd_path + "/system_information.json", "w", encoding="ascii"
+        ) as f:
+            f.write(json.dumps(data, indent=4))
+
     def print_system_information(self) -> None:
         """Prints all parameters from all modules"""
         for m in self.modules:
@@ -236,7 +248,6 @@ class CpxAp(CpxBase):
             )
             [print(f"   > {p}") for p in m.parameters.values()]
 
-    # TODO: give a better name for this function
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
         for m in self.modules:
@@ -254,8 +265,6 @@ class CpxAp(CpxBase):
             except NotImplementedError:
                 print("\t(No readable channels available)")
 
-    # TODO: This can also be generated from apdd. but it might be good to read it and check
-    # if the data on the module and the existing match ...
     def read_module_information(self, position: int) -> ModuleInformation:
         """Reads and returns detailed information for a specific IO module
 
