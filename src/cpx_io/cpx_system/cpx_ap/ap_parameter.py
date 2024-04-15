@@ -24,10 +24,10 @@ class Parameter:
 
     def __repr__(self):
         return (
-            # TODO: use zfill to align?
-            f"{self.parameter_id} {self.name}\t"
-            f"{'Read/Write' if self.is_writable else 'Read only'}\t"
-            f"{self.data_type}"
+            f"{self.parameter_id:<8}"
+            f"{self.name:<50}"
+            f"{'RW' if self.is_writable else 'R':<6}"
+            f"{self.data_type:<8}"
             f"{self.enums if self.enums else ''}"
         )
 

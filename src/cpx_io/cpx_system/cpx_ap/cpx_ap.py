@@ -231,15 +231,17 @@ class CpxAp(CpxBase):
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
         for m in self.modules:
-            print(f"\n\nModule {m}:\n__________________________________________")
+            print(f"\n\nModule {m}:")
             for i, p in m.parameters.items():
                 r_w = "R/W" if p.is_writable else "R"
                 print(
-                    f"\tRead {p.name} (ID {i}): {m.read_module_parameter(i)} {p.unit} ({r_w})"
+                    f"{f'  > Read {p.name} (ID {i}):':<64}"
+                    f"{f'{m.read_module_parameter(i)} {p.unit}':<32}"
+                    f"({r_w})"
                 )
 
             try:
-                print(f"\n\tChannels: {m.read_channels()}")
+                print(f"\n  > Read Channels: {m.read_channels()}")
             except NotImplementedError:
                 print("\t(No readable channels available)")
 
