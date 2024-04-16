@@ -104,7 +104,7 @@ class CpxAp(CpxBase):
             module = CpxApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
-        self.generate_system_information()
+        self.generate_system_information_file()
 
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
@@ -223,7 +223,7 @@ class CpxAp(CpxBase):
         register, length = modbus_command
         return ((register + 37 * module), length)
 
-    def generate_system_information(self) -> None:
+    def generate_system_information_file(self) -> None:
         """Saves a readable document that includes the system information in the apdd path"""
         # TODO: maybe generate a kind of checksum of the system here and check if the checksum
         # is the same as the saved so it doesn't need to save it everytime - this will save time
@@ -231,7 +231,6 @@ class CpxAp(CpxBase):
         for m in self.modules:
             parameter_data = []
             for p in m.parameters.values():
-
                 parameter_data.append(
                     {
                         "Id": p.parameter_id,
@@ -258,12 +257,15 @@ class CpxAp(CpxBase):
         system_data = {
             "Information": "AP System description",
             "IP-Address": self.ip_address,
-            "Number of modules": self.read_module_count(),
+            "Number of modules": len(self.modules),
             "Modules": module_data,
         }
 
         with open(
-            self.apdd_path + "/system_information.json", "w", encoding="ascii"
+            self.apdd_path
+            + f"/system_information_{self.ip_address.replace('.','-')}.json",
+            "w",
+            encoding="ascii",
         ) as f:
             f.write(json.dumps(system_data, indent=4))
 
