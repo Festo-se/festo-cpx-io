@@ -226,12 +226,45 @@ class CpxAp(CpxBase):
     def generate_system_information(self) -> None:
         """Saves a readable document that includes the system information in the apdd path"""
         # TODO: add system information to data
-        data = "test"
+        module_data = []
+        for m in self.modules:
+            parameter_data = []
+            for p in m.parameters.values():
+
+                parameter_data.append(
+                    {
+                        "Id": p.parameter_id,
+                        "Name": p.name,
+                        "Description": p.description,
+                        "Type": p.data_type,
+                    }
+                )
+                # if enum data is available, add it to the last entry
+                enum_data = p.enums.enum_values if p.enums else None
+                if enum_data:
+                    parameter_data[-1]["Enums"] = enum_data
+
+            module_data.append(
+                {
+                    "Type": m.module_type,
+                    "Description": m.description,
+                    "Index": m.position,
+                    "Name": m.name,
+                    "Parameters": parameter_data,
+                }
+            )
+
+        system_data = {
+            "Information": "AP System description",
+            "IP-Address": self.ip_address,
+            "Number of modules": self.read_module_count(),
+            "Modules": module_data,
+        }
 
         with open(
             self.apdd_path + "/system_information.json", "w", encoding="ascii"
         ) as f:
-            f.write(json.dumps(data, indent=4))
+            f.write(json.dumps(system_data, indent=4))
 
     def print_system_information(self) -> None:
         """Prints all parameters from all modules"""
