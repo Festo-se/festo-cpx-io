@@ -225,7 +225,8 @@ class CpxAp(CpxBase):
 
     def generate_system_information(self) -> None:
         """Saves a readable document that includes the system information in the apdd path"""
-        # TODO: add system information to data
+        # TODO: maybe generate a kind of checksum of the system here and check if the checksum
+        # is the same as the saved so it doesn't need to save it everytime - this will save time
         module_data = []
         for m in self.modules:
             parameter_data = []
