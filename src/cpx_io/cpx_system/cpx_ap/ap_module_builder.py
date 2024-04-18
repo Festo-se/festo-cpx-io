@@ -186,8 +186,23 @@ class CpxApModuleBuilder:
     :rtype: GenericApModule
     """
 
-    # TODO: Split build function into several individual functions to
-    # make it better readable
+    @staticmethod
+    def _setup_channel_types(apdd_channels) -> list:
+        channel_types = []
+        if apdd_channels:
+            for channel_dict in apdd_channels:
+                channel_types.append(ChannelBuilder().build(channel_dict))
+            Logging.logger.debug(f"Set up Channel Types: {channel_types}")
+        return channel_types
+
+    @staticmethod
+    def _setup_channel_groups(apdd_channel_groups) -> list:
+        channel_groups = []
+        if apdd_channel_groups:
+            for channel_group_dict in apdd_channel_groups:
+                channel_groups.append(ChannelGroupBuilder().build(channel_group_dict))
+            Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
+        return channel_groups
 
     def build(self, apdd, module_code):
         """Build function for generic ap module"""
@@ -227,18 +242,10 @@ class CpxApModuleBuilder:
             "Product Family": product_family,
         }
         # setup all channel types
-        channel_types = []
-        if apdd.get("Channels"):
-            for channel_dict in apdd.get("Channels"):
-                channel_types.append(ChannelBuilder().build(channel_dict))
-            Logging.logger.debug(f"Set up Channel Types: {channel_types}")
+        channel_types = self._setup_channel_types(apdd.get("Channels"))
 
         # setup all channel groups
-        channel_groups = []
-        if apdd.get("ChannelGroups"):
-            for channel_group_dict in apdd.get("ChannelGroups"):
-                channel_groups.append(ChannelGroupBuilder().build(channel_group_dict))
-            Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
+        channel_groups = self._setup_channel_groups(apdd.get("ChannelGroups"))
 
         # setup all channels for the module
         channels = []

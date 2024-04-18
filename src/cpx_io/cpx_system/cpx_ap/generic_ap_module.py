@@ -365,6 +365,35 @@ class GenericApModule(CpxApModule):
             f"{self.output_channels[channel].data_type} (should be 'BOOL')"
         )
 
+    @staticmethod
+    def _check_instances(parameter, instances) -> list:
+        """Check if instances are correct and return corrected instances or raise Error"""
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            return [instances]
+        if isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            return instances
+        if instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+            return instances
+
+        return [0]
+
     # Parameter functions
     @CpxBase.require_base
     def write_module_parameter(
@@ -373,8 +402,14 @@ class GenericApModule(CpxApModule):
         value: int | bool | str,
         instances: int | list = None,
     ) -> None:
-        """Write module parameter if available"""
-        # TODO: fill in docstring
+        """Write module parameter if available
+        :param parameter: Parameter name or ID
+        :type parameter: str | int
+        :param value: Value to write to the parameter, type depending on parameter
+        :type value: int | bool | str
+        :param instances: (optional) Index or list of instances of the parameter.
+        If None, all instances will be written
+        :type instance: int | list"""
 
         # PARAMETER HANDLING
         if isinstance(parameter, int):
@@ -393,29 +428,7 @@ class GenericApModule(CpxApModule):
             raise AttributeError(f"Parameter {parameter} is not writable")
 
         # INSTANCE HANDLING
-        if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
-            instances = [instances]
-        elif isinstance(instances, list):
-            for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-        elif instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
-        else:
-            instances = [0]
+        instances = self._check_instances(parameter, instances)
 
         # VALUE HANDLING
         if isinstance(value, str):
@@ -438,8 +451,10 @@ class GenericApModule(CpxApModule):
                     value,
                     i,
                 )
-        # TODO: add log output for channels if set
-        Logging.logger.info(f"{self.name}: Setting {parameter.name} to {value}")
+
+        Logging.logger.info(
+            f"{self.name}: Setting {parameter.name}, instances {instances} to {value}"
+        )
 
     @CpxBase.require_base
     def read_module_parameter(
@@ -447,15 +462,20 @@ class GenericApModule(CpxApModule):
         parameter: str | int,
         instances: int | list = None,
     ) -> Any:
-        """Read module parameter if available"""
-        # TODO: fill in docstring
+        """Read module parameter if available. Access either by ID (faster) or by Name
+        :param parameter: Parameter name or ID
+        :type parameter: str | int
+        :param instances: (optional) Index or list of instances of the parameter.
+        If None, all instances will be written
+        :type instance: int | list
+        :return: Value of the parameter. Type depends on the parameter
+        :rtype: Any"""
 
         # PARAMETER HANDLING
         if isinstance(parameter, int):
             parameter = self.parameters.get(parameter)
         elif isinstance(parameter, str):
             # iterate over available parameters and extract the one with the correct name
-            # TODO: docu that this takes longer than parameter id
             parameter_list = [
                 p for p in self.parameters.values() if p.name == parameter
             ]
@@ -469,30 +489,7 @@ class GenericApModule(CpxApModule):
             parameter.data_type = parameter.enums.data_type
 
         # INSTANCE HANDLING
-        # TODO: Instance handling is the same for read/write parameter and repeats some lines itself
-        if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
-            instances = [instances]
-        elif isinstance(instances, list):
-            for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-        elif instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
-        else:
-            instances = [0]
+        instances = self._check_instances(parameter, instances)
 
         # VALUE HANDLING
         values = []
@@ -504,11 +501,6 @@ class GenericApModule(CpxApModule):
                     i,
                 )
             )
-
-        # TODO: add log output for channels if set + log for enums
-        Logging.logger.info(
-            f"{self.name}: Read {values} from parameter {parameter.name}"
-        )
 
         # if parameter is ENUM, return the according string. Indexing 0 should always work here
         # because the check that value is available was done before
@@ -522,8 +514,11 @@ class GenericApModule(CpxApModule):
             values = enum_values
 
         if len(instances) == 1:
-            return values[0]
+            values = values[0]
 
+        Logging.logger.info(
+            f"{self.name}: Read {values} from instances {instances} of parameter {parameter.name}"
+        )
         return values
 
     # Busmodule special functions

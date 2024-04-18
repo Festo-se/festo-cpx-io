@@ -211,7 +211,7 @@ class CpxAp(CpxBase):
         module.information = info
 
         # if the module is a bus-module, the in- and output registers have to be set initially
-        # TODO: this is probably wrong. module_class is probably something different than
+        # TODO: this might be wrong. module_class might be something different than
         # product category. This works because the values match but this needs investigation
         if info.module_class == ProductCategory.CONTROLLERS.value:
             self.next_output_register = ap_modbus_registers.OUTPUTS.register_address
