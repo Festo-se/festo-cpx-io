@@ -251,9 +251,13 @@ class CpxAp(CpxBase):
                         "Id": p.parameter_id,
                         "Name": p.name,
                         "Description": p.description,
-                        "Type": p.data_type,
-                        "Size": p.array_size,
                         "R/W": "R/W" if p.is_writable else "R",
+                        "Type": p.data_type,
+                        "Size": (
+                            p.array_size
+                            if p.array_size and p.data_type != "ENUM_ID"
+                            else ""
+                        ),
                         "Instances": p.parameter_instances["NumberOfInstances"],
                     }
                 )
@@ -264,9 +268,11 @@ class CpxAp(CpxBase):
 
             module_data.append(
                 {
+                    "Index": m.position,
                     "Type": m.module_type,
                     "Description": m.description,
-                    "Index": m.position,
+                    "Code": m.information.module_code,
+                    "FWVersion": m.information.fw_version,
                     "Default Name": m.name,
                     "Parameters": parameter_data,
                 }
@@ -315,14 +321,13 @@ class CpxAp(CpxBase):
                 if len(m["Description"]) > 1:
                     f.write(f"{m['Description']}\n")
                 f.write(f"* Type: {m['Type']}\n")
-                f.write(f"* Default Name: {m['Default Name']}\n")
-                f.write("* Parameter Table: \n")
-                # table of parameters
+                f.write(f"* Code: {m['Code']}\n")
+                f.write(f"* FWVersion: {m['FWVersion']}\n")
+                f.write(f"* Default Name: {m['Default Name']}\n\n")
+                f.write("Parameter Table: \n\n")
                 f.write(
-                    "| Name | Description | ID | Type | Size | R/W | Instances | Enums |\n"
-                )
-                f.write(
-                    "|------|-------------|----|------|------|-----|-----------|-------|\n"
+                    "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
+                    "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
                 )
                 for p in m["Parameters"]:
                     enums_str = "<ul>"
@@ -330,8 +335,12 @@ class CpxAp(CpxBase):
                         for k, v in p["Enums"].items():
                             enums_str += f"<li>{v}: {k}</li>"
                     enums_str += "</ul>"
+                    description_corrected_newline = p["Description"].replace(
+                        "\n", "<br>"
+                    )
                     f.write(
-                        f"|{p['Name']}|{p['Description']}|{p['Id']}|{p['Type']}|{p['Size']}|{p['R/W']}|{p['Instances']}|{enums_str}|\n"
+                        f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|{p['Type']}|"
+                        f"{p['Size']}|{p['Instances']}|{enums_str}|\n"
                     )
 
                 # chapters for parameters
