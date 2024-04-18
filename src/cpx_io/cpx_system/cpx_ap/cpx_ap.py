@@ -4,6 +4,7 @@ import json
 import struct
 from typing import Any
 from dataclasses import dataclass
+from datetime import datetime
 import os
 import platformdirs
 import requests
@@ -251,6 +252,9 @@ class CpxAp(CpxBase):
                         "Name": p.name,
                         "Description": p.description,
                         "Type": p.data_type,
+                        "Size": p.array_size,
+                        "R/W": "R/W" if p.is_writable else "R",
+                        "Instances": p.parameter_instances["NumberOfInstances"],
                     }
                 )
                 # if enum data is available, add it to the last entry
@@ -297,25 +301,49 @@ class CpxAp(CpxBase):
                 "in all the information from all connected modules. This file will be "
                 "updated everytime you make an instance of the CpxAp Object and is "
                 "saved in the festo-cpx-io folder in your user directory depending on "
-                "your operating system\n"
+                f"your operating system *{self.docu_path}*\n"
             )
             f.write(f"* IP-Address: {system_data['IP-Address']}\n")
             f.write(f"* Number of modules: {system_data['Number of modules']}\n")
-            f.write(f"\n# Modules\n")
+            f.write(
+                f"* Date of creation: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"
+            )
+            f.write("\n# Modules\n")
             for m in module_data:
                 f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
-                f.write(f"{m['Description']}\n")
+                # it can happen that there is no description which leads to a "-" in the md file
+                if len(m["Description"]) > 1:
+                    f.write(f"{m['Description']}\n")
                 f.write(f"* Type: {m['Type']}\n")
                 f.write(f"* Default Name: {m['Default Name']}\n")
-                for p in parameter_data:
-                    f.write(f"\n### Parameter '{p['Name']}'\n")
-                    f.write(f"{p['Description']}\n")
-                    f.write(f"* ID: {p['Id']}\n")
-                    f.write(f"* Type: {p['Type']}\n")
+                f.write("* Parameter Table: \n")
+                # table of parameters
+                f.write(
+                    "| Name | Description | ID | Type | Size | R/W | Instances | Enums |\n"
+                )
+                f.write(
+                    "|------|-------------|----|------|------|-----|-----------|-------|\n"
+                )
+                for p in m["Parameters"]:
+                    enums_str = "<ul>"
                     if p.get("Enums"):
-                        f.write(f"\n#### Enums\n")
                         for k, v in p["Enums"].items():
-                            f.write(f"* {v}: {k}\n")
+                            enums_str += f"<li>{v}: {k}</li>"
+                    enums_str += "</ul>"
+                    f.write(
+                        f"|{p['Name']}|{p['Description']}|{p['Id']}|{p['Type']}|{p['Size']}|{p['R/W']}|{p['Instances']}|{enums_str}|\n"
+                    )
+
+                # chapters for parameters
+                # for p in m["Parameters"]:
+                #     f.write(f"\n### Parameter '{p['Name']}'\n")
+                #     f.write(f"{p['Description']}\n")
+                #     f.write(f"* ID: {p['Id']}\n")
+                #     f.write(f"* Type: {p['Type']}\n")
+                #     if p.get("Enums"):
+                #         f.write(f"\n#### Enums\n")
+                #         for k, v in p["Enums"].items():
+                #             f.write(f"* {v}: {k}\n")
 
     def print_system_information(self) -> None:
         """Prints all parameters from all modules"""
