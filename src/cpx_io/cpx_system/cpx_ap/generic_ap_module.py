@@ -526,13 +526,20 @@ class GenericApModule(CpxApModule):
 
         return values
 
+    # Busmodule special functions
     @CpxBase.require_base
     def read_system_parameters(self) -> SystemParameters:
-        """Read parameters from EP module
+        """Only Busmodule
+        Read parameters from EP module
 
         :return: Parameters object containing all r/w parameters
         :rtype: Parameters
         """
+        if self.product_category is not ProductCategory.INTERFACE.value:
+            raise NotImplementedError(
+                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
+            )
+
         params = SystemParameters(
             dhcp_enable=self.base.read_parameter(
                 self.position, self.parameters.get(12000)
@@ -569,7 +576,8 @@ class GenericApModule(CpxApModule):
     # IO-Link special functions
     @CpxBase.require_base
     def read_pqi(self, channel: int = None) -> dict | list[dict]:
-        """Returns Port Qualifier Information for each channel. If no channel is given,
+        """Only IO-Link Master
+        Returns Port Qualifier Information for each channel. If no channel is given,
         returns a list of PQI dict for all channels
 
         :param channel: Channel number, starting with 0, optional
@@ -625,7 +633,8 @@ class GenericApModule(CpxApModule):
 
     @CpxBase.require_base
     def read_fieldbus_parameters(self) -> list[dict]:
-        """Read all fieldbus parameters (status/information) for all channels.
+        """Only IO-Link Master
+        Read all fieldbus parameters (status/information) for all channels.
 
         :return: a dict of parameters for every channel.
         :rtype: list[dict]
@@ -720,7 +729,8 @@ class GenericApModule(CpxApModule):
 
     @CpxBase.require_base
     def read_isdu(self, channel: int, index: int, subindex: int) -> bytes:
-        """Read isdu (device parameter) from defined channel
+        """Only IO-Link Master
+        Read isdu (device parameter) from defined channel
         Raises CpxRequestError when read failed
 
         :param channel: Channel number, starting with 0
@@ -782,7 +792,8 @@ class GenericApModule(CpxApModule):
 
     @CpxBase.require_base
     def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
-        """Write isdu (device parameter) to defined channel.
+        """Only IO-Link Master
+        Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed
 
         :param data: Data as 16bit register values in list

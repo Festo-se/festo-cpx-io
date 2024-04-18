@@ -272,6 +272,7 @@ class CpxAp(CpxBase):
                     "Type": m.module_type,
                     "Description": m.description,
                     "Code": m.information.module_code,
+                    "AP Slot": m.position + 1,
                     "FWVersion": m.information.fw_version,
                     "Default Name": m.name,
                     "Parameters": parameter_data,
@@ -321,7 +322,8 @@ class CpxAp(CpxBase):
                 if len(m["Description"]) > 1:
                     f.write(f"{m['Description']}\n")
                 f.write(f"* Type: {m['Type']}\n")
-                f.write(f"* Code: {m['Code']}\n")
+                f.write(f"* Modul Code: {m['Code']}\n")
+                f.write(f"* AP Slot: {m['AP Slot']}\n")
                 f.write(f"* FWVersion: {m['FWVersion']}\n")
                 f.write(f"* Default Name: {m['Default Name']}\n\n")
                 f.write("Parameter Table: \n\n")
