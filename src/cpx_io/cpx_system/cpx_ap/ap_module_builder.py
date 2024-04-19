@@ -11,11 +11,13 @@ class Channel:
     """Channel dataclass"""
 
     bits: int
+    byte_swap_needed: bool
     channel_id: int
     data_type: str
     description: str
     direction: str
     name: str
+    parameter_group_ids: list
     profile_list: list
 
 
@@ -77,11 +79,13 @@ class ChannelBuilder:
         """Builds one Channel"""
         return Channel(
             channel_dict.get("Bits"),
+            channel_dict.get("ByteSwapNeeded"),
             channel_dict.get("ChannelId"),
             channel_dict.get("DataType"),
             channel_dict.get("Description"),
             channel_dict.get("Direction"),
             channel_dict.get("Name"),
+            channel_dict.get("ParameterGroupIds"),
             channel_dict.get("ProfileList"),
         )
 
@@ -104,8 +108,6 @@ class ParameterBuilder:
 
     def build(self, parameter_item, enums=None, units=None):
         """Builds one Parameter"""
-        if parameter_item.get("ParameterId") == 20087:
-            pass
         valid_unit = (
             units.get(parameter_item.get("DataDefinition").get("PhysicalUnitId"))
             if units

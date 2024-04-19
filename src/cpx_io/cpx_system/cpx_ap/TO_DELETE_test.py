@@ -6,7 +6,7 @@ from pathlib import PurePath
 import csv
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 
-with CpxAp(ip_address="172.16.1.42", timeout=1) as cpxap:
+with CpxAp(ip_address="172.16.1.41", timeout=1) as cpxap:
     IDX = 3
     PARAM = 20043
     # print("Modules: ", cpxap.modules)
