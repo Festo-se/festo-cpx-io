@@ -5,14 +5,13 @@ import inspect
 from typing import Any
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import (
     div_ceil,
     channel_range_check,
-    value_range_check,
     instance_range_check,
     convert_uint32_to_octett,
     convert_to_mac_string,
@@ -20,74 +19,39 @@ from cpx_io.utils.helpers import (
 from cpx_io.utils.logging import Logging
 
 
-@dataclass
-class Channel:
-    """Channel dataclass"""
-
-    bits: int
-    channel_id: int
-    data_type: str
-    description: str
-    direction: str
-    name: str
-    profile_list: list
-
-
-@dataclass
-class ChannelGroup:
-    """ChannelGroup dataclass"""
-
-    channel_group_id: int
-    channels: dict
-    name: str
-    parameter_group_ids: list
-
-
-class ChannelGroupBuilder:
-    """ChannelGroupBuilder"""
-
-    def build(self, channel_group_dict):
-        return ChannelGroup(
-            channel_group_dict.get("ChannelGroupId"),
-            channel_group_dict.get("Channels"),
-            channel_group_dict.get("Name"),
-            channel_group_dict.get("ParameterGroupIds"),
-        )
-
-
-class ChannelBuilder:
-    """ChannelBuilder"""
-
-    def build(self, channel_dict):
-        return Channel(
-            channel_dict.get("Bits"),
-            channel_dict.get("ChannelId"),
-            channel_dict.get("DataType"),
-            channel_dict.get("Description"),
-            channel_dict.get("Direction"),
-            channel_dict.get("Name"),
-            channel_dict.get("ProfileList"),
-        )
-
-
-@dataclass
-class SystemParameters:
-    """SystemParameters"""
-
-    # pylint: disable=too-many-instance-attributes
-    dhcp_enable: bool = None
-    ip_address: str = None
-    subnet_mask: str = None
-    gateway_address: str = None
-    active_ip_address: str = None
-    active_subnet_mask: str = None
-    active_gateway_address: str = None
-    mac_address: str = None
-    setup_monitoring_load_supply: int = None
-
-
-class GenericApModule(CpxApModule):
+class ApModule(CpxModule):
     """Generic AP module class"""
+
+    @dataclass
+    class SystemParameters:
+        """SystemParameters"""
+
+        # pylint: disable=too-many-instance-attributes
+        dhcp_enable: bool = None
+        ip_address: str = None
+        subnet_mask: str = None
+        gateway_address: str = None
+        active_ip_address: str = None
+        active_subnet_mask: str = None
+        active_gateway_address: str = None
+        mac_address: str = None
+        setup_monitoring_load_supply: int = None
+
+    @dataclass
+    class ModuleParameters:
+        """AP Parameters of module"""
+
+        # pylint: disable=too-many-instance-attributes
+        fieldbus_serial_number: int
+        product_key: str
+        firmware_version: str
+        module_code: int
+        temp_asic: int
+        logic_voltage: float
+        load_voltage: float
+        hw_version: int
+        io_link_variant: str = "n.a."
+        operating_supply: bool = False
 
     def __init__(
         self,
@@ -96,10 +60,10 @@ class GenericApModule(CpxApModule):
         output_channels,
         parameters,
         enums,
-        *args,
-        **kwargs,
+        name=None,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(name=name)
+        self.information = None
         self.name = module_information.get("Name")
         self.description = module_information.get("Description")
         self.module_type = module_information.get("Module Type")
@@ -110,11 +74,6 @@ class GenericApModule(CpxApModule):
         self.enums = enums
         self.fieldbus_parameters = None
 
-    def configure(self, *args, **kwargs):
-        super().configure(*args, **kwargs)
-        if self.product_category == ProductCategory.IO_LINK.value:
-            self.fieldbus_parameters = self.read_fieldbus_parameters()
-
     def __repr__(self):
         return f"{self.name} (idx: {self.position}, type: {self.module_type})"
 
@@ -124,6 +83,18 @@ class GenericApModule(CpxApModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
+    def configure(self, base: CpxBase, position: int) -> None:
+        super().configure(base=base, position=position)
+
+        self.base.next_output_register += div_ceil(self.information.output_size, 2)
+        self.base.next_input_register += div_ceil(self.information.input_size, 2)
+
+        # IO-Link special parameter
+        if self.product_category == ProductCategory.IO_LINK.value:
+            self.fieldbus_parameters = self.read_fieldbus_parameters()
+
+    # TODO: For docu, test if all of these functions return NotImplemetedError and write all
+    # working functions to the module information that they are available (exception: configure())
     @CpxBase.require_base
     def read_channels(self) -> Any:
         """Read all channels from module and interpret them as the module intends"""
@@ -535,7 +506,7 @@ class GenericApModule(CpxApModule):
                 f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
             )
 
-        params = SystemParameters(
+        params = self.SystemParameters(
             dhcp_enable=self.base.read_parameter(
                 self.position, self.parameters.get(12000)
             ),

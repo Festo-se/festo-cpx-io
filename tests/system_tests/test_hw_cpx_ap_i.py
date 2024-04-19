@@ -75,7 +75,7 @@ def test_modules(test_cpxap):
     assert isinstance(test_cpxap.modules[5], VabxAP)
     assert isinstance(test_cpxap.modules[6], CpxAp4Di)
 
-    assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
+    assert all(isinstance(item, ApModule) for item in test_cpxap.modules)
 
     for m in test_cpxap.modules:
         assert m.information.input_size >= 0

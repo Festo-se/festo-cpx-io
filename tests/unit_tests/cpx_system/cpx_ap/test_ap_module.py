@@ -1,29 +1,33 @@
-"""Contains tests for GenericApModule class"""
+"""Contains tests for ApModule class"""
 
 from unittest.mock import Mock
 import pytest
 
-from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
-from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
+from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
 
-class TestGenericApModule:
-    "Test GenericApModule"
+class TestApModule:
+    "Test ApModule"
+    # TODO: fixture for digital, analog, io-link, ep module
 
     def test_constructor_correct_type(self):
         """Test constructor"""
         # Arrange
+        module_information = ...
+        input_channels = []
+        output_channels = []
+        parameters = []
 
         # Act
-        module = GenericApModule()
+        module = ApModule()
 
         # Assert
-        assert isinstance(module, GenericApModule)
+        assert isinstance(module, ApModule)
 
     def test_read_channels_correct_values(self):
         """Test read channels"""
         # Arrange
-        module = GenericApModule()
+        module = ApModule()
         ret_data = b"\xFA"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
@@ -37,7 +41,7 @@ class TestGenericApModule:
     def test_read_channel_correct_values(self):
         """Test read channel"""
         # Arrange
-        module = GenericApModule()
+        module = ApModule()
         ret_data = b"\xAA"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
@@ -51,7 +55,7 @@ class TestGenericApModule:
     def test_get_item_correct_values(self):
         """Test get item"""
         # Arrange
-        module = GenericApModule()
+        module = ApModule()
         ret_data = b"\xAA"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
@@ -82,7 +86,7 @@ class TestGenericApModule:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        module = GenericApModule()
+        module = ApModule()
         module.position = MODULE_POSITION
 
         module.base = Mock(write_parameter=Mock())
@@ -103,7 +107,7 @@ class TestGenericApModule:
         # Arrange
         MODULE_POSITION = 1  # pylint: disable=invalid-name
 
-        module = GenericApModule()
+        module = ApModule()
         module.position = MODULE_POSITION
 
         module.base = Mock(write_parameter=Mock())

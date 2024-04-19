@@ -9,8 +9,8 @@ import os
 import platformdirs
 import requests
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-from cpx_io.cpx_system.cpx_ap.ap_module_builder import CpxApModuleBuilder
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap.ap_module_builder import ApModuleBuilder
+from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
@@ -104,7 +104,7 @@ class CpxAp(CpxBase):
                     f"Loaded apdd {apdd_name} from module index {i} and saved to {self.apdd_path}"
                 )
 
-            module = CpxApModuleBuilder().build(module_apdd, info.module_code)
+            module = ApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
         self.generate_system_information_file()
@@ -201,7 +201,7 @@ class CpxAp(CpxBase):
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
-    def add_module(self, module: CpxApModule, info: ModuleInformation) -> None:
+    def add_module(self, module: ApModule, info: ModuleInformation) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
 
@@ -238,6 +238,7 @@ class CpxAp(CpxBase):
         register, length = modbus_command
         return ((register + 37 * module), length)
 
+    # TODO: Move file generation to seperate python file ap_docu_generator.py
     def generate_system_information_file(self) -> None:
         """Saves a readable document that includes the system information in the apdd path"""
         # TODO: maybe generate a kind of checksum of the system here and check if the checksum
@@ -313,7 +314,7 @@ class CpxAp(CpxBase):
             f.write(f"* IP-Address: {system_data['IP-Address']}\n")
             f.write(f"* Number of modules: {system_data['Number of modules']}\n")
             f.write(
-                f"* Date of creation: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"
+                f"* Date of creation: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"  # TODO generate above and put in json
             )
             f.write("\n# Modules\n")
             for m in module_data:

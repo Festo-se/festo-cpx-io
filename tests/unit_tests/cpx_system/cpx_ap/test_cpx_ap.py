@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
+from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 import cpx_io.cpx_system.cpx_ap.ap_modbus_registers as reg
 from cpx_io.cpx_system.parameter_mapping import ParameterNameMap, ParameterMapItem
 
@@ -52,7 +52,7 @@ class TestCpxAp:
 
         assert isinstance(cpxap, CpxAp)
         assert len(cpxap.modules) == 7
-        assert all(isinstance(m, GenericApModule) for m in cpxap.modules)
+        assert all(isinstance(m, ApModule) for m in cpxap.modules)
 
     @patch.object(CpxAp, "read_module_count")
     @patch.object(CpxAp, "read_module_information")

@@ -4,12 +4,12 @@
 # intended: modules have similar functions
 
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.logging import Logging
 
 
-class CpxE8Do(CpxEModule):
+class CpxE8Do(CpxModule):
     """Class for CPX-E-8DO module"""
 
     def __getitem__(self, key):

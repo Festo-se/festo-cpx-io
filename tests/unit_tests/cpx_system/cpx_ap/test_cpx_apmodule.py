@@ -1,19 +1,19 @@
-"""Contains tests for TestCpxApModule class"""
+"""Contains tests for TestApModule class"""
 
 from unittest.mock import Mock
 
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
+from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
 
-class TestCpxApModule:
-    "Test CpxApModule"
+class TestApModule:
+    "Test ApModule"
 
     def test_constructor_attributes_none(self):
         """Test constructor"""
         # Arrange
 
         # Act
-        module = CpxApModule()
+        module = ApModule()
 
         # Assert
         assert module.base is None
@@ -25,7 +25,7 @@ class TestCpxApModule:
     def test_configure(self):
         """Test configure"""
         # Arrange
-        module = CpxApModule()
+        module = ApModule()
         module.information = Mock(input_size=3, output_size=5)
         mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
 
@@ -39,7 +39,7 @@ class TestCpxApModule:
     def test_repr_correct_string(self):
         """Test repr"""
         # Arrange
-        module = CpxApModule()
+        module = ApModule()
         module.name = "code"
         module.position = 1
 
@@ -47,4 +47,4 @@ class TestCpxApModule:
         module_repr = repr(module)
 
         # Assert
-        assert module_repr == "code (idx: 1, type: CpxApModule)"
+        assert module_repr == "code (idx: 1, type: ApModule)"

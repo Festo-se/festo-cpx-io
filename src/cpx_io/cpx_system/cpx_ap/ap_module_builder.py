@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter, ParameterEnum
-from cpx_io.cpx_system.cpx_ap.generic_ap_module import GenericApModule
+from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.utils.logging import Logging
 
 
@@ -180,10 +180,10 @@ class PhysicalQuantitiesBuilder:
         )
 
 
-class CpxApModuleBuilder:
-    """Builder class for GenericApModule
+class ApModuleBuilder:
+    """Builder class for ApModule
     :return: AP Module generated from the apdd
-    :rtype: GenericApModule
+    :rtype: ApModule
     """
 
     @staticmethod
@@ -298,10 +298,10 @@ class CpxApModuleBuilder:
             if p.get("FieldbusSettings")
         }
 
-        return GenericApModule(
+        return ApModule(
             module_information,
             input_channels,
             output_channels,
             parameters,
             enums,
-        )
+        )  # TODO: Do we need seperate enums? They are stored in the parameters already
