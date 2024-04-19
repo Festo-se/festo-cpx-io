@@ -59,7 +59,6 @@ class ApModule(CpxModule):
         input_channels,
         output_channels,
         parameters,
-        enums,
         name=None,
     ):
         super().__init__(name=name)
@@ -71,7 +70,6 @@ class ApModule(CpxModule):
         self.input_channels = input_channels
         self.output_channels = output_channels
         self.parameters = parameters
-        self.enums = enums
         self.fieldbus_parameters = None
 
     def __repr__(self):

@@ -303,5 +303,4 @@ class ApModuleBuilder:
             input_channels,
             output_channels,
             parameters,
-            enums,
-        )  # TODO: Do we need seperate enums? They are stored in the parameters already
+        )
