@@ -56,6 +56,7 @@ with CpxAp(ip_address="172.16.1.41", timeout=1) as cpxap:
     diff = used_params - listed_params
     print(diff)
     """
+    cpxap.modules[4].read_channels()
 
     cpxap.print_system_information()
 

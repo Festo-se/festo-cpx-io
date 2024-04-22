@@ -10,6 +10,7 @@ from cpx_io.utils.logging import Logging
 class Channel:
     """Channel dataclass"""
 
+    array_size: int
     bits: int
     byte_swap_needed: bool
     channel_id: int
@@ -78,6 +79,7 @@ class ChannelBuilder:
     def build(self, channel_dict):
         """Builds one Channel"""
         return Channel(
+            channel_dict.get("ArraySize"),
             channel_dict.get("Bits"),
             channel_dict.get("ByteSwapNeeded"),
             channel_dict.get("ChannelId"),
