@@ -4,7 +4,6 @@ import json
 import struct
 from typing import Any
 from dataclasses import dataclass
-from datetime import datetime
 import os
 import platformdirs
 import requests
@@ -14,6 +13,7 @@ from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
+from cpx_io.cpx_system.cpx_ap.ap_docu_generator import generate_system_information_file
 from cpx_io.cpx_system.cpx_ap.ap_parameter import (
     Parameter,
     parameter_pack,
@@ -58,11 +58,31 @@ class CpxAp(CpxBase):
         module_present: bool
         _7: None  # spacer for not-used bit
 
-    def __init__(self, timeout: float = 0.1, apdd_path: str = None, **kwargs):
+    def __init__(
+        self,
+        timeout: float = 0.1,
+        apdd_path: str = None,
+        docu_path: str = None,
+        generate_docu: bool = True,
+        **kwargs,
+    ):
         """Constructor of the CpxAp class.
+        This generates an individual documentation in the <docu_path>. This path is individual for
+        each operating system. You can either set the path as a parameter or print <self.docu_path>
+        to see the path for your system. CPX-AP systems will be setup automatically from the
+        device description files (APDD) of the modules. If there is a change in the system a re-
+        connect is always required and this will also update the documentation. The filename will
+        always include the ip-address, so you can have multiple systems with individual documentations.
 
         :param timeout: Modbus timeout (in s) that should be configured on the slave
         :type timeout: float
+        :param apdd_path: (optional) Path where the description files of the modules are saved
+        :type apdd_path: str
+        :param docu_path: (optional) Path where the documentation files are saved
+        :type docu_path: str
+        :param generate_docu: (optional) parameter to disable the generation of the documentation
+        this is useful for big systems when the generation takes too long
+        :type generate_docu: bool
         """
         super().__init__(**kwargs)
 
@@ -72,16 +92,18 @@ class CpxAp(CpxBase):
         self.set_timeout(int(timeout * 1000))
 
         if apdd_path:
-            self.apdd_path = apdd_path
+            self._apdd_path = apdd_path
         else:
-            self.apdd_path = self.create_apdd_path()
+            self._apdd_path = self.create_apdd_path()
 
-        self.docu_path = self.create_docu_path()
+        if docu_path:
+            self._docu_path = docu_path
+        else:
+            self._docu_path = self.create_docu_path()
 
-        module_count = self.read_module_count()
-        apdds = os.listdir(self.apdd_path)
+        apdds = os.listdir(self._apdd_path)
 
-        for i in range(module_count):
+        for i in range(self.read_module_count()):
             info = self.read_module_information(i)
             apdd_name = (
                 info.order_text + "_v" + info.fw_version.replace(".", "-") + ".json"
@@ -89,7 +111,9 @@ class CpxAp(CpxBase):
 
             # if correct apdd exists in folder, use it!
             if apdd_name in apdds:
-                with open(self.apdd_path + "/" + apdd_name, "r", encoding="ascii") as f:
+                with open(
+                    self._apdd_path + "/" + apdd_name, "r", encoding="ascii"
+                ) as f:
                     module_apdd = json.load(f)
                 Logging.logger.debug(
                     f"Loaded apdd {apdd_name} for module index {i} from filesystem"
@@ -97,28 +121,29 @@ class CpxAp(CpxBase):
 
             # if it does not exist, load it from the module
             else:
-                module_apdd = self.grab_apdd(
-                    self.ip_address, i, self.apdd_path, info.fw_version
+                module_apdd = self._grab_apdd(
+                    self.ip_address, i, self._apdd_path, info.fw_version
                 )
                 Logging.logger.debug(
-                    f"Loaded apdd {apdd_name} from module index {i} and saved to {self.apdd_path}"
+                    f"Loaded apdd {apdd_name} from module index {i} and saved to {self._apdd_path}"
                 )
 
             module = ApModuleBuilder().build(module_apdd, info.module_code)
             self.add_module(module, info)
 
-        self.generate_system_information_file()
+        if generate_docu:
+            generate_system_information_file(self)
 
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated
         """
-        if os.path.isdir(self.apdd_path):
-            for file_name in os.listdir(self.apdd_path):
-                file_path = os.path.join(self.apdd_path, file_name)
+        if os.path.isdir(self._apdd_path):
+            for file_name in os.listdir(self._apdd_path):
+                file_path = os.path.join(self._apdd_path, file_name)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
-            Logging.logger.debug(f"Deleted all apdds from {self.apdd_path}")
+            Logging.logger.debug(f"Deleted all apdds from {self._apdd_path}")
         else:
             Logging.logger.warning("Apdd folder does not exist. Nothing was deleted")
 
@@ -146,41 +171,20 @@ class CpxAp(CpxBase):
         os.makedirs(docu_path, exist_ok=True)
         return docu_path
 
-    @staticmethod
-    def grab_apdd(
-        ip_address, module_index: int, apdd_path: str, fw_version: str
-    ) -> json:
-        """Grabs all apdd from module and saves them in apdd_path"""
-        # Module indexs in ap start with 1
-        url = f"http://{ip_address}/cgi-bin/ap-file-get?slot={module_index + 1}&filenumber=6"
-        response = requests.get(url, timeout=100)
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            json_data = response.json()
-            # currently the only module with more than one variant is 4IOL. The order text for all
-            # variants is the same, so OrderText of the first variant is used for naming the apdd
-            apdd_name = json_data["Variants"]["VariantList"][0][
-                "VariantIdentification"
-            ]["OrderText"]
-            output_file_path = (
-                apdd_path
-                + "/"
-                + apdd_name
-                + "_v"
-                + fw_version.replace(".", "-")
-                + ".json"
-            )
-            with open(output_file_path, "w", encoding="ascii") as f:
-                f.write(json.dumps(json_data, indent=4))
-            Logging.logger.debug(f"JSON data has been written to: {output_file_path}")
-            return json_data
-
-        raise ConnectionError(f"Failed to fetch APDD: {response.status_code}")
-
     @property
     def modules(self):
         """getter function for private modules property"""
         return self._modules
+
+    @property
+    def apdd_path(self):
+        """getter function for private apdd_path property"""
+        return self._apdd_path
+
+    @property
+    def docu_path(self):
+        """getter function for private docu_path property"""
+        return self._docu_path
 
     def set_timeout(self, timeout_ms: int) -> None:
         """Sets the modbus timeout to the provided value
@@ -233,129 +237,6 @@ class CpxAp(CpxBase):
         value = int.from_bytes(reg, byteorder="little")
         Logging.logger.debug(f"Total module count: {value}")
         return value
-
-    def _module_offset(self, modbus_command: tuple, module: int) -> int:
-        register, length = modbus_command
-        return ((register + 37 * module), length)
-
-    # TODO: Move file generation to seperate python file ap_docu_generator.py
-    def generate_system_information_file(self) -> None:
-        """Saves a readable document that includes the system information in the apdd path"""
-        # TODO: maybe generate a kind of checksum of the system here and check if the checksum
-        # is the same as the saved so it doesn't need to save it everytime - this will save time
-        module_data = []
-        for m in self.modules:
-            parameter_data = []
-            for p in m.parameters.values():
-                parameter_data.append(
-                    {
-                        "Id": p.parameter_id,
-                        "Name": p.name,
-                        "Description": p.description,
-                        "R/W": "R/W" if p.is_writable else "R",
-                        "Type": p.data_type,
-                        "Size": (
-                            p.array_size
-                            if p.array_size and p.data_type != "ENUM_ID"
-                            else ""
-                        ),
-                        "Instances": p.parameter_instances["NumberOfInstances"],
-                    }
-                )
-                # if enum data is available, add it to the last entry
-                enum_data = p.enums.enum_values if p.enums else None
-                if enum_data:
-                    parameter_data[-1]["Enums"] = enum_data
-
-            module_data.append(
-                {
-                    "Index": m.position,
-                    "Type": m.module_type,
-                    "Description": m.description,
-                    "Code": m.information.module_code,
-                    "AP Slot": m.position + 1,
-                    "FWVersion": m.information.fw_version,
-                    "Default Name": m.name,
-                    "Parameters": parameter_data,
-                }
-            )
-
-        system_data = {
-            "Information": "AP System description",
-            "IP-Address": self.ip_address,
-            "Number of modules": len(self.modules),
-            "Modules": module_data,
-        }
-
-        # json
-        with open(
-            self.docu_path
-            + f"/system_information_{self.ip_address.replace('.','-')}.json",
-            "w",
-            encoding="ascii",
-        ) as f:
-            f.write(json.dumps(system_data, indent=4))
-
-        # markup
-        with open(
-            self.docu_path
-            + f"/system_information_{self.ip_address.replace('.','-')}.md",
-            "w",
-            encoding="ascii",
-        ) as f:
-            f.write(f"# {system_data['Information']}\n")
-            f.write(
-                "Documentation of your AP system that is autogenerated by reading "
-                "in all the information from all connected modules. This file will be "
-                "updated everytime you make an instance of the CpxAp Object and is "
-                "saved in the festo-cpx-io folder in your user directory depending on "
-                f"your operating system *{self.docu_path}*\n"
-            )
-            f.write(f"* IP-Address: {system_data['IP-Address']}\n")
-            f.write(f"* Number of modules: {system_data['Number of modules']}\n")
-            f.write(
-                f"* Date of creation: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"  # TODO generate above and put in json
-            )
-            f.write("\n# Modules\n")
-            for m in module_data:
-                f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
-                # it can happen that there is no description which leads to a "-" in the md file
-                if len(m["Description"]) > 1:
-                    f.write(f"{m['Description']}\n")
-                f.write(f"* Type: {m['Type']}\n")
-                f.write(f"* Modul Code: {m['Code']}\n")
-                f.write(f"* AP Slot: {m['AP Slot']}\n")
-                f.write(f"* FWVersion: {m['FWVersion']}\n")
-                f.write(f"* Default Name: {m['Default Name']}\n\n")
-                f.write("Parameter Table: \n\n")
-                f.write(
-                    "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
-                    "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
-                )
-                for p in m["Parameters"]:
-                    enums_str = "<ul>"
-                    if p.get("Enums"):
-                        for k, v in p["Enums"].items():
-                            enums_str += f"<li>{v}: {k}</li>"
-                    enums_str += "</ul>"
-                    description_corrected_newline = p["Description"].replace(
-                        "\n", "<br>"
-                    )
-                    f.write(
-                        f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|{p['Type']}|"
-                        f"{p['Size']}|{p['Instances']}|{enums_str}|\n"
-                    )
-
-                # chapters for parameters
-                # for p in m["Parameters"]:
-                #     f.write(f"\n### Parameter '{p['Name']}'\n")
-                #     f.write(f"{p['Description']}\n")
-                #     f.write(f"* ID: {p['Id']}\n")
-                #     f.write(f"* Type: {p['Type']}\n")
-                #     if p.get("Enums"):
-                #         f.write(f"\n#### Enums\n")
-                #         for k, v in p["Enums"].items():
-                #             f.write(f"* {v}: {k}\n")
 
     def print_system_information(self) -> None:
         """Prints all parameters from all modules"""
@@ -539,6 +420,27 @@ class CpxAp(CpxBase):
         raw = parameter_pack(parameter, data)
         self._write_parameter_raw(position, parameter.parameter_id, instance, raw)
 
+    def read_parameter(
+        self,
+        position: int,
+        parameter: Parameter,
+        instance: int = 0,
+    ) -> Any:
+        """Read parameter
+
+        :param position: Module position index starting with 0
+        :type position: int
+        :param parameter: AP Parameter
+        :type parameter: Parameter
+        :param instance: (optional) Parameter Instance (typically the channel, see datasheet)
+        :type instance: int
+        :return: Parameter value
+        :rtype: Any
+        """
+        raw = self._read_parameter_raw(position, parameter.parameter_id, instance)
+        data = parameter_unpack(parameter, raw)
+        return data
+
     def _write_parameter_raw(
         self, position: int, param_id: int, instance: int, data: bytes
     ) -> None:
@@ -583,27 +485,6 @@ class CpxAp(CpxBase):
                 raise CpxRequestError
 
         Logging.logger.debug(f"Wrote data {data} to module position: {position - 1}")
-
-    def read_parameter(
-        self,
-        position: int,
-        parameter: Parameter,
-        instance: int = 0,
-    ) -> Any:
-        """Read parameter
-
-        :param position: Module position index starting with 0
-        :type position: int
-        :param parameter: AP Parameter
-        :type parameter: Parameter
-        :param instance: (optional) Parameter Instance (typically the channel, see datasheet)
-        :type instance: int
-        :return: Parameter value
-        :rtype: Any
-        """
-        raw = self._read_parameter_raw(position, parameter.parameter_id, instance)
-        data = parameter_unpack(parameter, raw)
-        return data
 
     def _read_parameter_raw(self, position: int, param_id: int, instance: int) -> bytes:
         """Read parameters via module position, param_id, instance (=channel)
@@ -651,3 +532,38 @@ class CpxAp(CpxBase):
         )
 
         return data
+
+    def _module_offset(self, modbus_command: tuple, module: int) -> int:
+        register, length = modbus_command
+        return ((register + 37 * module), length)
+
+    @staticmethod
+    def _grab_apdd(
+        ip_address, module_index: int, apdd_path: str, fw_version: str
+    ) -> json:
+        """Grabs all apdd from module and saves them in apdd_path"""
+        # Module indexs in ap start with 1
+        url = f"http://{ip_address}/cgi-bin/ap-file-get?slot={module_index + 1}&filenumber=6"
+        response = requests.get(url, timeout=100)
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            json_data = response.json()
+            # currently the only module with more than one variant is 4IOL. The order text for all
+            # variants is the same, so OrderText of the first variant is used for naming the apdd
+            apdd_name = json_data["Variants"]["VariantList"][0][
+                "VariantIdentification"
+            ]["OrderText"]
+            output_file_path = (
+                apdd_path
+                + "/"
+                + apdd_name
+                + "_v"
+                + fw_version.replace(".", "-")
+                + ".json"
+            )
+            with open(output_file_path, "w", encoding="ascii") as f:
+                f.write(json.dumps(json_data, indent=4))
+            Logging.logger.debug(f"JSON data has been written to: {output_file_path}")
+            return json_data
+
+        raise ConnectionError(f"Failed to fetch APDD: {response.status_code}")
