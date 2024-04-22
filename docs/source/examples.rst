@@ -2,6 +2,18 @@ Examples
 ========
 CPX-AP 
 ------
+startup
+^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_startuo.py
+    
+:download:`Download Example <../../examples/example_cpxap_startup.py>`
+
+parameter read/write
+^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_parameter_read_write.py
+    
+:download:`Download Example <../../examples/example_cpxap_parameter_read_write.py>`
+
 digital input
 ^^^^^^^^^^^^^
 .. literalinclude:: ../../examples/example_cpxap_digital_input.py

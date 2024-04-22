@@ -26,7 +26,7 @@ class Parameter:
         return (
             f"{self.parameter_id:<8}"
             f"{self.name:<50}"
-            f"{'RW' if self.is_writable else 'R':<6}"
+            f"{'R/W' if self.is_writable else 'R':<6}"
             f"{self.data_type:<8}"
             f"{self.enums if self.enums else ''}"
         )
