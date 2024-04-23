@@ -6,7 +6,7 @@
 from dataclasses import dataclass
 
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxModule
+from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging

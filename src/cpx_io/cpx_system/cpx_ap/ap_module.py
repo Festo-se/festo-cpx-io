@@ -20,7 +20,10 @@ from cpx_io.utils.logging import Logging
 
 
 class ApModule(CpxModule):
-    """Generic AP module class"""
+    """Generic AP module class. This includes all functions that are shared
+    among the modules. To get an overview of your system and the supported
+    functions of the individual modules, see the system documentation of the
+    CpxAp object"""
 
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
@@ -137,14 +140,6 @@ class ApModule(CpxModule):
         ],
     }
 
-    def _check_function_supported(self, func_name):
-        """Raises NotImplemetedError if function is not supported"""
-
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{func_name}>")
-
     @dataclass
     class SystemParameters:
         """SystemParameters"""
@@ -203,6 +198,43 @@ class ApModule(CpxModule):
 
     def __setitem__(self, key, value):
         self.write_channel(key, value)
+
+    @staticmethod
+    def _check_instances(parameter, instances) -> list:
+        """Check if instances are correct and return corrected instances or raise Error."""
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            return [instances]
+        if isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            return instances
+        if instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+            return instances
+
+        return [0]
+
+    def _check_function_supported(self, func_name):
+        """Raises NotImplemetedError if function is not supported"""
+
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{func_name}>")
 
     def configure(self, base: CpxBase, position: int) -> None:
 
@@ -299,7 +331,7 @@ class ApModule(CpxModule):
         :param outputs_only: Outputs should be numbered independend from inputs, optional
         :type outputs_only: bool
         :param full_size: IO-Link channes should be returned in full datalength and not
-        limited to the slave information datalength
+            limited to the slave information datalength
         :type full_size: bool
         :return: Value of the channel
         :rtype: bool
@@ -326,7 +358,7 @@ class ApModule(CpxModule):
         size of the module. Get the size first by reading the channels and using len().
 
         :param data: list of values for each output channel. The type of the list elements must
-        fit to the module type
+            fit to the module type
         :type data: list
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
@@ -478,7 +510,7 @@ class ApModule(CpxModule):
         :param value: Value to write to the parameter, type depending on parameter
         :type value: int | bool | str
         :param instances: (optional) Index or list of instances of the parameter.
-        If None, all instances will be written
+            If None, all instances will be written
         :type instance: int | list"""
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
@@ -539,7 +571,7 @@ class ApModule(CpxModule):
         :param parameter: Parameter name or ID
         :type parameter: str | int
         :param instances: (optional) Index or list of instances of the parameter.
-        If None, all instances will be written
+            If None, all instances will be written
         :type instance: int | list
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
@@ -911,32 +943,3 @@ class ApModule(CpxModule):
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
         )
-
-    @staticmethod
-    def _check_instances(parameter, instances) -> list:
-        """Check if instances are correct and return corrected instances or raise Error."""
-        if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
-            return [instances]
-        if isinstance(instances, list):
-            for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            return instances
-        if instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
-            return instances
-
-        return [0]

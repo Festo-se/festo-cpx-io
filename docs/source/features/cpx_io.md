@@ -81,7 +81,7 @@ with CpxE(ip_address="192.168.1.1", modules = [CpxEEp(), CpxE16Di()]) as myCPX:
 The modules offer different functions but most of them have read_channel() and depending on the kind of module write_channel() as well as very individual configure functions. Read the [doc](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/) and have a look at the [examples](./examples) for more information.
 
 ### CPX-AP
-CPX-AP is a modular and lightweight IO system with IP65/IP67 protection. it
+CPX-AP is a modular and lightweight IO system with IP65/IP67 protection.
 - Can be adapted to Festo valve terminals
 - Highly flexible remote IO system with maximum performance 
 - Parameterisable and scalable
@@ -105,27 +105,35 @@ myCPX = CpxAp(ip_address="192.168.1.1", timeout=1.5)
 The easiest way, is to use it with a context manager, for example
 ```
 with CpxAp(ip_address="192.168.1.1") as myCPX:
-    # read system information
-    module_count = cpx_ap.read_module_count()
-    module_information = [
-        cpx_ap.read_module_information(i) for i in range(module_count)
-    ]
+    # print system information
+    myCPX.print_system_information()
 ```
+
+Because the modules are build from your system, this documentation can only provide a rough overview. Therefore an individual documentation of __your__ system is stored on __your__ device. There is a default path where this information is stored that you can print with 
+```
+print(myCPX.docu_path)
+```
+This path can be set individually by passing it as the docu_path argument in the init like
+```
+CpxAp(ip_address="192.168.1.1", docu_path="user/docu")
+```
+The system documentation is stored as json and markdown file and includes all relevant user information for your setup.
+
 #### Module naming
 The modules in the CPX system will be named automatically, if no name is given. If there are more of one module of the same type in the system, an underscore and rising number will be added to the name. You can rename the modules to your liking by setting the name variable.
 ```
 with CpxAp(ip_address="192.168.1.1") as myCPX:
     # assuming you have one CpxAp8Di in your system
     print(myCPX.modules[1])
-    # will return "cpxap8di (idx: 1, type: CpxAp8Di)" where cpxap8di is the automatically generated name
+    # will return "cpx_ap_i_8di_m8_3p (idx: 1, type: CPX-AP-I-8DI-M8-3P)" where cpx_ap_i_8di_m8_3p is the automatically generated name
     # you can access the module by its name
-    print(myCPX.cpxap8di)
-    # will also return "cpxap8di (idx: 1, type: CpxAp8Di)"
-    cpx.cpxap8di.name = "my8di" # rename the module
+    print(myCPX.cpx_ap_i_8di_m8_3p)
+    # will also return "cpx_ap_i_8di_m8_3p (idx: 1, type: CPX-AP-I-8DI-M8-3P)"
+    cpx.cpx_ap_i_8di_m8_3p.name = "my8di" # rename the module
     # you can access the module with the new name
     print(cpx.my8di)
-    # and the myCPX.modules[1] will return the new name "my8di (idx: 1, type: CpxAp8Di)"
+    # and the myCPX.modules[1] will return the new name "my8di (idx: 1, type: CPX-AP-I-8DI-M8-3P)"
 ```
 
 #### Use the modules functions
-The modules offer different functions but most of them have read_channel() and depending on the kind of module write_channel() as well as very individual configure functions. Read the [doc](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/) and have a look at the [examples](./examples) for more information.
+The modules offer different functions but most of them have read and write channel functions as well as parameter read and write. Read your individual system documentation in CpxAp.docu_path to get to know what functions your modules offer and have a look at the [doc](https://festo.gitlab-pages.festo.company/electric-automation/remote-io/festo-cpx-io/) and the [examples](./examples) for more information.

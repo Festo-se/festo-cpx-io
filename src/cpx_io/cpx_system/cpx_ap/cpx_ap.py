@@ -81,7 +81,7 @@ class CpxAp(CpxBase):
         :param docu_path: (optional) Path where the documentation files are saved
         :type docu_path: str
         :param generate_docu: (optional) parameter to disable the generation of the documentation
-        this is useful for big systems when the generation takes too long
+            this is useful for big systems when the generation takes too long
         :type generate_docu: bool
         """
         super().__init__(**kwargs)

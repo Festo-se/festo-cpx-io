@@ -5,7 +5,7 @@
 
 import struct
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxModule
+from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.helpers import value_range_check, channel_range_check
 from cpx_io.utils.logging import Logging
@@ -64,9 +64,9 @@ class CpxE4AiUI(CpxModule):
         ("True", default) or deactivated ("False"). The parameter "Diagnostics of parameterisation
         error" defines if the diagnostics for the subsequently listed parameters must be activated
         ("True", default) or deactivated ("False) with regard to unapproved settings:
-          * Hysteresis < 0
-          * Signal range (sensor type)
-          * Lower limit > upper limit
+            * Hysteresis < 0
+            * Signal range (sensor type)
+            * Lower limit > upper limit
         When the diagnostics are activated,the error will be sent to the bus module and displayed
         on the module by the error LED.
 

@@ -7,7 +7,7 @@ import pytest
 from cpx_io.cpx_system.cpx_base import CpxInitError
 
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxModule
+from cpx_io.cpx_system.cpx_module import CpxModule
 
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
