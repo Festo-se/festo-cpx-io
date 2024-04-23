@@ -22,6 +22,109 @@ from cpx_io.utils.logging import Logging
 class ApModule(CpxModule):
     """Generic AP module class"""
 
+    # TODO: Write test if all ap_module functions are in this list
+    PRODUCT_CATEGORY_MAPPING = {
+        "read_channels": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "read_channel": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "write_channels": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "write_channel": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "set_channel": [
+            ProductCategory.DIGITAL,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "clear_channel": [
+            ProductCategory.DIGITAL,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "toggle_channel": [
+            ProductCategory.DIGITAL,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "write_module_parameter": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
+        "read_module_parameter": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
+        "read_system_parameters": [ProductCategory.INTERFACE],
+        "read_pqi": [ProductCategory.IO_LINK],
+        "read_fieldbus_parameters": [ProductCategory.IO_LINK],
+        "read_isdu": [ProductCategory.IO_LINK],
+        "write_isdu": [ProductCategory.IO_LINK],
+    }
+
     @dataclass
     class SystemParameters:
         """SystemParameters"""
@@ -91,11 +194,16 @@ class ApModule(CpxModule):
         if self.product_category == ProductCategory.IO_LINK.value:
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
-    # TODO: For docu, test if all of these functions return NotImplemetedError and write all
-    # working functions to the module information that they are available (exception: configure())
     @CpxBase.require_base
     def read_channels(self) -> Any:
-        """Read all channels from module and interpret them as the module intends"""
+        """Read all channels from module and interpret them as the module intends."""
+
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -161,7 +269,8 @@ class ApModule(CpxModule):
     def read_channel(
         self, channel: int, outputs_only: bool = False, full_size: bool = False
     ) -> Any:
-        """read back the value of one channel
+        """Read back the value of one channel.
+
         For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
         if the outputs are numbered WITH (after) the inputs ("False", default), so the range
         of output channels is <number of input channels>..<number of input and output channels>
@@ -178,6 +287,12 @@ class ApModule(CpxModule):
         :return: Value of the channel
         :rtype: bool
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -196,18 +311,19 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def write_channels(self, data: list[Any]) -> None:
-        """write all channels with a list of values. Length of the list must fit the output
+        """Write all channels with a list of values. Length of the list must fit the output
         size of the module. Get the size first by reading the channels and using len().
 
         :param data: list of values for each output channel. The type of the list elements must
         fit to the module type
         :type data: list
         """
-        # IO-Link special
-        if self.product_category == ProductCategory.IO_LINK.value:
-            raise NotImplementedError(
-                "IO Link modules do not support multi output write. Use write_channel() instead."
-            )
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         # Other modules
         if self.output_channels:
@@ -237,7 +353,7 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:
-        """set one channel value. Value must be the correct type, typecheck is done by the function
+        """Set one channel value. Value must be the correct type, typecheck is done by the function
         Get the correct type by reading out the channel first and using type() on the value.
 
         :param channel: Channel number, starting with 0
@@ -245,6 +361,12 @@ class ApModule(CpxModule):
         :value: Value that should be written to the channel
         :type value: Any
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         # IO-Link special
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -283,11 +405,18 @@ class ApModule(CpxModule):
     # Special functions for digital channels
     @CpxBase.require_base
     def set_channel(self, channel: int) -> None:
-        """set one channel to logic high level
+        """Set one channel to logic high level.
 
         :param channel: Channel number, starting with 0
         :type channel: int
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
+
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 self.write_channel(channel, True)
@@ -300,11 +429,18 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def clear_channel(self, channel: int) -> None:
-        """set one channel to logic low level
+        """Set one channel to logic low level.
 
         :param channel: Channel number, starting with 0
         :type channel: int
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
+
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 self.write_channel(channel, False)
@@ -317,11 +453,18 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def toggle_channel(self, channel: int) -> None:
-        """set one channel the inverted of current logic level
+        """Set one channel the inverted of current logic level.
 
         :param channel: Channel number, starting with 0
         :type channel: int
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
+
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 # get the relevant value from the register and write the inverse
@@ -334,35 +477,6 @@ class ApModule(CpxModule):
             f"{self.output_channels[channel].data_type} (should be 'BOOL')"
         )
 
-    @staticmethod
-    def _check_instances(parameter, instances) -> list:
-        """Check if instances are correct and return corrected instances or raise Error"""
-        if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
-            return [instances]
-        if isinstance(instances, list):
-            for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            return instances
-        if instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
-            return instances
-
-        return [0]
-
     # Parameter functions
     @CpxBase.require_base
     def write_module_parameter(
@@ -371,7 +485,8 @@ class ApModule(CpxModule):
         value: int | bool | str,
         instances: int | list = None,
     ) -> None:
-        """Write module parameter if available
+        """Write module parameter if available.
+
         :param parameter: Parameter name or ID
         :type parameter: str | int
         :param value: Value to write to the parameter, type depending on parameter
@@ -379,6 +494,13 @@ class ApModule(CpxModule):
         :param instances: (optional) Index or list of instances of the parameter.
         If None, all instances will be written
         :type instance: int | list"""
+
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         # PARAMETER HANDLING
         if isinstance(parameter, int):
@@ -431,7 +553,8 @@ class ApModule(CpxModule):
         parameter: str | int,
         instances: int | list = None,
     ) -> Any:
-        """Read module parameter if available. Access either by ID (faster) or by Name
+        """Read module parameter if available. Access either by ID (faster) or by Name.
+
         :param parameter: Parameter name or ID
         :type parameter: str | int
         :param instances: (optional) Index or list of instances of the parameter.
@@ -439,6 +562,12 @@ class ApModule(CpxModule):
         :type instance: int | list
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         # PARAMETER HANDLING
         if isinstance(parameter, int):
@@ -493,16 +622,17 @@ class ApModule(CpxModule):
     # Busmodule special functions
     @CpxBase.require_base
     def read_system_parameters(self) -> SystemParameters:
-        """Only Busmodule
-        Read parameters from EP module
+        """Read parameters from EP module.
 
         :return: Parameters object containing all r/w parameters
         :rtype: Parameters
         """
-        if self.product_category is not ProductCategory.INTERFACE.value:
-            raise NotImplementedError(
-                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
-            )
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         params = self.SystemParameters(
             dhcp_enable=self.base.read_parameter(
@@ -540,19 +670,20 @@ class ApModule(CpxModule):
     # IO-Link special functions
     @CpxBase.require_base
     def read_pqi(self, channel: int = None) -> dict | list[dict]:
-        """Only IO-Link Master
-        Returns Port Qualifier Information for each channel. If no channel is given,
-        returns a list of PQI dict for all channels
+        """Returns Port Qualifier Information for each channel. If no channel is given,
+        returns a list of PQI dict for all channels.
 
         :param channel: Channel number, starting with 0, optional
         :type channel: int
         :return: PQI information as dict for one channel or as list of dicts for more channels
         :rtype: dict | list[dict] depending on param channel
         """
-        if self.product_category is not ProductCategory.IO_LINK.value:
-            raise NotImplementedError(
-                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
-            )
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         data45 = self.base.read_reg_data(self.input_register + 16)[0]
         data67 = self.base.read_reg_data(self.input_register + 17)[0]
@@ -597,16 +728,17 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def read_fieldbus_parameters(self) -> list[dict]:
-        """Only IO-Link Master
-        Read all fieldbus parameters (status/information) for all channels.
+        """Read all fieldbus parameters (status/information) for all channels.
 
         :return: a dict of parameters for every channel.
         :rtype: list[dict]
         """
-        if self.product_category is not ProductCategory.IO_LINK.value:
-            raise NotImplementedError(
-                f"{self} has no function <{inspect.currentframe().f_code.co_name}>"
-            )
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
 
         param_port_status_info = self.parameters.get(20074)
         param_revision_id = self.parameters.get(20075)
@@ -693,9 +825,8 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def read_isdu(self, channel: int, index: int, subindex: int) -> bytes:
-        """Only IO-Link Master
-        Read isdu (device parameter) from defined channel
-        Raises CpxRequestError when read failed
+        """Read isdu (device parameter) from defined channel.
+        Raises CpxRequestError when read failed.
 
         :param channel: Channel number, starting with 0
         :type channel: int
@@ -706,6 +837,13 @@ class ApModule(CpxModule):
         :return: device parameter (index/subindex) for given channel
         :rtype: bytes
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
+
         module_index = (self.position + 1).to_bytes(2, "little")
         channel = (channel + 1).to_bytes(2, "little")
         index = index.to_bytes(2, "little")
@@ -756,9 +894,8 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
-        """Only IO-Link Master
-        Write isdu (device parameter) to defined channel.
-        Raises CpxRequestError when write failed
+        """Write isdu (device parameter) to defined channel.
+        Raises CpxRequestError when write failed.
 
         :param data: Data as 16bit register values in list
         :type data: list[int]
@@ -769,6 +906,13 @@ class ApModule(CpxModule):
         :param subindex: io-link parameter subindex
         :type subindex: int
         """
+        # check if this function is available
+        function_name = inspect.currentframe().f_code.co_name
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{function_name}>")
+
         module_index = (self.position + 1).to_bytes(2, "little")
         channel = (channel + 1).to_bytes(2, "little")
         index = (index).to_bytes(2, "little")
@@ -816,3 +960,32 @@ class ApModule(CpxModule):
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
         )
+
+    @staticmethod
+    def _check_instances(parameter, instances) -> list:
+        """Check if instances are correct and return corrected instances or raise Error."""
+        if isinstance(instances, int):
+            instance_range_check(
+                instances,
+                parameter.parameter_instances.get("FirstIndex"),
+                parameter.parameter_instances.get("NumberOfInstances"),
+            )
+            return [instances]
+        if isinstance(instances, list):
+            for i in instances:
+                instance_range_check(
+                    i,
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            return instances
+        if instances is None:
+            instances = list(
+                range(
+                    parameter.parameter_instances.get("FirstIndex"),
+                    parameter.parameter_instances.get("NumberOfInstances"),
+                )
+            )
+            return instances
+
+        return [0]

@@ -1,5 +1,6 @@
 """Documentation generator for AP systems"""
 
+import inspect
 import json
 from datetime import datetime
 
@@ -30,6 +31,14 @@ def generate_system_information_file(ap_system) -> None:
             if enum_data:
                 parameter_data[-1]["Enums"] = enum_data
 
+        module_functions = {}
+        for function_name, product_category_list in m.PRODUCT_CATEGORY_MAPPING.items():
+            product_category_value_list = [p.value for p in product_category_list]
+            if m.product_category in product_category_value_list:
+                module_functions[function_name] = inspect.getdoc(
+                    getattr(m, function_name)
+                )
+
         module_data.append(
             {
                 "Index": m.position,
@@ -39,6 +48,7 @@ def generate_system_information_file(ap_system) -> None:
                 "AP Slot": m.position + 1,
                 "FWVersion": m.information.fw_version,
                 "Default Name": m.name,
+                "Module Functions": module_functions,
                 "Parameters": parameter_data,
             }
         )
@@ -89,8 +99,12 @@ def generate_system_information_file(ap_system) -> None:
             f.write(f"* Modul Code: {m['Code']}\n")
             f.write(f"* AP Slot: {m['AP Slot']}\n")
             f.write(f"* FWVersion: {m['FWVersion']}\n")
-            f.write(f"* Default Name: {m['Default Name']}\n\n")
-            f.write("Parameter Table: \n\n")
+            f.write(f"* Default Name: {m['Default Name']}\n")
+            f.write("### Module Functions\n")
+            for name, doc in m["Module Functions"].items():
+                corrected_doc = doc.replace("\n:", "<br>:")
+                f.write(f"### {name} \n{corrected_doc}\n")
+            f.write("### Parameter Table\n")
             f.write(
                 "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
                 "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
