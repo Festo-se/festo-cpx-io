@@ -253,6 +253,7 @@ class ApModuleBuilder:
 
         # setup all channels for the module
         channels = []
+        channel_type = None
         for channel_group in channel_groups:
             for channel in channel_group.channels:
                 for channel_type in channel_types:
@@ -304,7 +305,6 @@ class ApModuleBuilder:
 
         return ApModule(
             module_information,
-            input_channels,
-            output_channels,
+            (input_channels, output_channels),
             parameters,
         )

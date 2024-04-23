@@ -69,10 +69,10 @@ class CpxAp(CpxBase):
         """Constructor of the CpxAp class.
         This generates an individual documentation in the <docu_path>. This path is individual for
         each operating system. You can either set the path as a parameter or print <self.docu_path>
-        to see the path for your system. CPX-AP systems will be setup automatically from the
-        device description files (APDD) of the modules. If there is a change in the system a re-
-        connect is always required and this will also update the documentation. The filename will
-        always include the ip-address, so you can have multiple systems with individual documentations.
+        to see the path for your system. CPX-AP systems will be setup automatically from the device
+        description files (APDD) of the modules. If there is a change in the system a reconnect is
+        always required and this will also update the documentation. The filename will always
+        include the ip-address, so you can have multiple systems with individual documentations.
 
         :param timeout: Modbus timeout (in s) that should be configured on the slave
         :type timeout: float
@@ -215,8 +215,6 @@ class CpxAp(CpxBase):
         module.information = info
 
         # if the module is a bus-module, the in- and output registers have to be set initially
-        # TODO: this might be wrong. module_class might be something different than
-        # product category. This works because the values match but this needs investigation
         if info.module_class == ProductCategory.CONTROLLERS.value:
             self.next_output_register = ap_modbus_registers.OUTPUTS.register_address
             self.next_input_register = ap_modbus_registers.INPUTS.register_address
@@ -398,7 +396,7 @@ class CpxAp(CpxBase):
             parameter_instances={"FirstIndex": 0, "NumberOfInstances": 1},
             is_writable=False,
             array_size=self.read_module_count() + 1,
-            data_type="UINT8",  # TODO: is CHAR in list but it does not work
+            data_type="UINT8",
             default_value=0,
             description="AP diagnosis status for each Module",
             name="AP diagnosis status",

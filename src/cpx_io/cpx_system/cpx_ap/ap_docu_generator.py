@@ -5,10 +5,11 @@ import json
 from datetime import datetime
 
 
-def generate_system_information_file(ap_system) -> None:
-    """Saves a readable document that includes the system information in the apdd path"""
+def _generate_module_data(modules: list) -> dict:
+    """Makes a dict of relevant information from the modules list"""
+
     module_data = []
-    for m in ap_system.modules:
+    for m in modules:
         parameter_data = []
         for p in m.parameters.values():
             parameter_data.append(
@@ -53,11 +54,18 @@ def generate_system_information_file(ap_system) -> None:
             }
         )
 
+    return module_data
+
+
+def generate_system_information_file(ap_system) -> None:
+    """Saves a readable document that includes the system information in the apdd path"""
+
     system_data = {
         "Information": "AP System description",
         "IP-Address": ap_system.ip_address,
         "Number of modules": len(ap_system.modules),
-        "Modules": module_data,
+        "Creation Date": datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
+        "Modules": _generate_module_data(ap_system.modules),
     }
 
     # json
@@ -86,11 +94,9 @@ def generate_system_information_file(ap_system) -> None:
         )
         f.write(f"* IP-Address: {system_data['IP-Address']}\n")
         f.write(f"* Number of modules: {system_data['Number of modules']}\n")
-        f.write(
-            f"* Date of creation: {datetime.now().strftime('%d-%m-%Y %H:%M:%S')}"  # TODO generate above and put in json
-        )
+        f.write(f"* Date of creation: {system_data['Creation Date']}\n")
         f.write("\n# Modules\n")
-        for m in module_data:
+        for m in system_data["Modules"]:
             f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
             # it can happen that there is no description which leads to a "-" in the md file
             if len(m["Description"]) > 1:
@@ -117,6 +123,6 @@ def generate_system_information_file(ap_system) -> None:
                 enums_str += "</ul>"
                 description_corrected_newline = p["Description"].replace("\n", "<br>")
                 f.write(
-                    f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|{p['Type']}|"
-                    f"{p['Size']}|{p['Instances']}|{enums_str}|\n"
+                    f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|"
+                    f"{p['Type']}|{p['Size']}|{p['Instances']}|{enums_str}|\n"
                 )

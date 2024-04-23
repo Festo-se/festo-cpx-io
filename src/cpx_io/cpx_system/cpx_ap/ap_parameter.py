@@ -11,6 +11,7 @@ from cpx_io.utils.logging import Logging
 class Parameter:
     """Parameter dataclass"""
 
+    # pylint: disable=too-many-instance-attributes
     parameter_id: int
     parameter_instances: dict
     is_writable: bool

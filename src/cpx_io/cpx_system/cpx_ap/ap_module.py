@@ -173,11 +173,10 @@ class ApModule(CpxModule):
 
     def __init__(
         self,
-        module_information,
-        input_channels,
-        output_channels,
-        parameters,
-        name=None,
+        module_information: dict = None,
+        channels: tuple = None,
+        parameters: list = None,
+        name: str = None,
     ):
         super().__init__(name=name)
         self.information = None
@@ -185,8 +184,7 @@ class ApModule(CpxModule):
         self.description = module_information.get("Description")
         self.module_type = module_information.get("Module Type")
         self.product_category = module_information.get("Product Category")
-        self.input_channels = input_channels
-        self.output_channels = output_channels
+        self.input_channels, self.output_channels = channels
         self.parameters = parameters
         self.fieldbus_parameters = None
 
@@ -286,9 +284,9 @@ class ApModule(CpxModule):
                 elif all(c.data_type == "INT16" for c in self.input_channels):
                     values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
                 else:
-                    raise NotImplementedError(
-                        f"Input data type {self.input_channels[0].data_type} are not supported or "
-                        "types are not the same for each channel"
+                    raise TypeError(
+                        f"Input data type {self.input_channels[0].data_type} are not supported "
+                        "or types are not the same for each channel"
                     )
 
             # if available, read outputs
@@ -300,19 +298,18 @@ class ApModule(CpxModule):
                 if all(c.data_type == "BOOL" for c in self.output_channels):
                     values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
                 else:
-                    raise NotImplementedError(
-                        f"Output data type {self.output_channels[0].data_type} are not supported or "
-                        "types are not the same for each channel"
+                    raise TypeError(
+                        f"Output data type {self.output_channels[0].data_type} are not supported "
+                        "or types are not the same for each channel"
                     )
 
             Logging.logger.info(f"{self.name}: Reading channels: {values}")
             return values
 
-        else:
-            raise NotImplementedError(
-                f"Module {self.information.order_text} at index {self.position} "
-                "has no inputs to read"
-            )
+        raise NotImplementedError(
+            f"Module {self.information.order_text} at index {self.position} "
+            "has no inputs to read"
+        )
 
     @CpxBase.require_base
     def read_channel(
@@ -375,19 +372,19 @@ class ApModule(CpxModule):
             ):
                 reg = boollist_to_bytes(data)
             else:
-                raise NotImplementedError(
+                raise TypeError(
                     f"Output data type {self.output_channels[0].data_type} is not supported or "
                     "types are not the same for each channel (which is also not supported)"
                 )
 
             self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(f"{self.name}: Setting channels to {data}")
+            return
 
-        else:
-            raise NotImplementedError(
-                f"Module {self.information.order_text} at index {self.position} "
-                "has no outputs to write to"
-            )
+        raise NotImplementedError(
+            f"Module {self.information.order_text} at index {self.position} "
+            "has no outputs to write to"
+        )
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:
@@ -424,16 +421,16 @@ class ApModule(CpxModule):
                 self.base.write_reg_data(reg, self.output_register)
 
             else:
-                raise NotImplementedError(
+                raise TypeError(
                     f"{self.output_channels.data_type} is not supported or type(value) "
                     f"is not compatible"
                 )
             Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
+            return
 
-        else:
-            raise NotImplementedError(
-                f"Module {self.information.order_text} has no outputs to write to"
-            )
+        raise NotImplementedError(
+            f"Module {self.information.order_text} has no outputs to write to"
+        )
 
     # Special functions for digital channels
     @CpxBase.require_base
@@ -733,15 +730,16 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        param_port_status_info = self.parameters.get(20074)
-        param_revision_id = self.parameters.get(20075)
-        param_transmission_rate = self.parameters.get(20076)
-        param_actual_cycle_time = self.parameters.get(20077)
-        param_actual_vendor_id = self.parameters.get(20078)
-        param_actual_device_id = self.parameters.get(20079)
-        param_iolink_input_data_length = self.parameters.get(20108)
-        param_iolink_output_data_length = self.parameters.get(20109)
-
+        params = {
+            "port_status_info": self.parameters.get(20074),
+            "revision_id": self.parameters.get(20075),
+            "transmission_rate": self.parameters.get(20076),
+            "actual_cycle_time": self.parameters.get(20077),
+            "actual_vendor_id": self.parameters.get(20078),
+            "actual_device_id": self.parameters.get(20079),
+            "iolink_input_data_length": self.parameters.get(20108),
+            "iolink_output_data_length": self.parameters.get(20109),
+        }
         channel_params = []
 
         port_status_dict = {
@@ -760,39 +758,39 @@ class ApModule(CpxModule):
         for channel_item in range(4):
             port_status_information = port_status_dict.get(
                 self.base.read_parameter(
-                    self.position, param_port_status_info, channel_item
+                    self.position, params.get("port_status_info"), channel_item
                 ),
             )
 
             revision_id = self.base.read_parameter(
-                self.position, param_revision_id, channel_item
+                self.position, params.get("revision_id"), channel_item
             )
 
             transmission_rate = transmission_rate_dict.get(
                 self.base.read_parameter(
-                    self.position, param_transmission_rate, channel_item
+                    self.position, params.get("transmission_rate"), channel_item
                 ),
             )
 
             actual_cycle_time = self.base.read_parameter(
-                self.position, param_actual_cycle_time, channel_item
+                self.position, params.get("actual_cycle_time"), channel_item
             )
 
             actual_vendor_id = self.base.read_parameter(
-                self.position, param_actual_vendor_id, channel_item
+                self.position, params.get("actual_vendor_id"), channel_item
             )
 
             actual_device_id = self.base.read_parameter(
-                self.position, param_actual_device_id, channel_item
+                self.position, params.get("actual_device_id"), channel_item
             )
 
             input_data_length = self.base.read_parameter(
-                self.position, param_iolink_input_data_length, channel_item
+                self.position, params.get("iolink_input_data_length"), channel_item
             )
 
             output_data_length = self.base.read_parameter(
                 self.position,
-                param_iolink_output_data_length,
+                params.get("iolink_output_data_length"),
                 channel_item,
             )
 

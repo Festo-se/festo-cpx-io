@@ -29,14 +29,12 @@ class TestApModule:
             "Product Family": "Product Family",
         }
 
-        input_channels = []
-        output_channels = []
+        channels = ([], [])
         parameters = []
 
         yield ApModule(
             module_information,
-            input_channels,
-            output_channels,
+            channels,
             parameters,
         )
 
