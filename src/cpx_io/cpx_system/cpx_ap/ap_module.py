@@ -23,6 +23,7 @@ class ApModule(CpxModule):
     """Generic AP module class"""
 
     # TODO: Write test if all ap_module functions are in this list
+
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
             ProductCategory.ANALOG,
@@ -125,6 +126,14 @@ class ApModule(CpxModule):
         "write_isdu": [ProductCategory.IO_LINK],
     }
 
+    def _check_function_supported(self, func_name):
+        """Raises NotImplemetedError if function is not supported"""
+
+        if self.product_category not in [
+            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
+        ]:
+            raise NotImplementedError(f"{self} has no function <{func_name}>")
+
     @dataclass
     class SystemParameters:
         """SystemParameters"""
@@ -198,12 +207,7 @@ class ApModule(CpxModule):
     def read_channels(self) -> Any:
         """Read all channels from module and interpret them as the module intends."""
 
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -287,13 +291,7 @@ class ApModule(CpxModule):
         :return: Value of the channel
         :rtype: bool
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
-
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
             ret = self.read_channels()[channel]
@@ -318,12 +316,7 @@ class ApModule(CpxModule):
         fit to the module type
         :type data: list
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # Other modules
         if self.output_channels:
@@ -361,12 +354,7 @@ class ApModule(CpxModule):
         :value: Value that should be written to the channel
         :type value: Any
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # IO-Link special
         if self.product_category == ProductCategory.IO_LINK.value:
@@ -410,12 +398,7 @@ class ApModule(CpxModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
@@ -434,12 +417,7 @@ class ApModule(CpxModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
@@ -458,12 +436,7 @@ class ApModule(CpxModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
@@ -495,12 +468,7 @@ class ApModule(CpxModule):
         If None, all instances will be written
         :type instance: int | list"""
 
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # PARAMETER HANDLING
         if isinstance(parameter, int):
@@ -562,12 +530,7 @@ class ApModule(CpxModule):
         :type instance: int | list
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # PARAMETER HANDLING
         if isinstance(parameter, int):
@@ -627,12 +590,7 @@ class ApModule(CpxModule):
         :return: Parameters object containing all r/w parameters
         :rtype: Parameters
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         params = self.SystemParameters(
             dhcp_enable=self.base.read_parameter(
@@ -678,12 +636,7 @@ class ApModule(CpxModule):
         :return: PQI information as dict for one channel or as list of dicts for more channels
         :rtype: dict | list[dict] depending on param channel
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         data45 = self.base.read_reg_data(self.input_register + 16)[0]
         data67 = self.base.read_reg_data(self.input_register + 17)[0]
@@ -733,12 +686,7 @@ class ApModule(CpxModule):
         :return: a dict of parameters for every channel.
         :rtype: list[dict]
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         param_port_status_info = self.parameters.get(20074)
         param_revision_id = self.parameters.get(20075)
@@ -837,12 +785,7 @@ class ApModule(CpxModule):
         :return: device parameter (index/subindex) for given channel
         :rtype: bytes
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         module_index = (self.position + 1).to_bytes(2, "little")
         channel = (channel + 1).to_bytes(2, "little")
@@ -906,12 +849,7 @@ class ApModule(CpxModule):
         :param subindex: io-link parameter subindex
         :type subindex: int
         """
-        # check if this function is available
-        function_name = inspect.currentframe().f_code.co_name
-        if self.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(function_name)
-        ]:
-            raise NotImplementedError(f"{self} has no function <{function_name}>")
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         module_index = (self.position + 1).to_bytes(2, "little")
         channel = (channel + 1).to_bytes(2, "little")
