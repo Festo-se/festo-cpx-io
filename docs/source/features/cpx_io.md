@@ -109,7 +109,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     myCPX.print_system_information()
 ```
 
-Because the modules are build from your system, this documentation can only provide a rough overview. Therefore an individual documentation of __your__ system is stored on __your__ device. There is a default path where this information is stored that you can print with 
+Because the modules are build from your CPX system, this documentation can only provide a rough overview. Therefore an individual documentation of __your__ system is stored on __your__ device. There is a default path where this information is stored that you can print with 
 ```
 print(myCPX.docu_path)
 ```

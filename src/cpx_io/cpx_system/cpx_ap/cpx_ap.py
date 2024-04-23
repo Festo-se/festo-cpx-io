@@ -244,14 +244,24 @@ class CpxAp(CpxBase):
             print(f"\n\nModule {m}:")
             print("* Information:")
             print(f"   > {m.description}\n")
-            print("* Available Parameters: ")
+            print("* Available Functions: ")
+            for (
+                function_name,
+                product_category_list,
+            ) in m.PRODUCT_CATEGORY_MAPPING.items():
+                product_category_value_list = [p.value for p in product_category_list]
+                if m.product_category in product_category_value_list:
+                    print(f"    > {function_name}")
+
+            print("\n* Available Parameters: ")
             print(
                 "   > ID      Name                                              R/W   Type       "
             )
             print(
                 "   > ---------------------------------------------------------------------------"
             )
-            [print(f"   > {p}") for p in m.parameters.values()]
+            for p in m.parameters.values():
+                print(f"   > {p}")
 
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
