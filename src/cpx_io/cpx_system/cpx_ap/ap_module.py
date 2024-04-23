@@ -483,7 +483,7 @@ class ApModule(CpxModule):
         if self.output_channels:
             if self.output_channels[channel].data_type == "BOOL":
                 # get the relevant value from the register and write the inverse
-                value = self.read_channel(channel)
+                value = self.read_channel(channel, outputs_only=True)
                 self.write_channel(channel, not value)
                 return
 
