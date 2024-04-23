@@ -22,8 +22,6 @@ from cpx_io.utils.logging import Logging
 class ApModule(CpxModule):
     """Generic AP module class"""
 
-    # TODO: Write test if all ap_module functions are in this list
-
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
             ProductCategory.ANALOG,
@@ -124,6 +122,19 @@ class ApModule(CpxModule):
         "read_fieldbus_parameters": [ProductCategory.IO_LINK],
         "read_isdu": [ProductCategory.IO_LINK],
         "write_isdu": [ProductCategory.IO_LINK],
+        "configure": [
+            ProductCategory.INTERFACE,
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.INFRASTRUCTURE,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.VTOM,
+        ],
     }
 
     def _check_function_supported(self, func_name):
@@ -194,6 +205,8 @@ class ApModule(CpxModule):
         self.write_channel(key, value)
 
     def configure(self, base: CpxBase, position: int) -> None:
+
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
         super().configure(base=base, position=position)
 
         self.base.next_output_register += div_ceil(self.information.output_size, 2)

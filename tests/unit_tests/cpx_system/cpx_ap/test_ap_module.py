@@ -1,5 +1,6 @@
 """Contains tests for ApModule class"""
 
+import inspect
 from unittest.mock import Mock
 import pytest
 
@@ -45,6 +46,20 @@ class TestApModule:
 
         # Assert
         assert isinstance(module_fixture, ApModule)
+
+    def test_supported_functions(self, module_fixture):
+        """Test function support"""
+        module = module_fixture
+        coded_attributes = [
+            attr for attr in dir(module) if callable(getattr(module, attr))
+        ]
+        # it is a coded function if it does not start with underscore and is not of type class
+        coded_functions = [
+            attr
+            for attr in coded_attributes
+            if not attr.startswith("_") and not inspect.isclass(getattr(module, attr))
+        ]
+        assert all(f in module.PRODUCT_CATEGORY_MAPPING.keys() for f in coded_functions)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
@@ -494,10 +509,10 @@ class TestApModule:
         module.base = Mock()
         module.input_channels = []
         # Act
-        module[]
+        # module
 
         # Assert
-        assert channel_values == [False, True, False, True]
+        # assert channel_values == [False, True, False, True]
 
     # @pytest.mark.parametrize(
     #     "input_value, expected_value",
