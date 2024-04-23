@@ -82,10 +82,10 @@ class TestCpxAp:
         cpxap = CpxAp()
 
         # Act
-        cpxap.cpxap8di.name = "my8di"  # pylint: disable="no-member"
+        cpxap.cpx_ap_i_8di_m8_3p.name = "my8di"  # pylint: disable="no-member"
 
         # Assert
-        assert isinstance(cpxap.my8di, CpxAp8Di)  # pylint: disable="no-member"
+        assert isinstance(cpxap.my8di, ApModule)  # pylint: disable="no-member"
 
     @patch.object(CpxAp, "read_module_count")
     @patch.object(CpxAp, "read_module_information")

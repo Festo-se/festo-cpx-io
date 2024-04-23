@@ -43,9 +43,42 @@ class TestApModule:
     def test_constructor_correct_type(self, module_fixture):
         """Test constructor"""
         # Arrange
-
+        # Act
         # Assert
         assert isinstance(module_fixture, ApModule)
+        assert module_fixture.base is None
+        assert module_fixture.position is None
+        assert module_fixture.information is None
+        assert module_fixture.output_register is None
+        assert module_fixture.input_register is None
+
+    def test_configure(self, module_fixture):
+        """Test configure"""
+        # Arrange
+        module = module_fixture
+        module.product_category = ProductCategory.INFRASTRUCTURE.value
+        module.information = Mock(input_size=3, output_size=5)
+        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
+
+        # Act
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+        module.configure(mocked_base, MODULE_POSITION)
+
+        # Assert
+        assert module.position == MODULE_POSITION
+
+    def test_repr_correct_string(self, module_fixture):
+        """Test repr"""
+        # Arrange
+        module = module_fixture
+        module.name = "code"
+        module.position = 1
+
+        # Act
+        module_repr = repr(module)
+
+        # Assert
+        assert module_repr == "code (idx: 1, type: Module Type)"
 
     def test_supported_functions(self, module_fixture):
         """Test function support"""
@@ -143,6 +176,7 @@ class TestApModule:
         """Test read channels"""
         # Arrange
         module = module_fixture
+        module.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ModuleInformation(input_size=8)
 
         module.input_channels = input_value
@@ -186,6 +220,7 @@ class TestApModule:
         """Test read channels"""
         # Arrange
         module = module_fixture
+        module.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ModuleInformation(input_size=8)
 
         module.input_channels = input_value
@@ -298,7 +333,7 @@ class TestApModule:
             module.read_channel(idx)
 
             # Assert
-            module.read_channels.assert_called_with(idx)
+            module.read_channel.assert_called_with(idx)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
@@ -502,74 +537,225 @@ class TestApModule:
         with pytest.raises(NotImplementedError):
             module.write_channels([0] * input_value)
 
-    def test_get_item_correct_values(self, module_fixture):
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_get_item_correct_values(self, module_fixture, input_value):
         """Test get item"""
         # Arrange
         module = module_fixture
         module.base = Mock()
         module.input_channels = []
+        module.read_channel = Mock()
+
         # Act
-        # module
+        module[input_value]
 
         # Assert
-        # assert channel_values == [False, True, False, True]
+        module.read_channel.assert_called_with(input_value)
 
-    # @pytest.mark.parametrize(
-    #     "input_value, expected_value",
-    #     [
-    #         (0, 0),
-    #         (1, 1),
-    #         (2, 2),
-    #         (3, 3),
-    #         (DebounceTime.T_100US, 0),
-    #         (DebounceTime.T_3MS, 1),
-    #         (DebounceTime.T_10MS, 2),
-    #         (DebounceTime.T_20MS, 3),
-    #     ],
-    # )
-    # def test_configure_debounce_time_successful_configuration(
-    #     self, input_value, expected_value
-    # ):
-    #     """Test configure_debounce_time and expect success"""
-    #     # Arrange
-    #     MODULE_POSITION = 1  # pylint: disable=invalid-name
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_set_item_correct_values(self, module_fixture, input_value):
+        """Test set item"""
+        # Arrange
+        module = module_fixture
+        module.base = Mock()
+        module.input_channels = []
+        module.write_channel = Mock()
 
-    #     module = ApModule(
-    #         module_information,
-    #         input_channels,
-    #         output_channels,
-    #         parameters,
-    #     )
-    #     module.position = MODULE_POSITION
+        # Act
+        module[input_value] = input_value
 
-    #     module.base = Mock(write_parameter=Mock())
+        # Assert
+        module.write_channel.assert_called_with(input_value, input_value)
 
-    #     # Act
-    #     module.configure_debounce_time(input_value)
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_set_channel_correct_values(self, module_fixture, input_value):
+        """Test set channel"""
+        # Arrange
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.write_channel = Mock()
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
 
-    #     # Assert
-    #     module.base.write_parameter.assert_called_with(
-    #         MODULE_POSITION,
-    #         ParameterNameMap()["InputDebounceTime"],
-    #         expected_value,
-    #     )
+        # Act
+        module.set_channel(input_value)
 
-    # @pytest.mark.parametrize("input_value", [-1, 4])
-    # def test_configure_debounce_time_raise_error(self, input_value):
-    #     """Test configure_debounce_time and expect error"""
-    #     # Arrange
-    #     MODULE_POSITION = 1  # pylint: disable=invalid-name
+        # Assert
+        module.write_channel.assert_called_with(input_value, True)
 
-    #     module = ApModule(
-    #         module_information,
-    #         input_channels,
-    #         output_channels,
-    #         parameters,
-    #     )
-    #     module.position = MODULE_POSITION
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_clear_channel_correct_values(self, module_fixture, input_value):
+        """Test clear channel"""
+        # Arrange
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.write_channel = Mock()
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
 
-    #     module.base = Mock(write_parameter=Mock())
+        # Act
+        module.clear_channel(input_value)
 
-    #     # Act & Assert
-    #     with pytest.raises(ValueError):
-    #         module.configure_debounce_time(input_value)
+        # Assert
+        module.write_channel.assert_called_with(input_value, False)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_toggle_true_channel_correct_values(self, module_fixture, input_value):
+        """Test toggle channel"""
+        # Arrange
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.write_channel = Mock()
+        module.read_channel = Mock(return_value=True)
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act
+        module.toggle_channel(input_value)
+
+        # Assert
+        module.write_channel.assert_called_with(input_value, False)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_toggle_false_channel_correct_values(self, module_fixture, input_value):
+        """Test toggle channel"""
+        # Arrange
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.write_channel = Mock()
+        module.read_channel = Mock(return_value=False)
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act
+        module.toggle_channel(input_value)
+
+        # Assert
+        module.write_channel.assert_called_with(input_value, True)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_set_channel_wrong_output_type(self, module_fixture, input_value):
+        """Test set channel"""
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="INT",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            module.set_channel(input_value)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_clear_channel_wrong_output_type(self, module_fixture, input_value):
+        """Test set channel"""
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="INT",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            module.clear_channel(input_value)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_toggle_channel_wrong_output_type(self, module_fixture, input_value):
+        """Test set channel"""
+        module = module_fixture
+        module.base = Mock()
+        module.product_category = ProductCategory.DIGITAL.value
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="INT",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            module.toggle_channel(input_value)
