@@ -415,7 +415,7 @@ class ApModule(CpxModule):
             if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
                 value, bool
             ):
-                data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
+                data = self.read_channels()
                 data[channel] = value
                 reg = boollist_to_bytes(data)
                 self.base.write_reg_data(reg, self.output_register)
@@ -511,7 +511,7 @@ class ApModule(CpxModule):
         :type instance: int | list"""
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
+        parameter_input = parameter
         # PARAMETER HANDLING
         if isinstance(parameter, int):
             parameter = self.parameters.get(parameter)
@@ -523,7 +523,7 @@ class ApModule(CpxModule):
             parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
         if parameter is None:
-            raise NotImplementedError(f"{self} has no parameter {parameter}")
+            raise NotImplementedError(f"{self} has no parameter {parameter_input}")
 
         if not parameter.is_writable:
             raise AttributeError(f"Parameter {parameter} is not writable")
@@ -573,7 +573,7 @@ class ApModule(CpxModule):
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
+        parameter_input = parameter
         # PARAMETER HANDLING
         if isinstance(parameter, int):
             parameter = self.parameters.get(parameter)
@@ -585,7 +585,7 @@ class ApModule(CpxModule):
             parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
         if parameter is None:
-            raise NotImplementedError(f"{self} has no parameter {parameter}")
+            raise NotImplementedError(f"{self} has no parameter {parameter_input}")
 
         if parameter.enums:
             # overwrite the parameter datatype from enum
