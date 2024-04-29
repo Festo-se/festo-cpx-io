@@ -735,260 +735,228 @@ def test_vabx_write(test_cpxap):
         assert m.read_channel(i) is False
 
 
-def test_vabx_configures(test_cpxap):
-    "test configure functions of vabx"
-    POSITION = 6
-    vabx = test_cpxap.modules[POSITION]
+def test_vabx_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[6]
 
-    vabx.configure_diagnosis_for_defect_valve(False)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20021]) == 0
-
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
-
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_diagnosis_for_defect_valve(True)
-    time.sleep(0.05)
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
+    for i in range(32):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vabx_configures_enums(test_cpxap):
-    "test configure functions of vabx"
-    POSITION = 6
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_diagnosis_for_defect_valve(False)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20021]) == 0
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_diagnosis_for_defect_valve(True)
-    time.sleep(0.05)
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vabx_parameters(test_cpxap):
+    m = test_cpxap.modules[6]
+    assert m.read_module_parameter(
+        "Enable diagnosis for defect valve"
+    ) == m.read_module_parameter(20021)
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
 
 
 def test_vaem_read_channels(test_cpxap):
-    "test vaem 24 channel"
-    POSITION = 7
-    # assert isinstance(test_cpxap.modules[POSITION], VaemAP)
-    channels = test_cpxap.modules[POSITION].read_channels()
-    assert channels == [False] * 24
+    m = test_cpxap.modules[7]
+
+    assert m.read_channels() == [False] * 24
 
 
 def test_vaem_read_channel(test_cpxap):
-    "test vaem"
-    POSITION = 7
-    # assert isinstance(test_cpxap.modules[POSITION], VaemAP)
-    channel = test_cpxap.modules[POSITION].read_channel(0)
-    assert channel is False
+    m = test_cpxap.modules[7]
+
+    for i in range(24):
+        assert m.read_channel(i) is False
 
 
 def test_vaem_write(test_cpxap):
-    "test vaem"
-    POSITION = 7
-    # assert isinstance(test_cpxap.modules[POSITION], VaemAP)
-    test_cpxap.modules[POSITION].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[POSITION].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is False
+    m = test_cpxap.modules[7]
+
+    for i in range(24):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vaem_configures(test_cpxap):
-    "test configure functions of vaem"
-    POSITION = 7
-    vabx = test_cpxap.modules[POSITION]
+def test_vaem_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[7]
 
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
+    for i in range(24):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
 
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
-
-
-def test_vaem_configures_enums(test_cpxap):
-    "test configure functions of vaem"
-    POSITION = 7
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vaem_parameters(test_cpxap):
+    m = test_cpxap.modules[7]
+    assert m.read_module_parameter(
+        "Enable diagnosis for defect valve"
+    ) == m.read_module_parameter(20021)
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
 
 
 def test_vmpal_read_channels(test_cpxap):
-    "test vmpal 32 channel"
-    POSITION = 8
-    # assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
-    channels = test_cpxap.modules[POSITION].read_channels()
-    assert channels == [False] * 32
+    m = test_cpxap.modules[8]
+
+    assert m.read_channels() == [False] * 32
 
 
 def test_vmpal_read_channel(test_cpxap):
-    "test vmpal"
-    POSITION = 8
-    # assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
-    channel = test_cpxap.modules[POSITION].read_channel(0)
-    assert channel is False
+    m = test_cpxap.modules[8]
+
+    for i in range(32):
+        assert m.read_channel(i) is False
 
 
 def test_vmpal_write(test_cpxap):
-    "test vmpal"
-    POSITION = 8
-    # assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
-    test_cpxap.modules[POSITION].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[POSITION].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is False
+    m = test_cpxap.modules[8]
+
+    for i in range(32):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vmpal_configures(test_cpxap):
-    "test configure functions of vmpal"
-    POSITION = 8
-    vabx = test_cpxap.modules[POSITION]
+def test_vmpal_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[8]
 
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
+    for i in range(32):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
 
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
-
-
-def test_vmpal_configures_enums(test_cpxap):
-    "test configure functions of vmpal"
-    POSITION = 8
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vmpal_parameters(test_cpxap):
+    m = test_cpxap.modules[8]
+    assert m.read_module_parameter(
+        "Enable diagnosis for defect valve"
+    ) == m.read_module_parameter(20021)
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
 
 
 def test_vaba_read_channels(test_cpxap):
-    "test vaba 24 channel"
-    POSITION = 9
-    # assert isinstance(test_cpxap.modules[POSITION], VabaAP)
-    channels = test_cpxap.modules[POSITION].read_channels()
-    assert channels == [False] * 24
+    m = test_cpxap.modules[9]
+
+    assert m.read_channels() == [False] * 24
 
 
 def test_vaba_read_channel(test_cpxap):
-    "test vaba"
-    POSITION = 9
-    # assert isinstance(test_cpxap.modules[POSITION], VabaAP)
-    channel = test_cpxap.modules[POSITION].read_channel(0)
-    assert channel is False
+    m = test_cpxap.modules[9]
+
+    for i in range(24):
+        assert m.read_channel(i) is False
 
 
 def test_vaba_write(test_cpxap):
-    "test vaba"
-    POSITION = 9
-    # assert isinstance(test_cpxap.modules[POSITION], VabaAP)
-    test_cpxap.modules[POSITION].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[POSITION].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is False
+    m = test_cpxap.modules[9]
+
+    for i in range(24):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vaba_configures(test_cpxap):
-    "test configure functions of vaba"
-    POSITION = 9
-    vabx = test_cpxap.modules[POSITION]
+def test_vaba_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[9]
 
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
+    for i in range(24):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
 
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
-
-
-def test_vaba_configures_enums(test_cpxap):
-    "test configure functions of vaba"
-    POSITION = 9
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20022]) == 2
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert vabx.base.read_parameter(POSITION, vabx.parameters[20052]) == 1
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vaba_parameters(test_cpxap):
+    m = test_cpxap.modules[9]
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
