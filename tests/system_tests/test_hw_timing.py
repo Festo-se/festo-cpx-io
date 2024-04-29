@@ -18,13 +18,29 @@ def test_clean_apdd():
 
 
 def test_load_apdd():
-    "test init with loading apdds from module"
+    "test init with loading apdds from folder and no documentation"
+    # get apdds before test
+    with CpxAp(ip_address="172.16.1.42") as cpxap:
+        pass
     time = timeit.timeit(
         "with CpxAp(ip_address='172.16.1.42') as cpxap: pass",
         setup="from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp",
         number=1,
     )
     print(f"Load apdd setup time: {time*1000} ms")
+
+
+def test_load_apdd_no_docu():
+    "test init with loading apdds from folder and no documentation"
+    # get apdds before test
+    with CpxAp(ip_address="172.16.1.42") as cpxap:
+        pass
+    time = timeit.timeit(
+        "with CpxAp(ip_address='172.16.1.42', generate_docu=False) as cpxap: pass",
+        setup="from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp",
+        number=1,
+    )
+    print(f"Load apdd setup time without docu generation: {time*1000} ms")
 
 
 def test_read_channel():

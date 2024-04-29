@@ -60,3 +60,14 @@ def test_read_device_info_cpx_ap_a():
     assert info["vendor_url"] == "http://www.festo.com"
     assert info["product_name"] == "CPX-AP-EtherNet/IP (Modbus mode)"
     assert info["model_name"] == "CPX-AP Node"
+
+
+def test_read_device_info_cpx_ap_mpa():
+    cpx_base = CpxBase(ip_address="172.16.1.43")
+    info = cpx_base.read_device_info()
+    assert info["vendor_name"] == "Festo SE & Co. KG"
+    assert info["product_code"] == "CPX-AP-EP"
+    assert info["revision"] == "1.5.43"
+    assert info["vendor_url"] == "http://www.festo.com"
+    assert info["product_name"] == "CPX-AP-EtherNet/IP (Modbus mode)"
+    assert info["model_name"] == "CPX-AP Node"
