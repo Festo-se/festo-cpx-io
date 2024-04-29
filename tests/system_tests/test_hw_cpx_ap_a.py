@@ -39,12 +39,9 @@ def test_set_timeout():
 
 
 def test_read_module_information(test_cpxap):
-    modules = []
-    time.sleep(0.05)
-    cnt = test_cpxap.read_module_count()
-    for i in range(cnt):
-        modules.append(test_cpxap.read_module_information(i))
-    # assert modules[0].module_code in CpxApEp.module_codes
+
+    for i in range(len(test_cpxap.modules)):
+        assert test_cpxap.read_module_information(i)
 
 
 def test_read_diagnostic_status(test_cpxap):
@@ -199,14 +196,14 @@ def test_ep_parameter_rw_strings(test_cpxap):
 
 
 def test_16Di_read_channels(test_cpxap):
-    a16di = test_cpxap.modules[1]
-    assert a16di.read_channels() == [False] * 16
+    m = test_cpxap.modules[1]
+    assert m.read_channels() == [False] * 16
 
 
 def test_16Di_read_channel(test_cpxap):
-    a16di = test_cpxap.modules[1]
+    m = test_cpxap.modules[1]
     for i in range(16):
-        assert a16di.read_channel(i) is False
+        assert m.read_channel(i) is False
 
 
 def test_16Di_parameter_write(test_cpxap):
@@ -254,38 +251,39 @@ def test_16Di_parameter_rw_strings(test_cpxap):
 
 
 def test_12Di4Do(test_cpxap):
-    assert test_cpxap.modules[2].read_channels() == [False] * 16
+    m = test_cpxap.modules[2]
+    assert m.read_channels() == [False] * 16
 
     data = [True, False, True, False]
-    test_cpxap.modules[2].write_channels(data)
+    m.write_channels(data)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channels()[:12] == [False] * 12
-    assert test_cpxap.modules[2].read_channels()[12:] == data
+    assert m.read_channels()[:12] == [False] * 12
+    assert m.read_channels()[12:] == data
 
     data = [False, True, False, True]
-    test_cpxap.modules[2].write_channels(data)
+    m.write_channels(data)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channels()[:12] == [False] * 12
-    assert test_cpxap.modules[2].read_channels()[12:] == data
+    assert m.read_channels()[:12] == [False] * 12
+    assert m.read_channels()[12:] == data
 
-    test_cpxap.modules[2].write_channels([False, False, False, False])
+    m.write_channels([False, False, False, False])
 
-    test_cpxap.modules[2].set_channel(0)
+    m.set_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, outputs_only=True) is True
-    assert test_cpxap.modules[2].read_channel(12) is True
+    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_channel(12) is True
 
-    test_cpxap.modules[2].clear_channel(0)
+    m.clear_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, outputs_only=True) is False
-    assert test_cpxap.modules[2].read_channel(12) is False
+    assert m.read_channel(0, outputs_only=True) is False
+    assert m.read_channel(12) is False
 
-    test_cpxap.modules[2].toggle_channel(0)
+    m.toggle_channel(0)
     time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, outputs_only=True) is True
-    assert test_cpxap.modules[2].read_channel(12) is True
+    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_channel(12) is True
 
-    test_cpxap.modules[2].clear_channel(0)
+    m.clear_channel(0)
 
 
 def test_12Di4Do_parameter_write_debounce(test_cpxap):
