@@ -65,6 +65,8 @@ def generate_system_information_file(ap_system) -> None:
         "IP-Address": ap_system.ip_address,
         "Number of modules": len(ap_system.modules),
         "Creation Date": datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
+        "Docu Path": ap_system.docu_path,
+        "APDD Path": ap_system.apdd_path,
         "Modules": _generate_module_data(ap_system.modules),
     }
 
@@ -95,6 +97,8 @@ def generate_system_information_file(ap_system) -> None:
         f.write(f"* IP-Address: {system_data['IP-Address']}\n")
         f.write(f"* Number of modules: {system_data['Number of modules']}\n")
         f.write(f"* Date of creation: {system_data['Creation Date']}\n")
+        f.write(f"* Docu Path: {system_data['Docu Path']}\n")
+        f.write(f"* APDD Path: {system_data['APDD Path']}\n")
         f.write("\n# Modules\n")
         for m in system_data["Modules"]:
             f.write(f"\n## Index {m['Index']}: {m['Type']}\n")

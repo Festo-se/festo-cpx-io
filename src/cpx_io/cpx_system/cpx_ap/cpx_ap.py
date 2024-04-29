@@ -238,6 +238,11 @@ class CpxAp(CpxBase):
 
     def print_system_information(self) -> None:
         """Prints all parameters from all modules"""
+        print("\nInformation")
+        print(f"* IP-Address: {self.ip_address}")
+        print(f"* Number of modules: {len(self.modules)}")
+        print(f"* Docu Path: {self.docu_path}")
+        print(f"* APDD Path: {self.apdd_path}")
         for m in self.modules:
             print(f"\n\nModule {m}:")
             print("* Information:")
