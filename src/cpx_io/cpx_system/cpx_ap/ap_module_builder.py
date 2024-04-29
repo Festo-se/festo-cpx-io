@@ -274,8 +274,9 @@ class ApModuleBuilder:
             enum_list = metadata.get("EnumDataTypes")
             physical_quantities_list = metadata.get("PhysicalQuantities")
 
-        ## setup enums used in the module
-        enums = {e["Id"]: ParameterEnumBuilder().build(e) for e in enum_list}
+        if enum_list:
+            ## setup enums used in the module
+            enums = {e["Id"]: ParameterEnumBuilder().build(e) for e in enum_list}
 
         ## setup quantities used in the module
         physical_quantities = {
