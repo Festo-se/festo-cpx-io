@@ -36,10 +36,12 @@ def _generate_module_data(modules: list) -> dict:
         for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
             if m.is_function_supported(function_name):
                 func = getattr(m, function_name)
-                module_functions[function_name] = {
-                    "Description": inspect.getdoc(func),
-                    "Signature": str(inspect.signature(func)),
-                }
+                # suppress the configure function
+                if function_name != "configure":
+                    module_functions[function_name] = {
+                        "Description": inspect.getdoc(func),
+                        "Signature": str(inspect.signature(func)),
+                    }
 
         module_data.append(
             {
@@ -111,24 +113,30 @@ def generate_system_information_file(ap_system) -> None:
             f.write(f"* AP Slot: {m['AP Slot']}\n")
             f.write(f"* FWVersion: {m['FWVersion']}\n")
             f.write(f"* Default Name: {m['Default Name']}\n")
-            f.write("### Module Functions\n")
-            for name, doc in m["Module Functions"].items():
-                func_header = name + doc["Signature"]
-                docstring = doc["Description"].replace("\n:", "<br>:")
-                f.write(f"### {func_header} \n{docstring}\n")
-            f.write("### Parameter Table\n")
-            f.write(
-                "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
-                "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
-            )
-            for p in m["Parameters"]:
-                enums_str = "<ul>"
-                if p.get("Enums"):
-                    for k, v in p["Enums"].items():
-                        enums_str += f"<li>{v}: {k}</li>"
-                enums_str += "</ul>"
-                description_corrected_newline = p["Description"].replace("\n", "<br>")
+
+            if m["Module Functions"]:
+                f.write("### Module Functions\n")
+                for name, doc in m["Module Functions"].items():
+                    func_header = name + doc["Signature"]
+                    docstring = doc["Description"].replace("\n:", "<br>:")
+                    f.write(f"### {func_header} \n{docstring}\n")
+
+            if m["Parameters"]:
+                f.write("### Parameter Table\n")
                 f.write(
-                    f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|"
-                    f"{p['Type']}|{p['Size']}|{p['Instances']}|{enums_str}|\n"
+                    "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
+                    "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
                 )
+                for p in m["Parameters"]:
+                    enums_str = "<ul>"
+                    if p.get("Enums"):
+                        for k, v in p["Enums"].items():
+                            enums_str += f"<li>{v}: {k}</li>"
+                    enums_str += "</ul>"
+                    description_corrected_newline = p["Description"].replace(
+                        "\n", "<br>"
+                    )
+                    f.write(
+                        f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|"
+                        f"{p['Type']}|{p['Size']}|{p['Instances']}|{enums_str}|\n"
+                    )

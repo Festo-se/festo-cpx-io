@@ -283,6 +283,7 @@ class Builder:
             enum_list = metadata.get("EnumDataTypes")
             physical_quantities_list = metadata.get("PhysicalQuantities")
 
+        enums = None
         if enum_list:
             ## setup enums used in the module
             enums = {e["Id"]: self.build_parameter_enum(e) for e in enum_list}

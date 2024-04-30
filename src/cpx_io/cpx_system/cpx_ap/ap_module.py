@@ -147,6 +147,7 @@ class ApModule(CpxModule):
         "clear_channel",
         "toggle_channel",
     ]
+    PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
 
     @dataclass
     class SystemParameters:
@@ -263,6 +264,8 @@ class ApModule(CpxModule):
             and not self.input_channels
             and not self.output_channels
         ):
+            return False
+        if func_name in self.PARAMETER_FUNCTIONS and not self.parameters:
             return False
         return True
 
