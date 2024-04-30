@@ -3,7 +3,7 @@
 import argparse
 import logging
 from cpx_io.cli.cpx_e import add_cpx_e_parser
-from cpx_io.cli.parameter import add_parameter_parser
+from cpx_io.cli.cpx_ap import add_cpx_ap_parser
 from cpx_io.utils.logging import Logging
 
 
@@ -30,8 +30,8 @@ def main():
     )
 
     # Options for position
-    add_parameter_parser(subparsers)
     add_cpx_e_parser(subparsers)
+    add_cpx_ap_parser(subparsers)
 
     args = parser.parse_args()
 

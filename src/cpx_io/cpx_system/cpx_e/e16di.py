@@ -4,14 +4,14 @@
 # intended: modules have similar functions
 
 from cpx_io.cpx_system.cpx_base import CpxBase
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import DebounceTime, SignalExtension
 
 
-class CpxE16Di(CpxEModule):
+class CpxE16Di(CpxModule):
     """Class for CPX-E-16DI module"""
 
     def __getitem__(self, key):

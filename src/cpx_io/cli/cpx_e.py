@@ -23,16 +23,14 @@ def add_cpx_e_parser(subparsers):
         dest="subcommand",
         required=True,
         title="action commands",
-        description="Action to perform on the PNU",
+        description="Action to perform",
     )
 
-    # Options for reading PNU
     parser_read = subparsers_cpx.add_parser("read")
     parser_read.add_argument(
         "-c", "--channel-index", type=int, help="Channel index to be read"
     )
 
-    # Options for writing PNU
     parser_write = subparsers_cpx.add_parser("write")
     parser_write.add_argument(
         "-c", "--channel-index", type=int, help="Channel index to be written"
@@ -48,8 +46,6 @@ def add_cpx_e_parser(subparsers):
 
 def cpx_e_func(args):
     """Executes subcommand based on provided arguments"""
-    # module_index = int(args.module_index)
-    # channel_index = int(args.channel_index) if args.channel_index else None
     cpx_e = CpxE(ip_address=args.ip_address, modules=args.typecode)
 
     if args.subcommand == "read":

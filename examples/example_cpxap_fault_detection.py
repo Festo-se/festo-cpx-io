@@ -56,7 +56,7 @@ def main():
         for _ in range(3):
             # acyclic communication with locking
             with myCPX.lock:
-                information = myCPX.read_module_information(0)
+                information = myCPX.read_apdd_information(0)
                 channels = myCPX.modules[1].read_channels()
 
             # error handling

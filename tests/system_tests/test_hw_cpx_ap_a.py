@@ -1,34 +1,10 @@
 """Tests for cpx-ap system"""
 
 import time
-import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.cpx_system.cpx_ap.cpx_ap_module import CpxApModule
-from cpx_io.cpx_system.parameter_mapping import ParameterNameMap
-
-from cpx_io.cpx_system.cpx_ap.apep import CpxApEp
-from cpx_io.cpx_system.cpx_ap.ap16di import CpxAp16Di
-from cpx_io.cpx_system.cpx_ap.ap12di4do import CpxAp12Di4Do
-from cpx_io.cpx_system.cpx_ap.ap8do import CpxAp8Do
-from cpx_io.cpx_system.cpx_ap.ap8di import CpxAp8Di
-from cpx_io.cpx_system.cpx_ap.ap4iol import CpxAp4Iol
-from cpx_io.cpx_system.cpx_ap.vabx_ap import VabxAP
-from cpx_io.cpx_system.cpx_ap.vaem_ap import VaemAP
-from cpx_io.cpx_system.cpx_ap.vmpal_ap import VmpalAP
-from cpx_io.cpx_system.cpx_ap.vaba_ap import VabaAP
-
-from cpx_io.cpx_system.cpx_ap.cpx_ap_enums import (
-    ChannelRange,
-    CycleTime,
-    DebounceTime,
-    FailState,
-    LoadSupply,
-    PortMode,
-    ReviewBackup,
-    TempUnit,
-)
+from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
 
 
 @pytest.fixture(scope="function")
@@ -41,6 +17,16 @@ def test_cpxap():
 def test_init(test_cpxap):
     "test init"
     assert test_cpxap
+
+
+def test_print_system_information(test_cpxap):
+    "test print"
+    test_cpxap.print_system_information()
+
+
+def test_print_system_state(test_cpxap):
+    "test print"
+    test_cpxap.print_system_state()
 
 
 def test_module_count(test_cpxap):
@@ -62,13 +48,10 @@ def test_set_timeout():
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
-def test_read_module_information(test_cpxap):
-    modules = []
-    time.sleep(0.05)
-    cnt = test_cpxap.read_module_count()
-    for i in range(cnt):
-        modules.append(test_cpxap.read_module_information(i))
-    assert modules[0].module_code in CpxApEp.module_codes
+def test_read_apdd_information(test_cpxap):
+
+    for i in range(len(test_cpxap.modules)):
+        assert test_cpxap.read_apdd_information(i)
 
 
 def test_read_diagnostic_status(test_cpxap):
@@ -79,59 +62,19 @@ def test_read_diagnostic_status(test_cpxap):
 
 
 def test_module_naming(test_cpxap):
-    assert isinstance(test_cpxap.cpxap8di, CpxAp8Di)
-    test_cpxap.cpxap8di.name = "test"
-    assert test_cpxap.test.read_channel(0) is False
+    assert isinstance(test_cpxap.cpx_ap_a_ep_m12, CpxModule)
+    test_cpxap.cpx_ap_a_ep_m12.name = "test"
+    assert isinstance(test_cpxap.test, CpxModule)
 
 
 def test_modules(test_cpxap):
-    assert isinstance(test_cpxap.modules[0], CpxApEp)
-    assert isinstance(test_cpxap.modules[1], CpxAp16Di)
-    assert isinstance(test_cpxap.modules[2], CpxAp12Di4Do)
-    assert isinstance(test_cpxap.modules[3], CpxAp8Do)
-    assert isinstance(test_cpxap.modules[4], CpxAp8Di)
-    assert isinstance(test_cpxap.modules[5], CpxAp4Iol)
-    assert isinstance(test_cpxap.modules[6], VabxAP)
-    assert isinstance(test_cpxap.modules[7], VaemAP)
-    assert isinstance(test_cpxap.modules[8], VmpalAP)
-    assert isinstance(test_cpxap.modules[9], VabaAP)
+    assert all(isinstance(m, CpxModule) for m in test_cpxap.modules)
 
-    assert all(isinstance(item, CpxApModule) for item in test_cpxap.modules)
-
-    for m in test_cpxap.modules:
+    for i, m in enumerate(test_cpxap.modules):
         assert m.information.input_size >= 0
+        assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].information.module_code in CpxApEp.module_codes
-    assert test_cpxap.modules[0].position == 0
-
-    assert test_cpxap.modules[1].information.module_code in CpxAp16Di.module_codes
-    assert test_cpxap.modules[1].position == 1
-
-    assert test_cpxap.modules[2].information.module_code in CpxAp12Di4Do.module_codes
-    assert test_cpxap.modules[2].position == 2
-
-    assert test_cpxap.modules[3].information.module_code in CpxAp8Do.module_codes
-    assert test_cpxap.modules[3].position == 3
-
-    assert test_cpxap.modules[4].information.module_code in CpxAp8Di.module_codes
-    assert test_cpxap.modules[4].position == 4
-
-    assert test_cpxap.modules[5].information.module_code in CpxAp4Iol.module_codes
-    assert test_cpxap.modules[5].position == 5
-
-    assert test_cpxap.modules[6].information.module_code in VabxAP.module_codes
-    assert test_cpxap.modules[6].position == 6
-
-    assert test_cpxap.modules[7].information.module_code in VaemAP.module_codes
-    assert test_cpxap.modules[7].position == 7
-
-    assert test_cpxap.modules[8].information.module_code in VmpalAP.module_codes
-    assert test_cpxap.modules[8].position == 8
-
-    assert test_cpxap.modules[9].information.module_code in VabaAP.module_codes
-    assert test_cpxap.modules[9].position == 9
-
-    assert test_cpxap.modules[0].output_register is None  # EP
+    assert test_cpxap.modules[0].output_register == 0  # EP
     assert test_cpxap.modules[1].output_register == 0  # 16di
     assert test_cpxap.modules[2].output_register == 0  # 12DiDo, adds 1
     assert test_cpxap.modules[3].output_register == 1  # 8Do, adds 1
@@ -142,7 +85,7 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[8].output_register == 22  # Vmpal
     assert test_cpxap.modules[9].output_register == 24  # Vaba
 
-    assert test_cpxap.modules[0].input_register is None  # EP
+    assert test_cpxap.modules[0].input_register == 5000  # EP
     assert test_cpxap.modules[1].input_register == 5000  # 16Di, adds 1
     assert test_cpxap.modules[2].input_register == 5001  # 12DiDo, adds 1
     assert test_cpxap.modules[3].input_register == 5002  # 8Do
@@ -152,181 +95,6 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[7].input_register == 5021  # Vaem
     assert test_cpxap.modules[8].input_register == 5021  # Vmpal
     assert test_cpxap.modules[9].input_register == 5021  # Vaba
-
-
-def test_16Di(test_cpxap):
-    assert test_cpxap.modules[1].read_channels() == [False] * 16
-
-
-def test_16Di_configure(test_cpxap):
-    test_cpxap.modules[1].configure_debounce_time(1)
-
-
-def test_12Di4Do(test_cpxap):
-    assert test_cpxap.modules[2].read_channels() == [False] * 16
-
-    data = [True, False, True, False]
-    test_cpxap.modules[2].write_channels(data)
-    time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channels()[:12] == [False] * 12
-    assert test_cpxap.modules[2].read_channels()[12:] == data
-
-    data = [False, True, False, True]
-    test_cpxap.modules[2].write_channels(data)
-    time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channels()[:12] == [False] * 12
-    assert test_cpxap.modules[2].read_channels()[12:] == data
-
-    test_cpxap.modules[2].write_channels([False, False, False, False])
-
-    test_cpxap.modules[2].set_channel(0)
-    time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is True
-    assert test_cpxap.modules[2].read_channel(12) is True
-
-    test_cpxap.modules[2].clear_channel(0)
-    time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is False
-    assert test_cpxap.modules[2].read_channel(12) is False
-
-    test_cpxap.modules[2].toggle_channel(0)
-    time.sleep(0.05)
-    assert test_cpxap.modules[2].read_channel(0, output_numbering=True) is True
-    assert test_cpxap.modules[2].read_channel(12) is True
-
-    test_cpxap.modules[2].clear_channel(0)
-
-
-def test_8do(test_cpxap):
-    a8do = test_cpxap.modules[3]
-    assert a8do.read_channel(0) is False
-    a8do.write_channel(0, True)
-    time.sleep(0.05)
-    assert a8do.read_channel(0) is True
-    a8do.clear_channel(0)
-    time.sleep(0.05)
-    assert a8do.read_channel(0) is False
-    a8do.toggle_channel(0)
-    time.sleep(0.05)
-    assert a8do.read_channel(0) is True
-
-
-def test_8di(test_cpxap):
-    a8di = test_cpxap.modules[4]
-    assert a8di.read_channel(0) is False
-    assert a8di.read_channels() == [False] * 8
-
-
-def test_ep_param_read(test_cpxap):
-    ep = test_cpxap.modules[0]
-    param = ep.read_parameters()
-
-    assert param.dhcp_enable is False
-    assert param.active_ip_address == "172.16.1.42"
-    assert param.active_subnet_mask == "255.255.255.0"
-    assert param.active_gateway_address == "0.0.0.0"
-    assert param.mac_address == "00:0e:f0:8e:ae:9e"
-    assert param.setup_monitoring_load_supply == 1
-
-
-def test_ep_configure(test_cpxap):
-    ep = test_cpxap.modules[0]
-
-    ep.configure_monitoring_load_supply(0)
-    time.sleep(0.05)
-    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
-
-    ep.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
-
-    ep.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
-
-
-def test_ep_configure_enum(test_cpxap):
-    ep = test_cpxap.modules[0]
-
-    ep.configure_monitoring_load_supply(LoadSupply.INACTIVE)
-    time.sleep(0.05)
-    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
-
-    ep.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
-
-    ep.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    assert ep.base.read_parameter(0, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
-
-
-def test_12Di4Do_configures(test_cpxap):
-    idx = 2
-    a12di4do = test_cpxap.modules[idx]
-    assert isinstance(a12di4do, CpxAp12Di4Do)
-    time.sleep(0.05)
-
-    a12di4do.configure_debounce_time(3)
-    time.sleep(0.05)
-    assert (
-        a12di4do.base.read_parameter(idx, ParameterNameMap()["InputDebounceTime"]) == 3
-    )
-
-    a12di4do.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert (
-        a12di4do.base.read_parameter(idx, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    a12di4do.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert (
-        a12di4do.base.read_parameter(idx, ParameterNameMap()["FailStateBehaviour"]) == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    a12di4do.configure_debounce_time(1)
-    time.sleep(0.05)
-    a12di4do.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    a12di4do.configure_behaviour_in_fail_state(0)
-
-
-def test_12Di4Do_configures_enum(test_cpxap):
-    idx = 2
-    a12di4do = test_cpxap.modules[idx]
-    assert isinstance(a12di4do, CpxAp12Di4Do)
-    time.sleep(0.05)
-
-    a12di4do.configure_debounce_time(DebounceTime.T_20MS)
-    time.sleep(0.05)
-    assert (
-        a12di4do.base.read_parameter(idx, ParameterNameMap()["InputDebounceTime"]) == 3
-    )
-
-    a12di4do.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert (
-        a12di4do.base.read_parameter(idx, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    a12di4do.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert (
-        a12di4do.base.read_parameter(idx, ParameterNameMap()["FailStateBehaviour"]) == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    a12di4do.configure_debounce_time(DebounceTime.T_3MS)
-    time.sleep(0.05)
-    a12di4do.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    a12di4do.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
 
 
 def test_getter(test_cpxap):
@@ -355,959 +123,848 @@ def test_setter(test_cpxap):
     assert a8do[0] is True
 
 
-def test_read_ap_parameter(test_cpxap):
-    info = test_cpxap.modules[1].information
-    ap = test_cpxap.modules[1].read_ap_parameter()
-    assert ap.module_code == info.module_code
+def test_ep_read_system_parameters(test_cpxap):
+    m = test_cpxap.modules[0]
+    param = m.read_system_parameters()
 
-    info = test_cpxap.modules[2].information
-    ap = test_cpxap.modules[2].read_ap_parameter()
-    assert ap.module_code == info.module_code
-
-    info = test_cpxap.modules[3].information
-    ap = test_cpxap.modules[3].read_ap_parameter()
-    assert ap.module_code == info.module_code
-
-    info = test_cpxap.modules[4].information
-    ap = test_cpxap.modules[4].read_ap_parameter()
-    assert ap.module_code == info.module_code
-
-    info = test_cpxap.modules[5].information
-    ap = test_cpxap.modules[5].read_ap_parameter()
-    assert ap.module_code == info.module_code
+    assert param.dhcp_enable is False
+    assert param.active_ip_address == "172.16.1.42"
+    assert param.active_subnet_mask == "255.255.255.0"
+    assert param.active_gateway_address == "0.0.0.0"
+    assert param.mac_address == "00:0e:f0:8e:ae:9e"
+    assert param.setup_monitoring_load_supply == 1
 
 
-"""
-def test_4iol_sdas(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
+def test_ep_parameter_read(test_cpxap):
+    m = test_cpxap.modules[0]
+    assert m.read_module_parameter(12000) == m.read_module_parameter("DHCP enable")
+    assert m.read_module_parameter(12001) == m.read_module_parameter("IP address")
+    assert m.read_module_parameter(12002) == m.read_module_parameter("Subnet mask")
+    assert m.read_module_parameter(12003) == m.read_module_parameter("Gateway address")
+    assert m.read_module_parameter(12004) == m.read_module_parameter(
+        "Active IP address"
+    )
+    assert m.read_module_parameter(12005) == m.read_module_parameter(
+        "Active subnet mask"
+    )
+    assert m.read_module_parameter(12006) == m.read_module_parameter(
+        "Active gateway address"
+    )
+    assert m.read_module_parameter(12007) == m.read_module_parameter("MAC address")
+    assert m.read_module_parameter(20022) == m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    )
+    assert m.read_module_parameter(20118) == m.read_module_parameter(
+        "Application specific Tag"
+    )
+    assert m.read_module_parameter(20207) == m.read_module_parameter("Location Tag")
+
+
+def test_ep_parameter_write(test_cpxap):
+    m = test_cpxap.modules[0]
+
+    m.write_module_parameter(20022, 0)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
 
-    a4iol.configure_port_mode(2, channel=0)
-
+    m.write_module_parameter(20022, 2)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
 
-    # example SDAS-MHS on port 0
-    param = a4iol.read_fieldbus_parameters()
-    assert param[0]["Port status information"] == "OPERATE"
-
-    sdas_data = a4iol.read_channel(0)
-    assert len(sdas_data) == 2
-
-    process_data = int.from_bytes(sdas_data, byteorder="big")
-
-    ssc1 = bool(process_data & 0x1)
-    ssc2 = bool(process_data & 0x2)
-    ssc3 = bool(process_data & 0x4)
-    ssc4 = bool(process_data & 0x8)
-    pdv = (process_data & 0xFFF0) >> 4
-
-    assert 0 <= pdv <= 4095
-
-    assert a4iol[0] == a4iol.read_channel(0)
-
-
-def test_4iol_sdas_enums(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
+    m.write_module_parameter(20022, 1)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
 
-    a4iol.configure_port_mode(PortMode.IOL_AUTOSTART, channel=0)
 
+def test_ep_parameter_rw_strings(test_cpxap):
+    m = test_cpxap.modules[0]
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
+    )
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
 
-    # example SDAS-MHS on port 0
-    param = a4iol.read_fieldbus_parameters()
-    assert param[0]["Port status information"] == "OPERATE"
-
-    sdas_data = a4iol.read_channel(0)
-    assert len(sdas_data) == 2
-
-    process_data = int.from_bytes(sdas_data, byteorder="big")
-
-    ssc1 = bool(process_data & 0x1)
-    ssc2 = bool(process_data & 0x2)
-    ssc3 = bool(process_data & 0x4)
-    ssc4 = bool(process_data & 0x8)
-    pdv = (process_data & 0xFFF0) >> 4
-
-    assert 0 <= pdv <= 4095
-
-    assert a4iol[0] == a4iol.read_channel(0)
-
-
-def test_4iol_sdas_full(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
+    )
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.read_module_parameter(20022) == "Load supply monitoring active"
 
-    a4iol.configure_port_mode(2, channel=0)
-
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC",
+        "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
+    )
     time.sleep(0.05)
-
-    # example SDAS-MHS on port 0
-    param = a4iol.read_fieldbus_parameters()
-    assert param[0]["Port status information"] == "OPERATE"
-
-    sdas_data = a4iol.read_channel(0, full_size=True)
-    assert len(sdas_data) == 8
-
-    sdas_data = sdas_data[:2]  # only two bytes relevant
-
-    process_data = int.from_bytes(sdas_data, byteorder="big")
-
-    ssc1 = bool(process_data & 0x1)
-    ssc2 = bool(process_data & 0x2)
-    ssc3 = bool(process_data & 0x4)
-    ssc4 = bool(process_data & 0x8)
-    pdv = (process_data & 0xFFF0) >> 4
-
-    assert 0 <= pdv <= 4095
-
-    assert a4iol[0] == a4iol.read_channel(0)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert (
+        m.read_module_parameter(20022)
+        == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
+    )
 
 
-def test_4iol_ehps(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
+def test_16Di_read_channels(test_cpxap):
+    m = test_cpxap.modules[1]
+    assert m.read_channels() == [False] * 16
+
+
+def test_16Di_read_channel(test_cpxap):
+    m = test_cpxap.modules[1]
+    for i in range(16):
+        assert m.read_channel(i) is False
+
+
+def test_16Di_parameter_write(test_cpxap):
+    m = test_cpxap.modules[1]
+
+    m.write_module_parameter(20014, 0)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
 
-    def read_process_data_in(module, channel):
-        # ehps provides 3 x 16bit "process data in".
-        data = module.read_channel(channel)
-        # unpack it to 3x 16 bit uint
-        ehps_data = struct.unpack(">HHH", data)
-
-        process_data_in = {}
-
-        process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
-        process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
-        process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
-        process_data_in["LatchDataOk"] = bool((ehps_data[0] >> 12) & 1)
-        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[0] >> 11) & 1)
-        process_data_in["ClosedPositionFlag"] = bool((ehps_data[0] >> 10) & 1)
-        process_data_in["GrippedPositionFlag"] = bool((ehps_data[0] >> 9) & 1)
-        process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
-
-        process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
-
-        process_data_in["ErrorNumber"] = ehps_data[1]
-        process_data_in["ActualPosition"] = ehps_data[2]
-
-        return process_data_in
-
-    # example EHPS-20-A-LK on port 1
-    ehps_channel = 1
-    a4iol.configure_port_mode(2, channel=ehps_channel)
-
+    m.write_module_parameter(20014, 2)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
 
-    param = a4iol.read_fieldbus_parameters()
-    assert param[ehps_channel]["Port status information"] == "OPERATE"
-
-    process_data_in = read_process_data_in(a4iol, ehps_channel)
-    assert process_data_in["Ready"] is True
-
-    # demo of process data out
-    control_word_msb = 0x00
-    control_word_lsb = 0x01  # latch
-    gripping_mode = 0x46  # universal
-    workpiece_no = 0x00
-    gripping_position = 0x03E8
-    gripping_force = 0x03  # ca. 85%
-    gripping_tolerance = 0x0A
-
-    data = [
-        control_word_lsb + (control_word_msb << 8),
-        workpiece_no + (gripping_mode << 8),
-        gripping_position,
-        gripping_tolerance + (gripping_force << 8),
-    ]
-
-    # init
-    # this pack is not good, just for testing I can use legacy code
-    process_data_out = struct.pack(">HHHH", *data)
-    a4iol.write_channel(ehps_channel, process_data_out)
+    m.write_module_parameter(20014, 3)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
 
-    # Open command: 0x0100
-    data[0] = 0x0100
-    process_data_out = struct.pack(">HHHH", *data)
-    a4iol.write_channel(ehps_channel, process_data_out)
+    m.write_module_parameter(20014, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
 
-    while not process_data_in["OpenedPositionFlag"]:
-        process_data_in = read_process_data_in(a4iol, ehps_channel)
+
+def test_16Di_parameter_rw_strings(test_cpxap):
+    m = test_cpxap.modules[1]
+
+    m.write_module_parameter("Input Debounce Time", "0.1ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.read_module_parameter(20014) == "0.1ms"
+
+    m.write_module_parameter("Input Debounce Time", "10ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.read_module_parameter(20014) == "10ms"
+
+    m.write_module_parameter("Input Debounce Time", "20ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.read_module_parameter(20014) == "20ms"
+
+    m.write_module_parameter("Input Debounce Time", "3ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.read_module_parameter(20014) == "3ms"
+
+
+def test_12Di4Do(test_cpxap):
+    m = test_cpxap.modules[2]
+    assert m.read_channels() == [False] * 16
+
+    data = [True, False, True, False]
+    m.write_channels(data)
+    time.sleep(0.05)
+    assert m.read_channels()[:12] == [False] * 12
+    assert m.read_channels()[12:] == data
+
+    data = [False, True, False, True]
+    m.write_channels(data)
+    time.sleep(0.05)
+    assert m.read_channels()[:12] == [False] * 12
+    assert m.read_channels()[12:] == data
+
+    m.write_channels([False, False, False, False])
+
+    m.set_channel(0)
+    time.sleep(0.05)
+    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_channel(12) is True
+
+    m.clear_channel(0)
+    time.sleep(0.05)
+    assert m.read_channel(0, outputs_only=True) is False
+    assert m.read_channel(12) is False
+
+    m.toggle_channel(0)
+    time.sleep(0.05)
+    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_channel(12) is True
+
+    m.clear_channel(0)
+
+
+def test_12Di4Do_parameter_write_debounce(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    m.write_module_parameter(20014, 0)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+
+    m.write_module_parameter(20014, 2)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+
+    m.write_module_parameter(20014, 3)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+
+    m.write_module_parameter(20014, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+
+
+def test_12Di4Do_parameter_rw_strings_debounce(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    m.write_module_parameter("Input Debounce Time", "0.1ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.read_module_parameter(20014) == "0.1ms"
+
+    m.write_module_parameter("Input Debounce Time", "10ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.read_module_parameter(20014) == "10ms"
+
+    m.write_module_parameter("Input Debounce Time", "20ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.read_module_parameter(20014) == "20ms"
+
+    m.write_module_parameter("Input Debounce Time", "3ms")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.read_module_parameter(20014) == "3ms"
+
+
+def test_12Di4Do_parameter_write_load(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    m.write_module_parameter(20022, 0)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+
+    m.write_module_parameter(20022, 2)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+
+    m.write_module_parameter(20022, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+
+
+def test_12Di4Do_parameter_rw_strings_load(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.read_module_parameter(20022) == "Load supply monitoring active"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC",
+        "Load supply monitoring active, diagnosis suppressed in case of switch-off",
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert (
+        m.read_module_parameter(20022)
+        == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
+    )
+
+
+def test_12Di4Do_parameter_write_failstate(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    m.write_module_parameter(20052, 0)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 0
+
+    m.write_module_parameter(20052, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 1
+
+
+def test_12Di4Do_parameter_rw_strings_failstate(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 0
+    assert m.read_module_parameter(20052) == "Reset Outputs"
+
+    m.write_module_parameter("Behaviour in fail state", "Hold last state")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 1
+    assert m.read_module_parameter(20052) == "Hold last state"
+
+
+def test_8do(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    for i in range(8):
+        assert m.read_channel(i) is False
+        m.write_channel(i, True)
         time.sleep(0.05)
-
-    # Close command 0x 0200
-    data[0] = 0x0200
-    process_data_out = struct.pack(">HHHH", *data)
-    a4iol.write_channel(ehps_channel, process_data_out)
-
-    while not process_data_in["ClosedPositionFlag"]:
-        process_data_in = read_process_data_in(a4iol, ehps_channel)
+        assert m.read_channel(i) is True
+        m.clear_channel(i)
         time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
 
-    assert process_data_in["Error"] is False
-    assert process_data_in["ClosedPositionFlag"] is True
-    assert process_data_in["OpenedPositionFlag"] is False
 
+def test_8Do_parameter_write_failstate(test_cpxap):
+    m = test_cpxap.modules[3]
 
-def test_4iol_ethrottle(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-
-    def read_process_data_in(module, channel):
-        data = module.read_channel(channel)
-        # register order is [msb, ... , ... , lsb]
-        # this unpack is not good, just for testing I can use legacy code
-        data = struct.unpack(">Q", data)[0]
-        process_input_data = {
-            "Actual Position": data,
-            "Homing Valid": bool(data & 0b1000),
-            "Motion Complete": bool(data & 0b100),
-            "Proximity Switch": bool(data & 0b10),
-            "Reduced Speed": bool(data & 0b1000),
-        }
-        return process_input_data
-
-    ethrottle_channel = 2
-
-    a4iol.configure_port_mode(2, channel=ethrottle_channel)
-
+    m.write_module_parameter(20052, 0)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 0
 
-    param = a4iol.read_fieldbus_parameters()
-    assert param[ethrottle_channel]["Port status information"] == "OPERATE"
-
-    process_input_data = read_process_data_in(a4iol, ethrottle_channel)
-
-    if not process_input_data["Homing Valid"]:
-        process_output_data = [1]
-        process_output_data = struct.pack(">Q", *process_output_data)
-        a4iol.write_channel(ethrottle_channel, process_output_data)
-
-        while not process_input_data["Homing Valid"]:
-            process_input_data = read_process_data_in(a4iol, ethrottle_channel)
-
-    process_output_data = [0xF00]  # setpoint 0xF00
-    process_output_data = struct.pack(">Q", *process_output_data)
-    a4iol.write_channel(ethrottle_channel, process_output_data)
-
-    time.sleep(0.1)
-
-    while not process_input_data["Motion Complete"]:
-        process_input_data = read_process_data_in(a4iol, ethrottle_channel)
-
-
-def test_4iol_ethrottle_isdu_read(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    ethrottle_channel = 2
+    m.write_module_parameter(20052, 1)
     time.sleep(0.05)
-    a4iol.configure_port_mode(2, ethrottle_channel)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 1
+
+
+def test_8Do_parameter_rw_strings_failstate(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 0
+    assert m.read_module_parameter(20052) == "Reset Outputs"
 
-    assert a4iol.read_isdu(ethrottle_channel, 16, 0)[:17] == b"Festo SE & Co. KG"
+    m.write_module_parameter("Behaviour in fail state", "Hold last state")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20052]) == 1
+    assert m.read_module_parameter(20052) == "Hold last state"
 
 
-def test_4iol_ethrottle_isdu_write(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    ethrottle_channel = 2
-    function_tag_idx = 25
-    a4iol.write_isdu(b"\x01\x02\x03\x04", ethrottle_channel, function_tag_idx, 0)
+def test_8Do_parameter_write_load(test_cpxap):
+    m = test_cpxap.modules[3]
 
+    m.write_module_parameter(20022, 0)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+
+    m.write_module_parameter(20022, 2)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+
+    m.write_module_parameter(20022, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+
+
+def test_8Do_parameter_rw_strings_load(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.read_module_parameter(20022) == "Load supply monitoring active"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC",
+        "Load supply monitoring active, diagnosis suppressed in case of switch-off",
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
     assert (
-        a4iol.read_isdu(ethrottle_channel, function_tag_idx, 0)[:4]
-        == b"\x01\x02\x03\x04"
+        m.read_module_parameter(20022)
+        == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
     )
 
-"""
+
+def test_8di_read_channels(test_cpxap):
+    m = test_cpxap.modules[4]
+    assert m.read_channels() == [False] * 8
 
 
-def test_4iol_configure_monitoring_load_supply(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
+def test_8di_read_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+    for i in range(8):
+        assert m.read_channel(i) is False
 
-    a4iol.configure_monitoring_load_supply(0)
+
+def test_8Di_parameter_write_debounce(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    m.write_module_parameter(20014, 0)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
 
-    a4iol.configure_monitoring_load_supply(1)
+    m.write_module_parameter(20014, 2)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
 
-    a4iol.configure_monitoring_load_supply(2)
+    m.write_module_parameter(20014, 3)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
 
-    a4iol.configure_monitoring_load_supply(1)
-
-
-def test_4iol_configure_monitoring_load_supply_enums(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-
-    a4iol.configure_monitoring_load_supply(LoadSupply.INACTIVE)
+    m.write_module_parameter(20014, 1)
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 0
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
 
-    a4iol.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
+
+def test_8Di_parameter_rw_strings_debounce(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 1
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.read_module_parameter(20014) == "0.1ms"
 
-    a4iol.configure_monitoring_load_supply(LoadSupply.ACTIVE)
+    m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["LoadSupplyDiagSetup"]) == 2
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.read_module_parameter(20014) == "10ms"
 
-    a4iol.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-
-
-def test_4iol_configure_target_cycle_time(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-
+    m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
-    a4iol.configure_target_cycle_time(16, channel=0)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.read_module_parameter(20014) == "20ms"
+
+    m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 16
-
-    a4iol.configure_target_cycle_time(73, channel=[1, 2])
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 73
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 73
-
-    a4iol.configure_target_cycle_time(158)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 3) == 158
-    )
-
-    a4iol.configure_target_cycle_time(0)
+    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.read_module_parameter(20014) == "3ms"
 
 
-def test_4iol_configure_target_cycle_time_enum(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-
-    time.sleep(0.05)
-    a4iol.configure_target_cycle_time(CycleTime.T_1600US, channel=0)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 16
-
-    a4iol.configure_target_cycle_time(CycleTime.T_10MS, channel=[1, 2])
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 73
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 73
-
-    a4iol.configure_target_cycle_time(CycleTime.T_80MS)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 0) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 1) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 2) == 158
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["NominalCycleTime"], 3) == 158
-    )
-
-    a4iol.configure_target_cycle_time(CycleTime.FAST)
+def test_4iol_read_channels(test_cpxap):
+    m = test_cpxap.modules[5]
+    assert m.read_channels() == [b"\x00\x00\x00\x00\x00\x00\x00\x00"] * 4
 
 
-def test_4iol_configure_device_lost_diagnostics(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    time.sleep(0.05)
-
-    a4iol.configure_device_lost_diagnostics(False, channel=0)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"])
-        is False
-    )
-
-    a4iol.configure_device_lost_diagnostics(False, channel=[1, 2])
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
-        is False
-    )
-
-    a4iol.configure_device_lost_diagnostics(False)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 0)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 1)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 2)
-        is False
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["DeviceLostDiagnosisEnable"], 3)
-        is False
-    )
-
-    a4iol.configure_device_lost_diagnostics(True)
-
-
-def test_4iol_configure_port_mode(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    time.sleep(0.05)
-
-    a4iol.configure_port_mode(0, channel=0)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 0
-
-    a4iol.configure_port_mode(3, channel=[1, 2])
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 3
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 3
-
-    a4iol.configure_port_mode(97)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 97
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 97
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 97
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 3) == 97
-
-    a4iol.configure_port_mode(0)
-
-
-def test_4iol_configure_port_mode_enum(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    time.sleep(0.05)
-
-    a4iol.configure_port_mode(PortMode.DEACTIVATED, channel=0)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 0
-
-    a4iol.configure_port_mode(PortMode.DI_CQ, channel=[1, 2])
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 3
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 3
-
-    a4iol.configure_port_mode(PortMode.PREOPERATE)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 0) == 97
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 1) == 97
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 2) == 97
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["PortMode"], 3) == 97
-
-    a4iol.configure_port_mode(PortMode.DEACTIVATED)
-
-
-def test_4iol_configure_review_and_backup(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    time.sleep(0.05)
-
-    a4iol.configure_review_and_backup(1, channel=0)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 1
-    )
-
-    a4iol.configure_review_and_backup(2, channel=[1, 2])
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 2
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 2
-    )
-
-    a4iol.configure_review_and_backup(3)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 3) == 3
-    )
-
-    a4iol.configure_review_and_backup(0)
-
-
-def test_4iol_configure_review_and_backup_enum(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    time.sleep(0.05)
-
-    a4iol.configure_review_and_backup(ReviewBackup.COMPATIBLE_V1_0, channel=0)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 1
-    )
-
-    a4iol.configure_review_and_backup(ReviewBackup.COMPATIBLE_V1_1, channel=[1, 2])
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 2
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 2
-    )
-
-    a4iol.configure_review_and_backup(ReviewBackup.COMPATIBLE_V1_1_DATA_BACKUP_RESTORE)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 0) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 1) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 2) == 3
-    )
-    assert (
-        a4iol.base.read_parameter(5, ParameterNameMap()["ValidationAndBackup"], 3) == 3
-    )
-
-    a4iol.configure_review_and_backup(ReviewBackup.NO_TEST)
-
-
-def test_4iol_configure_target_vendor_id(test_cpxap):
-    a4iol = test_cpxap.modules[5]
-    assert isinstance(a4iol, CpxAp4Iol)
-    time.sleep(0.05)
-
-    a4iol.configure_target_vendor_id(1, channel=0)
-    time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=0)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 0) == 1
-
-    a4iol.configure_target_vendor_id(2, channel=[1, 2])
-    a4iol.configure_port_mode(1, channel=[1, 2])
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 1) == 2
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 2) == 2
-
-    a4iol.configure_target_vendor_id(3)
-    a4iol.configure_port_mode(1)
-    time.sleep(0.05)
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 0) == 3
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 1) == 3
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 2) == 3
-    assert a4iol.base.read_parameter(5, ParameterNameMap()["NominalVendorID"], 3) == 3
-
-    a4iol.configure_target_vendor_id(0)
-    a4iol.configure_port_mode(0)
-
-
-def test_4iol_configure_setpoint_device_id(test_cpxap):
-
-    channel = 2
-    position = 5
-    a4iol = test_cpxap.modules[position]
-    assert isinstance(a4iol, CpxAp4Iol)
-
-    a4iol.configure_port_mode(0)
-    time.sleep(0.05)
-
-    a4iol.configure_setpoint_device_id(1, channel=channel)
-    time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=channel)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(
-            position, ParameterNameMap()["NominalDeviceID"], channel
+def test_4iol_read_channel(test_cpxap):
+    m = test_cpxap.modules[5]
+    for i in range(4):
+        assert (
+            m.read_channel(
+                i,
+            )
+            == b""
         )
-        == 1
-    )
+        assert m.read_channel(i, full_size=True) == b"\x00\x00\x00\x00\x00\x00\x00\x00"
 
-    a4iol.configure_setpoint_device_id(2, channel=[channel])
+
+def test_4iol_parameter_write_load(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    a4iol.configure_port_mode(1, channel=[channel])
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+
+    m.write_module_parameter(20022, 2)
     time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+
+    m.write_module_parameter(20022, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+
+
+def test_4iol_parameter_rw_strings_load(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.read_module_parameter(20022) == "Load supply monitoring active"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC",
+        "Load supply monitoring active, diagnosis suppressed in case of switch-off",
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
     assert (
-        a4iol.base.read_parameter(
-            position, ParameterNameMap()["NominalDeviceID"], channel
-        )
-        == 2
+        m.read_module_parameter(20022)
+        == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
     )
 
-    a4iol.configure_setpoint_device_id(3)
-    time.sleep(0.05)
-    a4iol.configure_port_mode(1)
-    time.sleep(0.05)
-    assert (
-        a4iol.base.read_parameter(
-            position, ParameterNameMap()["NominalDeviceID"], channel
-        )
-        == 3
-    )
 
-    a4iol.configure_setpoint_device_id(0)
+def test_4iol_parameter_write_lost(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_module_parameter(20050, False)
     time.sleep(0.05)
-    a4iol.configure_port_mode(0)
+    assert m.base.read_parameter(m.position, m.parameters[20050]) is False
+
+    m.write_module_parameter(20050, True)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20050]) is True
+
+
+def test_4iol_parameter_rw_strings_lost(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_module_parameter("Enable diagnosis of IO-Link device lost", False)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is False
+    assert m.read_module_parameter(20050) == [False, False, False, False]
+
+    m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, [1, 2])
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is False
+    assert m.read_module_parameter(20050) == [False, True, True, False]
+
+    m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, 3)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is False
+    assert m.read_module_parameter(20050) == [False, True, True, True]
+
+    m.write_module_parameter("Enable diagnosis of IO-Link device lost", True)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is True
+    assert m.read_module_parameter(20050) == [True, True, True, True]
+
+
+def test_4iol_parameter_write_load_supply_enable(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_module_parameter(20086, False)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20086]) is False
+
+    m.write_module_parameter(20086, True)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20086]) is True
+
+
+def test_4iol_parameter_rw_strings_load_supply_enable(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_module_parameter("Enable of load supply", False)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20086], 0) is False
+    assert m.read_module_parameter(20086) == [False, False, False, False]
+
+    m.write_module_parameter("Enable of load supply", True, [1, 2])
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20086], 0) is False
+    assert m.read_module_parameter(20086) == [False, True, True, False]
+
+    m.write_module_parameter("Enable of load supply", True, 3)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20086], 0) is False
+    assert m.read_module_parameter(20086) == [False, True, True, True]
+
+    m.write_module_parameter("Enable of load supply", True)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.parameters[20086], 0) is True
+    assert m.read_module_parameter(20086) == [True, True, True, True]
+
+
+def test_4iol_other_parameters_rw(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    assert m.read_module_parameter("Nominal Cycle Time") == m.read_module_parameter(
+        20049
+    )
+    assert m.read_module_parameter("Nominal Vendor ID") == m.read_module_parameter(
+        20073
+    )
+    assert m.read_module_parameter("DeviceID") == m.read_module_parameter(20080)
+    assert m.read_module_parameter("Validation & Backup") == m.read_module_parameter(
+        20072
+    )
+    assert m.read_module_parameter("Port Mode") == m.read_module_parameter(20071)
+    assert m.read_module_parameter(
+        "Port status information"
+    ) == m.read_module_parameter(20074)
+    assert m.read_module_parameter("Revision ID") == m.read_module_parameter(20075)
+    assert m.read_module_parameter("Port transmission rate") == m.read_module_parameter(
+        20076
+    )
+    assert m.read_module_parameter(
+        "Actual cycle time in 100 us"
+    ) == m.read_module_parameter(20077)
+    assert m.read_module_parameter("InputDataLength") == m.read_module_parameter(20108)
+    assert m.read_module_parameter("OutputDataLength") == m.read_module_parameter(20109)
+    assert m.read_module_parameter("Actual VendorID") == m.read_module_parameter(20078)
+    assert m.read_module_parameter("Actual DeviceID") == m.read_module_parameter(20079)
 
 
 def test_vabx_read_channels(test_cpxap):
-    "test vabx"
-    assert isinstance(test_cpxap.modules[6], VabxAP)
-    channels = test_cpxap.modules[6].read_channels()
-    assert channels == [False] * 32
+    m = test_cpxap.modules[6]
+
+    assert m.read_channels() == [False] * 32
 
 
 def test_vabx_read_channel(test_cpxap):
-    "test vabx"
-    assert isinstance(test_cpxap.modules[6], VabxAP)
-    channels = test_cpxap.modules[6].read_channel(0)
-    assert channels is False
+    m = test_cpxap.modules[6]
+
+    for i in range(32):
+        assert m.read_channel(i) is False
 
 
 def test_vabx_write(test_cpxap):
-    "test vabx"
-    assert isinstance(test_cpxap.modules[6], VabxAP)
-    test_cpxap.modules[6].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[6].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[6].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[6].read_channel(0) is False
+    m = test_cpxap.modules[6]
+
+    for i in range(32):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vabx_configures(test_cpxap):
-    "test configure functions of vabx"
-    POSITION = 6
-    vabx = test_cpxap.modules[POSITION]
+def test_vabx_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[6]
 
-    vabx.configure_diagnosis_for_defect_valve(False)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["ValveDefectDiagEnable"])
-        == 0
-    )
-
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_diagnosis_for_defect_valve(True)
-    time.sleep(0.05)
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
+    for i in range(32):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vabx_configures_enums(test_cpxap):
-    "test configure functions of vabx"
-    POSITION = 6
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_diagnosis_for_defect_valve(False)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["ValveDefectDiagEnable"])
-        == 0
-    )
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_diagnosis_for_defect_valve(True)
-    time.sleep(0.05)
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vabx_parameters(test_cpxap):
+    m = test_cpxap.modules[6]
+    assert m.read_module_parameter(
+        "Enable diagnosis for defect valve"
+    ) == m.read_module_parameter(20021)
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
 
 
 def test_vaem_read_channels(test_cpxap):
-    "test vaem 24 channel"
-    POSITION = 7
-    assert isinstance(test_cpxap.modules[POSITION], VaemAP)
-    channels = test_cpxap.modules[POSITION].read_channels()
-    assert channels == [False] * 24
+    m = test_cpxap.modules[7]
+
+    assert m.read_channels() == [False] * 24
 
 
 def test_vaem_read_channel(test_cpxap):
-    "test vaem"
-    POSITION = 7
-    assert isinstance(test_cpxap.modules[POSITION], VaemAP)
-    channel = test_cpxap.modules[POSITION].read_channel(0)
-    assert channel is False
+    m = test_cpxap.modules[7]
+
+    for i in range(24):
+        assert m.read_channel(i) is False
 
 
 def test_vaem_write(test_cpxap):
-    "test vaem"
-    POSITION = 7
-    assert isinstance(test_cpxap.modules[POSITION], VaemAP)
-    test_cpxap.modules[POSITION].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[POSITION].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is False
+    m = test_cpxap.modules[7]
+
+    for i in range(24):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vaem_configures(test_cpxap):
-    "test configure functions of vaem"
-    POSITION = 7
-    vabx = test_cpxap.modules[POSITION]
+def test_vaem_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[7]
 
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
+    for i in range(24):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vaem_configures_enums(test_cpxap):
-    "test configure functions of vaem"
-    POSITION = 7
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vaem_parameters(test_cpxap):
+    m = test_cpxap.modules[7]
+    assert m.read_module_parameter(
+        "Enable diagnosis for defect valve"
+    ) == m.read_module_parameter(20021)
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
 
 
 def test_vmpal_read_channels(test_cpxap):
-    "test vmpal 32 channel"
-    POSITION = 8
-    assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
-    channels = test_cpxap.modules[POSITION].read_channels()
-    assert channels == [False] * 32
+    m = test_cpxap.modules[8]
+
+    assert m.read_channels() == [False] * 32
 
 
 def test_vmpal_read_channel(test_cpxap):
-    "test vmpal"
-    POSITION = 8
-    assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
-    channel = test_cpxap.modules[POSITION].read_channel(0)
-    assert channel is False
+    m = test_cpxap.modules[8]
+
+    for i in range(32):
+        assert m.read_channel(i) is False
 
 
 def test_vmpal_write(test_cpxap):
-    "test vmpal"
-    POSITION = 8
-    assert isinstance(test_cpxap.modules[POSITION], VmpalAP)
-    test_cpxap.modules[POSITION].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[POSITION].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is False
+    m = test_cpxap.modules[8]
+
+    for i in range(32):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vmpal_configures(test_cpxap):
-    "test configure functions of vmpal"
-    POSITION = 8
-    vabx = test_cpxap.modules[POSITION]
+def test_vmpal_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[8]
 
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
+    for i in range(32):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vmpal_configures_enums(test_cpxap):
-    "test configure functions of vmpal"
-    POSITION = 8
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vmpal_parameters(test_cpxap):
+    m = test_cpxap.modules[8]
+    assert m.read_module_parameter(
+        "Enable diagnosis for defect valve"
+    ) == m.read_module_parameter(20021)
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)
 
 
 def test_vaba_read_channels(test_cpxap):
-    "test vaba 24 channel"
-    POSITION = 9
-    assert isinstance(test_cpxap.modules[POSITION], VabaAP)
-    channels = test_cpxap.modules[POSITION].read_channels()
-    assert channels == [False] * 24
+    m = test_cpxap.modules[9]
+
+    assert m.read_channels() == [False] * 24
 
 
 def test_vaba_read_channel(test_cpxap):
-    "test vaba"
-    POSITION = 9
-    assert isinstance(test_cpxap.modules[POSITION], VabaAP)
-    channel = test_cpxap.modules[POSITION].read_channel(0)
-    assert channel is False
+    m = test_cpxap.modules[9]
+
+    for i in range(24):
+        assert m.read_channel(i) is False
 
 
 def test_vaba_write(test_cpxap):
-    "test vaba"
-    POSITION = 9
-    assert isinstance(test_cpxap.modules[POSITION], VabaAP)
-    test_cpxap.modules[POSITION].write_channel(0, True)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is True
-    time.sleep(0.05)
-    test_cpxap.modules[POSITION].write_channel(0, False)
-    time.sleep(0.05)
-    assert test_cpxap.modules[POSITION].read_channel(0) is False
+    m = test_cpxap.modules[9]
+
+    for i in range(24):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.write_channel(i, False)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vaba_configures(test_cpxap):
-    "test configure functions of vaba"
-    POSITION = 9
-    vabx = test_cpxap.modules[POSITION]
+def test_vaba_set_clear_toggle(test_cpxap):
+    m = test_cpxap.modules[9]
 
-    vabx.configure_monitoring_load_supply(2)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(1)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(1)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(0)
+    for i in range(24):
+        m.set_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        time.sleep(0.05)
+        m.clear_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is True
+        m.toggle_channel(i)
+        time.sleep(0.05)
+        assert m.read_channel(i) is False
 
 
-def test_vaba_configures_enums(test_cpxap):
-    "test configure functions of vaba"
-    POSITION = 9
-    vabx = test_cpxap.modules[POSITION]
-
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["LoadSupplyDiagSetup"])
-        == 2
-    )
-
-    vabx.configure_behaviour_in_fail_state(FailState.HOLD_LAST_STATE)
-    time.sleep(0.05)
-    assert (
-        vabx.base.read_parameter(POSITION, ParameterNameMap()["FailStateBehaviour"])
-        == 1
-    )
-
-    time.sleep(0.05)
-    # reset to default
-    vabx.configure_monitoring_load_supply(LoadSupply.ACTIVE_DIAG_OFF)
-    time.sleep(0.05)
-    vabx.configure_behaviour_in_fail_state(FailState.RESET_OUTPUTS)
+def test_vaba_parameters(test_cpxap):
+    m = test_cpxap.modules[9]
+    assert m.read_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC"
+    ) == m.read_module_parameter(20022)
+    assert m.read_module_parameter(
+        "Behaviour in fail state"
+    ) == m.read_module_parameter(20052)
+    assert m.read_module_parameter(
+        "Condition counter set point"
+    ) == m.read_module_parameter(20094)
+    assert m.read_module_parameter(
+        "Condition counter actual value"
+    ) == m.read_module_parameter(20095)

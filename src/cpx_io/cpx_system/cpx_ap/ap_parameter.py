@@ -1,9 +1,52 @@
 """Contains functions which provide mapping of parameter types."""
 
 import struct
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.parameter_mapping import ParameterMapItem
+
+
+@dataclass
+class Parameter:
+    """Parameter dataclass"""
+
+    # pylint: disable=too-many-instance-attributes
+    parameter_id: int
+    parameter_instances: dict
+    is_writable: bool
+    array_size: int
+    data_type: str
+    default_value: int
+    description: str
+    name: str
+    unit: str = ""
+    enums: dict = None
+
+    def __repr__(self):
+        return (
+            f"{self.parameter_id:<8}"
+            f"{self.name:<50}"
+            f"{'R/W' if self.is_writable else 'R':<6}"
+            f"{self.data_type:<8}"
+            f"{self.enums if self.enums else ''}"
+        )
+
+
+@dataclass
+class ParameterEnum:
+    """ParameterEnum dataclass"""
+
+    enum_id: int
+    bits: int
+    data_type: str
+    enum_values: Enum
+    ethercat_enum_id: int
+    name: str
+
+    def __repr__(self):
+        return f"{self.enum_values}"
+
 
 TYPE_TO_FORMAT_CHAR = {
     "BOOL": "?",
@@ -17,18 +60,17 @@ TYPE_TO_FORMAT_CHAR = {
     "UINT64": "Q",
     "FLOAT": "f",
     "CHAR": "s",
-    "ENUM_ID": "B",  # interpret ENUM_ID as UINT8
 }
 
 
 def parameter_unpack(
-    parameter: ParameterMapItem, raw: bytes, forced_format: str = None
+    parameter: Parameter, raw: bytes, forced_format: str = None
 ) -> Any:
     """Unpacks a raw byte value to specific type.
     The type is determined by the parameters included in ParameterMap.
 
     param parameter: Parameter that should be unpacked.
-    type parameter: ParameterMapItem
+    type parameter: Parameter
     param raw: Raw bytes value that should be unpacked.
     type raw: bytes
     param forced_format: Optional format char (see struct) to force the unpacking strategy.
@@ -36,13 +78,16 @@ def parameter_unpack(
     return: Unpacked value with determined type
     rtype: Any
     """
-    array_size = int(parameter.size) if parameter.size != "-" else 1
+    array_size = parameter.array_size if parameter.array_size else 1
 
     if forced_format:
         Logging.logger.info(f"Parameter {parameter} forced to type ({forced_format})")
         unpack_data_type = forced_format
     else:
-        parameter_data_type = parameter.data_type
+        if parameter.data_type == "ENUM_ID":
+            parameter_data_type = parameter.enums.data_type
+        else:
+            parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
         unpack_data_type = f"<{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
@@ -67,13 +112,13 @@ def parameter_unpack(
 
 
 def parameter_pack(
-    parameter: ParameterMapItem, value: Any, forced_format: str = None
+    parameter: Parameter, value: Any, forced_format: str = None
 ) -> bytes:
     """Packs a provided value to raw bytes object.
     The type is determined by the parameters included in ParameterMap.
 
      param parameter: Parameter of value that should be unpacked.
-     type parameter: ParameterMapItem
+     type parameter: Parameter
      param value: Value that should be packed.
      type value: Any
      param forced_format: Optional format char (see struct) to force the packing strategy.
@@ -83,8 +128,12 @@ def parameter_pack(
      rtype: bytes
     """
     if not forced_format:
-        array_size = int(parameter.size) if parameter.size != "-" else 1
-        parameter_data_type = parameter.data_type
+        array_size = parameter.array_size if parameter.array_size else 1
+
+        if parameter.data_type == "ENUM_ID":
+            parameter_data_type = parameter.enums.data_type
+        else:
+            parameter_data_type = parameter.data_type
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
         # for char arrays, ignore the "Arraysize" and use length of the bytes object instead

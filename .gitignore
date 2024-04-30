@@ -9,5 +9,6 @@ docs/source/modules.rst
 .vscode/*
 src/festo_cpx_io.egg-info/*
 venv
+.venv
 coverage.xml
 docs/source/cpx_io*.rst

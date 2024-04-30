@@ -1,11 +1,11 @@
 """CPX-E-EP module implementation"""
 
 from cpx_io.utils.logging import Logging
-from cpx_io.cpx_system.cpx_e.cpx_e_module import CpxEModule
+from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_e import cpx_e_registers
 
 
-class CpxEEp(CpxEModule):
+class CpxEEp(CpxModule):
     """Class for CPX-E-EP module"""
 
     # pylint: disable=too-few-public-methods

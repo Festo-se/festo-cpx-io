@@ -2,6 +2,18 @@ Examples
 ========
 CPX-AP 
 ------
+startup
+^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_startup.py
+    
+:download:`Download Example <../../examples/example_cpxap_startup.py>`
+
+parameter read/write
+^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_parameter_read_write.py
+    
+:download:`Download Example <../../examples/example_cpxap_parameter_read_write.py>`
+
 digital input
 ^^^^^^^^^^^^^
 .. literalinclude:: ../../examples/example_cpxap_digital_input.py
@@ -21,7 +33,7 @@ io link with sdas
 :download:`Download Example <../../examples/example_cpxap_iolink_sdas.py>`
 
 fault detection and threading
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: ../../examples/example_cpxap_fault_detection.py
     
 :download:`Download Example <../../examples/example_cpxap_fault_detection.py>`
@@ -72,7 +84,7 @@ io-link actuator (ehps)
 :download:`Download Example <../../examples/example_cpxe_iolink_ehps.py>`
 
 fault detection and threading
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: ../../examples/example_cpxe_fault_detection.py
     
 :download:`Download Example <../../examples/example_cpxe_fault_detection.py>`
