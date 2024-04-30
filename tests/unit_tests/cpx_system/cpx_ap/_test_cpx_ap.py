@@ -12,7 +12,7 @@ class TestCpxAp:
     "Test CpxAp methods"
 
     @patch.object(CpxAp, "read_module_count")
-    @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "read_apdd_information")
     @patch.object(CpxAp, "write_reg_data")
     @patch.object(CpxAp, "read_reg_data")
     @patch.object(CpxAp, "read_parameter")
@@ -22,7 +22,7 @@ class TestCpxAp:
         mock_read_parameter,
         mock_read_reg_data,
         mock_write_reg_data,
-        mock_read_module_information,
+        mock_read_apdd_information,
         mock_read_module_count,
     ):
         "Test constructor"
@@ -30,13 +30,11 @@ class TestCpxAp:
         mock_read_module_count.return_value = 7
 
         module_code_list = [8323, 8199, 8197, 8202, 8201, 8198, 8198]
-        module_information_list = [
-            CpxAp.ModuleInformation(
-                module_code=module_code, output_size=0, input_size=0
-            )
+        apdd_information_list = [
+            CpxAp.ApddInformation(module_code=module_code, output_size=0, input_size=0)
             for module_code in module_code_list
         ]
-        mock_read_module_information.side_effect = module_information_list
+        mock_read_apdd_information.side_effect = apdd_information_list
         mock_read_reg_data.side_effect = [b"\x64\x00\x00\x00"]
         mock_read_parameter.return_value = 0
 
@@ -54,7 +52,7 @@ class TestCpxAp:
         assert all(isinstance(m, ApModule) for m in cpxap.modules)
 
     @patch.object(CpxAp, "read_module_count")
-    @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "read_apdd_information")
     @patch.object(CpxAp, "write_reg_data")
     @patch.object(CpxAp, "read_reg_data")
     # @patch.object(CpxAp, "add_module")
@@ -62,7 +60,7 @@ class TestCpxAp:
         self,
         mock_read_reg_data,
         mock_write_reg_data,
-        mock_read_module_information,
+        mock_read_apdd_information,
         mock_read_module_count,
     ):
         "Test constructor"
@@ -70,13 +68,11 @@ class TestCpxAp:
         mock_read_module_count.return_value = 2
 
         module_code_list = [8323, 8199]
-        module_information_list = [
-            CpxAp.ModuleInformation(
-                module_code=module_code, output_size=0, input_size=0
-            )
+        apdd_information_list = [
+            CpxAp.ApddInformation(module_code=module_code, output_size=0, input_size=0)
             for module_code in module_code_list
         ]
-        mock_read_module_information.side_effect = module_information_list
+        mock_read_apdd_information.side_effect = apdd_information_list
         mock_read_reg_data.return_value = b"\x64\x00\x00\x00"
 
         cpxap = CpxAp()
@@ -88,7 +84,7 @@ class TestCpxAp:
         assert isinstance(cpxap.my8di, ApModule)  # pylint: disable="no-member"
 
     @patch.object(CpxAp, "read_module_count")
-    @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "read_apdd_information")
     @patch.object(CpxAp, "write_reg_data")
     @patch.object(CpxAp, "read_reg_data")
     # @patch.object(CpxAp, "add_module")
@@ -96,7 +92,7 @@ class TestCpxAp:
         self,
         mock_read_reg_data,
         mock_write_reg_data,
-        mock_read_module_information,
+        mock_read_apdd_information,
         mock_read_module_count,
     ):
         "Test constructor"
@@ -104,13 +100,11 @@ class TestCpxAp:
         mock_read_module_count.return_value = 7
 
         module_code_list = [0]
-        module_information_list = [
-            CpxAp.ModuleInformation(
-                module_code=module_code, output_size=0, input_size=0
-            )
+        apdd_information_list = [
+            CpxAp.ApddInformation(module_code=module_code, output_size=0, input_size=0)
             for module_code in module_code_list
         ]
-        mock_read_module_information.side_effect = module_information_list
+        mock_read_apdd_information.side_effect = apdd_information_list
         mock_read_reg_data.return_value = b"\x64\x00\x00\x00"
 
         # Act & Assert
@@ -119,7 +113,7 @@ class TestCpxAp:
 
     @pytest.fixture(scope="function")
     @patch.object(CpxAp, "read_module_count")
-    @patch.object(CpxAp, "read_module_information")
+    @patch.object(CpxAp, "read_apdd_information")
     @patch.object(CpxAp, "write_reg_data")
     @patch.object(CpxAp, "read_reg_data")
     @patch.object(CpxAp, "read_parameter")
@@ -128,7 +122,7 @@ class TestCpxAp:
         mock_read_parameter,
         mock_read_reg_data,
         mock_write_reg_data,
-        mock_read_module_information,
+        mock_read_apdd_information,
         mock_read_module_count,
     ):
         "Test constructor"
@@ -136,13 +130,11 @@ class TestCpxAp:
         mock_read_module_count.return_value = 7
 
         module_code_list = [8323, 8199, 8197, 8202, 8201, 8198, 8198]
-        module_information_list = [
-            CpxAp.ModuleInformation(
-                module_code=module_code, output_size=0, input_size=0
-            )
+        apdd_information_list = [
+            CpxAp.ApddInformation(module_code=module_code, output_size=0, input_size=0)
             for module_code in module_code_list
         ]
-        mock_read_module_information.side_effect = module_information_list
+        mock_read_apdd_information.side_effect = apdd_information_list
         mock_read_reg_data.side_effect = [b"\x64\x00\x00\x00"]
         mock_read_parameter.return_value = 0
 

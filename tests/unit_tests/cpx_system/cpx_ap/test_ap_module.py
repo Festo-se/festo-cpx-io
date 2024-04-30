@@ -16,7 +16,7 @@ class TestApModule:
     @pytest.fixture(scope="function")
     def module_fixture(self):
         """module fixture"""
-        module_information = {
+        apdd_information = {
             "Description": "Description",
             "Name": "Name",
             "Module Type": "Module Type",
@@ -33,7 +33,7 @@ class TestApModule:
         parameters = []
 
         yield ApModule(
-            module_information,
+            apdd_information,
             channels,
             parameters,
         )
@@ -175,7 +175,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.product_category = ProductCategory.DIGITAL.value
-        module.information = CpxAp.ModuleInformation(input_size=8)
+        module.information = CpxAp.ApddInformation(input_size=8)
 
         module.input_channels = input_value
 
@@ -219,7 +219,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ModuleInformation(input_size=8)
+        module.information = CpxAp.ApddInformation(input_size=8)
 
         module.input_channels = input_value
 
@@ -262,7 +262,7 @@ class TestApModule:
         """Test read channels"""
         # Arrange
         module = module_fixture
-        module.information = CpxAp.ModuleInformation(input_size=36)
+        module.information = CpxAp.ApddInformation(input_size=36)
         module.product_category = ProductCategory.IO_LINK.value
 
         module.input_channels = input_value
@@ -452,7 +452,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ModuleInformation(order_text="test module")
+        module.information = CpxAp.ApddInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.read_channels()
@@ -471,7 +471,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ModuleInformation(order_text="test module")
+        module.information = CpxAp.ApddInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.read_channel(input_value)
@@ -490,7 +490,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ModuleInformation(order_text="test module")
+        module.information = CpxAp.ApddInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.write_channel(input_value, input_value)
@@ -509,7 +509,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ModuleInformation(order_text="test module")
+        module.information = CpxAp.ApddInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.write_channels([0] * input_value)
@@ -529,7 +529,7 @@ class TestApModule:
         module = module_fixture
         module.base = Mock()
         module.product_category = ProductCategory.IO_LINK.value
-        module.information = CpxAp.ModuleInformation(order_text="test module")
+        module.information = CpxAp.ApddInformation(order_text="test module")
         module.input_channels = [1, 2, 3, 4]
         # Act & Assert
         with pytest.raises(NotImplementedError):

@@ -27,7 +27,7 @@ class CpxAp(CpxBase):
     """CPX-AP base class"""
 
     @dataclass
-    class ModuleInformation:
+    class ApddInformation:
         """Information of AP Module"""
 
         # pylint: disable=too-many-instance-attributes
@@ -104,7 +104,7 @@ class CpxAp(CpxBase):
         apdds = os.listdir(self._apdd_path)
 
         for i in range(self.read_module_count()):
-            info = self.read_module_information(i)
+            info = self.read_apdd_information(i)
             apdd_name = (
                 info.order_text + "_v" + info.fw_version.replace(".", "-") + ".json"
             )
@@ -205,12 +205,12 @@ class CpxAp(CpxBase):
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
-    def add_module(self, module: ApModule, info: ModuleInformation) -> None:
+    def add_module(self, module: ApModule, info: ApddInformation) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
 
-        :param info: ModuleInformation object containing the read-out info from the module
-        :type info: ModuleInformation
+        :param info: ApddInformation object containing the read-out info from the module
+        :type info: ApddInformation
         """
         module.information = info
 
@@ -248,12 +248,8 @@ class CpxAp(CpxBase):
             print("* Information:")
             print(f"   > {m.description}\n")
             print("* Available Functions: ")
-            for (
-                function_name,
-                product_category_list,
-            ) in m.PRODUCT_CATEGORY_MAPPING.items():
-                product_category_value_list = [p.value for p in product_category_list]
-                if m.product_category in product_category_value_list:
+            for (function_name,) in m.PRODUCT_CATEGORY_MAPPING.keys():
+                if m.is_function_supported(function_name):
                     print(f"    > {function_name}")
 
             print("\n* Available Parameters: ")
@@ -278,21 +274,21 @@ class CpxAp(CpxBase):
                     f"({r_w})"
                 )
 
-            try:
+            try:  # TODO: statt try lieber die is_function_supported
                 print(f"\n  > Read Channels: {m.read_channels()}")
             except NotImplementedError:
                 print("\t(No readable channels available)")
 
-    def read_module_information(self, position: int) -> ModuleInformation:
+    def read_apdd_information(self, position: int) -> ApddInformation:
         """Reads and returns detailed information for a specific IO module
 
         :param position: Module position index starting with 0
         :type position: int
-        :return: ModuleInformation object containing all the module information from the module
-        :rtype: ModuleInformation
+        :return: ApddInformation object containing all the module information from the module
+        :rtype: ApddInformation
         """
 
-        info = self.ModuleInformation(
+        info = self.ApddInformation(
             module_code=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(ap_modbus_registers.MODULE_CODE, position)
@@ -386,7 +382,7 @@ class CpxAp(CpxBase):
                 .strip("\x00")
             ),
         )
-        Logging.logger.debug(f"Reading ModuleInformation: {info}")
+        Logging.logger.debug(f"Reading ApddInformation: {info}")
         return info
 
     def read_diagnostic_status(self) -> list[Diagnostics]:

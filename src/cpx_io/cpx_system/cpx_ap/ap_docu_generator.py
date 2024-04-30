@@ -34,7 +34,6 @@ def _generate_module_data(modules: list) -> dict:
 
         module_functions = {}
         for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
-            # product_category_value_list = [p.value for p in product_category_list]
             if m.is_function_supported(function_name):
                 func = getattr(m, function_name)
                 module_functions[function_name] = {
@@ -45,9 +44,9 @@ def _generate_module_data(modules: list) -> dict:
         module_data.append(
             {
                 "Index": m.position,
-                "Type": m.module_type,
-                "Description": m.description,
-                "Code": m.information.module_code,
+                "Type": m.apdd_information.module_type,
+                "Description": m.apdd_information.description,
+                "Code": m.apdd_information.module_code,
                 "AP Slot": m.position + 1,
                 "FWVersion": m.information.fw_version,
                 "Default Name": m.name,

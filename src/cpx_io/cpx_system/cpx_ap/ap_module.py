@@ -164,6 +164,22 @@ class ApModule(CpxModule):
         setup_monitoring_load_supply: int = None
 
     @dataclass
+    class ApddInformation:
+        """ApddInformation"""
+
+        # pylint: disable=too-many-instance-attributes
+        description: str
+        name: str
+        module_type: str
+        configurator_code: str
+        part_number: str
+        module_class: str
+        module_code: str
+        order_text: str
+        product_category: str
+        product_family: str
+
+    @dataclass
     class ModuleParameters:
         """AP Parameters of module"""
 
@@ -181,23 +197,21 @@ class ApModule(CpxModule):
 
     def __init__(
         self,
-        module_information: dict = None,
+        apdd_information: dict = None,
         channels: tuple = None,
         parameters: list = None,
         name: str = None,
     ):
         super().__init__(name=name)
         self.information = None
-        self.name = module_information.get("Name")
-        self.description = module_information.get("Description")
-        self.module_type = module_information.get("Module Type")
-        self.product_category = module_information.get("Product Category")
+        self.name = apdd_information.name
+        self.apdd_information = apdd_information
         self.input_channels, self.output_channels = channels
         self.parameters = parameters
         self.fieldbus_parameters = None
 
     def __repr__(self):
-        return f"{self.name} (idx: {self.position}, type: {self.module_type})"
+        return f"{self.name} (idx: {self.position}, type: {self.apdd_information.module_type})"
 
     def __getitem__(self, key):
         return self.read_channel(key)
@@ -236,7 +250,7 @@ class ApModule(CpxModule):
 
     def is_function_supported(self, func_name):
         """Returns False if function is not supported"""
-        if self.product_category not in [
+        if self.apdd_information.product_category not in [
             v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
             return False
@@ -266,7 +280,7 @@ class ApModule(CpxModule):
         self.base.next_input_register += div_ceil(self.information.input_size, 2)
 
         # IO-Link special parameter
-        if self.product_category == ProductCategory.IO_LINK.value:
+        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @CpxBase.require_base
@@ -274,9 +288,9 @@ class ApModule(CpxModule):
         """Read all channels from module and interpret them as the module intends."""
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        # TODO: alle abfragen nach input channels output überdenken, weil das check_function schon macht.
+
         # IO-Link special read
-        if self.product_category == ProductCategory.IO_LINK.value:
+        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             module_input_size = div_ceil(self.information.input_size, 2) - 2
 
             reg = self.base.read_reg_data(self.input_register, length=module_input_size)
@@ -352,7 +366,7 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
         # IO-Link special read
-        if self.product_category == ProductCategory.IO_LINK.value:
+        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             ret = self.read_channels()[channel]
             return (
                 ret
@@ -377,30 +391,22 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        # Other modules
-        if self.output_channels:
-            if len(data) != len(self.output_channels):
-                raise ValueError(
-                    f"Data must be list of {len(self.output_channels)} elements"
-                )
+        if len(data) != len(self.output_channels):
+            raise ValueError(
+                f"Data must be list of {len(self.output_channels)} elements"
+            )
 
-            if all(c.data_type == "BOOL" for c in self.output_channels) and all(
-                isinstance(d, bool) for d in data
-            ):
-                reg = boollist_to_bytes(data)
-            else:
-                raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} is not supported or "
-                    "types are not the same for each channel (which is also not supported)"
-                )
-
+        if all(c.data_type == "BOOL" for c in self.output_channels) and all(
+            isinstance(d, bool) for d in data
+        ):
+            reg = boollist_to_bytes(data)
             self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(f"{self.name}: Setting channels to {data}")
             return
 
-        raise NotImplementedError(
-            f"Module {self.information.order_text} at index {self.position} "
-            "has no outputs to write to"
+        raise TypeError(
+            f"Output data type {self.output_channels[0].data_type} is not supported or "
+            "types are not the same for each channel (which is also not supported)"
         )
 
     @CpxBase.require_base
@@ -416,7 +422,7 @@ class ApModule(CpxModule):
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # IO-Link special
-        if self.product_category == ProductCategory.IO_LINK.value:
+        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             module_output_size = div_ceil(self.information.output_size, 2)
             channel_size = (module_output_size) // 4
 
@@ -426,27 +432,21 @@ class ApModule(CpxModule):
             Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
             return
 
-        if self.output_channels:
-            channel_range_check(channel, len(self.output_channels))
+        channel_range_check(channel, len(self.output_channels))
 
-            if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
-                value, bool
-            ):
-                data = self.read_channels()
-                data[channel] = value
-                reg = boollist_to_bytes(data)
-                self.base.write_reg_data(reg, self.output_register)
-
-            else:
-                raise TypeError(
-                    f"{self.output_channels.data_type} is not supported or type(value) "
-                    f"is not compatible"
-                )
+        if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
+            value, bool
+        ):
+            data = self.read_channels()
+            data[channel] = value
+            reg = boollist_to_bytes(data)
+            self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
             return
 
-        raise NotImplementedError(
-            f"Module {self.information.order_text} has no outputs to write to"
+        raise TypeError(
+            f"{self.output_channels.data_type} is not supported or type(value) "
+            f"is not compatible"
         )
 
     # Special functions for digital channels
@@ -459,10 +459,9 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if self.output_channels:
-            if self.output_channels[channel].data_type == "BOOL":
-                self.write_channel(channel, True)
-                return
+        if self.output_channels[channel].data_type == "BOOL":
+            self.write_channel(channel, True)
+            return
 
         raise TypeError(
             f"{self} has has incompatible datatype "
@@ -478,10 +477,9 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if self.output_channels:
-            if self.output_channels[channel].data_type == "BOOL":
-                self.write_channel(channel, False)
-                return
+        if self.output_channels[channel].data_type == "BOOL":
+            self.write_channel(channel, False)
+            return
 
         raise TypeError(
             f"{self} has has incompatible datatype "
@@ -497,12 +495,11 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if self.output_channels:
-            if self.output_channels[channel].data_type == "BOOL":
-                # get the relevant value from the register and write the inverse
-                value = self.read_channel(channel, outputs_only=True)
-                self.write_channel(channel, not value)
-                return
+        if self.output_channels[channel].data_type == "BOOL":
+            # get the relevant value from the register and write the inverse
+            value = self.read_channel(channel, outputs_only=True)
+            self.write_channel(channel, not value)
+            return
 
         raise TypeError(
             f"{self} has has incompatible datatype "

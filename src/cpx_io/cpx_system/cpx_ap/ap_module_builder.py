@@ -10,6 +10,7 @@ from cpx_io.utils.logging import Logging
 class Channel:
     """Channel dataclass"""
 
+    # pylint: disable=too-many-instance-attributes
     array_size: int
     bits: int
     byte_swap_needed: bool
@@ -60,10 +61,10 @@ class Variant:
     variant_identification: dict
 
 
-class ChannelGroupBuilder:
-    """ChannelGroupBuilder"""
+class Builder:
+    """Builder for dataclasses"""
 
-    def build(self, channel_group_dict):
+    def build_channel_group(self, channel_group_dict):
         """Builds one ChannelGroup"""
         return ChannelGroup(
             channel_group_dict.get("ChannelGroupId"),
@@ -72,11 +73,7 @@ class ChannelGroupBuilder:
             channel_group_dict.get("ParameterGroupIds"),
         )
 
-
-class ChannelBuilder:
-    """ChannelBuilder"""
-
-    def build(self, channel_dict):
+    def build_channel(self, channel_dict):
         """Builds one Channel"""
         return Channel(
             channel_dict.get("ArraySize"),
@@ -91,11 +88,7 @@ class ChannelBuilder:
             channel_dict.get("ProfileList"),
         )
 
-
-class VariantBuilder:
-    """VariantBuilder"""
-
-    def build(self, variant_dict):
+    def build_variant(self, variant_dict):
         """Builds one Variant"""
         return Variant(
             variant_dict.get("Description"),
@@ -104,11 +97,7 @@ class VariantBuilder:
             variant_dict.get("VariantIdentification"),
         )
 
-
-class ParameterBuilder:
-    """ParameterBuilder"""
-
-    def build(self, parameter_item, enums=None, units=None):
+    def build_parameter(self, parameter_item, enums=None, units=None):
         """Builds one Parameter"""
         valid_unit = (
             units.get(parameter_item.get("DataDefinition").get("PhysicalUnitId"))
@@ -136,11 +125,7 @@ class ParameterBuilder:
             ),
         )
 
-
-class ParameterEnumBuilder:
-    """ParameterEnumBuilder"""
-
-    def build(self, enum_dict):
+    def build_parameter_enum(self, enum_dict):
         """Builds one ParameterEnum"""
         enum_values = {}
         for e in enum_dict.get("EnumValues"):
@@ -155,11 +140,7 @@ class ParameterEnumBuilder:
             enum_dict.get("Name"),
         )
 
-
-class PhysicalUnitBuilder:
-    """PhysicalUnit"""
-
-    def build(self, physical_unit_dict):
+    def build_physical_unit(self, physical_unit_dict):
         """Builds one PhysicalUnit"""
         return PhysicalUnit(
             physical_unit_dict.get("FormatString"),
@@ -167,20 +148,31 @@ class PhysicalUnitBuilder:
             physical_unit_dict.get("PhysicalUnitId"),
         )
 
-
-class PhysicalQuantitiesBuilder:
-    """PhysicalQuantities"""
-
-    def build(self, physical_quantity_dict):
+    def build_physical_quantities(self, physical_quantity_dict):
         """Builds one PhysicalQuantity"""
         physical_units = {}
         for p in physical_quantity_dict.get("PhysicalUnits"):
-            physical_units[p.get("PhysicalUnitId")] = PhysicalUnitBuilder().build(p)
+            physical_units[p.get("PhysicalUnitId")] = Builder().build_physical_unit(p)
 
         return PhysicalQuantity(
             physical_quantity_dict.get("PhysicalQuantityId"),
             physical_quantity_dict.get("Name"),
             physical_units,
+        )
+
+    def build_apdd_information(self, apdd_information_dict):
+        """Builds one ApddInformation"""
+        return ApModule.ApddInformation(
+            apdd_information_dict.get("Description"),
+            apdd_information_dict.get("Name"),
+            apdd_information_dict.get("Module Type"),
+            apdd_information_dict.get("Configurator Code"),
+            apdd_information_dict.get("Part Number"),
+            apdd_information_dict.get("Module Class"),
+            apdd_information_dict.get("Module Code"),
+            apdd_information_dict.get("Order Text"),
+            apdd_information_dict.get("Product Category"),
+            apdd_information_dict.get("Product Family"),
         )
 
 
@@ -195,7 +187,7 @@ class ApModuleBuilder:
         channel_types = []
         if apdd_channels:
             for channel_dict in apdd_channels:
-                channel_types.append(ChannelBuilder().build(channel_dict))
+                channel_types.append(Builder().build_channel(channel_dict))
             Logging.logger.debug(f"Set up Channel Types: {channel_types}")
         return channel_types
 
@@ -204,10 +196,11 @@ class ApModuleBuilder:
         channel_groups = []
         if apdd_channel_groups:
             for channel_group_dict in apdd_channel_groups:
-                channel_groups.append(ChannelGroupBuilder().build(channel_group_dict))
+                channel_groups.append(Builder().build_channel_group(channel_group_dict))
             Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
         return channel_groups
 
+    # TODO: split in subfunctions
     def build(self, apdd, module_code):
         """Build function for generic ap module"""
 
@@ -216,7 +209,7 @@ class ApModuleBuilder:
 
         variants = []
         for variant_dict in apdd["Variants"]["VariantList"]:
-            variants.append(VariantBuilder().build(variant_dict))
+            variants.append(Builder().build_variant(variant_dict))
 
         Logging.logger.debug(f"Set up Variants: {variants}")
 
@@ -229,7 +222,7 @@ class ApModuleBuilder:
         else:
             raise IndexError(f"Could not find variant for ModuleCode {module_code}")
 
-        module_information = {
+        apdd_information_dict = {
             "Description": actual_variant.description,
             "Name": actual_variant.name.lower().replace("-", "_").replace(" ", "_"),
             "Module Type": actual_variant.name,
@@ -245,6 +238,8 @@ class ApModuleBuilder:
             "Product Category": product_category,
             "Product Family": product_family,
         }
+        apdd_information = Builder().build_apdd_information(apdd_information_dict)
+
         # setup all channel types
         channel_types = self._setup_channel_types(apdd.get("Channels"))
 
@@ -276,11 +271,11 @@ class ApModuleBuilder:
 
         if enum_list:
             ## setup enums used in the module
-            enums = {e["Id"]: ParameterEnumBuilder().build(e) for e in enum_list}
+            enums = {e["Id"]: Builder().build_parameter_enum(e) for e in enum_list}
 
         ## setup quantities used in the module
         physical_quantities = {
-            q["PhysicalQuantityId"]: PhysicalQuantitiesBuilder().build(q)
+            q["PhysicalQuantityId"]: Builder().build_physical_quantities(q)
             for q in physical_quantities_list
         }
 
@@ -299,13 +294,13 @@ class ApModuleBuilder:
             parameter_list = apdd_parameters.get("ParameterList")
 
         parameters = {
-            p["ParameterId"]: ParameterBuilder().build(p, enums, units)
+            p["ParameterId"]: Builder().build_parameter(p, enums, units)
             for p in parameter_list
             if p.get("FieldbusSettings")
         }
 
         return ApModule(
-            module_information,
+            apdd_information,
             (input_channels, output_channels),
             parameters,
         )

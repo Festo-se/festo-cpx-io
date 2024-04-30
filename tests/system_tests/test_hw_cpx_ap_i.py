@@ -39,10 +39,10 @@ def test_set_timeout():
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
-def test_read_module_information(test_cpxap):
+def test_read_apdd_information(test_cpxap):
 
     for i in range(len(test_cpxap.modules)):
-        assert test_cpxap.read_module_information(i)
+        assert test_cpxap.read_apdd_information(i)
 
 
 def test_read_diagnostic_status(test_cpxap):
