@@ -142,6 +142,7 @@ def test_vmpa14_fb_emg_d2_8_s_toggle_channel(test_cpxap):
 
 def test_vmpa14_fb_emg_d2_8_s_read_module_parameters(test_cpxap):
     m = test_cpxap.modules[2]
+    time.sleep(0.05)
 
     assert m.read_module_parameter(20026) == m.read_module_parameter(
         "Enable diagnosis of overload short circuit"
@@ -169,4 +170,321 @@ def test_vmpa14_fb_emg_d2_8_s_read_module_parameters(test_cpxap):
     )
     assert m.read_module_parameter(20422) == m.read_module_parameter(
         "Pilot air evacuation time"
+    )
+
+
+def test_vmpa1_fb_ems_d2_8_read_channels(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    assert m.read_channels() == [
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    ]
+
+
+def test_vmpa1_fb_ems_d2_8_read_channel(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    for i in range(8):
+        assert m.read_channel(i) is False
+
+
+def test_vmpa1_fb_ems_d2_8_write_channels(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_channels([True] * 8)
+    time.sleep(0.05)
+
+    assert m.read_channels() == [True] * 8
+
+    m.write_channels([False] * 8)
+    time.sleep(0.05)
+
+    assert m.read_channels() == [False] * 8
+
+
+def test_vmpa1_fb_ems_d2_8_write_channel(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    for i in range(8):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.write_channel(i, False)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa1_fb_ems_d2_8_set_clear_channel(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    for i in range(8):
+        m.set_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.clear_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa1_fb_ems_d2_8_toggle_channel(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_channels([False] * 8)
+
+    for i in range(8):
+        m.toggle_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.toggle_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa1_fb_ems_d2_8_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[3]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20026) == m.read_module_parameter(
+        "Enable diagnosis of overload short circuit"
+    )
+    assert m.read_module_parameter(20027) == m.read_module_parameter(
+        "Enable diagnosis of open load"
+    )
+    assert m.read_module_parameter(20033) == m.read_module_parameter(
+        "Monitor Vout/Vval"
+    )
+    assert m.read_module_parameter(20052) == m.read_module_parameter(
+        "Behaviour in fail state"
+    )
+    assert m.read_module_parameter(20094) == m.read_module_parameter(
+        "Condition counter set point"
+    )
+    assert m.read_module_parameter(20095) == m.read_module_parameter(
+        "Condition counter actual value"
+    )
+
+
+def test_vmpa14_fb_ems_d2_8_read_channels(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    assert m.read_channels() == [
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    ]
+
+
+def test_vmpa14_fb_ems_d2_8_read_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    for i in range(8):
+        assert m.read_channel(i) is False
+
+
+def test_vmpa14_fb_ems_d2_8_write_channels(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_channels([True] * 8)
+    time.sleep(0.05)
+
+    assert m.read_channels() == [True] * 8
+
+    m.write_channels([False] * 8)
+    time.sleep(0.05)
+
+    assert m.read_channels() == [False] * 8
+
+
+def test_vmpa14_fb_ems_d2_8_write_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    for i in range(8):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.write_channel(i, False)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa14_fb_ems_d2_8_set_clear_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    for i in range(8):
+        m.set_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.clear_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa14_fb_ems_d2_8_toggle_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    m.write_channels([False] * 8)
+
+    for i in range(8):
+        m.toggle_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.toggle_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa14_fb_ems_d2_8_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[4]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20026) == m.read_module_parameter(
+        "Enable diagnosis of overload short circuit"
+    )
+    assert m.read_module_parameter(20027) == m.read_module_parameter(
+        "Enable diagnosis of open load"
+    )
+    assert m.read_module_parameter(20033) == m.read_module_parameter(
+        "Monitor Vout/Vval"
+    )
+    assert m.read_module_parameter(20052) == m.read_module_parameter(
+        "Behaviour in fail state"
+    )
+    assert m.read_module_parameter(20094) == m.read_module_parameter(
+        "Condition counter set point"
+    )
+    assert m.read_module_parameter(20095) == m.read_module_parameter(
+        "Condition counter actual value"
+    )
+
+
+def test_vmpa2_fb_ems_d2_4_read_channels(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    assert m.read_channels() == [
+        False,
+        False,
+        False,
+        False,
+    ]
+
+
+def test_vmpa2_fb_ems_d2_4_read_channel(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    for i in range(4):
+        assert m.read_channel(i) is False
+
+
+def test_vmpa2_fb_ems_d2_4_write_channels(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_channels([True] * 4)
+    time.sleep(0.05)
+
+    assert m.read_channels() == [True] * 4
+
+    m.write_channels([False] * 4)
+    time.sleep(0.05)
+
+    assert m.read_channels() == [False] * 4
+
+
+def test_vmpa2_fb_ems_d2_4_write_channel(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    for i in range(4):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.write_channel(i, False)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa2_fb_ems_d2_4_set_clear_channel(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    for i in range(4):
+        m.set_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.clear_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa2_fb_ems_d2_4_toggle_channel(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_channels([False] * 4)
+
+    for i in range(4):
+        m.toggle_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.toggle_channel(i)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa2_fb_ems_d2_4_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[5]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20026) == m.read_module_parameter(
+        "Enable diagnosis of overload short circuit"
+    )
+    assert m.read_module_parameter(20027) == m.read_module_parameter(
+        "Enable diagnosis of open load"
+    )
+    assert m.read_module_parameter(20033) == m.read_module_parameter(
+        "Monitor Vout/Vval"
+    )
+    assert m.read_module_parameter(20052) == m.read_module_parameter(
+        "Behaviour in fail state"
+    )
+    assert m.read_module_parameter(20094) == m.read_module_parameter(
+        "Condition counter set point"
+    )
+    assert m.read_module_parameter(20095) == m.read_module_parameter(
+        "Condition counter actual value"
     )
