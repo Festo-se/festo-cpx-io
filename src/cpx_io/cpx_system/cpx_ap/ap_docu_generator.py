@@ -36,9 +36,11 @@ def _generate_module_data(modules: list) -> dict:
         for function_name, product_category_list in m.PRODUCT_CATEGORY_MAPPING.items():
             product_category_value_list = [p.value for p in product_category_list]
             if m.product_category in product_category_value_list:
-                module_functions[function_name] = inspect.getdoc(
-                    getattr(m, function_name)
-                )
+                func = getattr(m, function_name)
+                module_functions[function_name] = {
+                    "Description": inspect.getdoc(func),
+                    "Signature": str(inspect.signature(func)),
+                }
 
         module_data.append(
             {
@@ -112,8 +114,9 @@ def generate_system_information_file(ap_system) -> None:
             f.write(f"* Default Name: {m['Default Name']}\n")
             f.write("### Module Functions\n")
             for name, doc in m["Module Functions"].items():
-                corrected_doc = doc.replace("\n:", "<br>:")
-                f.write(f"### {name} \n{corrected_doc}\n")
+                func_header = name + doc["Signature"]
+                docstring = doc["Description"].replace("\n:", "<br>:")
+                f.write(f"### {func_header} \n{docstring}\n")
             f.write("### Parameter Table\n")
             f.write(
                 "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
