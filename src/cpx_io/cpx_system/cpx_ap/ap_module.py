@@ -139,6 +139,14 @@ class ApModule(CpxModule):
             ProductCategory.VTOM,
         ],
     }
+    INPUT_FUNCTIONS = ["read_channels", "read_channel"]
+    OUTPUT_FUNCTIONS = [
+        "write_channels",
+        "write_channel",
+        "set_channel",
+        "clear_channel",
+        "toggle_channel",
+    ]
 
     @dataclass
     class SystemParameters:
@@ -226,17 +234,32 @@ class ApModule(CpxModule):
 
         return [0]
 
-    def _check_function_supported(self, func_name):
-        """Raises NotImplemetedError if function is not supported"""
-
+    def is_function_supported(self, func_name):
+        """Returns False if function is not supported"""
         if self.product_category not in [
             v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
+            return False
+
+        if func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
+            return False
+
+        if (
+            func_name in self.INPUT_FUNCTIONS
+            and not self.input_channels
+            and not self.output_channels
+        ):
+            return False
+        return True
+
+    def _check_function_supported(self, func_name):
+        if not self.is_function_supported(func_name):
             raise NotImplementedError(f"{self} has no function <{func_name}>")
 
     def configure(self, base: CpxBase, position: int) -> None:
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
+
         super().configure(base=base, position=position)
 
         self.base.next_output_register += div_ceil(self.information.output_size, 2)
@@ -251,7 +274,7 @@ class ApModule(CpxModule):
         """Read all channels from module and interpret them as the module intends."""
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
+        # TODO: alle abfragen nach input channels output überdenken, weil das check_function schon macht.
         # IO-Link special read
         if self.product_category == ProductCategory.IO_LINK.value:
             module_input_size = div_ceil(self.information.input_size, 2) - 2
@@ -272,44 +295,38 @@ class ApModule(CpxModule):
             return channels
 
         # All other modules
-        if self.input_channels or self.output_channels:
-            # if available, read inputs
-            values = []
-            if self.input_channels:
-                data = self.base.read_reg_data(
-                    self.input_register, length=div_ceil(self.information.input_size, 2)
+        # if available, read inputs
+        values = []
+        if self.input_channels:
+            data = self.base.read_reg_data(
+                self.input_register, length=div_ceil(self.information.input_size, 2)
+            )
+            if all(c.data_type == "BOOL" for c in self.input_channels):
+                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+            elif all(c.data_type == "INT16" for c in self.input_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            else:
+                raise TypeError(
+                    f"Input data type {self.input_channels[0].data_type} are not supported "
+                    "or types are not the same for each channel"
                 )
-                if all(c.data_type == "BOOL" for c in self.input_channels):
-                    values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
-                elif all(c.data_type == "INT16" for c in self.input_channels):
-                    values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-                else:
-                    raise TypeError(
-                        f"Input data type {self.input_channels[0].data_type} are not supported "
-                        "or types are not the same for each channel"
-                    )
 
-            # if available, read outputs
-            if self.output_channels:
-                data = self.base.read_reg_data(
-                    self.output_register,
-                    length=div_ceil(self.information.output_size, 2),
+        # if available, read outputs
+        if self.output_channels:
+            data = self.base.read_reg_data(
+                self.output_register,
+                length=div_ceil(self.information.output_size, 2),
+            )
+            if all(c.data_type == "BOOL" for c in self.output_channels):
+                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            else:
+                raise TypeError(
+                    f"Output data type {self.output_channels[0].data_type} are not supported "
+                    "or types are not the same for each channel"
                 )
-                if all(c.data_type == "BOOL" for c in self.output_channels):
-                    values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-                else:
-                    raise TypeError(
-                        f"Output data type {self.output_channels[0].data_type} are not supported "
-                        "or types are not the same for each channel"
-                    )
 
-            Logging.logger.info(f"{self.name}: Reading channels: {values}")
-            return values
-
-        raise NotImplementedError(
-            f"Module {self.information.order_text} at index {self.position} "
-            "has no inputs to read"
-        )
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+        return values
 
     @CpxBase.require_base
     def read_channel(

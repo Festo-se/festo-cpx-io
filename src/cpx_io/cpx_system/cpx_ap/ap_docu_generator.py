@@ -33,9 +33,9 @@ def _generate_module_data(modules: list) -> dict:
                 parameter_data[-1]["Enums"] = enum_data
 
         module_functions = {}
-        for function_name, product_category_list in m.PRODUCT_CATEGORY_MAPPING.items():
-            product_category_value_list = [p.value for p in product_category_list]
-            if m.product_category in product_category_value_list:
+        for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
+            # product_category_value_list = [p.value for p in product_category_list]
+            if m.is_function_supported(function_name):
                 func = getattr(m, function_name)
                 module_functions[function_name] = {
                     "Description": inspect.getdoc(func),
