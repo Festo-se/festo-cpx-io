@@ -19,6 +19,16 @@ def test_init(test_cpxap):
     assert test_cpxap
 
 
+def test_print_system_information(test_cpxap):
+    "test print"
+    test_cpxap.print_system_information()
+
+
+def test_print_system_state(test_cpxap):
+    "test print"
+    test_cpxap.print_system_state()
+
+
 def test_module_count(test_cpxap):
     "test module_count"
     assert test_cpxap.read_module_count() == 10

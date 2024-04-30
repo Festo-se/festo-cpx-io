@@ -246,9 +246,9 @@ class CpxAp(CpxBase):
         for m in self.modules:
             print(f"\n\nModule {m}:")
             print("* Information:")
-            print(f"   > {m.description}\n")
+            print(f"   > {m.apdd_information.description}\n")
             print("* Available Functions: ")
-            for (function_name,) in m.PRODUCT_CATEGORY_MAPPING.keys():
+            for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
                 if m.is_function_supported(function_name):
                     print(f"    > {function_name}")
 
@@ -274,9 +274,9 @@ class CpxAp(CpxBase):
                     f"({r_w})"
                 )
 
-            try:  # TODO: statt try lieber die is_function_supported
+            if m.is_function_supported("read_channels"):
                 print(f"\n  > Read Channels: {m.read_channels()}")
-            except NotImplementedError:
+            else:
                 print("\t(No readable channels available)")
 
     def read_apdd_information(self, position: int) -> ApddInformation:
