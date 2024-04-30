@@ -152,7 +152,7 @@ class Builder:
         """Builds one PhysicalQuantity"""
         physical_units = {}
         for p in physical_quantity_dict.get("PhysicalUnits"):
-            physical_units[p.get("PhysicalUnitId")] = Builder().build_physical_unit(p)
+            physical_units[p.get("PhysicalUnitId")] = self.build_physical_unit(p)
 
         return PhysicalQuantity(
             physical_quantity_dict.get("PhysicalQuantityId"),
@@ -175,78 +175,31 @@ class Builder:
             apdd_information_dict.get("Product Family"),
         )
 
-
-class ApModuleBuilder:
-    """Builder class for ApModule
-    :return: AP Module generated from the apdd
-    :rtype: ApModule
-    """
-
-    @staticmethod
-    def _setup_channel_types(apdd_channels) -> list:
+    def _setup_channel_types(self, apdd_channels) -> list:
         channel_types = []
         if apdd_channels:
             for channel_dict in apdd_channels:
-                channel_types.append(Builder().build_channel(channel_dict))
+                channel_types.append(self.build_channel(channel_dict))
             Logging.logger.debug(f"Set up Channel Types: {channel_types}")
         return channel_types
 
-    @staticmethod
-    def _setup_channel_groups(apdd_channel_groups) -> list:
+    def _setup_channel_groups(self, apdd_channel_groups) -> list:
         channel_groups = []
         if apdd_channel_groups:
             for channel_group_dict in apdd_channel_groups:
-                channel_groups.append(Builder().build_channel_group(channel_group_dict))
+                channel_groups.append(self.build_channel_group(channel_group_dict))
             Logging.logger.debug(f"Set up Channel Groups: {channel_groups}")
         return channel_groups
 
-    # TODO: split in subfunctions
-    def build(self, apdd, module_code):
-        """Build function for generic ap module"""
-
-        product_category = apdd["Variants"]["DeviceIdentification"]["ProductCategory"]
-        product_family = apdd["Variants"]["DeviceIdentification"]["ProductFamily"]
-
+    def _setup_variants(self, apdd_variants) -> list:
         variants = []
-        for variant_dict in apdd["Variants"]["VariantList"]:
-            variants.append(Builder().build_variant(variant_dict))
+        for variant_dict in apdd_variants["VariantList"]:
+            variants.append(self.build_variant(variant_dict))
 
         Logging.logger.debug(f"Set up Variants: {variants}")
+        return variants
 
-        for v in variants:
-            if v.variant_identification["ModuleCode"] == module_code:
-                actual_variant = v
-
-        if actual_variant:
-            Logging.logger.debug(f"Set module variant to: {actual_variant}")
-        else:
-            raise IndexError(f"Could not find variant for ModuleCode {module_code}")
-
-        apdd_information_dict = {
-            "Description": actual_variant.description,
-            "Name": actual_variant.name.lower().replace("-", "_").replace(" ", "_"),
-            "Module Type": actual_variant.name,
-            "Configurator Code": actual_variant.variant_identification[
-                "ConfiguratorCode"
-            ],
-            "Part Number": actual_variant.variant_identification[
-                "FestoPartNumberDevice"
-            ],
-            "Module Class": actual_variant.variant_identification["ModuleClass"],
-            "Module Code": actual_variant.variant_identification["ModuleCode"],
-            "Order Text": actual_variant.variant_identification["OrderText"],
-            "Product Category": product_category,
-            "Product Family": product_family,
-        }
-        apdd_information = Builder().build_apdd_information(apdd_information_dict)
-
-        # setup all channel types
-        channel_types = self._setup_channel_types(apdd.get("Channels"))
-
-        # setup all channel groups
-        channel_groups = self._setup_channel_groups(apdd.get("ChannelGroups"))
-
-        # setup all channels for the module
+    def _setup_channels(self, channel_groups, channel_types) -> list:
         channels = []
         channel_type = None
         for channel_group in channel_groups:
@@ -259,7 +212,68 @@ class ApModuleBuilder:
                     channels.append(channel_type)
 
         Logging.logger.debug(f"Set up Channels: {channels}")
+        return channels
 
+    def _setup_parameters(self, apdd_parameters, enums, units) -> list:
+
+        parameter_list = apdd_parameters.get("ParameterList")
+
+        parameters = {
+            p["ParameterId"]: self.build_parameter(p, enums, units)
+            for p in parameter_list
+            if p.get("FieldbusSettings")
+        }
+        Logging.logger.debug(f"Set up Parameters: {parameters}")
+        return parameters
+
+    def build_ap_module(self, apdd: dict, module_code: int) -> ApModule:
+        """Build function for generic ap module
+        :parameter apdd: apdd json dict for one module
+        :type apdd: dict
+        :parameter module_code: Module code of actual variant
+        :type module_code: int
+        :return: AP Module generated from the apdd
+        :rtype: ApModule"""
+
+        for v in self._setup_variants(apdd["Variants"]):
+            if v.variant_identification["ModuleCode"] == module_code:
+                actual_variant = v
+
+        if actual_variant:
+            Logging.logger.debug(f"Set module variant to: {actual_variant}")
+        else:
+            raise IndexError(f"Could not find variant for ModuleCode {module_code}")
+
+        apdd_information = self.build_apdd_information(
+            {
+                "Description": actual_variant.description,
+                "Name": actual_variant.name.lower().replace("-", "_").replace(" ", "_"),
+                "Module Type": actual_variant.name,
+                "Configurator Code": actual_variant.variant_identification[
+                    "ConfiguratorCode"
+                ],
+                "Part Number": actual_variant.variant_identification[
+                    "FestoPartNumberDevice"
+                ],
+                "Module Class": actual_variant.variant_identification["ModuleClass"],
+                "Module Code": actual_variant.variant_identification["ModuleCode"],
+                "Order Text": actual_variant.variant_identification["OrderText"],
+                "Product Category": apdd["Variants"]["DeviceIdentification"][
+                    "ProductCategory"
+                ],
+                "Product Family": apdd["Variants"]["DeviceIdentification"][
+                    "ProductFamily"
+                ],
+            }
+        )
+
+        # setup all channels for the module
+        channels = self._setup_channels(
+            self._setup_channel_groups(apdd.get("ChannelGroups")),
+            self._setup_channel_types(apdd.get("Channels")),
+        )
+
+        # split them in input and output channels
         input_channels = [c for c in channels if c.direction == "in"]
         output_channels = [c for c in channels if c.direction == "out"]
 
@@ -271,36 +285,23 @@ class ApModuleBuilder:
 
         if enum_list:
             ## setup enums used in the module
-            enums = {e["Id"]: Builder().build_parameter_enum(e) for e in enum_list}
+            enums = {e["Id"]: self.build_parameter_enum(e) for e in enum_list}
 
         ## setup quantities used in the module
-        physical_quantities = {
-            q["PhysicalQuantityId"]: Builder().build_physical_quantities(q)
-            for q in physical_quantities_list
-        }
+        if physical_quantities_list:
+            physical_quantities = {
+                q["PhysicalQuantityId"]: self.build_physical_quantities(q)
+                for q in physical_quantities_list
+            }
 
         ## setup units used in the module
-        units = {k: v for p in physical_quantities.values() for k, v in p.units.items()}
-
-        # setup parameter groups, including list of all used parameters
-        parameter_ids = {}
-        parameter_groups = apdd.get("ParameterGroups")
-        for pg in parameter_groups:
-            parameter_ids[pg.get("Name")] = pg.get("ParameterIds")
-
-        # setup parameters
-        apdd_parameters = apdd.get("Parameters")
-        if apdd_parameters:
-            parameter_list = apdd_parameters.get("ParameterList")
-
-        parameters = {
-            p["ParameterId"]: Builder().build_parameter(p, enums, units)
-            for p in parameter_list
-            if p.get("FieldbusSettings")
-        }
+        if physical_quantities:
+            units = {
+                k: v for p in physical_quantities.values() for k, v in p.units.items()
+            }
 
         return ApModule(
             apdd_information,
             (input_channels, output_channels),
-            parameters,
+            self._setup_parameters(apdd.get("Parameters"), enums, units),
         )

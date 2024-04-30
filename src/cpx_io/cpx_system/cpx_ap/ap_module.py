@@ -271,7 +271,7 @@ class ApModule(CpxModule):
             raise NotImplementedError(f"{self} has no function <{func_name}>")
 
     def configure(self, base: CpxBase, position: int) -> None:
-
+        """This function is used by CpxBase to setup the system. Do not use this function."""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         super().configure(base=base, position=position)
