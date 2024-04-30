@@ -61,8 +61,8 @@ class Variant:
     variant_identification: dict
 
 
-class Builder:
-    """Builder for dataclasses"""
+class ApModuleBuilder:
+    """ApModuleBuilder for dataclasses"""
 
     def build_channel_group(self, channel_group_dict):
         """Builds one ChannelGroup"""
