@@ -16,18 +16,18 @@ class TestApModule:
     @pytest.fixture(scope="function")
     def module_fixture(self):
         """module fixture"""
-        apdd_information = {
-            "Description": "Description",
-            "Name": "Name",
-            "Module Type": "Module Type",
-            "Configurator Code": "Configurator Code",
-            "Part Number": "Part Number",
-            "Module Class": "Module Class",
-            "Module Code": "Module Code",
-            "Order Text": "Order Text",
-            "Product Category": "Product Category",
-            "Product Family": "Product Family",
-        }
+        apdd_information = ApModule.ApddInformation(
+            "Description",
+            "Name",
+            "Module Type",
+            "Configurator Code",
+            "Part Number",
+            "Module Class",
+            "Module Code",
+            "Order Text",
+            "Product Category",
+            "Product Family",
+        )
 
         channels = ([], [])
         parameters = []
@@ -54,8 +54,9 @@ class TestApModule:
         """Test configure"""
         # Arrange
         module = module_fixture
-        module.product_category = ProductCategory.INFRASTRUCTURE.value
+        module.apdd_information.product_category = ProductCategory.INFRASTRUCTURE.value
         module.information = Mock(input_size=3, output_size=5)
+        module.is_function_supported = Mock(return_value=True)
         mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
 
         # Act
@@ -77,20 +78,6 @@ class TestApModule:
 
         # Assert
         assert module_repr == "code (idx: 1, type: Module Type)"
-
-    def test_supported_functions(self, module_fixture):
-        """Test function support"""
-        module = module_fixture
-        coded_attributes = [
-            attr for attr in dir(module) if callable(getattr(module, attr))
-        ]
-        # it is a coded function if it does not start with underscore and is not of type class
-        coded_functions = [
-            attr
-            for attr in coded_attributes
-            if not attr.startswith("_") and not inspect.isclass(getattr(module, attr))
-        ]
-        assert all(f in module.PRODUCT_CATEGORY_MAPPING.keys() for f in coded_functions)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
@@ -174,8 +161,8 @@ class TestApModule:
         """Test read channels"""
         # Arrange
         module = module_fixture
-        module.product_category = ProductCategory.DIGITAL.value
-        module.information = CpxAp.ApddInformation(input_size=8)
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(input_size=8)
 
         module.input_channels = input_value
 
@@ -218,8 +205,8 @@ class TestApModule:
         """Test read channels"""
         # Arrange
         module = module_fixture
-        module.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ApddInformation(input_size=8)
+        module.apdd_information.product_category = ProductCategory.ANALOG.value
+        module.information = CpxAp.ApInformation(input_size=8)
 
         module.input_channels = input_value
 
@@ -262,8 +249,8 @@ class TestApModule:
         """Test read channels"""
         # Arrange
         module = module_fixture
-        module.information = CpxAp.ApddInformation(input_size=36)
-        module.product_category = ProductCategory.IO_LINK.value
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.information = CpxAp.ApInformation(input_size=36)
 
         module.input_channels = input_value
 
@@ -320,7 +307,7 @@ class TestApModule:
         """Test read channel"""
         # Arrange
         module = module_fixture
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
 
         module.input_channels = input_value
@@ -394,7 +381,7 @@ class TestApModule:
         """Test read channel"""
         # Arrange
         module = module_fixture
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
 
         module.input_channels = [0, 1, 2, 4]  # dummy input channels
@@ -430,7 +417,8 @@ class TestApModule:
         """Test read channel"""
         # Arrange
         module = module_fixture
-        module.product_category = ProductCategory.IO_LINK.value
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.output_channels = True  # will mock is_function_supported
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
 
@@ -452,7 +440,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ApddInformation(order_text="test module")
+        module.information = CpxAp.ApInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.read_channels()
@@ -471,7 +459,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ApddInformation(order_text="test module")
+        module.information = CpxAp.ApInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.read_channel(input_value)
@@ -490,7 +478,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ApddInformation(order_text="test module")
+        module.information = CpxAp.ApInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.write_channel(input_value, input_value)
@@ -509,7 +497,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.information = CpxAp.ApddInformation(order_text="test module")
+        module.information = CpxAp.ApInformation(order_text="test module")
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.write_channels([0] * input_value)
@@ -528,8 +516,8 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.IO_LINK.value
-        module.information = CpxAp.ApddInformation(order_text="test module")
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.information = CpxAp.ApInformation(order_text="test module")
         module.input_channels = [1, 2, 3, 4]
         # Act & Assert
         with pytest.raises(NotImplementedError):
@@ -571,7 +559,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
         module.output_channels = [
             Channel(
@@ -600,7 +588,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
         module.output_channels = [
             Channel(
@@ -629,7 +617,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
         module.read_channel = Mock(return_value=True)
         module.output_channels = [
@@ -659,7 +647,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
         module.read_channel = Mock(return_value=False)
         module.output_channels = [
@@ -688,7 +676,7 @@ class TestApModule:
         """Test set channel"""
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.output_channels = [
             Channel(
                 array_size=None,
@@ -713,7 +701,7 @@ class TestApModule:
         """Test set channel"""
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.output_channels = [
             Channel(
                 array_size=None,
@@ -738,7 +726,7 @@ class TestApModule:
         """Test set channel"""
         module = module_fixture
         module.base = Mock()
-        module.product_category = ProductCategory.DIGITAL.value
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.output_channels = [
             Channel(
                 array_size=None,

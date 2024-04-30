@@ -27,7 +27,7 @@ class CpxAp(CpxBase):
     """CPX-AP base class"""
 
     @dataclass
-    class ApddInformation:
+    class ApInformation:
         """Information of AP Module"""
 
         # pylint: disable=too-many-instance-attributes
@@ -205,12 +205,12 @@ class CpxAp(CpxBase):
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
-    def add_module(self, module: ApModule, info: ApddInformation) -> None:
+    def add_module(self, module: ApModule, info: ApInformation) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
 
-        :param info: ApddInformation object containing the read-out info from the module
-        :type info: ApddInformation
+        :param info: ApInformation object containing the read-out info from the module
+        :type info: ApInformation
         """
         module.information = info
 
@@ -279,16 +279,16 @@ class CpxAp(CpxBase):
             else:
                 print("\t(No readable channels available)")
 
-    def read_apdd_information(self, position: int) -> ApddInformation:
+    def read_apdd_information(self, position: int) -> ApInformation:
         """Reads and returns detailed information for a specific IO module
 
         :param position: Module position index starting with 0
         :type position: int
-        :return: ApddInformation object containing all the module information from the module
-        :rtype: ApddInformation
+        :return: ApInformation object containing all the module information from the module
+        :rtype: ApInformation
         """
 
-        info = self.ApddInformation(
+        info = self.ApInformation(
             module_code=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(ap_modbus_registers.MODULE_CODE, position)
@@ -382,7 +382,7 @@ class CpxAp(CpxBase):
                 .strip("\x00")
             ),
         )
-        Logging.logger.debug(f"Reading ApddInformation: {info}")
+        Logging.logger.debug(f"Reading ApInformation: {info}")
         return info
 
     def read_diagnostic_status(self) -> list[Diagnostics]:
