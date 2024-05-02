@@ -73,7 +73,7 @@ Import the library with `from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp`.
 The AP system will do all of the system setup for you. That means that you don't have to provide any more information than the ip-address. The modules are built during the runtime by a description file that will be collected directly from the modules. Since all the functionality of each module is created on your system, the documentation is also generated and stored on your device (e.g. your PC). You need to get the path by printing the system information with `CpxAp.print_system_information()`. Or just `print(CpxAp.docu_path)`
 
 ```
-with CpxAp(<typecode_string>, ip_address=<your_ip_address>) as myCPX:
+with CpxAp(ip_address=<your_ip_address>) as myCPX:
     myCPX.print_system_information()
 ```
 
