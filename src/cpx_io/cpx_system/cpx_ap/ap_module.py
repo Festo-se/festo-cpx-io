@@ -368,9 +368,13 @@ class ApModule(CpxModule):
         :rtype: bool
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        channel_range_check(
-            channel, len(self.output_channels) + len(self.input_channels)
-        )
+
+        if outputs_only:
+            channel_count = len(self.output_channels)
+        else:
+            channel_count = len(self.input_channels) + len(self.output_channels)
+
+        channel_range_check(channel, channel_count)
 
         # IO-Link special read
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
