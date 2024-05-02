@@ -368,6 +368,10 @@ class ApModule(CpxModule):
         :rtype: bool
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
+        channel_range_check(
+            channel, len(self.output_channels) + len(self.input_channels)
+        )
+
         # IO-Link special read
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             ret = self.read_channels()[channel]
@@ -461,15 +465,7 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
-        if self.output_channels[channel].data_type == "BOOL":
-            self.write_channel(channel, True)
-            return
-
-        raise TypeError(
-            f"{self} has has incompatible datatype "
-            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-        )
+        self.write_channel(channel, True)
 
     @CpxBase.require_base
     def clear_channel(self, channel: int) -> None:
@@ -479,15 +475,7 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
-        if self.output_channels[channel].data_type == "BOOL":
-            self.write_channel(channel, False)
-            return
-
-        raise TypeError(
-            f"{self} has has incompatible datatype "
-            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-        )
+        self.write_channel(channel, False)
 
     @CpxBase.require_base
     def toggle_channel(self, channel: int) -> None:
@@ -498,16 +486,9 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if self.output_channels[channel].data_type == "BOOL":
-            # get the relevant value from the register and write the inverse
-            value = self.read_channel(channel, outputs_only=True)
-            self.write_channel(channel, not value)
-            return
-
-        raise TypeError(
-            f"{self} has has incompatible datatype "
-            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-        )
+        # get the relevant value from the register and write the inverse
+        value = self.read_channel(channel, outputs_only=True)
+        self.write_channel(channel, not value)
 
     # Parameter functions
     @CpxBase.require_base

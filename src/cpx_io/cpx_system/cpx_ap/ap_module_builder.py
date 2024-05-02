@@ -55,6 +55,7 @@ class PhysicalUnit:
 class Variant:
     """Variant dataclass"""
 
+    channel_group_ids: list
     description: str
     name: str
     parameter_group_ids: list
@@ -91,6 +92,7 @@ class Builder:
     def build_variant(self, variant_dict):
         """Builds one Variant"""
         return Variant(
+            variant_dict.get("ChannelGroupIds"),
             variant_dict.get("Description"),
             variant_dict.get("Name"),
             variant_dict.get("ParameterGroupIds"),
@@ -199,9 +201,16 @@ class Builder:
         Logging.logger.debug(f"Set up Variants: {variants}")
         return variants
 
-    def _setup_channels(self, channel_groups, channel_types) -> list:
+    def _setup_channels(self, channel_groups, channel_types, channel_group_ids) -> list:
         channels = []
         channel_type = None
+
+        # filter out all non-variant relevant channel_groups if the information is known
+        if channel_group_ids:
+            channel_groups = [
+                cg for cg in channel_groups if cg.channel_group_id in channel_group_ids
+            ]
+
         for channel_group in channel_groups:
             for channel in channel_group.channels:
                 for channel_type in channel_types:
@@ -271,11 +280,12 @@ class Builder:
         channels = self._setup_channels(
             self._setup_channel_groups(apdd.get("ChannelGroups")),
             self._setup_channel_types(apdd.get("Channels")),
+            actual_variant.channel_group_ids,
         )
 
         # split them in input and output channels
-        input_channels = [c for c in channels if c.direction == "in"]
-        output_channels = [c for c in channels if c.direction == "out"]
+        input_channels = [c for c in channels if c.direction in ["in"]]
+        output_channels = [c for c in channels if c.direction in ["out", "inout"]]
 
         # setup metadata
         metadata = apdd.get("Metadata")

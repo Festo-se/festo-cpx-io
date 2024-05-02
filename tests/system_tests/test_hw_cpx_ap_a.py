@@ -296,6 +296,19 @@ def test_12Di4Do(test_cpxap):
     m.clear_channel(0)
 
 
+def test_12Di4Do_channel_out_of_range(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    with pytest.raises(IndexError):
+        m.set_channel(4)
+
+    with pytest.raises(IndexError):
+        m.clear_channel(4)
+
+    with pytest.raises(IndexError):
+        m.toggle_channel(4)
+
+
 def test_12Di4Do_parameter_write_debounce(test_cpxap):
     m = test_cpxap.modules[2]
 
