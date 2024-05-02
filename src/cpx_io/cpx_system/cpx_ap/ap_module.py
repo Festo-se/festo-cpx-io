@@ -452,7 +452,7 @@ class ApModule(CpxModule):
             return
 
         raise TypeError(
-            f"{self.output_channels.data_type} is not supported or type(value) "
+            f"{self.output_channels[0].data_type} is not supported or type(value) "
             f"is not compatible"
         )
 
