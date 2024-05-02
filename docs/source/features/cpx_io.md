@@ -1,7 +1,7 @@
 # CPX-SYSTEM
 
 ## festo-cpx-io 
-Python modbus implementation for Festo cpx remote-io systems
+Python modbus implementation for Festo cpx remote-io systems.
 ### CPX-E
 The automation system CPX-E is a high-performance control and automation system focusing primarily on motion control functions for handling technology. It comprises individual function modules that allow a very flexible system structure. Depending on the combination, the automation system CPE-X can be configured and used purely as a remote I/O system or as a control system. The following modules are available:
 - Controller
@@ -10,7 +10,7 @@ The automation system CPX-E is a high-performance control and automation system 
 - Counter modules
 - IO-Link master modules
 
-In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via modbus on ethernet/ip. Therefore the bus module CPX-E-EP is required to use this software.
+In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via ModbusTCP on ethernet. Therefore the bus module CPX-E-EP is required to use this software.
 
 #### Import
 Import the required cpx-system
@@ -19,7 +19,7 @@ from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 ```
 
 #### Instantiate your cpx-system
-You can use the typecode from your CPX order (www.festo.com) to get the correct modules and their order.
+You can use the typecode from your CPX order [(festo.com)](https://www.festo.com/) to get the correct modules and their order.
 ```
 myCPX = CpxE("60E-EP-MLNINO", ip_address="192.168.1.1")
 ```
@@ -40,7 +40,6 @@ from cpx_io.cpx_system.cpx_e.eep import CpxEEP
 eep = CpxEEp()
 e8do = CpxE8Do()
 myCPX = CpxE(ip_address="192.168.1.1", modules=[eep, e8do])
-
 
 # alternatively, add them later via add_module
 eep = CpxEEp()
@@ -69,9 +68,13 @@ with CpxE(ip_address="192.168.1.1", modules = [CpxEEp(), CpxE16Di()]) as myCPX:
     print(myCPX.modules[1])
     # will return "cpxe16di (idx: 1, type: CpxE16Di)" where cpxe16di is the automatically generated name
     # you can access the module by its name
+
     print(myCPX.cpxe16di)
     # will also return "cpxe16di (idx: 1, type: CpxE16Di)"
-    myCPX.cpxe16di.name = "my16di" # rename the module
+
+    # rename the module
+    myCPX.cpxe16di.name = "my16di" 
+
     # you can access the module with the new name
     cpx.my16di
     # and the myCPX.modules[1] will return the new name "my16di (idx: 1, type: CpxE16Di)"
@@ -88,7 +91,7 @@ CPX-AP is a modular and lightweight IO system with IP65/IP67 protection.
 - Up to 15 modules in one automation system CPX-AP-A
 - Complete IO-Link master V1.1 with data storage mechanism including device parameterisation tool
 
-In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via modbus on ethernet/ip. Therefore the bus module CPX-A-EP or CPX-I-EP is required to use this software.
+In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via ModbusTCP on ethernet. Therefore the bus module CPX-A-EP or CPX-I-EP is required to use this software.
 
 #### Import
 Import the required cpx-system
@@ -97,7 +100,7 @@ from cpx_io.cpx_system.cpx_e.cpx_ap import CpxAP
 ```
 
 #### Instantiate your cpx-system
-On CPX-AP, the modules will be read out automatically when the CpxAP object is instantiated. Optionally, a modbus timeout in seconds can be set in the constructor.
+On CPX-AP, the modules will be generated automatically when the CpxAP object is instantiated. Optionally, a modbus timeout in seconds can be set in the constructor.
 ```
 myCPX = CpxAp(ip_address="192.168.1.1", timeout=1.5)
 ```
@@ -109,15 +112,13 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     myCPX.print_system_information()
 ```
 
-Because the modules are build from your CPX system, this documentation can only provide a rough overview. Therefore an individual documentation of __your__ system is stored on __your__ device. There is a default path where this information is stored that you can print with 
-```
-print(myCPX.docu_path)
-```
+Because the modules are build from your CPX system, this documentation can only provide a rough overview. Therefore an individual documentation of __your__ system is stored on __your__ device. There is a default path where this information is stored that you can print with `print(myCPX.docu_path)`
+
 This path can be set individually by passing it as the docu_path argument in the init like
 ```
 CpxAp(ip_address="192.168.1.1", docu_path="user/docu")
 ```
-The system documentation is stored as json and markdown file and includes all relevant user information for your setup.
+The system documentation is stored as json and markdown file and includes all relevant user information for your setup. You can also print the system information to the output console with `CpxAp.print_system_information()`
 
 #### Module naming
 The modules in the CPX system will be named automatically, if no name is given. If there are more of one module of the same type in the system, an underscore and rising number will be added to the name. You can rename the modules to your liking by setting the name variable.
