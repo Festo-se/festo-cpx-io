@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Channel length system test
 - Documentation for usage in README
 - System tests for MPA valve terminal
 - Documentation will now be generated on user device
