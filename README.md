@@ -13,13 +13,14 @@ The URL can be added to your pip.ini in order to make it known to your pip insta
 ```
 pip config debug
 ```
+If the output states "exists: False" on every location, you need to create the file and add the [global] tag in the first line. Then proceed with step 2.
 
-1. Add the following line:
+2. Add the following line:
 ```
 extra-index-url = https://adeartifactory1.de.festo.net/artifactory/api/pypi/electricdrives-python-dev-local/simple
 ```
 
-1. Install via pip:
+3. Install via pip:
 ```
 pip install festo-cpx-io
 ```
