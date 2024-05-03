@@ -223,28 +223,21 @@ class ApModule(CpxModule):
     @staticmethod
     def _check_instances(parameter, instances) -> list:
         """Check if instances are correct and return corrected instances or raise Error."""
+
+        start = parameter.parameter_instances.get("FirstIndex")
+        end = parameter.parameter_instances.get("NumberOfInstances")
+
         if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
+            instance_range_check(instances, start, end)
             return [instances]
+
         if isinstance(instances, list):
             for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
+                instance_range_check(i, start, end)
             return instances
+
         if instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
+            instances = list(range(start, end))
             return instances
 
         return [0]
@@ -376,18 +369,14 @@ class ApModule(CpxModule):
 
         channel_range_check(channel, channel_count)
 
-        # IO-Link special read
-        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            ret = self.read_channels()[channel]
-            return (
-                ret
-                if full_size
-                else ret[: self.fieldbus_parameters[channel]["Input data length"]]
-            )
-
-        # Other modules:
         if self.input_channels and outputs_only:
             channel += len(self.input_channels)
+
+        # if datalength is given and full_size is not requested, shorten output
+        if self.fieldbus_parameters and not full_size:
+            return self.read_channels()[channel][
+                : self.fieldbus_parameters[channel]["Input data length"]
+            ]
 
         return self.read_channels()[channel]
 
