@@ -32,6 +32,23 @@ def test_modules(test_cpxap):
         assert test_cpxap.modules[i].position == i
 
 
+def test_modules_channel_length(test_cpxap):
+
+    assert len(test_cpxap.modules[0].input_channels) == 0  # EP
+    assert len(test_cpxap.modules[1].input_channels) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].input_channels) == 8  # VMPA14-FB-EMG-D2-8-S
+    assert len(test_cpxap.modules[3].input_channels) == 0  # VMPA1-FB-EMS-D2-8
+    assert len(test_cpxap.modules[4].input_channels) == 0  # VMPA14-FB-EMS-D2-8
+    assert len(test_cpxap.modules[5].input_channels) == 0  # VMPA2-FB-EMS-D2-4
+
+    assert len(test_cpxap.modules[0].output_channels) == 0  # EP
+    assert len(test_cpxap.modules[1].output_channels) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].output_channels) == 8  # VMPA14-FB-EMG-D2-8-S
+    assert len(test_cpxap.modules[3].output_channels) == 8  # VMPA1-FB-EMS-D2-8
+    assert len(test_cpxap.modules[4].output_channels) == 8  # VMPA14-FB-EMS-D2-8
+    assert len(test_cpxap.modules[5].output_channels) == 4  # VMPA2-FB-EMS-D2-4
+
+
 def test_ep_read_system_parameters(test_cpxap):
     m = test_cpxap.modules[0]
     param = m.read_system_parameters()
