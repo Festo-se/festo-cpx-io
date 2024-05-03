@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP-*-EP: read_parameters() renamed to read_system_parameters()
 
 ### Fixed
+- Numbering fixed and additional information added in README
 - TypeError message in write_channel doesn't raise AttributeError anymore
 - IndexError output on digital functions set/clear/toggle_channel now show correct string
 - IO-link modules in cpx-ap now have correct amount of channels
