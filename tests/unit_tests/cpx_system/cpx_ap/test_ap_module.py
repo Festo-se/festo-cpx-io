@@ -7,7 +7,7 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
-from cpx_io.cpx_system.cpx_ap.ap_module_builder import Channel
+from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
 
 
 class TestApModule:
