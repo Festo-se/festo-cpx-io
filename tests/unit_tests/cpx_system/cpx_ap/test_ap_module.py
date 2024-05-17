@@ -418,7 +418,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.output_channels = True  # will mock is_function_supported
+        module.output_channels = ["x"] * 4  # will mock is_function_supported
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
 
@@ -727,6 +727,7 @@ class TestApModule:
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = Mock(output_size=4)
         module.output_channels = [
             Channel(
                 array_size=None,

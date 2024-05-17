@@ -147,6 +147,7 @@ class ApModule(CpxModule):
         "clear_channel",
         "toggle_channel",
     ]
+    PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
 
     @dataclass
     class SystemParameters:
@@ -223,28 +224,21 @@ class ApModule(CpxModule):
     @staticmethod
     def _check_instances(parameter, instances) -> list:
         """Check if instances are correct and return corrected instances or raise Error."""
+
+        start = parameter.parameter_instances.get("FirstIndex")
+        end = parameter.parameter_instances.get("NumberOfInstances")
+
         if isinstance(instances, int):
-            instance_range_check(
-                instances,
-                parameter.parameter_instances.get("FirstIndex"),
-                parameter.parameter_instances.get("NumberOfInstances"),
-            )
+            instance_range_check(instances, start, end)
             return [instances]
+
         if isinstance(instances, list):
             for i in instances:
-                instance_range_check(
-                    i,
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
+                instance_range_check(i, start, end)
             return instances
+
         if instances is None:
-            instances = list(
-                range(
-                    parameter.parameter_instances.get("FirstIndex"),
-                    parameter.parameter_instances.get("NumberOfInstances"),
-                )
-            )
+            instances = list(range(start, end))
             return instances
 
         return [0]
@@ -264,6 +258,8 @@ class ApModule(CpxModule):
             and not self.input_channels
             and not self.output_channels
         ):
+            return False
+        if func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
             return False
         return True
 
@@ -366,18 +362,22 @@ class ApModule(CpxModule):
         :rtype: bool
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        # IO-Link special read
-        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            ret = self.read_channels()[channel]
-            return (
-                ret
-                if full_size
-                else ret[: self.fieldbus_parameters[channel]["Input data length"]]
-            )
 
-        # Other modules:
+        if outputs_only:
+            channel_count = len(self.output_channels)
+        else:
+            channel_count = len(self.input_channels) + len(self.output_channels)
+
+        channel_range_check(channel, channel_count)
+
         if self.input_channels and outputs_only:
             channel += len(self.input_channels)
+
+        # if datalength is given and full_size is not requested, shorten output
+        if self.fieldbus_parameters and not full_size:
+            return self.read_channels()[channel][
+                : self.fieldbus_parameters[channel]["Input data length"]
+            ]
 
         return self.read_channels()[channel]
 
@@ -446,7 +446,7 @@ class ApModule(CpxModule):
             return
 
         raise TypeError(
-            f"{self.output_channels.data_type} is not supported or type(value) "
+            f"{self.output_channels[0].data_type} is not supported or type(value) "
             f"is not compatible"
         )
 
@@ -459,15 +459,7 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
-        if self.output_channels[channel].data_type == "BOOL":
-            self.write_channel(channel, True)
-            return
-
-        raise TypeError(
-            f"{self} has has incompatible datatype "
-            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-        )
+        self.write_channel(channel, True)
 
     @CpxBase.require_base
     def clear_channel(self, channel: int) -> None:
@@ -477,15 +469,7 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
-        if self.output_channels[channel].data_type == "BOOL":
-            self.write_channel(channel, False)
-            return
-
-        raise TypeError(
-            f"{self} has has incompatible datatype "
-            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-        )
+        self.write_channel(channel, False)
 
     @CpxBase.require_base
     def toggle_channel(self, channel: int) -> None:
@@ -496,16 +480,9 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if self.output_channels[channel].data_type == "BOOL":
-            # get the relevant value from the register and write the inverse
-            value = self.read_channel(channel, outputs_only=True)
-            self.write_channel(channel, not value)
-            return
-
-        raise TypeError(
-            f"{self} has has incompatible datatype "
-            f"{self.output_channels[channel].data_type} (should be 'BOOL')"
-        )
+        # get the relevant value from the register and write the inverse
+        value = self.read_channel(channel, outputs_only=True)
+        self.write_channel(channel, not value)
 
     # Parameter functions
     @CpxBase.require_base

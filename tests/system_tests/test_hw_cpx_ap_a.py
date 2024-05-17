@@ -76,7 +76,7 @@ def test_modules(test_cpxap):
 
     assert test_cpxap.modules[0].output_register == 0  # EP
     assert test_cpxap.modules[1].output_register == 0  # 16di
-    assert test_cpxap.modules[2].output_register == 0  # 12DiDo, adds 1
+    assert test_cpxap.modules[2].output_register == 0  # 12Di4Do, adds 1
     assert test_cpxap.modules[3].output_register == 1  # 8Do, adds 1
     assert test_cpxap.modules[4].output_register == 2  # 8Di
     assert test_cpxap.modules[5].output_register == 2  # 4Iol
@@ -87,7 +87,7 @@ def test_modules(test_cpxap):
 
     assert test_cpxap.modules[0].input_register == 5000  # EP
     assert test_cpxap.modules[1].input_register == 5000  # 16Di, adds 1
-    assert test_cpxap.modules[2].input_register == 5001  # 12DiDo, adds 1
+    assert test_cpxap.modules[2].input_register == 5001  # 12Di4Do, adds 1
     assert test_cpxap.modules[3].input_register == 5002  # 8Do
     assert test_cpxap.modules[4].input_register == 5002  # 8Di, adds 1
     assert test_cpxap.modules[5].input_register == 5003  # 4Iol
@@ -95,6 +95,31 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[7].input_register == 5021  # Vaem
     assert test_cpxap.modules[8].input_register == 5021  # Vmpal
     assert test_cpxap.modules[9].input_register == 5021  # Vaba
+
+
+def test_modules_channel_length(test_cpxap):
+
+    assert len(test_cpxap.modules[0].input_channels) == 0  # EP
+    assert len(test_cpxap.modules[1].input_channels) == 16  # 16di
+    assert len(test_cpxap.modules[3].input_channels) == 0  # 8Do
+    assert len(test_cpxap.modules[2].input_channels) == 12  # 12Di4Do
+    assert len(test_cpxap.modules[4].input_channels) == 8  # 8Di
+    assert len(test_cpxap.modules[5].input_channels) == 4  # 4Iol
+    assert len(test_cpxap.modules[6].input_channels) == 0  # Vabx
+    assert len(test_cpxap.modules[7].input_channels) == 0  # Vaem
+    assert len(test_cpxap.modules[8].input_channels) == 0  # Vmpal
+    assert len(test_cpxap.modules[9].input_channels) == 0  # Vaba
+
+    assert len(test_cpxap.modules[0].output_channels) == 0  # EP
+    assert len(test_cpxap.modules[1].output_channels) == 0  # 16Di
+    assert len(test_cpxap.modules[2].output_channels) == 4  # 12Di4Do
+    assert len(test_cpxap.modules[3].output_channels) == 8  # 8Do
+    assert len(test_cpxap.modules[4].output_channels) == 0  # 8Di
+    assert len(test_cpxap.modules[5].output_channels) == 4  # 4Iol
+    assert len(test_cpxap.modules[6].output_channels) == 32  # Vabx
+    assert len(test_cpxap.modules[7].output_channels) == 24  # Vaem
+    assert len(test_cpxap.modules[8].output_channels) == 32  # Vmpal
+    assert len(test_cpxap.modules[9].output_channels) == 24  # Vaba
 
 
 def test_getter(test_cpxap):
@@ -294,6 +319,19 @@ def test_12Di4Do(test_cpxap):
     assert m.read_channel(12) is True
 
     m.clear_channel(0)
+
+
+def test_12Di4Do_channel_out_of_range(test_cpxap):
+    m = test_cpxap.modules[2]
+
+    with pytest.raises(IndexError):
+        m.set_channel(4)
+
+    with pytest.raises(IndexError):
+        m.clear_channel(4)
+
+    with pytest.raises(IndexError):
+        m.toggle_channel(4)
 
 
 def test_12Di4Do_parameter_write_debounce(test_cpxap):
