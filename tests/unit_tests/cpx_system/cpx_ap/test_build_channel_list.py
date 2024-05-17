@@ -12,10 +12,10 @@ from cpx_io.cpx_system.cpx_ap.builder.channel_builder import (
 )
 
 
-class TestChannelGroupBuilder:
-    "Test ChannelGroupBuilder"
+class TestBuildChannelGroup:
+    "Test build_channel_group"
 
-    def test_build(self):
+    def test_build_channel_group(self):
         """Test configure"""
         # Arrange
         channel_group_id = 123
@@ -40,10 +40,10 @@ class TestChannelGroupBuilder:
         assert channel_group.parameter_group_ids == parameter_group_ids
 
 
-class TestChannelBuilder:
-    "Test ChannelBuilder"
+class TestBuildChannel:
+    "Test build_channel"
 
-    def test_build(self):
+    def test_build_channel(self):
         """Test configure"""
         # Arrange
         array_size = 5
@@ -86,8 +86,8 @@ class TestChannelBuilder:
         assert channel.profile_list == profile_list
 
 
-class TestChannelListBuilder:
-    "Test ChannelListBuilder"
+class TestBuildChannelList:
+    "Test build_channel_list"
 
     def get_test_channel_group_list(self, n_channel_groups, n_channels_per_group):
         channel_group_dict_list = []
@@ -130,7 +130,9 @@ class TestChannelListBuilder:
             channel_dict_list.append(channel_dict)
         return channel_dict_list
 
-    def test_build_5channelsand2groupsof5_returnslistoflen10(self):
+    def test_build_channel_list_5_channels_and_2_groups_of_5_returns_list_of_len_10(
+        self,
+    ):
         # Arrange
         # channel_group ids = [[0,0,0,0,0],[1,1,1,1,1]]
         test_channel_group_dict_list = self.get_test_channel_group_list(2, 5)
@@ -153,7 +155,7 @@ class TestChannelListBuilder:
         for channel in channel_list[5:10]:
             assert channel.channel_id == 1
 
-    def test_build_5channelsand2groupsof3_returnslistoflen6(self):
+    def test_build_channel_list_5_channels_and_2_groups_of_3_returns_list_of_6(self):
         # Arrange
         # channel_group ids = [[0,0,0],[1,1,1]]
         test_channel_group_dict_list = self.get_test_channel_group_list(2, 3)
