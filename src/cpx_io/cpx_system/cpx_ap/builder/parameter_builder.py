@@ -11,9 +11,9 @@ class ParameterEnumBuilder:
 
     def build(self, enum_dict):
         """Builds one ParameterEnum"""
-        enum_values = {}
-        for e in enum_dict.get("EnumValues"):
-            enum_values[e.get("Text")] = e.get("Value")
+        enum_values = {
+            enum.get("Text"): enum.get("Value") for enum in enum_dict.get("EnumValues")
+        }
 
         return ParameterEnum(
             enum_dict.get("Id"),
@@ -61,6 +61,7 @@ class ParameterListBuilder:
     """ParameterListBuilder for dataclasses"""
 
     def build(self, apdd) -> list:
+        """Builds one ParameterList"""
         # setup metadata
         metadata = apdd.get("Metadata")
         enum_list = metadata.get("EnumDataTypes")

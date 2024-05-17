@@ -553,11 +553,11 @@ class ApModule(CpxModule):
             # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
 
-        if value is None:
-            raise TypeError(
-                f"'{value_str}' is not supported for '{parameter.name}'. "
-                f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
-            )
+            if value is None:
+                raise TypeError(
+                    f"'{value_str}' is not supported for '{parameter.name}'. "
+                    f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
+                )
 
         if isinstance(instances, list):
             for i in instances:

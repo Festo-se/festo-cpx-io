@@ -67,6 +67,7 @@ class ChannelListBuilder:
     """ChannelListBuilder for dataclasses"""
 
     def build(self, apdd, direction=None):
+        """Builds one ChannelList"""
         channel_group_list = [
             ChannelGroupBuilder().build(d) for d in apdd.get("ChannelGroups")
         ]
