@@ -16,7 +16,6 @@ class TestBuildChannelGroup:
     "Test build_channel_group"
 
     def test_build_channel_group(self):
-        """Test configure"""
         # Arrange
         channel_group_id = 123
         channels = {"foo": "bar"}
@@ -44,7 +43,6 @@ class TestBuildChannel:
     "Test build_channel"
 
     def test_build_channel(self):
-        """Test configure"""
         # Arrange
         array_size = 5
         bits = 9
@@ -147,15 +145,17 @@ class TestBuildChannelList:
 
         # Assert
         # [0,0,0,0,0, 1,1,1,1,1]
+        assert len(channel_list) == 10
         for channel in channel_list:
             assert isinstance(channel, Channel)
-        assert len(channel_list) == 10
         for channel in channel_list[0:5]:
             assert channel.channel_id == 0
         for channel in channel_list[5:10]:
             assert channel.channel_id == 1
 
-    def test_build_channel_list_5_channels_and_2_groups_of_3_returns_list_of_6(self):
+    def test_build_channel_list_5_channels_and_2_groups_of_3_returns_list_of_0_inputs_6_outputs(
+        self,
+    ):
         # Arrange
         # channel_group ids = [[0,0,0],[1,1,1]]
         test_channel_group_dict_list = self.get_test_channel_group_list(2, 3)
@@ -166,14 +166,16 @@ class TestBuildChannelList:
             "Channels": test_channel_dict_list,
         }
         # Act
-        channel_list = build_channel_list(apdd=apdd)
+        input_channel_list = build_channel_list(apdd=apdd, direction="in")
+        output_channel_list = build_channel_list(apdd=apdd, direction="out")
 
         # Assert
+        assert len(input_channel_list) == 0
+        assert len(output_channel_list) == 6
         # [0,0,0, 1,1,1]
-        for channel in channel_list:
+        for channel in output_channel_list:
             assert isinstance(channel, Channel)
-        assert len(channel_list) == 6
-        for channel in channel_list[0:3]:
+        for channel in output_channel_list[0:3]:
             assert channel.channel_id == 0
-        for channel in channel_list[3:6]:
+        for channel in output_channel_list[3:6]:
             assert channel.channel_id == 1

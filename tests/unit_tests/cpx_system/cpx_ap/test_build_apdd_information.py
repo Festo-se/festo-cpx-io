@@ -14,7 +14,6 @@ class TestBuildVariant:
     "Test build_variant"
 
     def test_build_variant(self):
-        """Test configure"""
         # Arrange
         description = "VariantDescription"
         name = "TestVariant"

@@ -1,7 +1,7 @@
 """PhysicalQuantity builder function from APDD"""
 
 from dataclasses import dataclass
-from typing import List
+from typing import Dict
 
 
 @dataclass
@@ -19,7 +19,7 @@ class PhysicalQuantity:
 
     physical_quantity_id: int
     name: str
-    units: List[PhysicalUnit]
+    units: Dict[int, PhysicalUnit]
 
 
 def build_physical_unit(physical_unit_dict):
