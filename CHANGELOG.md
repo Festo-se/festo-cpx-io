@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - System tests for MPA valve terminal
 - Documentation will now be generated on user device
 - ap_module_builder that configures a generic_ap_module by its apdd
+- Added gitlab release job
 
 ### Changed
 - Minor code improvements in ap_module
