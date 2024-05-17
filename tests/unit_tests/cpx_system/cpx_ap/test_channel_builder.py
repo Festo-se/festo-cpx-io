@@ -89,12 +89,12 @@ class TestChannelBuilder:
 class TestChannelListBuilder:
     "Test ChannelListBuilder"
 
-    def get_test_channel_group_list(self):
+    def get_test_channel_group_list(self, n_channel_groups, n_channels_per_group):
         channel_group_dict_list = []
-        for i in range(5):
-            channel_group_id = i * 5
+        for i in range(n_channel_groups):
+            channel_group_id = i
             name = f"TestChannelGroup{channel_group_id}"
-            channels = [{"ChannelId": i, "Count": 2}]
+            channels = [{"ChannelId": i, "Count": n_channels_per_group}]
             channel_group_dict = {
                 "ChannelGroupId": channel_group_id,
                 "Name": name,
@@ -104,11 +104,11 @@ class TestChannelListBuilder:
             channel_group_dict_list.append(channel_group_dict)
         return channel_group_dict_list
 
-    def get_test_channel_list(self):
+    def get_test_channel_list(self, n_channels):
         channel_dict_list = []
-        for i in range(5):
-            array_size = 5
-            bits = 9
+        for i in range(n_channels):
+            array_size = 0
+            bits = 0
             byte_swap_needed = False
             channel_id = i
             data_type = "bool"
@@ -130,19 +130,48 @@ class TestChannelListBuilder:
             channel_dict_list.append(channel_dict)
         return channel_dict_list
 
-    def test_build(self):
+    def test_build_5channelsand2groupsof5_returnslistoflen10(self):
         # Arrange
-        test_channel_group_dict_list = self.get_test_channel_group_list()
-        test_channel_dict_list = self.get_test_channel_list()
+        # channel_group ids = [[0,0,0,0,0],[1,1,1,1,1]]
+        test_channel_group_dict_list = self.get_test_channel_group_list(2, 5)
+        # channel ids = [0,1,2,3,4]
+        test_channel_dict_list = self.get_test_channel_list(5)
         apdd = {
             "ChannelGroups": test_channel_group_dict_list,
             "Channels": test_channel_dict_list,
         }
-
         # Act
         channel_list = build_channel_list(apdd=apdd)
 
         # Assert
+        # [0,0,0,0,0, 1,1,1,1,1]
         for channel in channel_list:
             assert isinstance(channel, Channel)
         assert len(channel_list) == 10
+        for channel in channel_list[0:5]:
+            assert channel.channel_id == 0
+        for channel in channel_list[5:10]:
+            assert channel.channel_id == 1
+
+    def test_build_5channelsand2groupsof3_returnslistoflen6(self):
+        # Arrange
+        # channel_group ids = [[0,0,0],[1,1,1]]
+        test_channel_group_dict_list = self.get_test_channel_group_list(2, 3)
+        # channel ids = [0,1,2,3,4]
+        test_channel_dict_list = self.get_test_channel_list(5)
+        apdd = {
+            "ChannelGroups": test_channel_group_dict_list,
+            "Channels": test_channel_dict_list,
+        }
+        # Act
+        channel_list = build_channel_list(apdd=apdd)
+
+        # Assert
+        # [0,0,0, 1,1,1]
+        for channel in channel_list:
+            assert isinstance(channel, Channel)
+        assert len(channel_list) == 6
+        for channel in channel_list[0:3]:
+            assert channel.channel_id == 0
+        for channel in channel_list[3:6]:
+            assert channel.channel_id == 1
