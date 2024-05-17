@@ -1,4 +1,4 @@
-"""Contains tests for ApModule class"""
+"""Contains tests for Channel build"""
 
 from unittest.mock import Mock
 import pytest

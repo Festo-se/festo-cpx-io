@@ -22,30 +22,30 @@ def build_parameter_enum(enum_dict):
     )
 
 
-def build_parameter(parameter_item, enums=None, units=None):
+def build_parameter(parameter_dict, enum_dict, units=None):
     """Builds one Parameter"""
     valid_unit = (
-        units.get(parameter_item.get("DataDefinition").get("PhysicalUnitId"))
+        units.get(parameter_dict.get("DataDefinition").get("PhysicalUnitId"))
         if units
         else None
     )
     format_string = valid_unit.format_string if valid_unit else ""
 
     return Parameter(
-        parameter_item.get("ParameterId"),
-        parameter_item.get("ParameterInstances"),
-        parameter_item.get("IsWritable"),
-        parameter_item.get("DataDefinition").get("ArraySize"),
-        parameter_item.get("DataDefinition").get("DataType"),
-        parameter_item.get("DataDefinition").get("DefaultValue"),
-        parameter_item.get("DataDefinition").get("Description"),
-        parameter_item.get("DataDefinition").get("Name"),
+        parameter_dict.get("ParameterId"),
+        parameter_dict.get("ParameterInstances"),
+        parameter_dict.get("IsWritable"),
+        parameter_dict.get("DataDefinition").get("ArraySize"),
+        parameter_dict.get("DataDefinition").get("DataType"),
+        parameter_dict.get("DataDefinition").get("DefaultValue"),
+        parameter_dict.get("DataDefinition").get("Description"),
+        parameter_dict.get("DataDefinition").get("Name"),
         format_string,
-        enums.get(
-            parameter_item.get("DataDefinition")
+        enum_dict.get(
+            parameter_dict.get("DataDefinition")
             .get("LimitEnumValues")
             .get("EnumDataType")
-            if parameter_item.get("DataDefinition").get("LimitEnumValues")
+            if parameter_dict.get("DataDefinition").get("LimitEnumValues")
             else None
         ),
     )
@@ -59,7 +59,7 @@ def build_parameter_list(apdd) -> list:
     physical_quantities_list = metadata.get("PhysicalQuantities")
 
     ## setup enums used in the module
-    enums = {e["Id"]: build_parameter_enum(e) for e in enum_list}
+    enum_dict = {e["Id"]: build_parameter_enum(e) for e in enum_list}
 
     ## setup quantities used in the module
     physical_quantities = {
@@ -73,7 +73,7 @@ def build_parameter_list(apdd) -> list:
     # parameter dict
     apdd_parameter_list = apdd.get("Parameters").get("ParameterList")
     return [
-        build_parameter(p, enums, units)
+        build_parameter(p, enum_dict, units)
         for p in apdd_parameter_list
         if p.get("FieldbusSettings")
     ]
