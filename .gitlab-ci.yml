@@ -18,25 +18,21 @@ image: "python:3.10-bullseye"
 # Run branch pipeline only if no MR pipeline exists
 workflow:
   rules:
-    - if: $CI_PIPELINE_TRIGGERED
     - if: $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_OPEN_MERGE_REQUESTS
       when: never
-    - if: $CI_COMMIT_BRANCH
+    - when: always
 
 # List of stages for jobs, and their order of execution
 stages:          
   - test
   - docs
-  - changelogtest
-  - upload
+  - changelog-test
+  - deploy
 
-unit-test-job:   # This job runs in the test stage.
+unit-test:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'push'
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
     - python -m pip install pytest pytest-cov
     - python -m pip install .
@@ -45,22 +41,16 @@ unit-test-job:   # This job runs in the test stage.
 
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
 
-pylint-job:   # This job also runs in the test stage.
+pylint:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'push'
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
-    - python -m pip install pylint
+    - python -m pip install pylint==3.1.0
     - python -m pip install .
   script:
     - pylint src
 
-black-job:   # This job also runs in the test stage.
+black:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'push'
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
     - python -m pip install black
     - python -m pip install .
@@ -69,9 +59,6 @@ black-job:   # This job also runs in the test stage.
 
 sphinx-docs:
   stage: docs
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'push'
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script:
     - pip install -U pip sphinx sphinx-rtd-theme myst-parser
     - pip install .
@@ -91,35 +78,52 @@ sphinx-docs:
     paths:
       - public
 
-changelog-test-job:
-  stage: changelogtest
+changelog-test:
+  stage: changelog-test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - git fetch --all
     - if [ 0 -eq $(git diff --name-only origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}...${CI_COMMIT_SHA} CHANGELOG.md | wc -l) ]; then exit 1; fi
 
-release-job:
-  stage: upload
+deploy:
+  stage: deploy
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/ && $CI_COMMIT_REF_PROTECTED == "true"'
   before_script:
-    - python -m pip install twine
+    - python -m pip install twine kac-tools
     - curl -fL https://install-cli.jfrog.io | sh
   script:
+    - mkdir public
+    - kac-tools >> public/RELEASENOTES.md
     - python -m pip wheel --no-deps .
     - twine check *.whl
     # - twine upload --repository-url "$ARTIFACTORY_PYPI_URL" -u"$ARTIFACTORY_PYPI_USER" -p"$ARTIFACTORY_PYPI_PASSWORD" dist/*
     - jf rt u --url "$ARTIFACTORY_PYPI_URL" --access-token "$ARTIFACTORY_ACCESS_TOKEN" "*.whl" electricdrives-python-dev-local/festo-cpx-io/
+  artifacts:
+    paths:
+      - public
   needs:
-    - unit-test-job
-    - pylint-job
-    - black-job
+    - unit-test
+    - pylint
+    - black
 
+gitlab-release:
+  stage: deploy
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/ && $CI_COMMIT_REF_PROTECTED == "true"'
+  script:
+    - echo "running gitlab-release"
+  release:
+    tag_name: '$CI_COMMIT_TAG'
+    description: './public/RELEASENOTES.md'
+  needs:
+    - deploy
 
 pages:
   image: alpine:latest
-  stage: upload
+  stage: deploy
   rules:
   - if: '$CI_COMMIT_BRANCH == "main"'
 
