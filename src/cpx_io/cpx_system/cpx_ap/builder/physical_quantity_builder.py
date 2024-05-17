@@ -1,4 +1,4 @@
-"""AP module Builder from APDD"""
+"""PhysicalQuantity builder function from APDD"""
 
 from dataclasses import dataclass
 from typing import List
@@ -22,29 +22,23 @@ class PhysicalQuantity:
     units: List[PhysicalUnit]
 
 
-class PhysicalUnitBuilder:
-    """PhysicalUnitBuilder for dataclasses"""
-
-    def build(self, physical_unit_dict):
-        """Builds one PhysicalUnit"""
-        return PhysicalUnit(
-            physical_unit_dict.get("FormatString"),
-            physical_unit_dict.get("Name"),
-            physical_unit_dict.get("PhysicalUnitId"),
-        )
+def build_physical_unit(physical_unit_dict):
+    """Builds one PhysicalUnit"""
+    return PhysicalUnit(
+        physical_unit_dict.get("FormatString"),
+        physical_unit_dict.get("Name"),
+        physical_unit_dict.get("PhysicalUnitId"),
+    )
 
 
-class PhysicalQuantityBuilder:
-    """PhysicalQuantityBuilder for dataclasses"""
+def build_physical_quantity(physical_quantity_dict):
+    """Builds one PhysicalQuantity"""
+    physical_units = {}
+    for p in physical_quantity_dict.get("PhysicalUnits"):
+        physical_units[p.get("PhysicalUnitId")] = build_physical_unit(p)
 
-    def build(self, physical_quantity_dict):
-        """Builds one PhysicalQuantity"""
-        physical_units = {}
-        for p in physical_quantity_dict.get("PhysicalUnits"):
-            physical_units[p.get("PhysicalUnitId")] = PhysicalUnitBuilder().build(p)
-
-        return PhysicalQuantity(
-            physical_quantity_dict.get("PhysicalQuantityId"),
-            physical_quantity_dict.get("Name"),
-            physical_units,
-        )
+    return PhysicalQuantity(
+        physical_quantity_dict.get("PhysicalQuantityId"),
+        physical_quantity_dict.get("Name"),
+        physical_units,
+    )

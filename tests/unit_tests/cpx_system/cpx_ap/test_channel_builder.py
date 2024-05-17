@@ -4,11 +4,11 @@ from unittest.mock import Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import (
-    ChannelGroupBuilder,
     ChannelGroup,
-    ChannelBuilder,
     Channel,
-    ChannelListBuilder,
+    build_channel_group,
+    build_channel,
+    build_channel_list,
 )
 
 
@@ -30,7 +30,7 @@ class TestChannelGroupBuilder:
         }
 
         # Act
-        channel_group = ChannelGroupBuilder().build(channel_group_dict)
+        channel_group = build_channel_group(channel_group_dict)
 
         # Assert
         assert isinstance(channel_group, ChannelGroup)
@@ -70,7 +70,7 @@ class TestChannelBuilder:
         }
 
         # Act
-        channel = ChannelBuilder().build(channel_dict)
+        channel = build_channel(channel_dict)
 
         # Assert
         assert isinstance(channel, Channel)
@@ -140,7 +140,7 @@ class TestChannelListBuilder:
         }
 
         # Act
-        channel_list = ChannelListBuilder().build(apdd=apdd)
+        channel_list = build_channel_list(apdd=apdd)
 
         # Assert
         for channel in channel_list:

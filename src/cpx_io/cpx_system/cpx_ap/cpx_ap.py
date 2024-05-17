@@ -8,7 +8,7 @@ import os
 import platformdirs
 import requests
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import ApModuleBuilder
+from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 
@@ -128,7 +128,7 @@ class CpxAp(CpxBase):
                     f"Loaded apdd {apdd_name} from module index {i} and saved to {self._apdd_path}"
                 )
 
-            module = ApModuleBuilder().build(module_apdd, info.module_code)
+            module = build_ap_module(module_apdd, info.module_code)
             self.add_module(module, info)
 
         if generate_docu:
