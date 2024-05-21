@@ -59,13 +59,17 @@ def build_parameter_list(apdd) -> list:
     physical_quantities_list = metadata.get("PhysicalQuantities")
 
     ## setup enums used in the module
-    enum_dict = {e["Id"]: build_parameter_enum(e) for e in enum_list}
+    enum_dict = {}
+    if enum_list:
+        enum_dict = {e["Id"]: build_parameter_enum(e) for e in enum_list}
 
     ## setup quantities used in the module
-    physical_quantities = {
-        q["PhysicalQuantityId"]: build_physical_quantity(q)
-        for q in physical_quantities_list
-    }
+    physical_quantities = {}
+    if physical_quantities_list:
+        physical_quantities = {
+            q["PhysicalQuantityId"]: build_physical_quantity(q)
+            for q in physical_quantities_list
+        }
 
     ## setup units used in the module
     units = {k: v for p in physical_quantities.values() for k, v in p.units.items()}

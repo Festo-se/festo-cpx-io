@@ -59,6 +59,9 @@ def build_channel(channel_dict):
 
 def build_channel_list(apdd, direction=None):
     """Builds one ChannelList"""
+    if not apdd.get("ChannelGroups"):
+        return []
+
     channel_group_list = [build_channel_group(d) for d in apdd.get("ChannelGroups")]
     channel_group_dict = {
         c.get("ChannelId"): c

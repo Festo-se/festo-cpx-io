@@ -259,14 +259,14 @@ class CpxAp(CpxBase):
             print(
                 "   > ---------------------------------------------------------------------------"
             )
-            for p in m.parameters.values():
+            for p in m.parameter_dict.values():
                 print(f"   > {p}")
 
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
         for m in self.modules:
             print(f"\n\nModule {m}:")
-            for i, p in m.parameters.items():
+            for i, p in m.parameter_dict.items():
                 r_w = "R/W" if p.is_writable else "R"
                 print(
                     f"{f'  > Read {p.name} (ID {i}):':<64}"
