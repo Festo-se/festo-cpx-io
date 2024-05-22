@@ -11,7 +11,7 @@ def _generate_module_data(modules: list) -> dict:
     module_data = []
     for m in modules:
         parameter_data = []
-        for p in m.parameters.values():
+        for p in m.parameter_dict.values():
             parameter_data.append(
                 {
                     "Id": p.parameter_id,

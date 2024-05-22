@@ -1,6 +1,6 @@
 """Contains tests for CpxBase class"""
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from dataclasses import dataclass
 import pytest
 
@@ -21,7 +21,8 @@ class TestCpxBase:
         # Assert
         assert isinstance(cpx, CpxBase)
 
-    def test_constructor_with_ip(self):
+    @patch("cpx_io.cpx_system.cpx_base.ModbusTcpClient", spec=True)
+    def test_constructor_with_ip(self, mock_modbus_client):
         "Test constructor"
         # Arrange
 
@@ -42,7 +43,8 @@ class TestCpxBase:
             # Assert
             assert isinstance(cpx, CpxBase)
 
-    def test_context_manager_with_ip(self):
+    @patch("cpx_io.cpx_system.cpx_base.ModbusTcpClient", spec=True)
+    def test_context_manager_with_ip(self, mock_modbus_client):
         "Test context manager"
         # Arrange
 

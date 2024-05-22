@@ -162,15 +162,15 @@ def test_ep_parameter_write(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
 
 
 def test_ep_parameter_rw_strings(test_cpxap):
@@ -180,14 +180,14 @@ def test_ep_parameter_rw_strings(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
     assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
     assert m.read_module_parameter(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -195,7 +195,7 @@ def test_ep_parameter_rw_strings(test_cpxap):
         "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
     assert (
         m.read_module_parameter(20022)
         == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
@@ -218,19 +218,19 @@ def test_8Di_parameter_write(test_cpxap):
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
 
     m.write_module_parameter(20014, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
 
     m.write_module_parameter(20014, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
 
     m.write_module_parameter(20014, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
 
 
 def test_8Di_parameter_rw_strings(test_cpxap):
@@ -238,22 +238,22 @@ def test_8Di_parameter_rw_strings(test_cpxap):
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
     assert m.read_module_parameter(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
     assert m.read_module_parameter(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
     assert m.read_module_parameter(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
     assert m.read_module_parameter(20014) == "3ms"
 
 
@@ -298,19 +298,19 @@ def test_4Di4Do_parameter_write_debounce(test_cpxap):
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
 
     m.write_module_parameter(20014, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
 
     m.write_module_parameter(20014, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
 
     m.write_module_parameter(20014, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
 
 
 def test_4Di4Do_parameter_rw_strings_debounce(test_cpxap):
@@ -318,22 +318,22 @@ def test_4Di4Do_parameter_rw_strings_debounce(test_cpxap):
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
     assert m.read_module_parameter(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
     assert m.read_module_parameter(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 3
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
     assert m.read_module_parameter(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20014]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
     assert m.read_module_parameter(20014) == "3ms"
 
 
@@ -342,15 +342,15 @@ def test_4Di4Do_parameter_write_load(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
 
 
 def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
@@ -360,14 +360,14 @@ def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
     assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
     assert m.read_module_parameter(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -375,7 +375,7 @@ def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
         "Load supply monitoring active, diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
     assert (
         m.read_module_parameter(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
@@ -387,11 +387,11 @@ def test_4Di4Do_parameter_write_failstate(test_cpxap):
 
     m.write_module_parameter(20052, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20052]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
 
     m.write_module_parameter(20052, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20052]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
 
 
 def test_4Di4Do_parameter_rw_strings_failstate(test_cpxap):
@@ -399,12 +399,12 @@ def test_4Di4Do_parameter_rw_strings_failstate(test_cpxap):
 
     m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20052]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
     assert m.read_module_parameter(20052) == "Reset Outputs"
 
     m.write_module_parameter("Behaviour in fail state", "Hold last state")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20052]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
     assert m.read_module_parameter(20052) == "Hold last state"
 
 
@@ -756,15 +756,15 @@ def test_4iol_parameter_write_load(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
 
 
 def test_4iol_parameter_rw_strings_load(test_cpxap):
@@ -774,14 +774,14 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 0
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
     assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 2
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
     assert m.read_module_parameter(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -789,7 +789,7 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
         "Load supply monitoring active, diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20022]) == 1
+    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
     assert (
         m.read_module_parameter(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
@@ -801,11 +801,11 @@ def test_4iol_parameter_write_lost(test_cpxap):
 
     m.write_module_parameter(20050, False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20050]) is False
+    assert m.base.read_parameter(m.position, m.parameter_dict[20050]) is False
 
     m.write_module_parameter(20050, True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20050]) is True
+    assert m.base.read_parameter(m.position, m.parameter_dict[20050]) is True
 
 
 def test_4iol_parameter_rw_strings_lost(test_cpxap):
@@ -813,22 +813,22 @@ def test_4iol_parameter_rw_strings_lost(test_cpxap):
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is False
+    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is False
     assert m.read_module_parameter(20050) == [False, False, False, False]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, [1, 2])
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is False
+    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is False
     assert m.read_module_parameter(20050) == [False, True, True, False]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is False
+    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is False
     assert m.read_module_parameter(20050) == [False, True, True, True]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameters[20050], 0) is True
+    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is True
     assert m.read_module_parameter(20050) == [True, True, True, True]
 
 

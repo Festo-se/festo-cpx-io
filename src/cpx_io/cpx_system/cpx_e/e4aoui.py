@@ -346,6 +346,7 @@ class CpxE4AoUI(CpxModule):
         reg_01 = self.base.read_function_number(function_number + 11)
         reg_23 = self.base.read_function_number(function_number + 12)
 
+        value_to_write = None
         if channel == 0:
             function_number += 11
             value_to_write = (reg_01 & 0xF0) | value

@@ -8,7 +8,7 @@ import os
 import platformdirs
 import requests
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
-from cpx_io.cpx_system.cpx_ap.ap_module_builder import Builder
+from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 
@@ -128,7 +128,7 @@ class CpxAp(CpxBase):
                     f"Loaded apdd {apdd_name} from module index {i} and saved to {self._apdd_path}"
                 )
 
-            module = Builder().build_ap_module(module_apdd, info.module_code)
+            module = build_ap_module(module_apdd, info.module_code)
             self.add_module(module, info)
 
         if generate_docu:
@@ -259,14 +259,14 @@ class CpxAp(CpxBase):
             print(
                 "   > ---------------------------------------------------------------------------"
             )
-            for p in m.parameters.values():
+            for p in m.parameter_dict.values():
                 print(f"   > {p}")
 
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
         for m in self.modules:
             print(f"\n\nModule {m}:")
-            for i, p in m.parameters.items():
+            for i, p in m.parameter_dict.items():
                 r_w = "R/W" if p.is_writable else "R"
                 print(
                     f"{f'  > Read {p.name} (ID {i}):':<64}"

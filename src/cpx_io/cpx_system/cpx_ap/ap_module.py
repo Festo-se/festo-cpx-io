@@ -200,7 +200,7 @@ class ApModule(CpxModule):
         self,
         apdd_information: dict = None,
         channels: tuple = None,
-        parameters: list = None,
+        parameter_list: list = None,
         name: str = None,
     ):
         super().__init__(name=name)
@@ -208,7 +208,8 @@ class ApModule(CpxModule):
         self.name = apdd_information.name
         self.apdd_information = apdd_information
         self.input_channels, self.output_channels = channels
-        self.parameters = parameters
+        self.parameter_dict = {p.parameter_id: p for p in parameter_list}
+
         self.fieldbus_parameters = None
 
     def __repr__(self):
@@ -258,7 +259,7 @@ class ApModule(CpxModule):
             and not self.output_channels
         ):
             return False
-        if func_name in self.PARAMETER_FUNCTIONS and not self.parameters:
+        if func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
             return False
         return True
 
@@ -505,11 +506,11 @@ class ApModule(CpxModule):
         parameter_input = parameter
         # PARAMETER HANDLING
         if isinstance(parameter, int):
-            parameter = self.parameters.get(parameter)
+            parameter = self.parameter_dict.get(parameter)
         elif isinstance(parameter, str):
             # iterate over available parameters and extract the one with the correct name
             parameter_list = [
-                p for p in self.parameters.values() if p.name == parameter
+                p for p in self.parameter_dict.values() if p.name == parameter
             ]
             parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
@@ -529,11 +530,11 @@ class ApModule(CpxModule):
             # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
 
-        if value is None:
-            raise TypeError(
-                f"'{value_str}' is not supported for '{parameter.name}'. "
-                f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
-            )
+            if value is None:
+                raise TypeError(
+                    f"'{value_str}' is not supported for '{parameter.name}'. "
+                    f"Valid strings are: {list(parameter.enums.enum_values.keys())}"
+                )
 
         if isinstance(instances, list):
             for i in instances:
@@ -567,11 +568,11 @@ class ApModule(CpxModule):
         parameter_input = parameter
         # PARAMETER HANDLING
         if isinstance(parameter, int):
-            parameter = self.parameters.get(parameter)
+            parameter = self.parameter_dict.get(parameter)
         elif isinstance(parameter, str):
             # iterate over available parameters and extract the one with the correct name
             parameter_list = [
-                p for p in self.parameters.values() if p.name == parameter
+                p for p in self.parameter_dict.values() if p.name == parameter
             ]
             parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
@@ -627,31 +628,31 @@ class ApModule(CpxModule):
 
         params = self.SystemParameters(
             dhcp_enable=self.base.read_parameter(
-                self.position, self.parameters.get(12000)
+                self.position, self.parameter_dict.get(12000)
             ),
             ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters.get(12001))
+                self.base.read_parameter(self.position, self.parameter_dict.get(12001))
             ),
             subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters.get(12002)),
+                self.base.read_parameter(self.position, self.parameter_dict.get(12002)),
             ),
             gateway_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters.get(12003))
+                self.base.read_parameter(self.position, self.parameter_dict.get(12003))
             ),
             active_ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters.get(12004))
+                self.base.read_parameter(self.position, self.parameter_dict.get(12004))
             ),
             active_subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters.get(12005))
+                self.base.read_parameter(self.position, self.parameter_dict.get(12005))
             ),
             active_gateway_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameters.get(12006))
+                self.base.read_parameter(self.position, self.parameter_dict.get(12006))
             ),
             mac_address=convert_to_mac_string(
-                self.base.read_parameter(self.position, self.parameters.get(12007))
+                self.base.read_parameter(self.position, self.parameter_dict.get(12007))
             ),
             setup_monitoring_load_supply=self.base.read_parameter(
-                self.position, self.parameters.get(20022)
+                self.position, self.parameter_dict.get(20022)
             )
             & 0xFF,
         )
@@ -722,14 +723,14 @@ class ApModule(CpxModule):
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         params = {
-            "port_status_info": self.parameters.get(20074),
-            "revision_id": self.parameters.get(20075),
-            "transmission_rate": self.parameters.get(20076),
-            "actual_cycle_time": self.parameters.get(20077),
-            "actual_vendor_id": self.parameters.get(20078),
-            "actual_device_id": self.parameters.get(20079),
-            "iolink_input_data_length": self.parameters.get(20108),
-            "iolink_output_data_length": self.parameters.get(20109),
+            "port_status_info": self.parameter_dict.get(20074),
+            "revision_id": self.parameter_dict.get(20075),
+            "transmission_rate": self.parameter_dict.get(20076),
+            "actual_cycle_time": self.parameter_dict.get(20077),
+            "actual_vendor_id": self.parameter_dict.get(20078),
+            "actual_device_id": self.parameter_dict.get(20079),
+            "iolink_input_data_length": self.parameter_dict.get(20108),
+            "iolink_output_data_length": self.parameter_dict.get(20109),
         }
         channel_params = []
 

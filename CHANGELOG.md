@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation will now be generated on user device
 - ap_module_builder that configures a generic_ap_module by its apdd
 - Added gitlab release job
+- Added unit test for apdd builder
 
 ### Changed
 - Minor code improvements in ap_module

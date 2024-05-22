@@ -58,7 +58,7 @@ def test_read_parameter():
     "test init with loading apdds from module"
 
     time = timeit.timeit(
-        "cpxap.read_parameter(0, cpxap.modules[0].parameters[20022])",
+        "cpxap.read_parameter(0, cpxap.modules[0].parameter_dict[20022])",
         setup="from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp; cpxap = CpxAp(ip_address='172.16.1.42')",
         number=1,
     )
