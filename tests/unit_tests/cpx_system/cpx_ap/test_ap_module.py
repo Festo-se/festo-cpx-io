@@ -1,7 +1,7 @@
 """Contains tests for ApModule class"""
 
 import inspect
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
@@ -37,6 +37,103 @@ class TestApModule:
             channels,
             parameters,
         )
+
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            ("read_channels", True),
+            ("not_known", False),
+        ],
+    )
+    def test_is_function_supported_mapping(
+        self, module_fixture, input_value, expected_output
+    ):
+        """Test is_function_supported"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.input_channels = ["x"] * 4
+
+        # Act & Assert
+        assert module.is_function_supported(input_value) == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            ("read_channels", True),
+            ("write_channels", False),
+        ],
+    )
+    def test_is_function_supported_category(
+        self, module_fixture, input_value, expected_output
+    ):
+        """Test is_function_supported"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.input_channels = ["x"] * 4
+
+        # Act & Assert
+        assert module.is_function_supported(input_value) == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            (["x"], True),
+            (["x"] * 4, True),
+            ([], False),
+        ],
+    )
+    def test_is_function_supported_outputs(
+        self, module_fixture, input_value, expected_output
+    ):
+        """Test is_function_supported"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.output_channels = input_value
+
+        # Act & Assert
+        assert module.is_function_supported("write_channels") == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            ((["x"], ["x"]), True),
+            ((["x"], []), True),
+            (([], ["x"]), True),
+            (([], []), False),
+        ],
+    )
+    def test_is_function_supported_inoutputs(
+        self, module_fixture, input_value, expected_output
+    ):
+        """Test is_function_supported"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.input_channels, module.output_channels = input_value
+
+        assert module.is_function_supported("read_channels") == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            ({"x": 0}, True),
+            ({}, False),
+        ],
+    )
+    def test_is_function_supported_parameters(
+        self, module_fixture, input_value, expected_output
+    ):
+        """Test is_function_supported"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = input_value
+
+        # Act & Assert
+        assert module.is_function_supported("read_module_parameter") == expected_output
 
     def test_constructor_correct_type(self, module_fixture):
         """Test constructor"""
@@ -79,92 +176,47 @@ class TestApModule:
         # Assert
         assert module_repr == "code (idx: 1, type: Module Type)"
 
-    @pytest.mark.parametrize(
-        "input_value, expected_value",
-        [
-            (
-                [
-                    Channel(
-                        array_size=None,
-                        bits=1,
-                        byte_swap_needed=None,
-                        channel_id=0,
-                        data_type="BOOL",
-                        description="",
-                        direction="in",
-                        name="Input %d",
-                        parameter_group_ids=None,
-                        profile_list=[3],
-                    )
-                ]
-                * 4,
-                [False, True, False, True],
-            ),
-            (
-                [
-                    Channel(
-                        array_size=None,
-                        bits=1,
-                        byte_swap_needed=None,
-                        channel_id=0,
-                        data_type="BOOL",
-                        description="",
-                        direction="in",
-                        name="Input %d",
-                        parameter_group_ids=None,
-                        profile_list=[3],
-                    )
-                ]
-                * 8,
-                [False, True, False, True, True, True, True, True],
-            ),
-            (
-                [
-                    Channel(
-                        array_size=None,
-                        bits=1,
-                        byte_swap_needed=None,
-                        channel_id=0,
-                        data_type="BOOL",
-                        description="",
-                        direction="in",
-                        name="Input %d",
-                        parameter_group_ids=None,
-                        profile_list=[3],
-                    )
-                ]
-                * 16,
-                [
-                    False,
-                    True,
-                    False,
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
-                    False,
-                    True,
-                    False,
-                    True,
-                    True,
-                    True,
-                    True,
-                    True,
-                ],
-            ),
-        ],
-    )
-    def test_read_channels_correct_values_BOOL(
-        self, module_fixture, input_value, expected_value
-    ):
+    @pytest.mark.parametrize("input_value", [4, 8, 16])
+    def test_read_channels_correct_values_bool(self, module_fixture, input_value):
         """Test read channels"""
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(input_size=8)
 
-        module.input_channels = input_value
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * input_value
+
+        expected_value = [
+            False,
+            True,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+        ]
 
         ret_data = b"\xFA\xFA"
 
@@ -174,41 +226,31 @@ class TestApModule:
         channel_values = module.read_channels()
 
         # Assert
-        assert channel_values == expected_value
+        assert channel_values == expected_value[:input_value]
 
-    @pytest.mark.parametrize(
-        "input_value, expected_value",
-        [
-            (
-                [
-                    Channel(
-                        array_size=None,
-                        bits=16,
-                        byte_swap_needed=True,
-                        channel_id=0,
-                        data_type="INT16",
-                        description="",
-                        direction="in",
-                        name="Input %d",
-                        parameter_group_ids=[1],
-                        profile_list=[3],
-                    )
-                ]
-                * 4,
-                [-17494, -8756, 4352, 13090],
-            ),
-        ],
-    )
-    def test_read_channels_correct_values_INT16(
-        self, module_fixture, input_value, expected_value
-    ):
+    def test_read_channels_correct_values_int16(self, module_fixture):
         """Test read channels"""
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=8)
 
-        module.input_channels = input_value
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=16,
+                byte_swap_needed=True,
+                channel_id=0,
+                data_type="INT16",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 4
+
+        expected_value = [-17494, -8756, 4352, 13090]
 
         ret_data = b"\xAA\xBB\xCC\xDD\x00\x11\x22\x33"
 
@@ -264,45 +306,7 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value
 
-    @pytest.mark.parametrize(
-        "input_value",
-        [
-            (
-                [
-                    Channel(
-                        array_size=None,
-                        bits=1,
-                        byte_swap_needed=None,
-                        channel_id=0,
-                        data_type="BOOL",
-                        description="",
-                        direction="in",
-                        name="Input %d",
-                        parameter_group_ids=None,
-                        profile_list=[3],
-                    )
-                ]
-                * 4,
-            ),
-            (
-                [
-                    Channel(
-                        array_size=None,
-                        bits=1,
-                        byte_swap_needed=None,
-                        channel_id=0,
-                        data_type="BOOL",
-                        description="",
-                        direction="in",
-                        name="Input %d",
-                        parameter_group_ids=None,
-                        profile_list=[3],
-                    )
-                ]
-                * 8,
-            ),
-        ],
-    )
+    @pytest.mark.parametrize("input_value", [4, 8])
     def test_read_channel_correct_value(self, module_fixture, input_value):
         """Test read channel"""
         # Arrange
@@ -310,15 +314,30 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
 
-        module.input_channels = input_value
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * input_value
+
         module.read_channel = Mock()
 
         # Act
-        for idx in range(len(input_value)):
+        for idx in range(input_value):
             module.read_channel(idx)
 
-            # Assert
-            module.read_channel.assert_called_with(idx)
+        # Assert
+        expected_calls = [call(i) for i in range(input_value)]
+        module.read_channel.assert_has_calls(expected_calls)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",

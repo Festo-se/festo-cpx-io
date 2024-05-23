@@ -245,22 +245,32 @@ class ApModule(CpxModule):
 
     def is_function_supported(self, func_name):
         """Returns False if function is not supported"""
+        # check if function is known at all
+        if not self.PRODUCT_CATEGORY_MAPPING.get(func_name):
+            return False
+
+        # check if function is supported for the product category
         if self.apdd_information.product_category not in [
             v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
             return False
 
+        # check if outputs are available if it's an output function
         if func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
             return False
 
+        # check if inputs or outputs are available if it's an input function
         if (
             func_name in self.INPUT_FUNCTIONS
             and not self.input_channels
             and not self.output_channels
         ):
             return False
+
+        # check if there are parameters if it's a parameter function
         if func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
             return False
+
         return True
 
     def _check_function_supported(self, func_name):
