@@ -1,12 +1,12 @@
 """Contains tests for ApModule class"""
 
-import inspect
-from unittest.mock import Mock, call
+from unittest.mock import Mock, call, patch
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
 
 
@@ -430,7 +430,7 @@ class TestApModule:
             ),
         ],
     )
-    def test_read_channel_correct_value_IOLink_full_size_True(
+    def test_read_channel_correct_value_iolink_full_size_true(
         self, module_fixture, input_value, expected_value
     ):
         """Test read channel"""
@@ -552,7 +552,7 @@ class TestApModule:
         module.read_channel = Mock()
 
         # Act
-        module[input_value]
+        _ = module[input_value]
 
         # Assert
         module.read_channel.assert_called_with(input_value)
@@ -743,6 +743,7 @@ class TestApModule:
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
     def test_toggle_channel_wrong_output_type(self, module_fixture, input_value):
         """Test set channel"""
+        # Arrange
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
@@ -765,3 +766,280 @@ class TestApModule:
         # Act & Assert
         with pytest.raises(TypeError):
             module.toggle_channel(input_value)
+
+    def test_write_module_parameter_int(self, module_fixture):
+        """Test write_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.write_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act
+        parameter_index_to_write = 0
+        value_to_write = 1
+        module.write_module_parameter(parameter_index_to_write, value_to_write)
+
+        # Assert
+        parameter = module.parameter_dict.get(0)
+
+        module.base.write_parameter.assert_called_with(
+            module.position, parameter, value_to_write, 0
+        )
+
+    def test_write_module_parameter_not_available(self, module_fixture):
+        """Test write_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.write_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act & Assert
+        parameter_index_to_write = 1
+        value_to_write = 1
+        with pytest.raises(NotImplementedError):
+            module.write_module_parameter(parameter_index_to_write, value_to_write)
+
+    def test_write_module_parameter_not_writable(self, module_fixture):
+        """Test write_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.write_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, False, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act & Assert
+        parameter_index_to_write = 0
+        value_to_write = 1
+        with pytest.raises(AttributeError):
+            module.write_module_parameter(parameter_index_to_write, value_to_write)
+
+    def test_write_module_parameter_str(self, module_fixture):
+        """Test write_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.write_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act
+        parameter_str_to_write = "test"
+        value_to_write = 1
+        module.write_module_parameter(parameter_str_to_write, value_to_write)
+
+        # Assert
+        parameter = module.parameter_dict.get(0)
+
+        module.base.write_parameter.assert_called_with(
+            module.position, parameter, value_to_write, 0
+        )
+
+    def test_write_module_parameter_instances(self, module_fixture):
+        """Test write_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.write_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+        module._check_instances = Mock(return_value=[0, 1, 2, 3])
+
+        # Act
+        parameter_index_to_write = 0
+        value_to_write = 1
+        module.write_module_parameter(parameter_index_to_write, value_to_write)
+
+        # Assert
+        parameter = module.parameter_dict.get(0)
+
+        module.base.write_parameter.assert_has_calls(
+            [
+                call(module.position, parameter, value_to_write, 0),
+                call(module.position, parameter, value_to_write, 1),
+                call(module.position, parameter, value_to_write, 2),
+                call(module.position, parameter, value_to_write, 3),
+            ]
+        )
+
+    def test_read_module_parameter_int(self, module_fixture):
+        """Test read_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.read_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act
+        parameter_index_to_read = 0
+        module.read_module_parameter(parameter_index_to_read)
+
+        # Assert
+        parameter = module.parameter_dict.get(0)
+
+        module.base.read_parameter.assert_called_with(module.position, parameter, 0)
+
+    def test_read_module_parameter_not_available(self, module_fixture):
+        """Test read_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.read_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act & Assert
+        parameter_index_to_read = 1
+        with pytest.raises(NotImplementedError):
+            module.read_module_parameter(parameter_index_to_read)
+
+    def test_read_module_parameter_str(self, module_fixture):
+        """Test read_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.read_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+
+        # Act
+        parameter_str_to_read = "test"
+        module.read_module_parameter(parameter_str_to_read)
+
+        # Assert
+        parameter = module.parameter_dict.get(0)
+
+        module.base.read_parameter.assert_called_with(module.position, parameter, 0)
+
+    def test_read_module_parameter_instances(self, module_fixture):
+        """Test read_module_parameter"""
+        # Arrange
+        module = module_fixture
+        module.position = 9
+        module.base = Mock()
+        module.base.read_parameter = Mock()
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.parameter_dict = {
+            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+        }
+        module._check_instances = Mock(return_value=[0, 1, 2, 3])
+
+        # Act
+        parameter_index_to_read = 0
+        module.read_module_parameter(parameter_index_to_read)
+
+        # Assert
+        parameter = module.parameter_dict.get(0)
+
+        module.base.read_parameter.assert_has_calls(
+            [
+                call(module.position, parameter, 0),
+                call(module.position, parameter, 1),
+                call(module.position, parameter, 2),
+                call(module.position, parameter, 3),
+            ]
+        )
+
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.ap_module.convert_uint32_to_octett",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.ap_module.convert_to_mac_string",
+        spec=True,
+    )
+    def test_read_system_parameters(
+        self,
+        mock_convert_to_mac_string,
+        mock_convert_uint32_to_octett,
+        module_fixture,
+    ):
+        """Test read_system_parameters"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.INTERFACE.value
+        module.base = Mock()
+        module.base.read_parameter = Mock(return_value=1)
+        mock_convert_uint32_to_octett.return_value = "1.1.1.1"
+        mock_convert_to_mac_string.return_value = "1:1:1:1:1:1"
+
+        # Act
+        result = module.read_system_parameters()
+
+        # Assert
+        assert result == ApModule.SystemParameters(
+            dhcp_enable=True,
+            ip_address="1.1.1.1",
+            subnet_mask="1.1.1.1",
+            gateway_address="1.1.1.1",
+            active_ip_address="1.1.1.1",
+            active_subnet_mask="1.1.1.1",
+            active_gateway_address="1.1.1.1",
+            mac_address="1:1:1:1:1:1",
+            setup_monitoring_load_supply=1,
+        )
+
+    def test_read_pqi_channel_none(self, module_fixture):
+        """Test read_pqi"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.input_register = 0
+        module.base = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
+
+        # Act
+        result = module.read_pqi()
+
+        # Assert
+        assert result == [
+            {
+                "Port Qualifier": "input data is valid",
+                "Device Error": "there is at least one error or warning on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+            {
+                "Port Qualifier": "input data is invalid",
+                "Device Error": "there are no errors or warnings on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+            {
+                "Port Qualifier": "input data is valid",
+                "Device Error": "there is at least one error or warning on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+            {
+                "Port Qualifier": "input data is invalid",
+                "Device Error": "there are no errors or warnings on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+        ]

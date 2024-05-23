@@ -1,8 +1,5 @@
 """Contains tests for Channel build"""
 
-from unittest.mock import Mock
-import pytest
-
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import (
     ChannelGroup,
     Channel,

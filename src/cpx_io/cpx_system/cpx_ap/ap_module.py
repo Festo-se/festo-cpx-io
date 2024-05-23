@@ -237,10 +237,6 @@ class ApModule(CpxModule):
                 instance_range_check(i, start, end)
             return instances
 
-        if instances is None:
-            instances = list(range(start, end))
-            return instances
-
         return [0]
 
     def is_function_supported(self, func_name):
