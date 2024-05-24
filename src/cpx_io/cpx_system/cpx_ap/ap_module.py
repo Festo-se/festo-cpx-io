@@ -228,15 +228,22 @@ class ApModule(CpxModule):
         start = parameter.parameter_instances.get("FirstIndex")
         end = parameter.parameter_instances.get("NumberOfInstances")
 
+        # instance defined by one integer
         if isinstance(instances, int):
             instance_range_check(instances, start, end)
             return [instances]
 
+        # instances defined by list
         if isinstance(instances, list):
             for i in instances:
                 instance_range_check(i, start, end)
             return instances
 
+        # instances not defined but start/end is valid
+        if not instances and isinstance(start, int) and isinstance(end, int):
+            return list(range(start, end))
+
+        # instances not defined and no information returns default instance 0
         return [0]
 
     def is_function_supported(self, func_name):
