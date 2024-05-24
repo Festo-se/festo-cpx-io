@@ -57,7 +57,7 @@ def build_channel(channel_dict):
     )
 
 
-def build_channel_list(apdd, variant=None, direction=None):
+def build_channel_list(apdd, variant, direction=None):
     """Builds one ChannelList"""
     if not apdd.get("ChannelGroups"):
         return []

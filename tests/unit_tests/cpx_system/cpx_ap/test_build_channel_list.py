@@ -7,6 +7,7 @@ from cpx_io.cpx_system.cpx_ap.builder.channel_builder import (
     build_channel,
     build_channel_list,
 )
+from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import Variant
 
 
 class TestBuildChannelGroup:
@@ -137,8 +138,16 @@ class TestBuildChannelList:
             "ChannelGroups": test_channel_group_dict_list,
             "Channels": test_channel_dict_list,
         }
+        variant = Variant(
+            channel_group_ids=[0, 1, 2, 3],
+            description="Description",
+            name="Name",
+            parameter_group_ids=[0],
+            profile=[0],
+            variant_identification={},
+        )
         # Act
-        channel_list = build_channel_list(apdd=apdd)
+        channel_list = build_channel_list(apdd=apdd, variant=variant)
 
         # Assert
         # [0,0,0,0,0, 1,1,1,1,1]
@@ -148,6 +157,37 @@ class TestBuildChannelList:
         for channel in channel_list[0:5]:
             assert channel.channel_id == 0
         for channel in channel_list[5:10]:
+            assert channel.channel_id == 1
+
+    def test_build_channel_list_5_channels_and_2_groups_of_5_returns_filter_groups_by_variant(
+        self,
+    ):
+        # Arrange
+        # channel_group ids = [[0,0,0,0,0],[1,1,1,1,1]]
+        test_channel_group_dict_list = self.get_test_channel_group_list(2, 5)
+        # channel ids = [0,1,2,3,4]
+        test_channel_dict_list = self.get_test_channel_list(5)
+        apdd = {
+            "ChannelGroups": test_channel_group_dict_list,
+            "Channels": test_channel_dict_list,
+        }
+        variant = Variant(
+            channel_group_ids=[1, 2, 3],
+            description="Description",
+            name="Name",
+            parameter_group_ids=[0],
+            profile=[0],
+            variant_identification={},
+        )
+        # Act
+        channel_list = build_channel_list(apdd=apdd, variant=variant)
+
+        # Assert
+        # [0,0,0,0,0, 1,1,1,1,1] deletes all ChannelGroupIds 0, will leave only 1
+        assert len(channel_list) == 5
+        for channel in channel_list:
+            assert isinstance(channel, Channel)
+        for channel in channel_list:
             assert channel.channel_id == 1
 
     def test_build_channel_list_5_channels_and_2_groups_of_3_returns_list_of_0_inputs_6_outputs(
@@ -162,9 +202,21 @@ class TestBuildChannelList:
             "ChannelGroups": test_channel_group_dict_list,
             "Channels": test_channel_dict_list,
         }
+        variant = Variant(
+            channel_group_ids=[0, 1, 2, 3],
+            description="Description",
+            name="Name",
+            parameter_group_ids=[0],
+            profile=[0],
+            variant_identification={},
+        )
         # Act
-        input_channel_list = build_channel_list(apdd=apdd, direction="in")
-        output_channel_list = build_channel_list(apdd=apdd, direction="out")
+        input_channel_list = build_channel_list(
+            apdd=apdd, variant=variant, direction="in"
+        )
+        output_channel_list = build_channel_list(
+            apdd=apdd, variant=variant, direction="out"
+        )
 
         # Assert
         assert len(input_channel_list) == 0
