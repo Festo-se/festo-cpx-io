@@ -96,9 +96,17 @@ def test_modules_channel_length(test_cpxap):
     assert len(test_cpxap.modules[1].output_channels) == 0  # 8DI
     assert len(test_cpxap.modules[2].output_channels) == 4  # 4DI4DO
     assert len(test_cpxap.modules[3].output_channels) == 0  # 4AIUI
-    assert len(test_cpxap.modules[4].output_channels) == 4  # 4IOL
+    assert len(test_cpxap.modules[4].output_channels) == 0  # 4IOL
     assert len(test_cpxap.modules[5].output_channels) == 32  # VABX
     assert len(test_cpxap.modules[6].output_channels) == 0  # 4Di
+
+    assert len(test_cpxap.modules[0].inout_channels) == 0  # EP
+    assert len(test_cpxap.modules[1].inout_channels) == 0  # 8DI
+    assert len(test_cpxap.modules[2].inout_channels) == 0  # 4DI4DO
+    assert len(test_cpxap.modules[3].inout_channels) == 0  # 4AIUI
+    assert len(test_cpxap.modules[4].inout_channels) == 4  # 4IOL
+    assert len(test_cpxap.modules[5].inout_channels) == 0  # VABX
+    assert len(test_cpxap.modules[6].inout_channels) == 0  # 4Di
 
 
 def test_getter(test_cpxap):

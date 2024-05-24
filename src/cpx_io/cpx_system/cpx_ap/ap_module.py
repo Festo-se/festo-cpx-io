@@ -207,7 +207,7 @@ class ApModule(CpxModule):
         self.information = None
         self.name = apdd_information.name
         self.apdd_information = apdd_information
-        self.input_channels, self.output_channels = channels
+        self.input_channels, self.output_channels, self.inout_channels = channels
         self.parameter_dict = {p.parameter_id: p for p in parameter_list}
 
         self.fieldbus_parameters = None
@@ -259,14 +259,14 @@ class ApModule(CpxModule):
             return False
 
         # check if outputs are available if it's an output function
-        if func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
+        if func_name in self.OUTPUT_FUNCTIONS and not (
+            self.output_channels or self.inout_channels
+        ):
             return False
 
         # check if inputs or outputs are available if it's an input function
-        if (
-            func_name in self.INPUT_FUNCTIONS
-            and not self.input_channels
-            and not self.output_channels
+        if func_name in self.INPUT_FUNCTIONS and not (
+            self.input_channels or self.output_channels or self.inout_channels
         ):
             return False
 
@@ -304,18 +304,21 @@ class ApModule(CpxModule):
 
         # if available, read inputs
         values = []
-        if self.input_channels:
-            data = self.base.read_reg_data(self.input_register, byte_input_size)
+        if self.input_channels or self.inout_channels:
+            # this needs to read all i/o register and decide later what to use
+            data = self.base.read_reg_data(
+                self.input_register, byte_input_size + byte_output_size
+            )
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-                # channel_size per input_channel in bytes (count of modbus 16 bit register * 2)
-                # TODO: channel size should be extractable from the channels.
-                # TODO: Probably the inout channels are needed for that and using input_channels is incorrect
-                channel_size = (byte_input_size) // len(self.input_channels) * 2
-                data = data[:-4]  # don't use the PQI registers (4 byte)
+                # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
+                byte_channel_size = self.inout_channels[0].array_size
+                # for IO-Link only the inout_channels are relevant
+                data = data[: len(self.inout_channels * byte_channel_size)]
+
                 channels = [
-                    data[i : i + channel_size]
-                    for i in range(0, len(data), channel_size)
+                    data[i : i + byte_channel_size]
+                    for i in range(0, len(data), byte_channel_size)
                 ]
                 Logging.logger.info(
                     f"{self.name}: Reading IO-Link channels: {channels}"
@@ -374,7 +377,11 @@ class ApModule(CpxModule):
         if outputs_only:
             channel_count = len(self.output_channels)
         else:
-            channel_count = len(self.input_channels) + len(self.output_channels)
+            channel_count = (
+                len(self.input_channels)
+                + len(self.output_channels)
+                + len(self.inout_channels)
+            )
 
         channel_range_check(channel, channel_count)
 
@@ -430,15 +437,17 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        channel_range_check(channel, len(self.output_channels))
+        channel_range_check(
+            channel, len(self.output_channels) + len(self.inout_channels)
+        )
 
         # IO-Link special
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            module_output_size = div_ceil(self.information.output_size, 2)
-            channel_size = (module_output_size) // len(self.output_channels)
+            # This assumes all channels are the same.
+            byte_channel_size = self.inout_channels[0].array_size
 
             self.base.write_reg_data(
-                value, self.output_register + channel_size * channel
+                value, self.output_register + byte_channel_size // 2 * channel
             )
             Logging.logger.info(
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
