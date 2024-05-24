@@ -202,7 +202,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.information = CpxAp.ApInformation(input_size=8)
+        module.information = CpxAp.ApInformation(input_size=8, output_size=0)
 
         module.input_channels = [
             Channel(
@@ -254,7 +254,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.information = CpxAp.ApInformation(output_size=8)
+        module.information = CpxAp.ApInformation(input_size=0, output_size=8)
 
         module.output_channels = [
             Channel(
@@ -305,7 +305,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ApInformation(input_size=8)
+        module.information = CpxAp.ApInformation(input_size=8, output_size=0)
 
         module.input_channels = [
             Channel(
@@ -334,12 +334,12 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value
 
-    def test_read_channels_correct_values_bytes(self, module_fixture):
+    def test_read_channels_correct_values_io_link(self, module_fixture):
         """Test read channels"""
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.information = CpxAp.ApInformation(input_size=36)
+        module.information = CpxAp.ApInformation(input_size=36, output_size=32)
 
         module.input_channels = [
             Channel(
@@ -354,9 +354,9 @@ class TestApModule:
                 parameter_group_ids=[1, 2],
                 profile_list=[50],
             )
-        ] * 8
+        ] * 4
 
-        ret_data = b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" * 4
+        ret_data = b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" * 4 + b"\x00\x00\x00\x00"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 

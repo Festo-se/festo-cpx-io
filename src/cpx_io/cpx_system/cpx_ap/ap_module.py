@@ -299,32 +299,29 @@ class ApModule(CpxModule):
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        # IO-Link special read
-        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            module_input_size = div_ceil(self.information.input_size, 2) - 2
+        byte_input_size = div_ceil(self.information.input_size, 2)
+        byte_output_size = div_ceil(self.information.output_size, 2)
 
-            reg = self.base.read_reg_data(self.input_register, length=module_input_size)
-
-            # 4 channels per module but channel_size should be in bytes while module_input_size
-            # is in 16bit registers
-            channel_size = (module_input_size) // 4 * 2
-
-            channels = [
-                reg[: channel_size * 1],
-                reg[channel_size * 1 : channel_size * 2],
-                reg[channel_size * 2 : channel_size * 3],
-                reg[channel_size * 3 :],
-            ]
-            Logging.logger.info(f"{self.name}: Reading channels: {channels}")
-            return channels
-
-        # All other modules
         # if available, read inputs
         values = []
         if self.input_channels:
-            data = self.base.read_reg_data(
-                self.input_register, length=div_ceil(self.information.input_size, 2)
-            )
+            data = self.base.read_reg_data(self.input_register, byte_input_size)
+
+            if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
+                # channel_size per input_channel in bytes (count of modbus 16 bit register * 2)
+                # TODO: channel size should be extractable from the channels.
+                # TODO: Probably the inout channels are needed for that and using input_channels is incorrect
+                channel_size = (byte_input_size) // len(self.input_channels) * 2
+                data = data[:-4]  # don't use the PQI registers (4 byte)
+                channels = [
+                    data[i : i + channel_size]
+                    for i in range(0, len(data), channel_size)
+                ]
+                Logging.logger.info(
+                    f"{self.name}: Reading IO-Link channels: {channels}"
+                )
+                return channels
+
             if all(c.data_type == "BOOL" for c in self.input_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
             elif all(c.data_type == "INT16" for c in self.input_channels):
@@ -337,10 +334,8 @@ class ApModule(CpxModule):
 
         # if available, read outputs
         if self.output_channels:
-            data = self.base.read_reg_data(
-                self.output_register,
-                length=div_ceil(self.information.output_size, 2),
-            )
+            data = self.base.read_reg_data(self.output_register, byte_output_size)
+
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
             else:
@@ -435,18 +430,20 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
+        channel_range_check(channel, len(self.output_channels))
+
         # IO-Link special
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             module_output_size = div_ceil(self.information.output_size, 2)
-            channel_size = (module_output_size) // 4
+            channel_size = (module_output_size) // len(self.output_channels)
 
             self.base.write_reg_data(
                 value, self.output_register + channel_size * channel
             )
-            Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting IO-Link channel {channel} to {value}"
+            )
             return
-
-        channel_range_check(channel, len(self.output_channels))
 
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
