@@ -164,6 +164,25 @@ class TestApModule:
         # Assert
         assert module.position == MODULE_POSITION
 
+    def test_configure_iolink(self, module_fixture):
+        """Test configure"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.information = Mock(input_size=3, output_size=5)
+        module.is_function_supported = Mock(return_value=True)
+        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
+
+        module.read_fieldbus_parameters = Mock()
+
+        # Act
+        MODULE_POSITION = 1  # pylint: disable=invalid-name
+        module.configure(mocked_base, MODULE_POSITION)
+
+        # Assert
+        assert module.position == MODULE_POSITION
+        module.read_fieldbus_parameters.assert_called_once_with()
+
     def test_repr_correct_string(self, module_fixture):
         """Test repr"""
         # Arrange
@@ -195,6 +214,58 @@ class TestApModule:
                 description="",
                 direction="in",
                 name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * input_value
+
+        expected_value = [
+            False,
+            True,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+            True,
+            True,
+            True,
+            True,
+        ]
+
+        ret_data = b"\xFA\xFA"
+
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
+
+        # Act
+        channel_values = module.read_channels()
+
+        # Assert
+        assert channel_values == expected_value[:input_value]
+
+    @pytest.mark.parametrize("input_value", [4, 8, 16])
+    def test_read_channels_outputs(self, module_fixture, input_value):
+        """Test read channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=8)
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
                 parameter_group_ids=None,
                 profile_list=[3],
             )
@@ -263,49 +334,68 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value
 
-    @pytest.mark.parametrize(
-        "input_value, expected_value",
-        [
-            (
-                [
-                    Channel(
-                        array_size=2,
-                        bits=16,
-                        byte_swap_needed=None,
-                        channel_id=0,
-                        data_type="UINT8",
-                        description="",
-                        direction="in",
-                        name="Port %d",
-                        parameter_group_ids=[1, 2],
-                        profile_list=[50],
-                    )
-                ]
-                * 40,
-                [b"\xAB\xCD\xEF\x00\x11\x22\x33\x44"] * 4,
-            ),
-        ],
-    )
-    def test_read_channels_correct_values_BYTES(
-        self, module_fixture, input_value, expected_value
-    ):
+    def test_read_channels_correct_values_bytes(self, module_fixture):
         """Test read channels"""
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(input_size=36)
 
-        module.input_channels = input_value
+        module.input_channels = [
+            Channel(
+                array_size=2,
+                bits=16,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT8",
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
+            )
+        ] * 8
 
         ret_data = b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" * 4
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act
+
         channel_values = module.read_channels()
 
         # Assert
-        assert channel_values == expected_value
+        assert channel_values == [b"\xAB\xCD\xEF\x00\x11\x22\x33\x44"] * 4
+
+    def test_read_channels_unknown_type(self, module_fixture):
+        """Test read channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(input_size=8)
+
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UNKNOWN",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        ret_data = b"\xFA\xFA"
+
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            module.read_channels()
 
     @pytest.mark.parametrize("input_value", [4, 8])
     def test_read_channel_correct_value(self, module_fixture, input_value):
@@ -375,8 +465,8 @@ class TestApModule:
                         channel_id=0,
                         data_type="BOOL",
                         description="",
-                        direction="in",
-                        name="Input %d",
+                        direction="out",
+                        name="Output %d",
                         parameter_group_ids=None,
                         profile_list=[3],
                     )
@@ -483,6 +573,101 @@ class TestApModule:
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.read_channel(input_value)
+
+    def test_write_channels_bool(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=8)
+        module.output_register = 0
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 8
+
+        # Act
+        module.write_channels([True] * 8)
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(b"\xFF", 0)
+
+    @pytest.mark.parametrize(
+        "input_value",
+        ["INT", "UNKNOWN"],
+    )
+    def test_write_channels_wrong_type(self, module_fixture, input_value):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=8)
+        module.output_register = 0
+        module.base = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type=input_value,
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 8
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            module.write_channels([True] * 8)
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [7, 9],
+    )
+    def test_write_channels_wrong_length(self, module_fixture, input_value):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=8)
+        module.output_register = 0
+        module.base = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 8
+
+        # Act & Assert
+        with pytest.raises(ValueError):
+            module.write_channels([True] * input_value)
 
     @pytest.mark.parametrize(
         "input_value",
