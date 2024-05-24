@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improved unittests for ap_module
 ### Added
 ### Fixed
+- fixed bug in ap_module `_check_instances()` that lead to incorrect behaviour when no instances where specified
 
 ## v0.4.0 - 23.05.24
 ### Changed
