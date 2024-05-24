@@ -1,6 +1,5 @@
 """Contains tests for ApddInformation build"""
 
-from unittest.mock import Mock
 import pytest
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (

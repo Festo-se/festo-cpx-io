@@ -1,7 +1,5 @@
 """Contains tests for PhysicalQuantity build"""
 
-from unittest.mock import Mock
-import pytest
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter, ParameterEnum
 from cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder import PhysicalUnit
 from cpx_io.cpx_system.cpx_ap.builder.parameter_builder import (

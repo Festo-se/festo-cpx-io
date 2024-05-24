@@ -237,30 +237,36 @@ class ApModule(CpxModule):
                 instance_range_check(i, start, end)
             return instances
 
-        if instances is None:
-            instances = list(range(start, end))
-            return instances
-
         return [0]
 
     def is_function_supported(self, func_name):
         """Returns False if function is not supported"""
+        # check if function is known at all
+        if not self.PRODUCT_CATEGORY_MAPPING.get(func_name):
+            return False
+
+        # check if function is supported for the product category
         if self.apdd_information.product_category not in [
             v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
             return False
 
+        # check if outputs are available if it's an output function
         if func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
             return False
 
+        # check if inputs or outputs are available if it's an input function
         if (
             func_name in self.INPUT_FUNCTIONS
             and not self.input_channels
             and not self.output_channels
         ):
             return False
+
+        # check if there are parameters if it's a parameter function
         if func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
             return False
+
         return True
 
     def _check_function_supported(self, func_name):
@@ -440,8 +446,8 @@ class ApModule(CpxModule):
         ):
             data = self.read_channels()
             data[channel] = value
-            reg = boollist_to_bytes(data)
-            self.base.write_reg_data(reg, self.output_register)
+            reg_content = boollist_to_bytes(data)
+            self.base.write_reg_data(reg_content, self.output_register)
             Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
             return
 
