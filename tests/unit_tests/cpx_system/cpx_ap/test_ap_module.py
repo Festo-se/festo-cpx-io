@@ -3,6 +3,7 @@
 from unittest.mock import Mock, call, patch
 import pytest
 
+from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
@@ -1008,7 +1009,7 @@ class TestApModule:
             setup_monitoring_load_supply=1,
         )
 
-    def test_read_pqi_channel_none(self, module_fixture):
+    def test_read_pqi_channel_no_index(self, module_fixture):
         """Test read_pqi"""
         # Arrange
         module = module_fixture
@@ -1043,3 +1044,208 @@ class TestApModule:
                 "DevCOM": "device is not connected or not yet in operation",
             },
         ]
+
+    def test_read_pqi_channel_indexes(self, module_fixture):
+        """Test read_pqi"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.input_register = 0
+        module.base = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
+
+        # Act
+        results = [module.read_pqi(idx) for idx in range(4)]
+
+        # Assert
+        assert results == [
+            {
+                "Port Qualifier": "input data is valid",
+                "Device Error": "there is at least one error or warning on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+            {
+                "Port Qualifier": "input data is invalid",
+                "Device Error": "there are no errors or warnings on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+            {
+                "Port Qualifier": "input data is valid",
+                "Device Error": "there is at least one error or warning on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+            {
+                "Port Qualifier": "input data is invalid",
+                "Device Error": "there are no errors or warnings on the device or port",
+                "DevCOM": "device is not connected or not yet in operation",
+            },
+        ]
+
+    def test_read_fieldbus_parameters(self, module_fixture):
+        """Test read_fieldbus_parameters"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.input_register = 0
+        module.base = Mock()
+        module.base.read_parameter = Mock(return_value=True)
+        module.parameter_dict = {
+            20074: 20074,
+            20075: 20075,
+            20076: 20076,
+            20077: 20077,
+            20078: 20078,
+            20079: 20079,
+            20108: 20108,
+            20109: 20109,
+        }
+
+        # Act
+        result = module.read_fieldbus_parameters()
+
+        # Assert
+        assert result == [
+            {
+                "Port status information": "DEACTIVATED",
+                "Revision ID": True,
+                "Transmission rate": "COM1",
+                "Actual cycle time [in 100 us]": True,
+                "Actual vendor ID": True,
+                "Actual device ID": True,
+                "Input data length": True,
+                "Output data length": True,
+            },
+            {
+                "Port status information": "DEACTIVATED",
+                "Revision ID": True,
+                "Transmission rate": "COM1",
+                "Actual cycle time [in 100 us]": True,
+                "Actual vendor ID": True,
+                "Actual device ID": True,
+                "Input data length": True,
+                "Output data length": True,
+            },
+            {
+                "Port status information": "DEACTIVATED",
+                "Revision ID": True,
+                "Transmission rate": "COM1",
+                "Actual cycle time [in 100 us]": True,
+                "Actual vendor ID": True,
+                "Actual device ID": True,
+                "Input data length": True,
+                "Output data length": True,
+            },
+            {
+                "Port status information": "DEACTIVATED",
+                "Revision ID": True,
+                "Transmission rate": "COM1",
+                "Actual cycle time [in 100 us]": True,
+                "Actual vendor ID": True,
+                "Actual device ID": True,
+                "Input data length": True,
+                "Output data length": True,
+            },
+        ]
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_read_isdu(self, module_fixture, input_value):
+        """Test read_isdu"""
+        # Arrange
+        module = module_fixture
+        module.position = 0
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        channel = input_value
+        index = 4
+        subindex = 5
+
+        result = module.read_isdu(channel, index, subindex)
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                call(b"\x04\x00", 34004),  # INDEX
+                call(b"\x05\x00", 34005),  # SUBINDEX
+                call(b"\x00\x00", 34006),  # LENGTH zero when reading
+                call(b"\x64\x00", 34001),  # COMMAND (read 100)
+            ]
+        )
+        module.base.read_reg_data.assert_has_calls([call(34000, 1), call(34007, 119)])
+
+        assert result == b"\x00\x00"
+
+    def test_read_isdu_no_response(self, module_fixture):
+        """Test read_isdu"""
+        # Arrange
+        module = module_fixture
+        module.position = 0
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x01\x00")
+
+        # Act & Assert
+        channel = 0
+        index = 4
+        subindex = 5
+
+        with pytest.raises(CpxRequestError):
+            module.read_isdu(channel, index, subindex)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_write_isdu(self, module_fixture, input_value):
+        """Test write_isdu"""
+        # Arrange
+        module = module_fixture
+        module.position = 0
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        data = b"\xCA\xFE"
+        channel = input_value
+        index = 4
+        subindex = 5
+
+        module.write_isdu(data, channel, index, subindex)
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                call(b"\x04\x00", 34004),  # INDEX
+                call(b"\x05\x00", 34005),  # SUBINDEX
+                call(b"\x04\x00", 34006),  # LENGTH (bytes * 2)
+                call(data, 34007),  # DATA
+                call(b"\x65\x00", 34001),  # COMMAND (read 101)
+            ]
+        )
+        module.base.read_reg_data.assert_has_calls([call(34000, 1)])
+
+    def test_write_isdu_no_response(self, module_fixture):
+        """Test write_isdu"""
+        # Arrange
+        module = module_fixture
+        module.position = 0
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x01\x00")
+
+        # Act & Assert
+        data = b"\xCA\xFE"
+        channel = 0
+        index = 4
+        subindex = 5
+
+        with pytest.raises(CpxRequestError):
+            module.write_isdu(data, channel, index, subindex)
