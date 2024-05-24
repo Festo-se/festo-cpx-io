@@ -678,25 +678,6 @@ class TestApModule:
             3,
         ],
     )
-    def test_write_channel_not_implemented(self, module_fixture, input_value):
-        """Test write_channel"""
-        # Arrange
-        module = module_fixture
-        module.base = Mock()
-        module.information = CpxAp.ApInformation(order_text="test module")
-        # Act & Assert
-        with pytest.raises(NotImplementedError):
-            module.write_channel(input_value, input_value)
-
-    @pytest.mark.parametrize(
-        "input_value",
-        [
-            0,
-            1,
-            2,
-            3,
-        ],
-    )
     def test_write_channels_not_implemented(self, module_fixture, input_value):
         """Test write_channels"""
         # Arrange
@@ -727,6 +708,118 @@ class TestApModule:
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.write_channels([0] * input_value)
+
+    def test_write_channel_bool(self, module_fixture):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.information = CpxAp.ApInformation(output_size=4)
+        module.output_register = 0
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.read_channels = Mock(return_value=[False] * 4)
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act
+        module.write_channel(1, True)
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(b"\x02", 0)
+
+    @pytest.mark.parametrize("input_value", ["INT", "UNKNOWN"])
+    def test_write_channel_unknown_type(self, module_fixture, input_value):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.information = CpxAp.ApInformation(output_size=4)
+        module.output_register = 0
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.read_channels = Mock(return_value=[False] * 4)
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type=input_value,
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            module.write_channel(1, True)
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [
+            0,
+            1,
+            2,
+            3,
+        ],
+    )
+    def test_write_channel_not_implemented(self, module_fixture, input_value):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.base = Mock()
+        module.information = CpxAp.ApInformation(order_text="test module")
+        # Act & Assert
+        with pytest.raises(NotImplementedError):
+            module.write_channel(input_value, input_value)
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [
+            0,
+            1,
+            2,
+            3,
+        ],
+    )
+    def test_write_channel_iolink(self, module_fixture, input_value):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.output_channels = ["x"] * 4  # will mock is_function_supported
+        module.output_register = 0
+        module.information = CpxAp.ApInformation(output_size=32)
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+
+        data = b"\xAB\xCD\xEF\x00"
+
+        # Act
+        module.write_channel(input_value, data)
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(
+            data, module.output_register + 4 * input_value
+        )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
     def test_get_item_correct_values(self, module_fixture, input_value):

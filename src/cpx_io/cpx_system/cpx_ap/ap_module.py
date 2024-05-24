@@ -446,8 +446,8 @@ class ApModule(CpxModule):
         ):
             data = self.read_channels()
             data[channel] = value
-            reg = boollist_to_bytes(data)
-            self.base.write_reg_data(reg, self.output_register)
+            reg_content = boollist_to_bytes(data)
+            self.base.write_reg_data(reg_content, self.output_register)
             Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
             return
 
