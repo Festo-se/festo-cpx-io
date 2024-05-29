@@ -151,6 +151,7 @@ class ApModule(CpxModule):
         "toggle_channel",
     ]
     PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
+    DIAGNOSIS_FUNCTIONS = ["read_diagnosis_code"]
 
     @dataclass
     class SystemParameters:
@@ -199,11 +200,21 @@ class ApModule(CpxModule):
         io_link_variant: str = "n.a."
         operating_supply: bool = False
 
+    @dataclass
+    class ModuleDiagnosis:
+        """ModuleDiagnosis dataclass"""
+
+        description: str
+        diagnosis_id: str
+        guideline: str
+        name: str
+
     def __init__(
         self,
         apdd_information: dict = None,
         channels: tuple = None,
         parameter_list: list = None,
+        diagnosis_list: list = None,
         name: str = None,
     ):
         super().__init__(name=name)
@@ -218,6 +229,9 @@ class ApModule(CpxModule):
         self.diagnosis_register = None
 
         self.parameter_dict = {p.parameter_id: p for p in parameter_list}
+        self.diagnosis_dict = {
+            int(d.diagnosis_id.lstrip("0x"), base=16): d for d in diagnosis_list
+        }
 
         self.fieldbus_parameters = None
 
@@ -642,6 +656,29 @@ class ApModule(CpxModule):
             f"{self.name}: Read {values} from instances {instances} of parameter {parameter.name}"
         )
         return values
+
+    @CpxBase.require_base
+    def read_diagnosis_code(self) -> int:
+        """Read the diagnosis code from the module
+
+        :ret value: Diagnosis code
+        :rtype: tuple"""
+        reg = self.base.read_reg_data(self.diagnosis_register + 4, length=2)
+        return int.to_bytes(reg, byteorder="little")
+
+    @CpxBase.require_base
+    def read_diagnosis_information(self) -> ModuleDiagnosis:
+        """Read the diagnosis information from the module. Contains:
+         * DiagnosisId
+         * Name
+         * Description
+         * Guideline
+
+        :ret value: Diagnosis information
+        :rtype: dict"""
+        diagnosis_code = self.read_diagnosis_code()
+
+        return self.diagnosis_dict.get(diagnosis_code)
 
     # Busmodule special functions
     @CpxBase.require_base
