@@ -67,7 +67,7 @@ class TestBuildApModule:
 
         assert ap_module.apdd_information == apdd_information
         assert ap_module.name == apdd_information.name
-        assert ap_module.input_channels == input_channels
-        assert ap_module.output_channels == output_channels
+        assert ap_module.input_channels == input_channels + inout_channels
+        assert ap_module.output_channels == output_channels + inout_channels
         assert ap_module.inout_channels == inout_channels
         assert len(ap_module.parameter_dict) == len(parameter_list)

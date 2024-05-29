@@ -356,6 +356,9 @@ class TestApModule:
             )
         ] * 4
 
+        module.input_channels = module.inout_channels
+        module.output_channels = module.inout_channels
+
         ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
@@ -824,6 +827,9 @@ class TestApModule:
                 profile_list=[50],
             )
         ] * 4
+
+        module.input_channels = module.inout_channels
+        module.output_channels = module.inout_channels
 
         data = b"\xAB\xCD"
 

@@ -25,6 +25,9 @@ class ApModule(CpxModule):
     functions of the individual modules, see the system documentation of the
     CpxAp object"""
 
+    # pylint: disable=too-many-instance-attributes
+    # Might be devided in sub classes instead.
+
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
             ProductCategory.ANALOG,
@@ -207,7 +210,11 @@ class ApModule(CpxModule):
         self.information = None
         self.name = apdd_information.name
         self.apdd_information = apdd_information
-        self.input_channels, self.output_channels, self.inout_channels = channels
+
+        self.input_channels = channels[0] + channels[2]
+        self.output_channels = channels[1] + channels[2]
+        self.inout_channels = channels[2]
+
         self.parameter_dict = {p.parameter_id: p for p in parameter_list}
 
         self.fieldbus_parameters = None
@@ -259,14 +266,12 @@ class ApModule(CpxModule):
             return False
 
         # check if outputs are available if it's an output function
-        if func_name in self.OUTPUT_FUNCTIONS and not (
-            self.output_channels or self.inout_channels
-        ):
+        if func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
             return False
 
         # check if inputs or outputs are available if it's an input function
         if func_name in self.INPUT_FUNCTIONS and not (
-            self.input_channels or self.output_channels or self.inout_channels
+            self.input_channels or self.output_channels
         ):
             return False
 
@@ -304,7 +309,7 @@ class ApModule(CpxModule):
 
         # if available, read inputs
         values = []
-        if self.input_channels or self.inout_channels:
+        if self.input_channels:
             # this needs to read all i/o register and decide later what to use
             data = self.base.read_reg_data(
                 self.input_register, byte_input_size + byte_output_size
@@ -377,10 +382,12 @@ class ApModule(CpxModule):
         if outputs_only:
             channel_count = len(self.output_channels)
         else:
+            # need to substract len(inout_channels) as it was added to in and output
+            # channels in constructor
             channel_count = (
                 len(self.input_channels)
                 + len(self.output_channels)
-                + len(self.inout_channels)
+                - len(self.inout_channels)
             )
 
         channel_range_check(channel, channel_count)
@@ -437,9 +444,7 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        channel_range_check(
-            channel, len(self.output_channels) + len(self.inout_channels)
-        )
+        channel_range_check(channel, len(self.output_channels))
 
         # IO-Link special
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
