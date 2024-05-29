@@ -382,12 +382,10 @@ class ApModule(CpxModule):
         if outputs_only:
             channel_count = len(self.output_channels)
         else:
-            # need to substract len(inout_channels) as it was added to in and output
-            # channels in constructor
             channel_count = (
-                len(self.input_channels)
-                + len(self.output_channels)
-                - len(self.inout_channels)
+                len([c for c in self.input_channels if c.direction == "in"])
+                + len([c for c in self.output_channels if c.direction == "out"])
+                + len(self.inout_channels)
             )
 
         channel_range_check(channel, channel_count)

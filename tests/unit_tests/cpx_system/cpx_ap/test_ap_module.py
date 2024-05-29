@@ -531,7 +531,22 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.output_channels = ["x"] * 4  # will mock is_function_supported
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=8,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="",
+                description="",
+                direction="out",
+                name="",
+                parameter_group_ids=None,
+                profile_list=[],
+            )
+        ] * 4
+
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
 
