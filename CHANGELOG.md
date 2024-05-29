@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- improved ap_module `read_channels()`/`write_channels()` functions
 - improved unittests for ap_module
 ### Added
 ### Fixed

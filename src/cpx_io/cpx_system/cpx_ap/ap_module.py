@@ -25,6 +25,9 @@ class ApModule(CpxModule):
     functions of the individual modules, see the system documentation of the
     CpxAp object"""
 
+    # pylint: disable=too-many-instance-attributes
+    # Might be devided in sub classes instead.
+
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
             ProductCategory.ANALOG,
@@ -207,7 +210,11 @@ class ApModule(CpxModule):
         self.information = None
         self.name = apdd_information.name
         self.apdd_information = apdd_information
-        self.input_channels, self.output_channels = channels
+
+        self.input_channels = channels[0] + channels[2]
+        self.output_channels = channels[1] + channels[2]
+        self.inout_channels = channels[2]
+
         self.parameter_dict = {p.parameter_id: p for p in parameter_list}
 
         self.fieldbus_parameters = None
@@ -263,10 +270,8 @@ class ApModule(CpxModule):
             return False
 
         # check if inputs or outputs are available if it's an input function
-        if (
-            func_name in self.INPUT_FUNCTIONS
-            and not self.input_channels
-            and not self.output_channels
+        if func_name in self.INPUT_FUNCTIONS and not (
+            self.input_channels or self.output_channels
         ):
             return False
 
@@ -299,32 +304,32 @@ class ApModule(CpxModule):
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        # IO-Link special read
-        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            module_input_size = div_ceil(self.information.input_size, 2) - 2
+        byte_input_size = div_ceil(self.information.input_size, 2)
+        byte_output_size = div_ceil(self.information.output_size, 2)
 
-            reg = self.base.read_reg_data(self.input_register, length=module_input_size)
-
-            # 4 channels per module but channel_size should be in bytes while module_input_size
-            # is in 16bit registers
-            channel_size = (module_input_size) // 4 * 2
-
-            channels = [
-                reg[: channel_size * 1],
-                reg[channel_size * 1 : channel_size * 2],
-                reg[channel_size * 2 : channel_size * 3],
-                reg[channel_size * 3 :],
-            ]
-            Logging.logger.info(f"{self.name}: Reading channels: {channels}")
-            return channels
-
-        # All other modules
         # if available, read inputs
         values = []
         if self.input_channels:
+            # this needs to read all i/o register and decide later what to use
             data = self.base.read_reg_data(
-                self.input_register, length=div_ceil(self.information.input_size, 2)
+                self.input_register, byte_input_size + byte_output_size
             )
+
+            if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
+                # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
+                byte_channel_size = self.inout_channels[0].array_size
+                # for IO-Link only the inout_channels are relevant
+                data = data[: len(self.inout_channels * byte_channel_size)]
+
+                channels = [
+                    data[i : i + byte_channel_size]
+                    for i in range(0, len(data), byte_channel_size)
+                ]
+                Logging.logger.info(
+                    f"{self.name}: Reading IO-Link channels: {channels}"
+                )
+                return channels
+
             if all(c.data_type == "BOOL" for c in self.input_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
             elif all(c.data_type == "INT16" for c in self.input_channels):
@@ -337,10 +342,8 @@ class ApModule(CpxModule):
 
         # if available, read outputs
         if self.output_channels:
-            data = self.base.read_reg_data(
-                self.output_register,
-                length=div_ceil(self.information.output_size, 2),
-            )
+            data = self.base.read_reg_data(self.output_register, byte_output_size)
+
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
             else:
@@ -379,7 +382,11 @@ class ApModule(CpxModule):
         if outputs_only:
             channel_count = len(self.output_channels)
         else:
-            channel_count = len(self.input_channels) + len(self.output_channels)
+            channel_count = (
+                len([c for c in self.input_channels if c.direction == "in"])
+                + len([c for c in self.output_channels if c.direction == "out"])
+                + len(self.inout_channels)
+            )
 
         channel_range_check(channel, channel_count)
 
@@ -435,18 +442,20 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
+        channel_range_check(channel, len(self.output_channels))
+
         # IO-Link special
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            module_output_size = div_ceil(self.information.output_size, 2)
-            channel_size = (module_output_size) // 4
+            # This assumes all channels are the same.
+            byte_channel_size = self.inout_channels[0].array_size
 
             self.base.write_reg_data(
-                value, self.output_register + channel_size * channel
+                value, self.output_register + byte_channel_size // 2 * channel
             )
-            Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting IO-Link channel {channel} to {value}"
+            )
             return
-
-        channel_range_check(channel, len(self.output_channels))
 
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool

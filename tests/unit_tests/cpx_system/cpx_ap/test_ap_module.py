@@ -30,7 +30,7 @@ class TestApModule:
             "Product Family",
         )
 
-        channels = ([], [])
+        channels = ([], [], [])
         parameters = []
 
         yield ApModule(
@@ -202,7 +202,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.information = CpxAp.ApInformation(input_size=8)
+        module.information = CpxAp.ApInformation(input_size=8, output_size=0)
 
         module.input_channels = [
             Channel(
@@ -254,7 +254,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.information = CpxAp.ApInformation(output_size=8)
+        module.information = CpxAp.ApInformation(input_size=0, output_size=8)
 
         module.output_channels = [
             Channel(
@@ -305,7 +305,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ApInformation(input_size=8)
+        module.information = CpxAp.ApInformation(input_size=8, output_size=0)
 
         module.input_channels = [
             Channel(
@@ -334,14 +334,14 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value
 
-    def test_read_channels_correct_values_bytes(self, module_fixture):
+    def test_read_channels_correct_values_io_link(self, module_fixture):
         """Test read channels"""
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.information = CpxAp.ApInformation(input_size=36)
+        module.information = CpxAp.ApInformation(input_size=36, output_size=32)
 
-        module.input_channels = [
+        module.inout_channels = [
             Channel(
                 array_size=2,
                 bits=16,
@@ -354,9 +354,12 @@ class TestApModule:
                 parameter_group_ids=[1, 2],
                 profile_list=[50],
             )
-        ] * 8
+        ] * 4
 
-        ret_data = b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" * 4
+        module.input_channels = module.inout_channels
+        module.output_channels = module.inout_channels
+
+        ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -365,7 +368,7 @@ class TestApModule:
         channel_values = module.read_channels()
 
         # Assert
-        assert channel_values == [b"\xAB\xCD\xEF\x00\x11\x22\x33\x44"] * 4
+        assert channel_values == [b"\xAB\xCD"] * 4
 
     def test_read_channels_unknown_type(self, module_fixture):
         """Test read channels"""
@@ -528,7 +531,22 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.output_channels = ["x"] * 4  # will mock is_function_supported
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=8,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="",
+                description="",
+                direction="out",
+                name="",
+                parameter_group_ids=None,
+                profile_list=[],
+            )
+        ] * 4
+
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
 
@@ -805,20 +823,37 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.output_channels = ["x"] * 4  # will mock is_function_supported
         module.output_register = 0
-        module.information = CpxAp.ApInformation(output_size=32)
+        module.information = CpxAp.ApInformation(input_size=34, output_size=32)
         module.base = Mock()
         module.base.write_reg_data = Mock()
 
-        data = b"\xAB\xCD\xEF\x00"
+        module.inout_channels = [
+            Channel(
+                array_size=2,
+                bits=16,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT8",
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
+            )
+        ] * 4
+
+        module.input_channels = module.inout_channels
+        module.output_channels = module.inout_channels
+
+        data = b"\xAB\xCD"
 
         # Act
         module.write_channel(input_value, data)
 
         # Assert
         module.base.write_reg_data.assert_called_with(
-            data, module.output_register + 4 * input_value
+            data, module.output_register + input_value
         )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])

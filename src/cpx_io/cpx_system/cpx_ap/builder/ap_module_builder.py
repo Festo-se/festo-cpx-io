@@ -2,6 +2,7 @@
 
 from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (
     build_apdd_information,
+    build_actual_variant,
 )
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import build_channel_list
 from cpx_io.cpx_system.cpx_ap.builder.parameter_builder import build_parameter_list
@@ -17,13 +18,21 @@ def build_ap_module(apdd: dict, module_code: int) -> ApModule:
     :type module_code: int
     :return: AP Module generated from the apdd
     :rtype: ApModule"""
-    apdd_information = build_apdd_information(apdd=apdd, module_code=module_code)
+    variant = build_actual_variant(apdd=apdd, module_code=module_code)
+    apdd_information = build_apdd_information(apdd=apdd, variant=variant)
     Logging.logger.debug(f"ApddInformation: {apdd_information}")
 
-    input_channel_list = build_channel_list(apdd=apdd, direction="in")
+    input_channel_list = build_channel_list(apdd=apdd, variant=variant, direction="in")
     Logging.logger.debug(f"Input Channels: {input_channel_list}")
 
-    output_channel_list = build_channel_list(apdd=apdd, direction="out")
+    output_channel_list = build_channel_list(
+        apdd=apdd, variant=variant, direction="out"
+    )
+    Logging.logger.debug(f"Output Channels: {output_channel_list}")
+
+    inout_channel_list = build_channel_list(
+        apdd=apdd, variant=variant, direction="inout"
+    )
     Logging.logger.debug(f"Output Channels: {output_channel_list}")
 
     parameter_list = build_parameter_list(apdd=apdd)
@@ -31,6 +40,6 @@ def build_ap_module(apdd: dict, module_code: int) -> ApModule:
 
     return ApModule(
         apdd_information,
-        (input_channel_list, output_channel_list),
+        (input_channel_list, output_channel_list, inout_channel_list),
         parameter_list,
     )
