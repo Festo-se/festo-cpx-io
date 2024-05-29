@@ -669,13 +669,14 @@ class ApModule(CpxModule):
     @CpxBase.require_base
     def read_diagnosis_information(self) -> ModuleDiagnosis:
         """Read the diagnosis information from the module. Contains:
-         * DiagnosisId
-         * Name
-         * Description
-         * Guideline
+         * diagnosis_id
+         * name
+         * description
+         * guideline
+        If no diagnosis is active, returns None
 
         :ret value: Diagnosis information
-        :rtype: ModuleDiagnosis"""
+        :rtype: ModuleDiagnosis or None"""
         diagnosis_code = self.read_diagnosis_code()
 
         return self.diagnosis_dict.get(diagnosis_code)

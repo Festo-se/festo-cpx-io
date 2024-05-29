@@ -426,12 +426,17 @@ class CpxAp(CpxBase):
         return int.from_bytes(reg, byteorder="little")
 
     def read_latest_diagnosis_index(self) -> int:
-        """Read the index of the module with the latest diagnosis
+        """Read the index of the module with the latest diagnosis.
+        If no diagnosis is available, returns None
 
         :ret value: Modul index
-        :rtype: int"""
+        :rtype: int or None"""
         reg = self.read_reg_data(self.diagnosis_register + 3)
-        return int.from_bytes(reg, byteorder="little")
+        # subtract one because AP starts with module index 1
+        module_index = int.from_bytes(reg, byteorder="little") - 1
+        if module_index < 0:
+            return None
+        return module_index
 
     def read_latest_diagnosis_code(self) -> int:
         """Read the latest diagnosis code from the cpx system
