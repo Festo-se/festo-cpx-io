@@ -123,6 +123,30 @@ class ApModule(CpxModule):
             ProductCategory.MPA_S,
             ProductCategory.INTERFACE,
         ],
+        "read_diagnosis_code": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
+        "read_diagnosis_information": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
         "read_system_parameters": [ProductCategory.INTERFACE],
         "read_pqi": [ProductCategory.IO_LINK],
         "read_fieldbus_parameters": [ProductCategory.IO_LINK],
@@ -673,10 +697,9 @@ class ApModule(CpxModule):
          * name
          * description
          * guideline
-        If no diagnosis is active, returns None
 
         :ret value: Diagnosis information
-        :rtype: ModuleDiagnosis or None"""
+        :rtype: ModuleDiagnosis or None if no diagnosis is active"""
         diagnosis_code = self.read_diagnosis_code()
 
         return self.diagnosis_dict.get(diagnosis_code)

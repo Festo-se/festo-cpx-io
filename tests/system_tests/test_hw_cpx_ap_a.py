@@ -74,7 +74,7 @@ def test_read_active_diagnosis_count(test_cpxap):
 
 
 def test_read_latest_diagnosis_index(test_cpxap):
-    assert test_cpxap.read_latest_diagnosis_index() == 0
+    assert test_cpxap.read_latest_diagnosis_index() is None
 
 
 def test_module_naming(test_cpxap):

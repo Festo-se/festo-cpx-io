@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Diagnosis for CpxAp and ApModule. This includes a ModuleInformation dataclass and builder as well as some new functions
 #### CpxAp
 - Read the global diagnosis state from the cpx-ap system with `CpxAp.read_global_diagnosis_state()`
 - Read the count of active diagnosis from the cpx-ap system with `CpxAp.read_active_diagnosis_count()`
