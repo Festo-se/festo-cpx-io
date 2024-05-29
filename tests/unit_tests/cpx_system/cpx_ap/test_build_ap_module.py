@@ -11,6 +11,10 @@ class TestBuildApModule:
     "Test build_ap_module"
 
     @patch(
+        "cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.build_diagnosis_list",
+        spec=True,
+    )
+    @patch(
         "cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.build_parameter_list",
         spec=True,
     )
@@ -32,6 +36,7 @@ class TestBuildApModule:
         mock_build_apdd_information,
         mock_build_channel_list,
         mock_build_parameter_list,
+        mock_build_diagnosis_list,
     ):
         # Arrange
         ApddInformation = namedtuple("ApddInformation", "uid name")
@@ -41,6 +46,8 @@ class TestBuildApModule:
         inout_channels = [7, 8, 9]
         Parameter = namedtuple("Parameter", "parameter_id name")
         parameter_list = [Parameter(i, f"Parameter{i}") for i in range(5)]
+        ModuleDiagnosis = namedtuple("Diagnosis", "diagnosis_id name")
+        diagnosis_list = [ModuleDiagnosis(hex(i), f"Diagnosis{i}") for i in range(1, 7)]
         actual_variant = Variant(
             channel_group_ids=[1, 2, 3],
             description="Description",
@@ -58,6 +65,7 @@ class TestBuildApModule:
             inout_channels,
         ]
         mock_build_parameter_list.return_value = parameter_list
+        mock_build_diagnosis_list.return_value = diagnosis_list
 
         # Act
         ap_module = build_ap_module(None, None)
@@ -71,3 +79,4 @@ class TestBuildApModule:
         assert ap_module.output_channels == output_channels + inout_channels
         assert ap_module.inout_channels == inout_channels
         assert len(ap_module.parameter_dict) == len(parameter_list)
+        assert len(ap_module.diagnosis_dict) == len(diagnosis_list)

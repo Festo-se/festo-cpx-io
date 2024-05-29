@@ -32,11 +32,13 @@ class TestApModule:
 
         channels = ([], [], [])
         parameters = []
+        module_diagnosis = []
 
         yield ApModule(
             apdd_information,
             channels,
             parameters,
+            module_diagnosis,
         )
 
     @pytest.mark.parametrize(
@@ -155,7 +157,12 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INFRASTRUCTURE.value
         module.information = Mock(input_size=3, output_size=5)
         module.is_function_supported = Mock(return_value=True)
-        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
+        mocked_base = Mock(
+            next_output_register=0,
+            next_input_register=0,
+            next_diagnosis_register=0,
+            modules=[],
+        )
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
@@ -171,7 +178,12 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = Mock(input_size=3, output_size=5)
         module.is_function_supported = Mock(return_value=True)
-        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
+        mocked_base = Mock(
+            next_output_register=0,
+            next_input_register=0,
+            next_diagnosis_register=0,
+            modules=[],
+        )
 
         module.read_fieldbus_parameters = Mock()
 
