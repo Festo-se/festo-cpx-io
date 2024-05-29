@@ -49,6 +49,12 @@ def test_modules_channel_length(test_cpxap):
     assert len(test_cpxap.modules[5].output_channels) == 4  # VMPA2-FB-EMS-D2-4
 
 
+@pytest.mark.parametrize("input_value", list(range(6)))
+def test_read_diagnosis_code(test_cpxap, input_value):
+    assert test_cpxap.modules[input_value].read_diagnosis_code() == 0
+    assert test_cpxap.modules[input_value].read_diagnosis_information() is None
+
+
 def test_ep_read_system_parameters(test_cpxap):
     m = test_cpxap.modules[0]
     param = m.read_system_parameters()

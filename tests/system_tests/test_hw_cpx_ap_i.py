@@ -52,6 +52,22 @@ def test_read_diagnostic_status(test_cpxap):
     assert all(isinstance(d, CpxAp.Diagnostics) for d in diagnostics)
 
 
+def test_read_latest_diagnosis_code(test_cpxap):
+    assert test_cpxap.read_latest_diagnosis_code() == 0
+
+
+def test_read_diagnosis_state(test_cpxap):
+    assert test_cpxap.read_global_diagnosis_state() == 0
+
+
+def test_read_active_diagnosis_count(test_cpxap):
+    assert test_cpxap.read_active_diagnosis_count() == 0
+
+
+def test_read_latest_diagnosis_index(test_cpxap):
+    assert test_cpxap.read_latest_diagnosis_index() == 0
+
+
 def test_module_naming(test_cpxap):
     assert isinstance(test_cpxap.cpx_ap_i_ep_m12, CpxModule)
     test_cpxap.cpx_ap_i_ep_m12.name = "test"
@@ -116,6 +132,12 @@ def test_modules_channel_length(test_cpxap):
     assert len(test_cpxap.modules[4].inout_channels) == 4  # 4IOL
     assert len(test_cpxap.modules[5].inout_channels) == 0  # VABX
     assert len(test_cpxap.modules[6].inout_channels) == 0  # 4Di
+
+
+@pytest.mark.parametrize("input_value", list(range(7)))
+def test_read_diagnosis_code(test_cpxap, input_value):
+    assert test_cpxap.modules[input_value].read_diagnosis_code() == 0
+    assert test_cpxap.modules[input_value].read_diagnosis_information() is None
 
 
 def test_getter(test_cpxap):

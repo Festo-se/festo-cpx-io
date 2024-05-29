@@ -161,6 +161,12 @@ def test_modules_channel_length(test_cpxap):
     assert len(test_cpxap.modules[9].inout_channels) == 0  # Vaba
 
 
+@pytest.mark.parametrize("input_value", list(range(10)))
+def test_read_diagnosis_code(test_cpxap, input_value):
+    assert test_cpxap.modules[input_value].read_diagnosis_code() == 0
+    assert test_cpxap.modules[input_value].read_diagnosis_information() is None
+
+
 def test_getter(test_cpxap):
     a16di = test_cpxap.modules[1]
     a12di4do = test_cpxap.modules[2]

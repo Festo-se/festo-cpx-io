@@ -664,7 +664,7 @@ class ApModule(CpxModule):
         :ret value: Diagnosis code
         :rtype: tuple"""
         reg = self.base.read_reg_data(self.diagnosis_register + 4, length=2)
-        return int.to_bytes(reg, byteorder="little")
+        return int.from_bytes(reg, byteorder="little")
 
     @CpxBase.require_base
     def read_diagnosis_information(self) -> ModuleDiagnosis:
@@ -675,7 +675,7 @@ class ApModule(CpxModule):
          * Guideline
 
         :ret value: Diagnosis information
-        :rtype: dict"""
+        :rtype: ModuleDiagnosis"""
         diagnosis_code = self.read_diagnosis_code()
 
         return self.diagnosis_dict.get(diagnosis_code)
