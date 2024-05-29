@@ -61,6 +61,22 @@ def test_read_diagnostic_status(test_cpxap):
     assert all(isinstance(d, CpxAp.Diagnostics) for d in diagnostics)
 
 
+def test_read_latest_diagnosis_code(test_cpxap):
+    assert test_cpxap.read_latest_diagnosis_code() == 0
+
+
+def test_read_diagnosis_state(test_cpxap):
+    assert test_cpxap.read_global_diagnosis_state() == 0
+
+
+def test_read_active_diagnosis_count(test_cpxap):
+    assert test_cpxap.read_active_diagnosis_count() == 0
+
+
+def test_read_latest_diagnosis_index(test_cpxap):
+    assert test_cpxap.read_latest_diagnosis_index() == 0
+
+
 def test_module_naming(test_cpxap):
     assert isinstance(test_cpxap.cpx_ap_a_ep_m12, CpxModule)
     test_cpxap.cpx_ap_a_ep_m12.name = "test"
@@ -95,6 +111,18 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[7].input_register == 5021  # Vaem
     assert test_cpxap.modules[8].input_register == 5021  # Vmpal
     assert test_cpxap.modules[9].input_register == 5021  # Vaba
+
+    assert test_cpxap.diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].diagnosis_register == 11006  # EP
+    assert test_cpxap.modules[1].diagnosis_register == 11012  # 16Di
+    assert test_cpxap.modules[2].diagnosis_register == 11018  # 12Di4Do
+    assert test_cpxap.modules[3].diagnosis_register == 11024  # 8Do
+    assert test_cpxap.modules[4].diagnosis_register == 11030  # 8Di
+    assert test_cpxap.modules[5].diagnosis_register == 11036  # 4Iol
+    assert test_cpxap.modules[6].diagnosis_register == 11042  # Vabx
+    assert test_cpxap.modules[7].diagnosis_register == 11048  # Vaem
+    assert test_cpxap.modules[8].diagnosis_register == 11054  # Vmpal
+    assert test_cpxap.modules[9].diagnosis_register == 11060  # Vaba
 
 
 def test_modules_channel_length(test_cpxap):

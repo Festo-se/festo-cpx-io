@@ -81,6 +81,15 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[5].input_register == 5024  # VABX
     assert test_cpxap.modules[6].input_register == 5024  # 4Di
 
+    assert test_cpxap.diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].diagnosis_register == 11006  # EP
+    assert test_cpxap.modules[1].diagnosis_register == 11012  # 8DI
+    assert test_cpxap.modules[2].diagnosis_register == 11018  # 4Di4Do
+    assert test_cpxap.modules[3].diagnosis_register == 11024  # 4AIUI
+    assert test_cpxap.modules[4].diagnosis_register == 11030  # 4IOL
+    assert test_cpxap.modules[5].diagnosis_register == 11036  # VABX
+    assert test_cpxap.modules[6].diagnosis_register == 11042  # 4Di
+
 
 def test_modules_channel_length(test_cpxap):
 

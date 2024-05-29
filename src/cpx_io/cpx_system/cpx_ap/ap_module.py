@@ -215,6 +215,8 @@ class ApModule(CpxModule):
         self.output_channels = channels[1] + channels[2]
         self.inout_channels = channels[2]
 
+        self.diagnosis_register = None
+
         self.parameter_dict = {p.parameter_id: p for p in parameter_list}
 
         self.fieldbus_parameters = None
@@ -291,8 +293,11 @@ class ApModule(CpxModule):
 
         super().configure(base=base, position=position)
 
+        self.diagnosis_register = self.base.next_diagnosis_register
+
         self.base.next_output_register += div_ceil(self.information.output_size, 2)
         self.base.next_input_register += div_ceil(self.information.input_size, 2)
+        self.base.next_diagnosis_register += 6  # always 6 registers per module
 
         # IO-Link special parameter
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:

@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Read the latest diagnosis code from the cpx-ap system with `CpxAp.read_latest_diagnosis_code()`
+- Read the global diagnosis state from the cpx-ap system with `CpxAp.read_diagnosis_state()`
+- Read the count of active diagnosis from the cpx-ap system with `CpxAp.read_active_diagnosis_count()`
+- Read the module index with the latest diagnosis from the cpx-ap system with `CpxAp.read_latest_diagnosis_index()`
+
 ## v0.4.2 - 29.05.24
 ### Changed
 - Updated links to public repo
