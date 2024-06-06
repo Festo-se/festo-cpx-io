@@ -26,7 +26,9 @@ class ApModule(CpxModule):
     CpxAp object"""
 
     # pylint: disable=too-many-instance-attributes
-    # Might be devided in sub classes instead.
+    # pylint: disable=too-many-lines
+    # pylint: disable=too-many-arguments
+    # Should be devided in sub classes instead!
 
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
