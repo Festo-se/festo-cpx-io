@@ -177,7 +177,7 @@ class ApModule(CpxModule):
         "toggle_channel",
     ]
     PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
-    DIAGNOSIS_FUNCTIONS = ["read_diagnosis_code"]
+    DIAGNOSIS_FUNCTIONS = ["read_diagnosis_code", "read_diagnosis_information"]
 
     @dataclass
     class SystemParameters:
@@ -319,6 +319,10 @@ class ApModule(CpxModule):
 
         # check if there are parameters if it's a parameter function
         if func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
+            return False
+
+        # check if there are diagnosis information if it's a diagnosis function
+        if func_name in self.DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
             return False
 
         return True
@@ -689,6 +693,8 @@ class ApModule(CpxModule):
 
         :ret value: Diagnosis code
         :rtype: tuple"""
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
         reg = self.base.read_reg_data(self.diagnosis_register + 4, length=2)
         return int.from_bytes(reg, byteorder="little")
 
@@ -702,6 +708,8 @@ class ApModule(CpxModule):
 
         :ret value: Diagnosis information
         :rtype: ModuleDiagnosis or None if no diagnosis is active"""
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
         diagnosis_code = self.read_diagnosis_code()
 
         return self.diagnosis_dict.get(diagnosis_code)
