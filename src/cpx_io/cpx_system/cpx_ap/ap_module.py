@@ -310,10 +310,7 @@ class ApModule(CpxModule):
         # if available, read inputs
         values = []
         if self.input_channels:
-            # this needs to read all i/o register and decide later what to use
-            data = self.base.read_reg_data(
-                self.input_register, byte_input_size + byte_output_size
-            )
+            data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
@@ -334,6 +331,8 @@ class ApModule(CpxModule):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
             elif all(c.data_type == "INT16" for c in self.input_channels):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.input_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
             else:
                 raise TypeError(
                     f"Input data type {self.input_channels[0].data_type} are not supported "
@@ -346,6 +345,10 @@ class ApModule(CpxModule):
 
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            elif all(c.data_type == "INT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
             else:
                 raise TypeError(
                     f"Output data type {self.output_channels[0].data_type} are not supported "
@@ -422,7 +425,14 @@ class ApModule(CpxModule):
         ):
             reg = boollist_to_bytes(data)
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting channels to {data}")
+            Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
+            return
+
+        if all(c.data_type == "UINT16" for c in self.output_channels) and all(
+            isinstance(d, int) for d in data
+        ):
+            for i, d in enumerate(data):
+                self.write_channel(i, d)
             return
 
         raise TypeError(
@@ -464,7 +474,25 @@ class ApModule(CpxModule):
             data[channel] = value
             reg_content = boollist_to_bytes(data)
             self.base.write_reg_data(reg_content, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting bool channel {channel} to {value}"
+            )
+            return
+
+        if self.output_channels[channel].data_type == "INT16" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<h", value)
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(f"{self.name}: Setting int channel to {value}")
+            return
+
+        if self.output_channels[channel].data_type == "UINT16" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<H", value)
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(f"{self.name}: Setting uint channel to {value}")
             return
 
         raise TypeError(
