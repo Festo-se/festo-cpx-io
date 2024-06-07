@@ -305,7 +305,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ApInformation(input_size=8, output_size=0)
+        module.information = CpxAp.ApInformation(input_size=8, output_size=8)
 
         module.input_channels = [
             Channel(
@@ -320,11 +320,83 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 4
+        ] * 2
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=16,
+                byte_swap_needed=True,
+                channel_id=0,
+                data_type="INT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
 
-        expected_value = [-17494, -8756, 4352, 13090]
+        expected_value = [
+            -17494,
+            4352,
+            -17494,
+            4352,
+        ]
 
-        ret_data = b"\xAA\xBB\xCC\xDD\x00\x11\x22\x33"
+        ret_data = b"\xAA\xBB\x00\x11"
+
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
+
+        # Act
+        channel_values = module.read_channels()
+
+        # Assert
+        assert channel_values == expected_value
+
+    def test_read_channels_correct_values_uint16(self, module_fixture):
+        """Test read channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.ANALOG.value
+        module.information = CpxAp.ApInformation(input_size=8, output_size=8)
+
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=16,
+                byte_swap_needed=True,
+                channel_id=0,
+                data_type="UINT16",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=16,
+                byte_swap_needed=True,
+                channel_id=0,
+                data_type="UINT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
+
+        expected_value = [
+            0xBBAA,
+            0x1100,
+            0xBBAA,
+            0x1100,
+        ]
+
+        ret_data = b"\xAA\xBB\x00\x11"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -623,6 +695,68 @@ class TestApModule:
         # Assert
         module.base.write_reg_data.assert_called_with(b"\xFF", 0)
 
+    def test_write_channels_int16(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=2)
+        module.output_register = 0
+        module.base = Mock()
+        module.write_channel = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="INT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 2
+
+        # Act
+        module.write_channels([1, -2])
+
+        # Assert
+        module.write_channel.assert_has_calls([call(0, 1), call(1, -2)])
+
+    def test_write_channels_uint16(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=2)
+        module.output_register = 0
+        module.base = Mock()
+        module.write_channel = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 2
+
+        # Act
+        module.write_channels([1, 2])
+
+        # Assert
+        module.write_channel.assert_has_calls([call(0, 1), call(1, 2)])
+
     @pytest.mark.parametrize(
         "input_value",
         ["INT", "UNKNOWN"],
@@ -758,6 +892,70 @@ class TestApModule:
 
         # Assert
         module.base.write_reg_data.assert_called_with(b"\x02", 0)
+
+    def test_write_channel_int16(self, module_fixture):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.information = CpxAp.ApInformation(output_size=4)
+        module.output_register = 0
+        module.apdd_information.product_category = ProductCategory.ANALOG.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.read_channels = Mock(return_value=[False] * 4)
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="INT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act
+        module.write_channel(1, -1)
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(b"\xff\xff", 0)
+
+    def test_write_channel_uint16(self, module_fixture):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.information = CpxAp.ApInformation(output_size=4)
+        module.output_register = 0
+        module.apdd_information.product_category = ProductCategory.ANALOG.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.read_channels = Mock(return_value=[False] * 4)
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 4
+
+        # Act
+        module.write_channel(1, 1)
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(b"\x01\x00", 0)
 
     @pytest.mark.parametrize("input_value", ["INT", "UNKNOWN"])
     def test_write_channel_unknown_type(self, module_fixture, input_value):

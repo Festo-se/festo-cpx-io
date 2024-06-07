@@ -31,17 +31,31 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
+    assert test_cpxap.modules[0].output_register == 0  # 1 CPX-AP-A-EP-M12
+    assert test_cpxap.modules[1].output_register == 0  # 2 VMPA-AP-EPL-G
+    assert test_cpxap.modules[2].output_register == 0  # 3 VMPA14-FB-EMG-D2-8-S
+    assert test_cpxap.modules[3].output_register == 1  # 4 VMPA1-FB-EMS-D2-8
+    assert test_cpxap.modules[4].output_register == 2  # 5 VMPA14-FB-EMS-D2-8
+    assert test_cpxap.modules[5].output_register == 3  # 6 VMPA2-FB-EMS-D2-4
+
+    assert test_cpxap.modules[0].input_register == 5000  # 1 CPX-AP-A-EP-M12
+    assert test_cpxap.modules[1].input_register == 5000  # 2 VMPA-AP-EPL-G
+    assert test_cpxap.modules[2].input_register == 5000  # 3 VMPA14-FB-EMG-D2-8-S
+    assert test_cpxap.modules[3].input_register == 5001  # 4 VMPA1-FB-EMS-D2-8
+    assert test_cpxap.modules[4].input_register == 5001  # 5 VMPA14-FB-EMS-D2-8
+    assert test_cpxap.modules[5].input_register == 5001  # 6 VMPA2-FB-EMS-D2-4
+
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].input_channels) == 0  # EP
+    assert len(test_cpxap.modules[0].input_channels) == 0  # CPX-AP-A-EP-M12
     assert len(test_cpxap.modules[1].input_channels) == 0  # VMPA-AP-EPL-G
     assert len(test_cpxap.modules[2].input_channels) == 8  # VMPA14-FB-EMG-D2-8-S
     assert len(test_cpxap.modules[3].input_channels) == 0  # VMPA1-FB-EMS-D2-8
     assert len(test_cpxap.modules[4].input_channels) == 0  # VMPA14-FB-EMS-D2-8
     assert len(test_cpxap.modules[5].input_channels) == 0  # VMPA2-FB-EMS-D2-4
 
-    assert len(test_cpxap.modules[0].output_channels) == 0  # EP
+    assert len(test_cpxap.modules[0].output_channels) == 0  # CPX-AP-A-EP-M12
     assert len(test_cpxap.modules[1].output_channels) == 0  # VMPA-AP-EPL-G
     assert len(test_cpxap.modules[2].output_channels) == 8  # VMPA14-FB-EMG-D2-8-S
     assert len(test_cpxap.modules[3].output_channels) == 8  # VMPA1-FB-EMS-D2-8
