@@ -420,6 +420,7 @@ class ApModule(CpxModule):
                 f"Data must be list of {len(self.output_channels)} elements"
             )
 
+        # Handle bool
         if all(c.data_type == "BOOL" for c in self.output_channels) and all(
             isinstance(d, bool) for d in data
         ):
@@ -428,9 +429,10 @@ class ApModule(CpxModule):
             Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
             return
 
-        if all(c.data_type == "UINT16" for c in self.output_channels) and all(
-            isinstance(d, int) for d in data
-        ):
+        # Handle int
+        if all(
+            c.data_type in ["INT16", "UINT16"] for c in self.output_channels
+        ) and all(isinstance(d, int) for d in data):
             for i, d in enumerate(data):
                 self.write_channel(i, d)
             return
@@ -467,6 +469,7 @@ class ApModule(CpxModule):
             )
             return
 
+        # Handle bool
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
@@ -479,6 +482,7 @@ class ApModule(CpxModule):
             )
             return
 
+        # Handle int16
         if self.output_channels[channel].data_type == "INT16" and isinstance(
             value, int
         ):
@@ -487,6 +491,7 @@ class ApModule(CpxModule):
             Logging.logger.info(f"{self.name}: Setting int channel to {value}")
             return
 
+        # Handle uint16
         if self.output_channels[channel].data_type == "UINT16" and isinstance(
             value, int
         ):

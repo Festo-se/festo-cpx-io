@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- CPX-AP: Added UINT16 support for MPA modules in read/write functions, expanded system tests
+- CPX-AP: Added INT16 and UINT16 support for MPA modules in read/write functions, expanded system tests
 
 ## v0.4.2 - 29.05.24
 ### Changed

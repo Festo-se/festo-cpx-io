@@ -91,12 +91,6 @@ def test_vmpa_ap_epl_g_name(test_cpxap):
     assert test_cpxap.modules[1].name == "vmpa_ap_epl_g"
 
 
-def test_vmpa_p_rp_read_channels(test_cpxap):
-    m = test_cpxap.modules[2]
-
-    assert m.read_channels() == [0, 0]
-
-
 def test_vmpa_p_rp_read_channel(test_cpxap):
     m = test_cpxap.modules[2]
 
@@ -109,11 +103,10 @@ def test_vmpa_p_rp_read_channel_outputs_only(test_cpxap):
     assert m.read_channel(0, outputs_only=True) == 0
 
 
-def test_vmpa_p_rp_write_channel(test_cpxap):
+def test_vmpa_p_rp_read_channels(test_cpxap):
     m = test_cpxap.modules[2]
 
-    m.write_channel(0, 100)
-    assert m.read_channel(0, outputs_only=True) == 100
+    assert m.read_channels() == [0, 0]
 
 
 def test_vmpa_p_rp_write_channels(test_cpxap):
@@ -123,31 +116,218 @@ def test_vmpa_p_rp_write_channels(test_cpxap):
     assert m.read_channels() == [0, 100]
 
 
-def test_vmpa14_fb_emg_d2_8_s_read_channel(test_cpxap):
+def test_vmpa_p_rp_write_channel(test_cpxap):
     m = test_cpxap.modules[2]
 
-    assert m.read_channel(0) is True
-    for i in range(1, 16):
-        assert m.read_channel(i) is False
+    m.write_channel(0, 100)
+    assert m.read_channel(0, outputs_only=True) == 100
+
+
+def test_vmpa_p_rp_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[2]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20030) == m.read_module_parameter(
+        "Enable monitoring of parameter errors"
+    )
+    assert m.read_module_parameter(20033) == m.read_module_parameter(
+        "Monitor Vout/Vval"
+    )
+    assert m.read_module_parameter(20044) == m.read_module_parameter(
+        "Upper threshold value"
+    )
+    assert m.read_module_parameter(20045) == m.read_module_parameter(
+        "Lower threshold value"
+    )
+    assert m.read_module_parameter(20052) == m.read_module_parameter(
+        "Behaviour in fail state"
+    )
+    assert m.read_module_parameter(20094) == m.read_module_parameter(
+        "Condition counter set point"
+    )
+    assert m.read_module_parameter(20095) == m.read_module_parameter(
+        "Condition counter actual value"
+    )
+    assert m.read_module_parameter(20112) == m.read_module_parameter("Pressure unit")
+    assert m.read_module_parameter(20423) == m.read_module_parameter(
+        "Monitor limit values"
+    )
+    assert m.read_module_parameter(20426) == m.read_module_parameter(
+        "Measured value smoothing"
+    )
+    assert m.read_module_parameter(20427) == m.read_module_parameter(
+        "Controller setting"
+    )
+    assert m.read_module_parameter(20428) == m.read_module_parameter(
+        "Input data content"
+    )
+    assert m.read_module_parameter(20429) == m.read_module_parameter(
+        "Serial number valve"
+    )
+
+
+def test_vppm_6ta_l_1_f_0l2h___read_channel(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    assert m.read_channel(0) == 0
+
+
+def test_vppm_6ta_l_1_f_0l2h___read_channel_outputs_only(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    assert m.read_channel(0, outputs_only=True) == 0
+
+
+def test_vppm_6ta_l_1_f_0l2h___read_channels(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    assert m.read_channels() == [0, 0]
+
+
+def test_vppm_6ta_l_1_f_0l2h___write_channels(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_channels([100])
+    assert m.read_channels() == [0, 100]
+
+
+def test_vppm_6ta_l_1_f_0l2h___write_channel(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_channel(0, 100)
+    assert m.read_channel(0, outputs_only=True) == 100
+
+
+def test_vppm_6ta_l_1_f_0l2h___read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[3]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20030) == m.read_module_parameter(
+        "Enable monitoring of parameter errors"
+    )
+    assert m.read_module_parameter(20033) == m.read_module_parameter(
+        "Monitor Vout/Vval"
+    )
+    assert m.read_module_parameter(20044) == m.read_module_parameter(
+        "Upper threshold value"
+    )
+    assert m.read_module_parameter(20045) == m.read_module_parameter(
+        "Lower threshold value"
+    )
+    assert m.read_module_parameter(20052) == m.read_module_parameter(
+        "Behaviour in fail state"
+    )
+    assert m.read_module_parameter(20094) == m.read_module_parameter(
+        "Condition counter set point"
+    )
+    assert m.read_module_parameter(20095) == m.read_module_parameter(
+        "Condition counter actual value"
+    )
+    assert m.read_module_parameter(20112) == m.read_module_parameter("Pressure unit")
+    assert m.read_module_parameter(20423) == m.read_module_parameter(
+        "Monitor limit values"
+    )
+    assert m.read_module_parameter(20426) == m.read_module_parameter(
+        "Measured value smoothing"
+    )
+    assert m.read_module_parameter(20427) == m.read_module_parameter(
+        "Controller setting"
+    )
+    assert m.read_module_parameter(20428) == m.read_module_parameter(
+        "Input data content"
+    )
+    assert m.read_module_parameter(20429) == m.read_module_parameter(
+        "Serial number valve"
+    )
 
 
 # TODO: go on with tests from here
-def test_vmpa14_fb_emg_d2_8_s_write_channels(test_cpxap):
-    m = test_cpxap.modules[2]
+def test_vmpa1_fb_emg_8_read_channels(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    assert m.read_channels() == [False] * 8
+
+
+def test_vmpa1_fb_emg_8_read_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    for i in range(8):
+        assert m.read_channel(i) is False
+
+
+def test_vmpa1_fb_emg_8_write_channels(test_cpxap):
+    m = test_cpxap.modules[4]
 
     m.write_channels([True] * 8)
     time.sleep(0.05)
 
-    assert m.read_channels()[8:16] == [True] * 8
+    assert m.read_channels() == [True] * 8
+
+    m.write_channels([False] * 8)
+
+    assert m.read_channels() == [False] * 8
+
+
+def test_vmpa1_fb_emg_8_write_channel(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    for i in range(8):
+        m.write_channel(i, True)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is True
+
+        m.write_channel(i, False)
+        time.sleep(0.05)
+
+        assert m.read_channel(i) is False
+
+
+def test_vmpa1_fb_emg_8_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[4]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20033) == m.read_module_parameter(
+        "Monitor Vout/Vval"
+    )
+    assert m.read_module_parameter(20052) == m.read_module_parameter(
+        "Behaviour in fail state"
+    )
+
+
+# TODO: go on with tests from here
+
+
+def test_vmpa_fb_emg_p5_read_channels(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    assert m.read_channels() == [True] + [False] * 15
+
+
+def test_vmpa_fb_emg_p5_read_channel(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    assert m.read_channel(0) is True
+    for i in range(1, 8):
+        assert m.read_channel(i) is False
+
+
+def test_vmpa_fb_emg_p5_write_channels(test_cpxap):
+    m = test_cpxap.modules[5]
+
+    m.write_channels([True] * 8)
+    time.sleep(0.05)
+
+    assert m.read_channels()[8:] == [True] * 8
 
     m.write_channels([False] * 8)
     time.sleep(0.05)
 
-    assert m.read_channels()[8:16] == [False] * 8
+    assert m.read_channels()[8:] == [False] * 8
 
 
-def test_vmpa14_fb_emg_d2_8_s_write_channel(test_cpxap):
-    m = test_cpxap.modules[2]
+def test_vmpa_fb_emg_p5_write_channel(test_cpxap):
+    m = test_cpxap.modules[5]
 
     for i in range(8):
         m.write_channel(i, True)
@@ -161,59 +341,15 @@ def test_vmpa14_fb_emg_d2_8_s_write_channel(test_cpxap):
         assert m.read_channel(i, outputs_only=True) is False
 
 
-def test_vmpa14_fb_emg_d2_8_s_set_clear_channel(test_cpxap):
-    m = test_cpxap.modules[2]
-
-    for i in range(8):
-        m.set_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i, outputs_only=True) is True
-
-        m.clear_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i, outputs_only=True) is False
-
-
-def test_vmpa14_fb_emg_d2_8_s_toggle_channel(test_cpxap):
-    m = test_cpxap.modules[2]
-
-    m.write_channels([False] * 8)
-
-    for i in range(8):
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i, outputs_only=True) is True
-
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i, outputs_only=True) is False
-
-
-def test_vmpa14_fb_emg_d2_8_s_read_module_parameters(test_cpxap):
-    m = test_cpxap.modules[2]
+def test_vmpa_fb_emg_p5_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[5]
     time.sleep(0.05)
 
-    assert m.read_module_parameter(20026) == m.read_module_parameter(
-        "Enable diagnosis of overload short circuit"
-    )
-    assert m.read_module_parameter(20027) == m.read_module_parameter(
-        "Enable diagnosis of open load"
-    )
     assert m.read_module_parameter(20033) == m.read_module_parameter(
         "Monitor Vout/Vval"
     )
     assert m.read_module_parameter(20052) == m.read_module_parameter(
         "Behaviour in fail state"
-    )
-    assert m.read_module_parameter(20094) == m.read_module_parameter(
-        "Condition counter set point"
-    )
-    assert m.read_module_parameter(20095) == m.read_module_parameter(
-        "Condition counter actual value"
     )
     assert m.read_module_parameter(20419) == m.read_module_parameter(
         "Evacuation time limit"
@@ -221,245 +357,120 @@ def test_vmpa14_fb_emg_d2_8_s_read_module_parameters(test_cpxap):
     assert m.read_module_parameter(20420) == m.read_module_parameter(
         "Inhibit time pressure diagnosis"
     )
-    assert m.read_module_parameter(20422) == m.read_module_parameter(
-        "Pilot air evacuation time"
+    assert m.read_module_parameter(20421) == m.read_module_parameter(
+        "Supply air evacuation time"
     )
 
 
-def test_vmpa1_fb_ems_d2_8_read_channels(test_cpxap):
-    m = test_cpxap.modules[3]
+def test_vmpa_fb_ps____read_channels(test_cpxap):
+    m = test_cpxap.modules[6]
 
-    assert m.read_channels() == [
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-    ]
+    assert m.read_channels() == [0]
 
 
-def test_vmpa1_fb_ems_d2_8_read_channel(test_cpxap):
-    m = test_cpxap.modules[3]
+def test_vmpa_fb_ps____read_channel(test_cpxap):
+    m = test_cpxap.modules[6]
 
-    for i in range(8):
+    assert m.read_channel(0) == 0
+
+
+def test_vmpa_fb_ps____read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[6]
+    time.sleep(0.05)
+
+    assert m.read_module_parameter(20030) == m.read_module_parameter(
+        "Enable monitoring of parameter errors"
+    )
+    assert m.read_module_parameter(20041) == m.read_module_parameter(
+        "Enable lower threshold violation diagnosis"
+    )
+    assert m.read_module_parameter(20042) == m.read_module_parameter(
+        "Enable upper threshold violation diagnosis"
+    )
+    assert m.read_module_parameter(20044) == m.read_module_parameter(
+        "Upper threshold value"
+    )
+    assert m.read_module_parameter(20045) == m.read_module_parameter(
+        "Lower threshold value"
+    )
+    assert m.read_module_parameter(20046) == m.read_module_parameter(
+        "Hysteresis for measured value monitoring"
+    )
+    assert m.read_module_parameter(20112) == m.read_module_parameter("Pressure unit")
+    assert m.read_module_parameter(20425) == m.read_module_parameter("Diagnostic Delay")
+    assert m.read_module_parameter(20426) == m.read_module_parameter(
+        "Measured value smoothing"
+    )
+
+
+def test_vmpa1_fb_emg_8_s_read_channels(test_cpxap):
+    m = test_cpxap.modules[7]
+    assert m.read_channels() == [True] + [False] * 15
+
+
+def test_vmpa1_fb_emg_8_s_read_channel(test_cpxap):
+    m = test_cpxap.modules[7]
+
+    assert m.read_channel(0) is True
+    for i in range(1, 16):
         assert m.read_channel(i) is False
 
 
-def test_vmpa1_fb_ems_d2_8_write_channels(test_cpxap):
-    m = test_cpxap.modules[3]
+def test_vmpa1_fb_emg_8_s_write_channels(test_cpxap):
+    m = test_cpxap.modules[7]
 
     m.write_channels([True] * 8)
     time.sleep(0.05)
 
-    assert m.read_channels() == [True] * 8
+    assert m.read_channels()[8:] == [True] * 8
 
     m.write_channels([False] * 8)
     time.sleep(0.05)
 
-    assert m.read_channels() == [False] * 8
+    assert m.read_channels()[8:] == [False] * 8
 
 
-def test_vmpa1_fb_ems_d2_8_write_channel(test_cpxap):
-    m = test_cpxap.modules[3]
+def test_vmpa1_fb_emg_8_s_write_channel(test_cpxap):
+    m = test_cpxap.modules[7]
 
     for i in range(8):
         m.write_channel(i, True)
         time.sleep(0.05)
 
-        assert m.read_channel(i) is True
+        assert m.read_channel(i, outputs_only=True) is True
 
         m.write_channel(i, False)
         time.sleep(0.05)
 
-        assert m.read_channel(i) is False
+        assert m.read_channel(i, outputs_only=True) is False
 
 
-def test_vmpa1_fb_ems_d2_8_set_clear_channel(test_cpxap):
-    m = test_cpxap.modules[3]
-
-    for i in range(8):
-        m.set_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.clear_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa1_fb_ems_d2_8_toggle_channel(test_cpxap):
-    m = test_cpxap.modules[3]
-
-    m.write_channels([False] * 8)
-
-    for i in range(8):
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa1_fb_ems_d2_8_read_module_parameters(test_cpxap):
-    m = test_cpxap.modules[3]
+def test_vmpa1_fb_emg_8_s_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[7]
     time.sleep(0.05)
 
-    assert m.read_module_parameter(20026) == m.read_module_parameter(
-        "Enable diagnosis of overload short circuit"
-    )
-    assert m.read_module_parameter(20027) == m.read_module_parameter(
-        "Enable diagnosis of open load"
-    )
     assert m.read_module_parameter(20033) == m.read_module_parameter(
         "Monitor Vout/Vval"
     )
     assert m.read_module_parameter(20052) == m.read_module_parameter(
         "Behaviour in fail state"
     )
-    assert m.read_module_parameter(20094) == m.read_module_parameter(
-        "Condition counter set point"
-    )
-    assert m.read_module_parameter(20095) == m.read_module_parameter(
-        "Condition counter actual value"
-    )
 
 
-def test_vmpa14_fb_ems_d2_8_read_channels(test_cpxap):
-    m = test_cpxap.modules[4]
-
-    assert m.read_channels() == [
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-        False,
-    ]
+def test_vmpa2_fb_emg_4_read_channels(test_cpxap):
+    m = test_cpxap.modules[8]
+    assert m.read_channels() == [False] * 4
 
 
-def test_vmpa14_fb_ems_d2_8_read_channel(test_cpxap):
-    m = test_cpxap.modules[4]
-
-    for i in range(8):
-        assert m.read_channel(i) is False
-
-
-def test_vmpa14_fb_ems_d2_8_write_channels(test_cpxap):
-    m = test_cpxap.modules[3]
-
-    m.write_channels([True] * 8)
-    time.sleep(0.05)
-
-    assert m.read_channels() == [True] * 8
-
-    m.write_channels([False] * 8)
-    time.sleep(0.05)
-
-    assert m.read_channels() == [False] * 8
-
-
-def test_vmpa14_fb_ems_d2_8_write_channel(test_cpxap):
-    m = test_cpxap.modules[4]
-
-    for i in range(8):
-        m.write_channel(i, True)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.write_channel(i, False)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa14_fb_ems_d2_8_set_clear_channel(test_cpxap):
-    m = test_cpxap.modules[4]
-
-    for i in range(8):
-        m.set_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.clear_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa14_fb_ems_d2_8_toggle_channel(test_cpxap):
-    m = test_cpxap.modules[4]
-
-    m.write_channels([False] * 8)
-
-    for i in range(8):
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa14_fb_ems_d2_8_read_module_parameters(test_cpxap):
-    m = test_cpxap.modules[4]
-    time.sleep(0.05)
-
-    assert m.read_module_parameter(20026) == m.read_module_parameter(
-        "Enable diagnosis of overload short circuit"
-    )
-    assert m.read_module_parameter(20027) == m.read_module_parameter(
-        "Enable diagnosis of open load"
-    )
-    assert m.read_module_parameter(20033) == m.read_module_parameter(
-        "Monitor Vout/Vval"
-    )
-    assert m.read_module_parameter(20052) == m.read_module_parameter(
-        "Behaviour in fail state"
-    )
-    assert m.read_module_parameter(20094) == m.read_module_parameter(
-        "Condition counter set point"
-    )
-    assert m.read_module_parameter(20095) == m.read_module_parameter(
-        "Condition counter actual value"
-    )
-
-
-def test_vmpa2_fb_ems_d2_4_read_channels(test_cpxap):
-    m = test_cpxap.modules[5]
-
-    assert m.read_channels() == [
-        False,
-        False,
-        False,
-        False,
-    ]
-
-
-def test_vmpa2_fb_ems_d2_4_read_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+def test_vmpa2_fb_emg_4_read_channel(test_cpxap):
+    m = test_cpxap.modules[8]
 
     for i in range(4):
         assert m.read_channel(i) is False
 
 
-def test_vmpa2_fb_ems_d2_4_write_channels(test_cpxap):
-    m = test_cpxap.modules[5]
+def test_vmpa2_fb_emg_4_write_channels(test_cpxap):
+    m = test_cpxap.modules[8]
 
     m.write_channels([True] * 4)
     time.sleep(0.05)
@@ -472,8 +483,8 @@ def test_vmpa2_fb_ems_d2_4_write_channels(test_cpxap):
     assert m.read_channels() == [False] * 4
 
 
-def test_vmpa2_fb_ems_d2_4_write_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+def test_vmpa2_fb_emg_4_write_channel(test_cpxap):
+    m = test_cpxap.modules[8]
 
     for i in range(4):
         m.write_channel(i, True)
@@ -487,57 +498,13 @@ def test_vmpa2_fb_ems_d2_4_write_channel(test_cpxap):
         assert m.read_channel(i) is False
 
 
-def test_vmpa2_fb_ems_d2_4_set_clear_channel(test_cpxap):
-    m = test_cpxap.modules[5]
-
-    for i in range(4):
-        m.set_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.clear_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa2_fb_ems_d2_4_toggle_channel(test_cpxap):
-    m = test_cpxap.modules[5]
-
-    m.write_channels([False] * 4)
-
-    for i in range(4):
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is True
-
-        m.toggle_channel(i)
-        time.sleep(0.05)
-
-        assert m.read_channel(i) is False
-
-
-def test_vmpa2_fb_ems_d2_4_read_module_parameters(test_cpxap):
-    m = test_cpxap.modules[5]
+def test_vvmpa2_fb_emg_4_read_module_parameters(test_cpxap):
+    m = test_cpxap.modules[8]
     time.sleep(0.05)
 
-    assert m.read_module_parameter(20026) == m.read_module_parameter(
-        "Enable diagnosis of overload short circuit"
-    )
-    assert m.read_module_parameter(20027) == m.read_module_parameter(
-        "Enable diagnosis of open load"
-    )
     assert m.read_module_parameter(20033) == m.read_module_parameter(
         "Monitor Vout/Vval"
     )
     assert m.read_module_parameter(20052) == m.read_module_parameter(
         "Behaviour in fail state"
-    )
-    assert m.read_module_parameter(20094) == m.read_module_parameter(
-        "Condition counter set point"
-    )
-    assert m.read_module_parameter(20095) == m.read_module_parameter(
-        "Condition counter actual value"
     )
