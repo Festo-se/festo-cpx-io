@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## v0.5.0 - 17.06.24
 ### Added
 - Diagnosis for CpxAp and ApModule. This includes a ModuleInformation dataclass and builder as well as some new functions
 - CpxAp: Read the global diagnosis state from the cpx-ap system with `CpxAp.read_global_diagnosis_state()`
