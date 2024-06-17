@@ -32,11 +32,13 @@ class TestApModule:
 
         channels = ([], [], [])
         parameters = []
+        module_diagnosis = []
 
         yield ApModule(
             apdd_information,
             channels,
             parameters,
+            module_diagnosis,
         )
 
     @pytest.mark.parametrize(
@@ -155,7 +157,12 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INFRASTRUCTURE.value
         module.information = Mock(input_size=3, output_size=5)
         module.is_function_supported = Mock(return_value=True)
-        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
+        mocked_base = Mock(
+            next_output_register=0,
+            next_input_register=0,
+            next_diagnosis_register=0,
+            modules=[],
+        )
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
@@ -171,7 +178,12 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = Mock(input_size=3, output_size=5)
         module.is_function_supported = Mock(return_value=True)
-        mocked_base = Mock(next_output_register=0, next_input_register=0, modules=[])
+        mocked_base = Mock(
+            next_output_register=0,
+            next_input_register=0,
+            next_diagnosis_register=0,
+            modules=[],
+        )
 
         module.read_fieldbus_parameters = Mock()
 
@@ -1480,6 +1492,63 @@ class TestApModule:
                 call(module.position, parameter, 3),
             ]
         )
+
+    def test_read_diagnosis_code(self, module_fixture):
+        """Test read_diagnosis_code"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.INTERFACE.value
+        module.base = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
+        module.diagnosis_register = 1
+        module.diagnosis_dict = {"x": 0, "y": 1}
+
+        # Act
+        result = module.read_diagnosis_code()
+
+        # Assert
+        module.base.read_reg_data.assert_called_with(5, length=2)
+        assert result == 0xBEBAFECA
+
+    def test_read_diagnosis_code_not_supported(self, module_fixture):
+        """Test read_diagnosis_code"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.INTERFACE.value
+        module.base = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
+        module.diagnosis_register = 1
+
+        # Act & Assert
+        with pytest.raises(NotImplementedError):
+            module.read_diagnosis_code()
+
+    def test_read_diagnosis_information(self, module_fixture):
+        """Test read_diagnosis_information"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.INTERFACE.value
+        module.base = Mock()
+        module.read_diagnosis_code = Mock(return_value=0)
+        module.diagnosis_dict = {0: "test0", 1: "test1"}
+
+        # Act
+        result = module.read_diagnosis_information()
+
+        # Assert
+        module.read_diagnosis_code.assert_called_with()
+        assert result == "test0"
+
+    def test_read_diagnosis_information_not_supported(self, module_fixture):
+        """Test read_diagnosis_information"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.INTERFACE.value
+        module.base = Mock()
+
+        # Act & Assert
+        with pytest.raises(NotImplementedError):
+            module.read_diagnosis_information()
 
     @patch(
         "cpx_io.cpx_system.cpx_ap.ap_module.convert_uint32_to_octett",

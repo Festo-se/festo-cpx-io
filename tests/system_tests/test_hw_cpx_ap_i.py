@@ -5,7 +5,8 @@ import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
-from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
+from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
+from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 
 
 @pytest.fixture(scope="function")
@@ -52,14 +53,31 @@ def test_read_diagnostic_status(test_cpxap):
     assert all(isinstance(d, CpxAp.Diagnostics) for d in diagnostics)
 
 
+def test_read_latest_diagnosis_code(test_cpxap):
+    time.sleep(0.05)
+    assert test_cpxap.read_latest_diagnosis_code() == 0
+
+
+def test_read_diagnosis_state(test_cpxap):
+    assert test_cpxap.read_global_diagnosis_state() == 0
+
+
+def test_read_active_diagnosis_count(test_cpxap):
+    assert test_cpxap.read_active_diagnosis_count() == 0
+
+
+def test_read_latest_diagnosis_index(test_cpxap):
+    assert test_cpxap.read_latest_diagnosis_index() is None
+
+
 def test_module_naming(test_cpxap):
-    assert isinstance(test_cpxap.cpx_ap_i_ep_m12, CpxModule)
+    assert isinstance(test_cpxap.cpx_ap_i_ep_m12, ApModule)
     test_cpxap.cpx_ap_i_ep_m12.name = "test"
-    assert isinstance(test_cpxap.test, CpxModule)
+    assert isinstance(test_cpxap.test, ApModule)
 
 
 def test_modules(test_cpxap):
-    assert all(isinstance(m, CpxModule) for m in test_cpxap.modules)
+    assert all(isinstance(m, ApModule) for m in test_cpxap.modules)
 
     for i, m in enumerate(test_cpxap.modules):
         assert m.information.input_size >= 0
@@ -80,6 +98,15 @@ def test_modules(test_cpxap):
     assert test_cpxap.modules[4].input_register == 5006  # 4IOL, adds 18
     assert test_cpxap.modules[5].input_register == 5024  # VABX
     assert test_cpxap.modules[6].input_register == 5024  # 4Di
+
+    assert test_cpxap.diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].diagnosis_register == 11006  # EP
+    assert test_cpxap.modules[1].diagnosis_register == 11012  # 8DI
+    assert test_cpxap.modules[2].diagnosis_register == 11018  # 4Di4Do
+    assert test_cpxap.modules[3].diagnosis_register == 11024  # 4AIUI
+    assert test_cpxap.modules[4].diagnosis_register == 11030  # 4IOL
+    assert test_cpxap.modules[5].diagnosis_register == 11036  # VABX
+    assert test_cpxap.modules[6].diagnosis_register == 11042  # 4Di
 
 
 def test_modules_channel_length(test_cpxap):
@@ -107,6 +134,32 @@ def test_modules_channel_length(test_cpxap):
     assert len(test_cpxap.modules[4].inout_channels) == 4  # 4IOL
     assert len(test_cpxap.modules[5].inout_channels) == 0  # VABX
     assert len(test_cpxap.modules[6].inout_channels) == 0  # 4Di
+
+
+@pytest.mark.parametrize("input_value", list(range(7)))
+def test_read_diagnosis_code(test_cpxap, input_value):
+    assert test_cpxap.modules[input_value].read_diagnosis_code() == 0
+    assert test_cpxap.modules[input_value].read_diagnosis_information() is None
+
+
+"""
+# After running this test, you must restart (power off/on) the system to clear the 
+# error codes so that the other tests can run
+
+def test_read_diagnosis_code_active_iolink(test_cpxap):
+    module = test_cpxap.modules[4]
+    module.write_module_parameter("Port Mode", "IOL_AUTOSTART", instances=3)
+    module.write_module_parameter("Validation & Backup", 2, instances=3)
+    time.sleep(0.08)
+    assert module.read_diagnosis_information() == ApModule.ModuleDiagnosis(
+        description="No Device (communication)",
+        diagnosis_id="0x080A01A9",
+        guideline="- Check if IO-Link device is connected",
+        name="No Device",
+    )
+    module.write_module_parameter("Port Mode", "DEACTIVATED")
+    module.write_module_parameter("Validation & Backup", 0)
+"""
 
 
 def test_getter(test_cpxap):

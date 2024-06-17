@@ -6,6 +6,7 @@ from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (
 )
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import build_channel_list
 from cpx_io.cpx_system.cpx_ap.builder.parameter_builder import build_parameter_list
+from cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder import build_diagnosis_list
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.utils.logging import Logging
 
@@ -38,8 +39,12 @@ def build_ap_module(apdd: dict, module_code: int) -> ApModule:
     parameter_list = build_parameter_list(apdd=apdd)
     Logging.logger.debug(f"Parameters: {parameter_list}")
 
+    diagnosis_list = build_diagnosis_list(apdd=apdd)
+    Logging.logger.debug(f"Diagnosis: {diagnosis_list}")
+
     return ApModule(
         apdd_information,
         (input_channel_list, output_channel_list, inout_channel_list),
         parameter_list,
+        diagnosis_list,
     )

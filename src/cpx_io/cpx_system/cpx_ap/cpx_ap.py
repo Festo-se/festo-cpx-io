@@ -89,6 +89,9 @@ class CpxAp(CpxBase):
         self.next_output_register = None
         self.next_input_register = None
 
+        self.diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
+        self.next_diagnosis_register = self.diagnosis_register + 6  # global diagnosis
+
         self.set_timeout(int(timeout * 1000))
 
         if apdd_path:
@@ -405,6 +408,43 @@ class CpxAp(CpxBase):
 
         reg = self.read_parameter(0, ap_diagnosis_parameter)
         return [self.Diagnostics.from_int(r) for r in reg]
+
+    def read_global_diagnosis_state(self) -> int:
+        """Read the global diagnosis state from the cpx system
+
+        :ret value: Diagnosis state
+        :rtype: int"""
+        reg = self.read_reg_data(self.diagnosis_register, length=2)
+        return int.from_bytes(reg, byteorder="little")
+
+    def read_active_diagnosis_count(self) -> int:
+        """Read count of currently active diagnosis from the cpx system
+
+        :ret value: Amount of active diagnosis
+        :rtype: int"""
+        reg = self.read_reg_data(self.diagnosis_register + 2)
+        return int.from_bytes(reg, byteorder="little")
+
+    def read_latest_diagnosis_index(self) -> int:
+        """Read the index of the module with the latest diagnosis.
+        If no diagnosis is available, returns None
+
+        :ret value: Modul index
+        :rtype: int or None"""
+        reg = self.read_reg_data(self.diagnosis_register + 3)
+        # subtract one because AP starts with module index 1
+        module_index = int.from_bytes(reg, byteorder="little") - 1
+        if module_index < 0:
+            return None
+        return module_index
+
+    def read_latest_diagnosis_code(self) -> int:
+        """Read the latest diagnosis code from the cpx system
+
+        :ret value: Diagnosis code
+        :rtype: int"""
+        reg = self.read_reg_data(self.diagnosis_register + 4, length=2)
+        return int.from_bytes(reg, byteorder="little")
 
     def write_parameter(
         self,
