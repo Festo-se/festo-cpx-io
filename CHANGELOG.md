@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- CPX-AP: Added INT16 and UINT16 support for MPA modules in read/write functions, expanded system tests
 - Diagnosis for CpxAp and ApModule. This includes a ModuleInformation dataclass and builder as well as some new functions
 #### CpxAp
 - Read the global diagnosis state from the cpx-ap system with `CpxAp.read_global_diagnosis_state()`
@@ -15,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### ApModule
 - Read the diagnosis code from the module with `ApModule.read_diagnosis_code()`
 - Read the diagnosis information from the module with `ApModule.read_diagnosis_information()`
+=======
+- CPX-AP: Added INT16 and UINT16 support for MPA modules in read/write functions, expanded system tests
+>>>>>>> CHANGELOG.md
 
 ## v0.4.2 - 29.05.24
 ### Changed
