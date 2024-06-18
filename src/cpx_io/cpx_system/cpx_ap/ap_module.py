@@ -26,7 +26,9 @@ class ApModule(CpxModule):
     CpxAp object"""
 
     # pylint: disable=too-many-instance-attributes
-    # Might be devided in sub classes instead.
+    # pylint: disable=too-many-lines
+    # pylint: disable=too-many-arguments
+    # Should be devided in sub classes instead!
 
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
@@ -123,6 +125,30 @@ class ApModule(CpxModule):
             ProductCategory.MPA_S,
             ProductCategory.INTERFACE,
         ],
+        "read_diagnosis_code": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
+        "read_diagnosis_information": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
         "read_system_parameters": [ProductCategory.INTERFACE],
         "read_pqi": [ProductCategory.IO_LINK],
         "read_fieldbus_parameters": [ProductCategory.IO_LINK],
@@ -151,6 +177,7 @@ class ApModule(CpxModule):
         "toggle_channel",
     ]
     PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
+    DIAGNOSIS_FUNCTIONS = ["read_diagnosis_code", "read_diagnosis_information"]
 
     @dataclass
     class SystemParameters:
@@ -199,11 +226,21 @@ class ApModule(CpxModule):
         io_link_variant: str = "n.a."
         operating_supply: bool = False
 
+    @dataclass
+    class ModuleDiagnosis:
+        """ModuleDiagnosis dataclass"""
+
+        description: str
+        diagnosis_id: str
+        guideline: str
+        name: str
+
     def __init__(
         self,
         apdd_information: dict = None,
         channels: tuple = None,
         parameter_list: list = None,
+        diagnosis_list: list = None,
         name: str = None,
     ):
         super().__init__(name=name)
@@ -215,7 +252,12 @@ class ApModule(CpxModule):
         self.output_channels = channels[1] + channels[2]
         self.inout_channels = channels[2]
 
+        self.diagnosis_register = None
+
         self.parameter_dict = {p.parameter_id: p for p in parameter_list}
+        self.diagnosis_dict = {
+            int(d.diagnosis_id.lstrip("0x"), base=16): d for d in diagnosis_list
+        }
 
         self.fieldbus_parameters = None
 
@@ -255,31 +297,37 @@ class ApModule(CpxModule):
 
     def is_function_supported(self, func_name):
         """Returns False if function is not supported"""
+
+        function_is_supported = True
         # check if function is known at all
         if not self.PRODUCT_CATEGORY_MAPPING.get(func_name):
-            return False
+            function_is_supported = False
 
         # check if function is supported for the product category
-        if self.apdd_information.product_category not in [
+        elif self.apdd_information.product_category not in [
             v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
-            return False
+            function_is_supported = False
 
         # check if outputs are available if it's an output function
-        if func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
-            return False
+        elif func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
+            function_is_supported = False
 
         # check if inputs or outputs are available if it's an input function
-        if func_name in self.INPUT_FUNCTIONS and not (
+        elif func_name in self.INPUT_FUNCTIONS and not (
             self.input_channels or self.output_channels
         ):
-            return False
+            function_is_supported = False
 
         # check if there are parameters if it's a parameter function
-        if func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
-            return False
+        elif func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
+            function_is_supported = False
 
-        return True
+        # check if there are diagnosis information if it's a diagnosis function
+        elif func_name in self.DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
+            function_is_supported = False
+
+        return function_is_supported
 
     def _check_function_supported(self, func_name):
         if not self.is_function_supported(func_name):
@@ -291,8 +339,11 @@ class ApModule(CpxModule):
 
         super().configure(base=base, position=position)
 
+        self.diagnosis_register = self.base.next_diagnosis_register
+
         self.base.next_output_register += div_ceil(self.information.output_size, 2)
         self.base.next_input_register += div_ceil(self.information.input_size, 2)
+        self.base.next_diagnosis_register += 6  # always 6 registers per module
 
         # IO-Link special parameter
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
@@ -310,10 +361,7 @@ class ApModule(CpxModule):
         # if available, read inputs
         values = []
         if self.input_channels:
-            # this needs to read all i/o register and decide later what to use
-            data = self.base.read_reg_data(
-                self.input_register, byte_input_size + byte_output_size
-            )
+            data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
@@ -334,6 +382,8 @@ class ApModule(CpxModule):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
             elif all(c.data_type == "INT16" for c in self.input_channels):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.input_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
             else:
                 raise TypeError(
                     f"Input data type {self.input_channels[0].data_type} are not supported "
@@ -346,6 +396,10 @@ class ApModule(CpxModule):
 
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            elif all(c.data_type == "INT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
             else:
                 raise TypeError(
                     f"Output data type {self.output_channels[0].data_type} are not supported "
@@ -417,12 +471,21 @@ class ApModule(CpxModule):
                 f"Data must be list of {len(self.output_channels)} elements"
             )
 
+        # Handle bool
         if all(c.data_type == "BOOL" for c in self.output_channels) and all(
             isinstance(d, bool) for d in data
         ):
             reg = boollist_to_bytes(data)
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting channels to {data}")
+            Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
+            return
+
+        # Handle int
+        if all(
+            c.data_type in ["INT16", "UINT16"] for c in self.output_channels
+        ) and all(isinstance(d, int) for d in data):
+            for i, d in enumerate(data):
+                self.write_channel(i, d)
             return
 
         raise TypeError(
@@ -457,6 +520,7 @@ class ApModule(CpxModule):
             )
             return
 
+        # Handle bool
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
@@ -464,7 +528,27 @@ class ApModule(CpxModule):
             data[channel] = value
             reg_content = boollist_to_bytes(data)
             self.base.write_reg_data(reg_content, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting bool channel {channel} to {value}"
+            )
+            return
+
+        # Handle int16
+        if self.output_channels[channel].data_type == "INT16" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<h", value)
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(f"{self.name}: Setting int channel to {value}")
+            return
+
+        # Handle uint16
+        if self.output_channels[channel].data_type == "UINT16" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<H", value)
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(f"{self.name}: Setting uint channel to {value}")
             return
 
         raise TypeError(
@@ -637,6 +721,33 @@ class ApModule(CpxModule):
             f"{self.name}: Read {values} from instances {instances} of parameter {parameter.name}"
         )
         return values
+
+    @CpxBase.require_base
+    def read_diagnosis_code(self) -> int:
+        """Read the diagnosis code from the module
+
+        :ret value: Diagnosis code
+        :rtype: tuple"""
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
+        reg = self.base.read_reg_data(self.diagnosis_register + 4, length=2)
+        return int.from_bytes(reg, byteorder="little")
+
+    @CpxBase.require_base
+    def read_diagnosis_information(self) -> ModuleDiagnosis:
+        """Read the diagnosis information from the module. Contains:
+         * diagnosis_id
+         * name
+         * description
+         * guideline
+
+        :ret value: Diagnosis information
+        :rtype: ModuleDiagnosis or None if no diagnosis is active"""
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
+        diagnosis_code = self.read_diagnosis_code()
+
+        return self.diagnosis_dict.get(diagnosis_code)
 
     # Busmodule special functions
     @CpxBase.require_base
