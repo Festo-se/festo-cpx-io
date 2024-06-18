@@ -38,6 +38,12 @@ fault detection and threading
     
 :download:`Download Example <../../examples/example_cpxap_fault_detection.py>`
 
+io-link manual connection and diagnosis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_diagnosis.py
+    
+:download:`Download Example <../../examples/example_cpxap_diagnosis.py>`
+
 CPX-E
 ------
 
