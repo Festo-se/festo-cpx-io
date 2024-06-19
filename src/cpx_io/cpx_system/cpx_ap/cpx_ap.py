@@ -85,6 +85,8 @@ class CpxAp(CpxBase):
         :type generate_docu: bool
         """
         super().__init__(**kwargs)
+        if not self.client.connected:
+            return
 
         self.next_output_register = None
         self.next_input_register = None
