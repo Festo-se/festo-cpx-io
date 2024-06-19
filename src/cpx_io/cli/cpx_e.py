@@ -2,6 +2,9 @@
 
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
+# pylint: disable=duplicate-code
+# intended: cpx-e and cpx-ap have similar parser options
+
 
 def add_cpx_e_parser(subparsers):
     """Adds arguments to a provided subparsers instance"""

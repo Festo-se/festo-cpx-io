@@ -2,6 +2,9 @@
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 
+# pylint: disable=duplicate-code
+# intended: cpx-e and cpx-ap have similar parser options
+
 
 def add_cpx_ap_parser(subparsers):
     """Adds arguments to a provided subparsers instance"""
@@ -77,8 +80,6 @@ def cpx_ap_func(args):
         print(f"Value: {value}")
 
     elif args.subcommand == "write":
-        cpx_ap.modules[args.module_index][args.channel_index] = (
-            True if args.value[0] > 0 else False
-        )
+        cpx_ap.modules[args.module_index][args.channel_index] = args.value[0] > 0
 
     cpx_ap.shutdown()
