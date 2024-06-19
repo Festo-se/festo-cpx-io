@@ -51,8 +51,8 @@ def build_actual_variant(apdd, module_code):
 def build_apdd_information(apdd, variant):
     """Builds one ApddInformation"""
 
-    product_category = apdd["Variants"]["DeviceIdentification"]["ProductCategory"]
-    product_family = apdd["Variants"]["DeviceIdentification"]["ProductFamily"]
+    product_category = apdd["Variants"]["DeviceIdentification"].get("ProductCategory")
+    product_family = apdd["Variants"]["DeviceIdentification"].get("ProductFamily")
 
     return ApModule.ApddInformation(
         variant.description,
