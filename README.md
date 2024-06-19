@@ -39,6 +39,36 @@ For more information use the help flag  (`festo-cpx-io -h`).
 
 #### Subcommands
 - [`cpx-e`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cli.html#cpx-e) is a subcommand to execute commands on CPX-E devices
+```
+usage: festo-cpx-io cpx-e [-h] -t TYPECODE [-m MODULE_INDEX] {read,write} ...
+
+options:
+  -h, --help            show this help message and exit
+  -t TYPECODE, --typecode TYPECODE
+                        Typecode of the cpx setup
+  -m MODULE_INDEX, --module-index MODULE_INDEX
+                        Module index to read (default: 1).
+
+action commands:
+  Action to perform
+
+  {read,write}
+```
+- [`cpx-ap`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cli.html#cpx-e) is a subcommand to execute commands on CPX-AP devices
+ ```
+usage: festo-cpx-io cpx-ap [-h] [-si] [-ss] {read,write} ...
+
+options:
+  -h, --help            show this help message and exit
+  -si, --system-information
+                        Print system information
+  -ss, --system-state   Print system state
+
+action commands:
+  Action to perform
+
+  {read,write}
+```
 
 ### [CPX-SYSTEM](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cpx_io.html) - [`cpx_system`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cpx_system.html#)
 #### [CPX-E](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cpx_system.cpx_e.html)
