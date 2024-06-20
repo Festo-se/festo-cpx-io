@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: cpx_ap read/write channel functionality
 ### Fixed
 - ApModule: write_channel bug causing other channels to be resetted for some module types. 
+### Removed
+- Removed `chardet` dependency
 
 ## v0.5.0 - 17.06.24
 ### Added
