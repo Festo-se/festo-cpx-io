@@ -262,7 +262,10 @@ class CpxAp(CpxBase):
             print(f"   > {m.apdd_information.description}\n")
             print("* Available Functions: ")
             for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
-                if m.is_function_supported(function_name):
+                if (
+                    m.is_function_supported(function_name)
+                    and function_name != "configure"
+                ):
                     print(f"    > {function_name}")
 
             print("\n* Available Parameters: ")
