@@ -69,6 +69,8 @@ def add_cpx_ap_parser(subparsers):
 def cpx_ap_func(args):
     """Executes subcommand based on provided arguments"""
     cpx_ap = CpxAp(ip_address=args.ip_address, timeout=0.0)
+    if not cpx_ap.connected():
+        return
 
     if args.system_information:
         cpx_ap.print_system_information()

@@ -85,7 +85,7 @@ class CpxAp(CpxBase):
         :type generate_docu: bool
         """
         super().__init__(**kwargs)
-        if not self.client.connected:
+        if not self.connected():
             return
 
         self.next_output_register = None
@@ -138,6 +138,10 @@ class CpxAp(CpxBase):
 
         if generate_docu:
             generate_system_information_file(self)
+
+    def connected(self) -> bool:
+        """Returns information about connection status"""
+        return self.client.connected
 
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
