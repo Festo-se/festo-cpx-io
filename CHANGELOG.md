@@ -5,13 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
-- CPX-AP: Outdated and not-supported module firmware will now raise RuntimeError with suggestion to update firmware.
-### Changed
-- CPX-AP: Added diagnosis example
+### Fixed
+- CPX-AP: Limited the modbus timeout to a minimum 100 ms. Values lower that that could lead to exclusion from the system.
+
 ### Added
 - boollist_to_int convenience function
 - CLI: cpx_ap read/write channel functionality
+- CPX-AP: Outdated and not-supported module firmware will now raise RuntimeError with suggestion to update firmware.
+
+### Changed
+- CPX-AP: Added diagnosis example
+
 ### Fixed
 - ApModule: write_channel bug causing other channels to be resetted for some module types. 
 ### Removed

@@ -197,7 +197,15 @@ class CpxAp(CpxBase):
         :param timeout_ms: Modbus timeout in ms (milli-seconds)
         :type timeout_ms: int
         """
-        Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
+        if 0 < timeout_ms < 100:
+            timeout_ms = 100
+            Logging.logger.warning(
+                f"Setting the timeout below 100 ms can lead to "
+                f"exclusion from the system. To prevent this, "
+                f"the timeout was set to the minimum of {timeout_ms} ms"
+            )
+        else:
+            Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
         registers = timeout_ms.to_bytes(length=4, byteorder="little")
         self.write_reg_data(registers, ap_modbus_registers.TIMEOUT.register_address)
 
