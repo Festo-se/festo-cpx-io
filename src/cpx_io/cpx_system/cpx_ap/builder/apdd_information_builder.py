@@ -54,6 +54,13 @@ def build_apdd_information(apdd, variant):
     product_category = apdd["Variants"]["DeviceIdentification"].get("ProductCategory")
     product_family = apdd["Variants"]["DeviceIdentification"].get("ProductFamily")
 
+    if not product_category or not product_family:
+        raise RuntimeError(
+            f"{variant.name} can not be build due to outdated firmware. "
+            "Consider updating your cpx-ap module with the latest firmware "
+            "from https://www.festo.com"
+        )
+
     return ApModule.ApddInformation(
         variant.description,
         variant.name.lower().replace("-", "_").replace(" ", "_"),
