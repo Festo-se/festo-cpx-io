@@ -206,7 +206,7 @@ class CpxAp(CpxBase):
             Logging.logger.warning(
                 f"Setting the timeout below 100 ms can lead to "
                 f"exclusion from the system. To prevent this, "
-                f"the timeout was set to the minimum of {timeout_ms} ms"
+                f"the timeout is limited to a minimum of {timeout_ms} ms"
             )
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
         registers = timeout_ms.to_bytes(length=4, byteorder="little")
