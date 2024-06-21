@@ -353,6 +353,12 @@ class ApModule(CpxModule):
     def read_channels(self, outputs_only: bool = False) -> list:
         """Read all channels from module and interpret them as the module intends.
 
+        For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
+        if the outputs are numbered WITH (after) the inputs ("False", default), so the range
+        of output channels is <number of input channels>..<number of input and output channels>
+        If "True", the outputs are numbered from 0..<number of output channels>, the inputs
+        cannot be accessed this way.
+
         :param outputs_only: Outputs should be numbered independend from inputs, optional
         :type outputs_only: bool
 
@@ -367,7 +373,7 @@ class ApModule(CpxModule):
 
         values = []
         # if available, read inputs
-        if not outputs_only and self.input_channels:
+        if self.input_channels and not outputs_only:
             data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
