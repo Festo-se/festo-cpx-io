@@ -156,7 +156,7 @@ class CpxAp(CpxBase):
     def create_apdd_path() -> str:
         """Creates the apdd directory depending on the operating system and returns the path"""
         app_directory = platformdirs.user_data_dir(
-            appname="festo-cpx-io", appauthor="Festo SE & Co.KG"
+            appname="festo-cpx-io", appauthor="Festo"
         )
 
         # Create the directory if it doesn't exist
@@ -168,7 +168,7 @@ class CpxAp(CpxBase):
     def create_docu_path() -> str:
         """Creates the docu directory depending on the operating system and returns the path"""
         app_directory = platformdirs.user_data_dir(
-            appname="festo-cpx-io", appauthor="Festo SE & Co.KG"
+            appname="festo-cpx-io", appauthor="Festo"
         )
 
         # Create the directory if it doesn't exist

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: Outdated and not-supported module firmware will now raise RuntimeError with suggestion to update firmware.
 
 ### Changed
+- CPX-AP: Changed default apdd and docu path "appauthor" to Festo
 - CPX-AP: Added diagnosis example
 
 ### Fixed
