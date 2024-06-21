@@ -50,8 +50,8 @@ class CpxBase:
             return
 
         self.client = ModbusTcpClient(host=ip_address)
-        self.client.connect()
-        Logging.logger.info(f"Connected to {ip_address}:502")
+        if self.client.connect():
+            Logging.logger.info(f"Connected to {ip_address}:502")
 
     def __enter__(self):
         return self

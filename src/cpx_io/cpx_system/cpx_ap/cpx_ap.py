@@ -85,6 +85,8 @@ class CpxAp(CpxBase):
         :type generate_docu: bool
         """
         super().__init__(**kwargs)
+        if not self.connected():
+            return
 
         self.next_output_register = None
         self.next_input_register = None
@@ -137,6 +139,10 @@ class CpxAp(CpxBase):
         if generate_docu:
             generate_system_information_file(self)
 
+    def connected(self) -> bool:
+        """Returns information about connection status"""
+        return self.client.connected
+
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated
@@ -154,7 +160,7 @@ class CpxAp(CpxBase):
     def create_apdd_path() -> str:
         """Creates the apdd directory depending on the operating system and returns the path"""
         app_directory = platformdirs.user_data_dir(
-            appname="festo-cpx-io", appauthor="Festo SE & Co.KG"
+            appname="festo-cpx-io", appauthor="Festo"
         )
 
         # Create the directory if it doesn't exist
@@ -166,7 +172,7 @@ class CpxAp(CpxBase):
     def create_docu_path() -> str:
         """Creates the docu directory depending on the operating system and returns the path"""
         app_directory = platformdirs.user_data_dir(
-            appname="festo-cpx-io", appauthor="Festo SE & Co.KG"
+            appname="festo-cpx-io", appauthor="Festo"
         )
 
         # Create the directory if it doesn't exist
@@ -195,6 +201,13 @@ class CpxAp(CpxBase):
         :param timeout_ms: Modbus timeout in ms (milli-seconds)
         :type timeout_ms: int
         """
+        if 0 < timeout_ms < 100:
+            timeout_ms = 100
+            Logging.logger.warning(
+                f"Setting the timeout below 100 ms can lead to "
+                f"exclusion from the system. To prevent this, "
+                f"the timeout is limited to a minimum of {timeout_ms} ms"
+            )
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
         registers = timeout_ms.to_bytes(length=4, byteorder="little")
         self.write_reg_data(registers, ap_modbus_registers.TIMEOUT.register_address)
@@ -252,7 +265,10 @@ class CpxAp(CpxBase):
             print(f"   > {m.apdd_information.description}\n")
             print("* Available Functions: ")
             for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
-                if m.is_function_supported(function_name):
+                if (
+                    m.is_function_supported(function_name)
+                    and function_name != "configure"
+                ):
                     print(f"    > {function_name}")
 
             print("\n* Available Parameters: ")

@@ -40,6 +40,13 @@ def test_set_timeout():
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
+def test_set_timeout_below_100ms():
+    "test timeout"
+    with CpxAp(ip_address="172.16.1.41", timeout=0.05) as cpxap:
+        reg = cpxap.read_reg_data(14000, 2)
+        assert int.from_bytes(reg, byteorder="little", signed=False) == 100
+
+
 def test_read_apdd_information(test_cpxap):
 
     for i in range(len(test_cpxap.modules)):

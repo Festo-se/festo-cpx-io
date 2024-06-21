@@ -350,17 +350,30 @@ class ApModule(CpxModule):
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @CpxBase.require_base
-    def read_channels(self) -> Any:
-        """Read all channels from module and interpret them as the module intends."""
+    def read_channels(self, outputs_only: bool = False) -> list:
+        """Read all channels from module and interpret them as the module intends.
+
+        For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
+        if the outputs are numbered WITH (after) the inputs ("False", default), so the range
+        of output channels is <number of input channels>..<number of input and output channels>
+        If "True", the outputs are numbered from 0..<number of output channels>, the inputs
+        cannot be accessed this way.
+
+        :param outputs_only: Outputs should be numbered independend from inputs, optional
+        :type outputs_only: bool
+
+        :return: List of values of the channels
+        :rtype: list
+        """
 
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         byte_input_size = div_ceil(self.information.input_size, 2)
         byte_output_size = div_ceil(self.information.output_size, 2)
 
-        # if available, read inputs
         values = []
-        if self.input_channels:
+        # if available, read inputs
+        if self.input_channels and not outputs_only:
             data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
@@ -524,7 +537,7 @@ class ApModule(CpxModule):
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
-            data = self.read_channels()
+            data = self.read_channels(outputs_only=True)
             data[channel] = value
             reg_content = boollist_to_bytes(data)
             self.base.write_reg_data(reg_content, self.output_register)

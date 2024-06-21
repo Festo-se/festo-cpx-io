@@ -1,10 +1,14 @@
 """Helper functions for converting lists of boolean values"""
 
 
-def bytes_to_boollist(data: bytes, num_bytes: int = None):
+def bytes_to_boollist(data: bytes, num_bytes: int = None, byteorder="little"):
     """Converts data in byte representation to a list of bools"""
     # Compose list of single bytes
     chunkeddata = [data[i : i + 1] for i in range(0, len(data), 1)]
+
+    if byteorder == "big":
+        chunkeddata = chunkeddata[::-1]
+
     # Compose a list of single boolean values
     boollist = sum(
         (
@@ -35,3 +39,8 @@ def boollist_to_bytes(boollist: list):
         for chunk in chunkedlist
     ]
     return bytes(intlist)
+
+
+def boollist_to_int(boollist: list):
+    """Converts a list of bools to int representation"""
+    return int.from_bytes(boollist_to_bytes(boollist), byteorder="little")
