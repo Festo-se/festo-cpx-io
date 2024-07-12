@@ -117,7 +117,7 @@ class CpxAp(CpxBase):
             # if correct apdd exists in folder, use it!
             if apdd_name in apdds:
                 with open(
-                    self._apdd_path + "/" + apdd_name, "r", encoding="ascii"
+                    self._apdd_path + "/" + apdd_name, "r", encoding="utf-8"
                 ) as f:
                     module_apdd = json.load(f)
                 Logging.logger.debug(
@@ -626,7 +626,7 @@ class CpxAp(CpxBase):
                 + fw_version.replace(".", "-")
                 + ".json"
             )
-            with open(output_file_path, "w", encoding="ascii") as f:
+            with open(output_file_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(json_data, indent=4))
             Logging.logger.debug(f"JSON data has been written to: {output_file_path}")
             return json_data
