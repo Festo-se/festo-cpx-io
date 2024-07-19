@@ -2,7 +2,7 @@
 
 import json
 import struct
-from typing import Any
+from typing import Any, List
 from dataclasses import dataclass
 import os
 import platformdirs
@@ -181,7 +181,7 @@ class CpxAp(CpxBase):
         return docu_path
 
     @property
-    def modules(self):
+    def modules(self) -> List[ApModule]:
         """getter function for private modules property"""
         return self._modules
 
