@@ -6,17 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Checker script to read in APDDs and check if they are compatible with the library
 - Added type hint for ap modules property to enable autocompletion.
 - Added `int_to_boollist()` to utils.boollist
-- Checker script to read in APDDs and check if they are compatible with the library
 
 ### Changed
-- `CpxAp.read_global_diagnosis_state()` now returns dict according to "module diagnostics state" (see datasheet CPX-AP-\*-EP-\*) 
 - CPX-AP now interprets apdds with utf-8 instead of ascii encoding
+- `CpxAp.read_global_diagnosis_state()` now returns dict according to "module diagnostics state" (see datasheet CPX-AP-\*-EP-\*) 
 
 ### Fixed
 - Updated `requests` dependency to remove missing `chardet` error. Will now only raise a warning. Can be fixed by manually installing `chardet`
-
 
 ## v0.5.1 - 21.06.24
 ### Fixed

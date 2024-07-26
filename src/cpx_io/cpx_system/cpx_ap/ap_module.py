@@ -29,6 +29,8 @@ class ApModule(CpxModule):
     # pylint: disable=too-many-lines
     # pylint: disable=too-many-arguments
     # Should be devided in sub classes instead!
+    SUPPORTED_DATATYPES = ["UINT16", "INT16", "BOOL"]
+    SUPPORTED_IOL_DATATYPES = ["UINT8"]
 
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [

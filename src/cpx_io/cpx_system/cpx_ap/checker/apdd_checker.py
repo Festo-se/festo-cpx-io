@@ -3,7 +3,8 @@
 import os
 import json
 from cpx_io.cpx_system.cpx_ap.builder import ap_module_builder
-from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp, ApModule
+from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.utils.logging import Logging
 
 
@@ -17,7 +18,19 @@ def check_apdd(apdd: dict) -> int:
         variant_name = variant["VariantIdentification"]["OrderText"]
         Logging.logger.info(f"Checking variant {variant_code} of {variant_name}")
         try:
-            ap_module_builder.build_ap_module(apdd, variant_code)
+            module = ap_module_builder.build_ap_module(apdd, variant_code)
+            if (
+                module.apdd_information.product_category
+                == ProductCategory.IO_LINK.value
+            ):
+                check_if_apdd_datatypes_are_implemented(
+                    module, ApModule.SUPPORTED_IOL_DATATYPES
+                )
+            else:
+                check_if_apdd_datatypes_are_implemented(
+                    module, ApModule.SUPPORTED_DATATYPES
+                )
+
         # pylint: disable=broad-exception-caught
         # intentionally catching all errors
         except Exception as e:
@@ -44,6 +57,23 @@ def check_apdds_in_folder(folder_path: str) -> int:
             modules_with_errors += 1
 
     return modules_with_errors
+
+
+def check_if_apdd_datatypes_are_implemented(
+    module: ApModule, supported_types: list[str]
+):
+    """Checks if the used datatypes from ApModule are in the list of supported datatypes"""
+    used_types = [
+        i.data_type
+        for i in module.input_channels + module.output_channels + module.inout_channels
+    ]
+    missing_types = [
+        datatype for datatype in used_types if datatype not in supported_types
+    ]
+    if missing_types:
+        raise NotImplementedError(
+            f"The datatypes {missing_types} from the APDD are not implemented"
+        )
 
 
 def main():
