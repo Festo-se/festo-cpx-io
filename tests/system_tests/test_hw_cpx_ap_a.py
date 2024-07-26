@@ -73,7 +73,8 @@ def test_read_latest_diagnosis_code(test_cpxap):
 
 
 def test_read_diagnosis_state(test_cpxap):
-    assert test_cpxap.read_global_diagnosis_state() == 0
+    assert isinstance(test_cpxap.read_global_diagnosis_state(), dict)
+    assert list(test_cpxap.read_global_diagnosis_state().values()) == [False] * 19
 
 
 def test_read_active_diagnosis_count(test_cpxap):
