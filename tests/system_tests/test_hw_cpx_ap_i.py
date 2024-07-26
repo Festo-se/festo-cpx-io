@@ -167,7 +167,7 @@ def test_read_diagnosis_code_active_iolink(test_cpxap):
     )
     module.write_module_parameter("Port Mode", "DEACTIVATED")
     module.write_module_parameter("Validation & Backup", 0)
-    assert test_cpxap.read_global_diagnosis_state()["communication"] is True
+    assert test_cpxap.read_global_diagnosis_state()["Communication"] is True
 """
 
 
