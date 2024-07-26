@@ -19,17 +19,17 @@ def check_apdd(apdd: dict) -> int:
         Logging.logger.info(f"Checking variant {variant_code} of {variant_name}")
         try:
             module = ap_module_builder.build_ap_module(apdd, variant_code)
+
+            # check if datatypes are implemented. Needs to decide if IO-Link or not
             if (
                 module.apdd_information.product_category
                 == ProductCategory.IO_LINK.value
             ):
-                check_if_apdd_datatypes_are_implemented(
-                    module, ApModule.SUPPORTED_IOL_DATATYPES
-                )
+                supported_types = ApModule.SUPPORTED_IOL_DATATYPES
             else:
-                check_if_apdd_datatypes_are_implemented(
-                    module, ApModule.SUPPORTED_DATATYPES
-                )
+                supported_types = ApModule.SUPPORTED_DATATYPES
+
+            check_if_apdd_datatypes_are_implemented(module, supported_types)
 
         # pylint: disable=broad-exception-caught
         # intentionally catching all errors
