@@ -2,7 +2,7 @@
 
 import json
 import struct
-from typing import Any
+from typing import Any, List
 from dataclasses import dataclass
 import os
 import platformdirs
@@ -20,6 +20,7 @@ from cpx_io.cpx_system.cpx_ap.ap_parameter import (
     parameter_unpack,
 )
 from cpx_io.utils.helpers import div_ceil
+from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
@@ -181,7 +182,7 @@ class CpxAp(CpxBase):
         return docu_path
 
     @property
-    def modules(self):
+    def modules(self) -> List[ApModule]:
         """getter function for private modules property"""
         return self._modules
 
@@ -425,13 +426,41 @@ class CpxAp(CpxBase):
         reg = self.read_parameter(0, ap_diagnosis_parameter)
         return [self.Diagnostics.from_int(r) for r in reg]
 
-    def read_global_diagnosis_state(self) -> int:
-        """Read the global diagnosis state from the cpx system
+    def read_global_diagnosis_state(self) -> dict:
+        """Read the global diagnosis state from the cpx system. Returns dict
+        of module diagnosis state containing a logical OR over all modules errors.
+        This will give you an overview about what state the system is in.
 
         :ret value: Diagnosis state
-        :rtype: int"""
+        :rtype: dict"""
         reg = self.read_reg_data(self.diagnosis_register, length=2)
-        return int.from_bytes(reg, byteorder="little")
+        diagnosis_keys = [
+            "device available",
+            "current",
+            "voltage",
+            "temperature",
+            "reserved",
+            "motion",
+            "configuration/parameters",
+            "monitoring",
+            "communication",
+            "Safety",
+            "internal hardware",
+            "software",
+            "maintenance",
+            "miscellaneous",
+            "reserved(14)",
+            "reserved(15)",
+            "external device",
+            "safety",
+            "encoder",
+        ]
+        # the rest of the bits are "reserved" and therefore trunctuated
+        diagnoisis_dict = {
+            diagnosis_keys[i]: bytes_to_boollist(reg)[i]
+            for i in range(len(diagnosis_keys))
+        }
+        return diagnoisis_dict
 
     def read_active_diagnosis_count(self) -> int:
         """Read count of currently active diagnosis from the cpx system
