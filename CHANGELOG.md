@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Added type hint for ap modules property to enable autocompletion.
+- Added `int_to_boollist()` to utils.boollist
+
+### Changed
+- `CpxAp.read_global_diagnosis_state()` now returns dict according to "module diagnostics state" (see datasheet CPX-AP-\*-EP-\*) 
 
 ## v0.5.1 - 21.06.24
 ### Fixed
