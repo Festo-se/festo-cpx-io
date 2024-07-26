@@ -696,7 +696,6 @@ class ApModule(CpxModule):
         :rtype: Any"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
         parameter_input = parameter
-
         # PARAMETER HANDLING
         if isinstance(parameter, int):
             parameter = self.parameter_dict.get(parameter)
@@ -707,7 +706,7 @@ class ApModule(CpxModule):
             ]
             parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
-        else:
+        if parameter is None:
             raise NotImplementedError(f"{self} has no parameter {parameter_input}")
 
         if parameter.enums:
