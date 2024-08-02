@@ -30,6 +30,10 @@ class ApModule(CpxModule):
     # pylint: disable=too-many-arguments
     # Should be devided in sub classes instead!
 
+    # List of all implemented datatypes
+    SUPPORTED_DATATYPES = ["UINT16", "INT16", "BOOL"]
+    SUPPORTED_IOL_DATATYPES = ["UINT8"]
+
     PRODUCT_CATEGORY_MAPPING = {
         "read_channels": [
             ProductCategory.ANALOG,
@@ -391,6 +395,7 @@ class ApModule(CpxModule):
                 )
                 return channels
 
+            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
             if all(c.data_type == "BOOL" for c in self.input_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
             elif all(c.data_type == "INT16" for c in self.input_channels):
@@ -407,6 +412,7 @@ class ApModule(CpxModule):
         if self.output_channels:
             data = self.base.read_reg_data(self.output_register, byte_output_size)
 
+            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
             elif all(c.data_type == "INT16" for c in self.output_channels):
@@ -485,6 +491,7 @@ class ApModule(CpxModule):
             )
 
         # Handle bool
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(c.data_type == "BOOL" for c in self.output_channels) and all(
             isinstance(d, bool) for d in data
         ):
@@ -494,6 +501,7 @@ class ApModule(CpxModule):
             return
 
         # Handle int
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(
             c.data_type in ["INT16", "UINT16"] for c in self.output_channels
         ) and all(isinstance(d, int) for d in data):
@@ -534,6 +542,7 @@ class ApModule(CpxModule):
             return
 
         # Handle bool
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
@@ -547,6 +556,7 @@ class ApModule(CpxModule):
             return
 
         # Handle int16
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if self.output_channels[channel].data_type == "INT16" and isinstance(
             value, int
         ):
@@ -556,6 +566,7 @@ class ApModule(CpxModule):
             return
 
         # Handle uint16
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if self.output_channels[channel].data_type == "UINT16" and isinstance(
             value, int
         ):
