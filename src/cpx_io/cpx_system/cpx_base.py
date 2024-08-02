@@ -6,7 +6,7 @@ from dataclasses import dataclass, fields
 from functools import wraps
 
 from pymodbus.client import ModbusTcpClient
-from pymodbus.mei_message import ReadDeviceInformationRequest
+from pymodbus.pdu.mei_message import ReadDeviceInformationRequest
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
 
