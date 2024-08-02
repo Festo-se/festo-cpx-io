@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - CPX-AP now interprets apdds with utf-8 instead of ascii encoding
-- `CpxAp.read_global_diagnosis_state()` now returns dict according to "module diagnostics state" (see datasheet CPX-AP-\*-EP-\*) 
+- `CpxAp.read_global_diagnosis_state()` now returns dict according to "module diagnostics state" (see datasheet CPX-AP-\*-EP-\*)
+- Increment pymodbus version to 3.7.0
 
 ### Fixed
 - Updated `requests` dependency to remove missing `chardet` error. Will now only raise a warning. Can be fixed by manually installing `chardet`
