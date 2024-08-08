@@ -465,12 +465,11 @@ class ApModule(CpxModule):
             if all(c.data_type == "BOOL" for c in self.input_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
 
-            # TODO: Check if we need to split the 16 bit registers first. I don't know yet
-            # if there is only one byte value per register or two! (same for output_channels)
+            # TODO: Check if the assignment of two bytes per modbus register data works
             elif all(c.data_type == "INT8" for c in self.input_channels):
-                values.extend(struct.unpack("<" + "b" * (len(data) // 2), data))
+                values.extend(struct.unpack("<" + "bb" * (len(data) // 2), data))
             elif all(c.data_type == "UINT8" for c in self.input_channels):
-                values.extend(struct.unpack("<" + "B" * (len(data) // 2), data))
+                values.extend(struct.unpack("<" + "BB" * (len(data) // 2), data))
 
             elif all(c.data_type == "INT16" for c in self.input_channels):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
@@ -485,7 +484,33 @@ class ApModule(CpxModule):
         Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
         if self.output_channels:
+<<<<<<< HEAD
             values += self.read_output_channels()
+=======
+            data = self.base.read_reg_data(self.output_register, byte_output_size)
+
+            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+            if all(c.data_type == "BOOL" for c in self.output_channels):
+                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+
+            elif all(c.data_type == "INT8" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "bb" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT8" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "BB" * (len(data) // 2), data))
+
+            elif all(c.data_type == "INT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+
+            else:
+                raise TypeError(
+                    f"Output data type {self.output_channels[0].data_type} are not supported "
+                    "or types are not the same for each channel"
+                )
+
+        Logging.logger.info(f"{self.name}: Reading channels: {values}")
+>>>>>>> 71d425d (Changed uint8 handling to shared modbus registers. Still needs verification)
         return values
 
     @CpxBase.require_base
@@ -616,25 +641,12 @@ class ApModule(CpxModule):
                 f"{self.name}: Setting bool channel {channel} to {value}"
             )
 
-        # Handle int16
-        elif self.output_channels[channel].data_type == "INT16" and isinstance(
-            value, int
-        ):
-            reg = struct.pack("<h", value)
-            self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting int16 channel to {value}")
-
-        # Handle uint16
-        elif self.output_channels[channel].data_type == "UINT16" and isinstance(
-            value, int
-        ):
-            reg = struct.pack("<H", value)
-            self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting uint16 channel to {value}")
-
         # Handle int8
         elif self.output_channels[channel].data_type == "INT8" and isinstance(value, int):
-            reg = struct.pack("<b", value)
+            # Two channels share one modbus register, so read it first to write it back later
+            reg = self.base.read_reg_data(reg, self.output_register)
+            # if channel number is odd, value needs to be shifted 8 bit in the register
+            reg |= struct.pack("<b", value) << (channel % 2) * 8
             self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(f"{self.name}: Setting int8 channel to {value}")
 
@@ -642,9 +654,28 @@ class ApModule(CpxModule):
         elif self.output_channels[channel].data_type == "UINT8" and isinstance(
             value, int
         ):
-            reg = struct.pack("<B", value)
+            # Two channels share one modbus register, so read it first to write it back later
+            reg = self.base.read_reg_data(reg, self.output_register)
+            # if channel number is odd, value needs to be shifted 8 bit in the register
+            reg |= struct.pack("<B", value) << (channel % 2) * 8
             self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(f"{self.name}: Setting uint8 channel to {value}")
+
+        # Handle int16
+        elif self.output_channels[channel].data_type == "INT16" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<h", value)
+            self.base.write_reg_data(reg, self.output_register + channel)
+            Logging.logger.info(f"{self.name}: Setting int16 channel {channel} to {value}")
+
+        # Handle uint16
+        elif self.output_channels[channel].data_type == "UINT16" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<H", value)
+            self.base.write_reg_data(reg, self.output_register + channel)
+            Logging.logger.info(f"{self.name}: Setting uint16 channel {channel} to {value}")
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         else:
