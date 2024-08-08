@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Support for INT8 and UINT8 channels (VTUX serial linking)
+- Support for INT8 and UINT8 channels (used by future vacuum valves for VTUX)
 ### Changed
 - `read_module_parameter()` now has optional parameter `return_raw`. If set True, function returns integers instead of enum strings.
 
