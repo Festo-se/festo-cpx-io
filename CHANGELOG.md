@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed optional parameter `raw` from `read_module_parameter()`. Added `read_module_parameter_enum_str()` instead.
 - Removed optional parameter `outputs_only` from `read_channel(s)()`. Added `read_output_channel(s)()` instead.
 - Updated examples
+### Added
+- Support for INT8 and UINT8 channels (VTUX serial linking)
 
 ## v0.5.3 - 09.08.24
 ### Added
