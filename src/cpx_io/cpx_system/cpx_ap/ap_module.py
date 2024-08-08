@@ -642,13 +642,15 @@ class ApModule(CpxModule):
             )
 
         # Handle int8
-        elif self.output_channels[channel].data_type == "INT8" and isinstance(value, int):
+        elif self.output_channels[channel].data_type == "INT8" and isinstance(
+            value, int
+        ):
             # Two channels share one modbus register, so read it first to write it back later
             reg = self.base.read_reg_data(reg, self.output_register)
             # if channel number is odd, value needs to be shifted 8 bit in the register
             reg |= struct.pack("<b", value) << (channel % 2) * 8
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting int8 channel to {value}")
+            Logging.logger.info(f"{self.name}: Setting int8 channel {channel} to {value}")
 
         # Handle uint8
         elif self.output_channels[channel].data_type == "UINT8" and isinstance(
@@ -659,7 +661,7 @@ class ApModule(CpxModule):
             # if channel number is odd, value needs to be shifted 8 bit in the register
             reg |= struct.pack("<B", value) << (channel % 2) * 8
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting uint8 channel to {value}")
+            Logging.logger.info(f"{self.name}: Setting uint8 channel {channel} to {value}")
 
         # Handle int16
         elif self.output_channels[channel].data_type == "INT16" and isinstance(
@@ -667,7 +669,9 @@ class ApModule(CpxModule):
         ):
             reg = struct.pack("<h", value)
             self.base.write_reg_data(reg, self.output_register + channel)
-            Logging.logger.info(f"{self.name}: Setting int16 channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting int16 channel {channel} to {value}"
+            )
 
         # Handle uint16
         elif self.output_channels[channel].data_type == "UINT16" and isinstance(
@@ -675,7 +679,9 @@ class ApModule(CpxModule):
         ):
             reg = struct.pack("<H", value)
             self.base.write_reg_data(reg, self.output_register + channel)
-            Logging.logger.info(f"{self.name}: Setting uint16 channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting uint16 channel {channel} to {value}"
+            )
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         else:
