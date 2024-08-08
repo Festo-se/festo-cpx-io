@@ -28,10 +28,11 @@ class ApModule(CpxModule):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-lines
     # pylint: disable=too-many-arguments
-    # Should be devided in sub classes instead!
+    # pylint: disable=too-many-branches
+    # This is not intended, should be divided in sub classes instead!
 
     # List of all implemented datatypes
-    SUPPORTED_DATATYPES = ["UINT16", "INT16", "BOOL"]
+    SUPPORTED_DATATYPES = ["UINT16", "INT16", "UINT8", "INT8", "BOOL"]
     SUPPORTED_IOL_DATATYPES = ["UINT8"]
 
     PRODUCT_CATEGORY_MAPPING = {
@@ -398,10 +399,19 @@ class ApModule(CpxModule):
             # Remember to update the SUPPORTED_DATATYPES list when you add more types here
             if all(c.data_type == "BOOL" for c in self.input_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+
+            # TODO: Check if we need to split the 16 bit registers first. I don't know yet
+            # if there is only one byte value per register or two! (same for output_channels)
+            elif all(c.data_type == "INT8" for c in self.input_channels):
+                values.extend(struct.unpack("<" + "b" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT8" for c in self.input_channels):
+                values.extend(struct.unpack("<" + "B" * (len(data) // 2), data))
+
             elif all(c.data_type == "INT16" for c in self.input_channels):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
             elif all(c.data_type == "UINT16" for c in self.input_channels):
                 values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+
             else:
                 raise TypeError(
                     f"Input data type {self.input_channels[0].data_type} are not supported "
@@ -415,10 +425,17 @@ class ApModule(CpxModule):
             # Remember to update the SUPPORTED_DATATYPES list when you add more types here
             if all(c.data_type == "BOOL" for c in self.output_channels):
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+
+            elif all(c.data_type == "INT8" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "b" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT8" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "B" * (len(data) // 2), data))
+
             elif all(c.data_type == "INT16" for c in self.output_channels):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
             elif all(c.data_type == "UINT16" for c in self.output_channels):
                 values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+
             else:
                 raise TypeError(
                     f"Output data type {self.output_channels[0].data_type} are not supported "
@@ -503,7 +520,8 @@ class ApModule(CpxModule):
         # Handle int
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(
-            c.data_type in ["INT16", "UINT16"] for c in self.output_channels
+            c.data_type in ["INT8", "UINT8", "INT16", "UINT16"]
+            for c in self.output_channels
         ) and all(isinstance(d, int) for d in data):
             for i, d in enumerate(data):
                 self.write_channel(i, d)
@@ -539,11 +557,9 @@ class ApModule(CpxModule):
             Logging.logger.info(
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
             )
-            return
 
         # Handle bool
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
+        elif all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
             data = self.read_channels(outputs_only=True)
@@ -553,32 +569,43 @@ class ApModule(CpxModule):
             Logging.logger.info(
                 f"{self.name}: Setting bool channel {channel} to {value}"
             )
-            return
 
         # Handle int16
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if self.output_channels[channel].data_type == "INT16" and isinstance(
+        elif self.output_channels[channel].data_type == "INT16" and isinstance(
             value, int
         ):
             reg = struct.pack("<h", value)
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting int channel to {value}")
-            return
+            Logging.logger.info(f"{self.name}: Setting int16 channel to {value}")
 
         # Handle uint16
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if self.output_channels[channel].data_type == "UINT16" and isinstance(
+        elif self.output_channels[channel].data_type == "UINT16" and isinstance(
             value, int
         ):
             reg = struct.pack("<H", value)
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting uint channel to {value}")
-            return
+            Logging.logger.info(f"{self.name}: Setting uint16 channel to {value}")
 
-        raise TypeError(
-            f"{self.output_channels[0].data_type} is not supported or type(value) "
-            f"is not compatible"
-        )
+        # Handle int8
+        elif self.output_channels[channel].data_type == "INT8" and isinstance(value, int):
+            reg = struct.pack("<b", value)
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(f"{self.name}: Setting int8 channel to {value}")
+
+        # Handle uint8
+        elif self.output_channels[channel].data_type == "UINT8" and isinstance(
+            value, int
+        ):
+            reg = struct.pack("<B", value)
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(f"{self.name}: Setting uint8 channel to {value}")
+
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+        else:
+            raise TypeError(
+                f"{self.output_channels[0].data_type} is not supported or type(value) "
+                f"is not compatible"
+            )
 
     # Special functions for digital channels
     @CpxBase.require_base
@@ -684,6 +711,7 @@ class ApModule(CpxModule):
         self,
         parameter: str | int,
         instances: int | list = None,
+        return_raw: bool = False,
     ) -> Any:
         """Read module parameter if available. Access either by ID (faster) or by Name.
 
@@ -692,6 +720,9 @@ class ApModule(CpxModule):
         :param instances: (optional) Index or list of instances of the parameter.
             If None, all instances will be written
         :type instance: int | list
+        :param return_raw: (optional) option to return the corresponding integer number instead
+            of an enum string
+        :type return_raw: bool
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
@@ -727,10 +758,10 @@ class ApModule(CpxModule):
                 )
             )
 
-        # if parameter is ENUM, return the according string. Indexing 0 should always work here
-        # because the check that value is available was done before
+        # If parameter is ENUM, return the enum string if not specified with return_raw otherwise.
+        # Indexing 0 should always work here as the availability check is done before.
 
-        if parameter.enums:
+        if parameter.enums and not return_raw:
             enum_values = []
             for val in values:
                 enum_values.append(

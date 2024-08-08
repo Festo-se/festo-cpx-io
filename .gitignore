@@ -12,3 +12,4 @@ venv
 .venv
 coverage.xml
 docs/source/cpx_io*.rst
+festo-cpx-io.code-workspace
