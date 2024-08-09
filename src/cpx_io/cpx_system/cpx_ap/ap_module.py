@@ -28,6 +28,7 @@ class ApModule(CpxModule):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-lines
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-public-methods
     # Should be devided in sub classes instead!
 
     # List of all implemented datatypes
@@ -380,8 +381,8 @@ class ApModule(CpxModule):
     def read_output_channels(self) -> list:
         """Read only output channels from module and interpret them as the module intends.
 
-        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>, the inputs
-        cannot be accessed this way.
+        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>,
+        the inputs cannot be accessed this way.
 
         :return: List of values of the channels
         :rtype: list
@@ -464,8 +465,8 @@ class ApModule(CpxModule):
     def read_output_channel(self, channel: int) -> Any:
         """Read back the value of one output channel.
 
-        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>, the inputs
-        cannot be accessed this way.
+        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>,
+        the inputs cannot be accessed this way.
 
         :param channel: Channel number, starting with 0
         :type channel: int
@@ -776,6 +777,15 @@ class ApModule(CpxModule):
         parameter: str | int,
         instances: int | list = None,
     ) -> Any:
+        """Read enum name of module parameter if available. Access either by ID (faster) or by Name.
+
+        :param parameter: Parameter name or ID
+        :type parameter: str | int
+        :param instances: (optional) Index or list of instances of the parameter.
+            If None, all instances will be written
+        :type instance: int | list
+        :return: Name of the enum value.
+        :rtype: str"""
         if not parameter.enums:
             raise TypeError(f"Parameter {parameter} is not an enum ")
 
