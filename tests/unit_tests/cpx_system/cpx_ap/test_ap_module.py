@@ -584,7 +584,7 @@ class TestApModule:
         module.input_channels = [0, 1, 2, 4]  # dummy input channels
         module.output_channels = input_value
 
-        module.read_channels = Mock(return_value=module.input_channels + expected_value)
+        module.read_output_channels = Mock(return_value=expected_value)
 
         # Act
         channel_values = [
@@ -881,7 +881,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        module.read_channels = Mock(return_value=[False] * 4)
+        module.read_output_channels = Mock(return_value=[False] * 4)
 
         module.output_channels = [
             Channel(
@@ -1161,7 +1161,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
-        module.read_channel = Mock(return_value=True)
+        module.read_output_channel = Mock(return_value=True)
         module.output_channels = [
             Channel(
                 array_size=None,
@@ -1191,7 +1191,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
-        module.read_channel = Mock(return_value=False)
+        module.read_output_channel = Mock(return_value=False)
         module.output_channels = [
             Channel(
                 array_size=None,
