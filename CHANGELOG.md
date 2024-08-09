@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Removed optional parameter `raw` from `read_module_parameter()`. Added `read_module_parameter_enum_name()` instead.
+- Removed optional parameter `outputs_only` from `read_channel(s)()`. Added `read_output_channel(s)()` instead.
 
 ## v0.5.3 - 09.08.24
 ### Added

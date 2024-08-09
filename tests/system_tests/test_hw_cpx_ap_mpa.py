@@ -144,12 +144,12 @@ def test_vmpa14_fb_emg_d2_8_s_write_channel(test_cpxap):
         m.write_channel(i, True)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is True
+        assert m.read_output_channel(i) is True
 
         m.write_channel(i, False)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is False
+        assert m.read_output_channel(i) is False
 
 
 def test_vmpa14_fb_emg_d2_8_s_set_clear_channel(test_cpxap):
@@ -159,12 +159,12 @@ def test_vmpa14_fb_emg_d2_8_s_set_clear_channel(test_cpxap):
         m.set_channel(i)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is True
+        assert m.read_output_channel(i) is True
 
         m.clear_channel(i)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is False
+        assert m.read_output_channel(i) is False
 
 
 def test_vmpa14_fb_emg_d2_8_s_toggle_channel(test_cpxap):
@@ -176,12 +176,12 @@ def test_vmpa14_fb_emg_d2_8_s_toggle_channel(test_cpxap):
         m.toggle_channel(i)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is True
+        assert m.read_output_channel(i) is True
 
         m.toggle_channel(i)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is False
+        assert m.read_output_channel(i) is False
 
 
 def test_vmpa14_fb_emg_d2_8_s_read_module_parameters(test_cpxap):

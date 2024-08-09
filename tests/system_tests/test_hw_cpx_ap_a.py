@@ -358,17 +358,17 @@ def test_12Di4Do(test_cpxap):
 
     m.set_channel(0)
     time.sleep(0.05)
-    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_output_channel(0) is True
     assert m.read_channel(12) is True
 
     m.clear_channel(0)
     time.sleep(0.05)
-    assert m.read_channel(0, outputs_only=True) is False
+    assert m.read_output_channel(0) is False
     assert m.read_channel(12) is False
 
     m.toggle_channel(0)
     time.sleep(0.05)
-    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_output_channel(0) is True
     assert m.read_channel(12) is True
 
     m.clear_channel(0)

@@ -29,7 +29,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     # reads back the first input channel
     dido.read_channel(0)
     # reads back the first output channel, same as "read_channel(4)"
-    dido.read_channel(0, outputs_only=True)
+    dido.read_output_channel(0)
 
     # configure the module. Check what parameters are available in the documentation or read
     # them from the module (see parameter_read_write example)

@@ -97,10 +97,10 @@ def test_vmpa_p_rp_read_channel(test_cpxap):
     assert m.read_channel(0) == 0
 
 
-def test_vmpa_p_rp_read_channel_outputs_only(test_cpxap):
+def test_vmpa_p_rp_read_output_channel(test_cpxap):
     m = test_cpxap.modules[2]
 
-    assert m.read_channel(0, outputs_only=True) == 0
+    assert m.read_output_channel(0) == 0
 
 
 def test_vmpa_p_rp_read_channels(test_cpxap):
@@ -120,7 +120,7 @@ def test_vmpa_p_rp_write_channel(test_cpxap):
     m = test_cpxap.modules[2]
 
     m.write_channel(0, 100)
-    assert m.read_channel(0, outputs_only=True) == 100
+    assert m.read_output_channel(0) == 100
 
 
 def test_vmpa_p_rp_read_module_parameters(test_cpxap):
@@ -172,10 +172,10 @@ def test_vppm_6ta_l_1_f_0l2h___read_channel(test_cpxap):
     assert m.read_channel(0) == 0
 
 
-def test_vppm_6ta_l_1_f_0l2h___read_channel_outputs_only(test_cpxap):
+def test_vppm_6ta_l_1_f_0l2h___read_output_channel(test_cpxap):
     m = test_cpxap.modules[3]
 
-    assert m.read_channel(0, outputs_only=True) == 0
+    assert m.read_output_channel(0) == 0
 
 
 def test_vppm_6ta_l_1_f_0l2h___read_channels(test_cpxap):
@@ -195,7 +195,7 @@ def test_vppm_6ta_l_1_f_0l2h___write_channel(test_cpxap):
     m = test_cpxap.modules[3]
 
     m.write_channel(0, 100)
-    assert m.read_channel(0, outputs_only=True) == 100
+    assert m.read_output_channel(0) == 100
 
 
 def test_vppm_6ta_l_1_f_0l2h___read_module_parameters(test_cpxap):
@@ -333,12 +333,12 @@ def test_vmpa_fb_emg_p5_write_channel(test_cpxap):
         m.write_channel(i, True)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is True
+        assert m.read_output_channel(i) is True
 
         m.write_channel(i, False)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is False
+        assert m.read_output_channel(i) is False
 
 
 def test_vmpa_fb_emg_p5_read_module_parameters(test_cpxap):
@@ -437,12 +437,12 @@ def test_vmpa1_fb_emg_8_s_write_channel(test_cpxap):
         m.write_channel(i, True)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is True
+        assert m.read_output_channel(i) is True
 
         m.write_channel(i, False)
         time.sleep(0.05)
 
-        assert m.read_channel(i, outputs_only=True) is False
+        assert m.read_output_channel(i) is False
 
 
 def test_vmpa1_fb_emg_8_s_read_module_parameters(test_cpxap):

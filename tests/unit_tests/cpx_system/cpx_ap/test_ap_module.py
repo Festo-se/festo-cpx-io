@@ -572,7 +572,7 @@ class TestApModule:
             ),
         ],
     )
-    def test_read_channel_correct_value_outputs_only(
+    def test_read_output_channel_correct_value(
         self, module_fixture, input_value, expected_value
     ):
         """Test read channel"""
@@ -588,8 +588,7 @@ class TestApModule:
 
         # Act
         channel_values = [
-            module.read_channel(idx, outputs_only=True)
-            for idx in range(len(input_value))
+            module.read_output_channel(idx) for idx in range(len(input_value))
         ]
 
         # Assert

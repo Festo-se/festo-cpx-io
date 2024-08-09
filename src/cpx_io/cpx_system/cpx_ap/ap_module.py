@@ -57,6 +57,27 @@ class ApModule(CpxModule):
             ProductCategory.MPA_L,
             ProductCategory.MPA_S,
         ],
+        "read_output_channels": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "read_output_channel": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
         "write_channels": [
             ProductCategory.ANALOG,
             ProductCategory.DIGITAL,
@@ -172,16 +193,18 @@ class ApModule(CpxModule):
             ProductCategory.VTOM,
         ],
     }
-    INPUT_FUNCTIONS = ["read_channels", "read_channel"]
-    OUTPUT_FUNCTIONS = [
+    INPUT_FUNCTIONS = {"read_channels", "read_channel"}
+    OUTPUT_FUNCTIONS = {
+        "read_output_channels",
+        "read_output_channel",
         "write_channels",
         "write_channel",
         "set_channel",
         "clear_channel",
         "toggle_channel",
-    ]
-    PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
-    DIAGNOSIS_FUNCTIONS = ["read_diagnosis_code", "read_diagnosis_information"]
+    }
+    PARAMETER_FUNCTIONS = {"write_module_parameter", "read_module_parameter"}
+    DIAGNOSIS_FUNCTIONS = {"read_diagnosis_code", "read_diagnosis_information"}
 
     @dataclass
     class SystemParameters:
@@ -354,30 +377,53 @@ class ApModule(CpxModule):
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @CpxBase.require_base
-    def read_channels(self, outputs_only: bool = False) -> list:
-        """Read all channels from module and interpret them as the module intends.
+    def read_output_channels(self) -> list:
+        """Read only output channels from module and interpret them as the module intends.
 
-        For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
-        if the outputs are numbered WITH (after) the inputs ("False", default), so the range
-        of output channels is <number of input channels>..<number of input and output channels>
-        If "True", the outputs are numbered from 0..<number of output channels>, the inputs
+        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>, the inputs
         cannot be accessed this way.
-
-        :param outputs_only: Outputs should be numbered independend from inputs, optional
-        :type outputs_only: bool
 
         :return: List of values of the channels
         :rtype: list
         """
-
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        byte_input_size = div_ceil(self.information.input_size, 2)
         byte_output_size = div_ceil(self.information.output_size, 2)
 
         values = []
+        # if available, read outputs
+        if self.output_channels:
+            data = self.base.read_reg_data(self.output_register, byte_output_size)
+
+            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+            if all(c.data_type == "BOOL" for c in self.output_channels):
+                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            elif all(c.data_type == "INT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+            else:
+                raise TypeError(
+                    f"Output data type {self.output_channels[0].data_type} are not supported "
+                    "or types are not the same for each channel"
+                )
+        Logging.logger.info(f"{self.name}: Reading output channels: {values}")
+        return values
+
+    @CpxBase.require_base
+    def read_channels(self) -> list:
+        """Read all channels from module and interpret them as the module intends.
+
+        :return: List of values of the channels
+        :rtype: list
+        """
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
+        byte_input_size = div_ceil(self.information.input_size, 2)
+
+        values = []
         # if available, read inputs
-        if self.input_channels and not outputs_only:
+        if self.input_channels:
             data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
@@ -407,43 +453,38 @@ class ApModule(CpxModule):
                     f"Input data type {self.input_channels[0].data_type} are not supported "
                     "or types are not the same for each channel"
                 )
+        Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
-        # if available, read outputs
         if self.output_channels:
-            data = self.base.read_reg_data(self.output_register, byte_output_size)
+            values += self.read_output_channels()
 
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.output_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-            elif all(c.data_type == "INT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
-            else:
-                raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported "
-                    "or types are not the same for each channel"
-                )
-
-        Logging.logger.info(f"{self.name}: Reading channels: {values}")
         return values
 
     @CpxBase.require_base
-    def read_channel(
-        self, channel: int, outputs_only: bool = False, full_size: bool = False
-    ) -> Any:
-        """Read back the value of one channel.
+    def read_output_channel(self, channel: int) -> Any:
+        """Read back the value of one output channel.
 
-        For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
-        if the outputs are numbered WITH (after) the inputs ("False", default), so the range
-        of output channels is <number of input channels>..<number of input and output channels>
-        If "True", the outputs are numbered from 0..<number of output channels>, the inputs
+        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>, the inputs
         cannot be accessed this way.
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param outputs_only: Outputs should be numbered independend from inputs, optional
-        :type outputs_only: bool
+        :param full_size: IO-Link channes should be returned in full datalength and not
+            limited to the slave information datalength
+        :type full_size: bool
+        :return: Value of the channel
+        :rtype: bool
+        """
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+        channel_range_check(channel, len(self.output_channels))
+        return self.read_output_channels()[channel]
+
+    @CpxBase.require_base
+    def read_channel(self, channel: int, full_size: bool = False) -> Any:
+        """Read back the value of one channel.
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
         :param full_size: IO-Link channes should be returned in full datalength and not
             limited to the slave information datalength
         :type full_size: bool
@@ -452,19 +493,13 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if outputs_only:
-            channel_count = len(self.output_channels)
-        else:
-            channel_count = (
-                len([c for c in self.input_channels if c.direction == "in"])
-                + len([c for c in self.output_channels if c.direction == "out"])
-                + len(self.inout_channels)
-            )
+        channel_count = (
+            len([c for c in self.input_channels if c.direction == "in"])
+            + len([c for c in self.output_channels if c.direction == "out"])
+            + len(self.inout_channels)
+        )
 
         channel_range_check(channel, channel_count)
-
-        if self.input_channels and outputs_only:
-            channel += len(self.input_channels)
 
         # if datalength is given and full_size is not requested, shorten output
         if self.fieldbus_parameters and not full_size:
@@ -546,7 +581,7 @@ class ApModule(CpxModule):
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
-            data = self.read_channels(outputs_only=True)
+            data = self.read_output_channels()
             data[channel] = value
             reg_content = boollist_to_bytes(data)
             self.base.write_reg_data(reg_content, self.output_register)
@@ -611,7 +646,7 @@ class ApModule(CpxModule):
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # get the relevant value from the register and write the inverse
-        value = self.read_channel(channel, outputs_only=True)
+        value = self.read_output_channel(channel)
         self.write_channel(channel, not value)
 
     # Parameter functions
