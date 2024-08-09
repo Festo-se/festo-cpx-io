@@ -684,6 +684,7 @@ class ApModule(CpxModule):
         self,
         parameter: str | int,
         instances: int | list = None,
+        raw: bool = False,
     ) -> Any:
         """Read module parameter if available. Access either by ID (faster) or by Name.
 
@@ -730,7 +731,7 @@ class ApModule(CpxModule):
         # if parameter is ENUM, return the according string. Indexing 0 should always work here
         # because the check that value is available was done before
 
-        if parameter.enums:
+        if parameter.enums and not raw:
             enum_values = []
             for val in values:
                 enum_values.append(

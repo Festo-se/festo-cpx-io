@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Added optional parameter `raw` for `read_module_parameter()` which returns ENUM id instead of name.
+
 ## v0.5.2 - 02.08.24
 ### Added
 - Checker script to read in APDDs and check if they are compatible with the library
