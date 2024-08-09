@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+- Removed optional parameter `raw` from `read_module_parameter()`. Added `read_module_parameter_enum_name()` instead.
+
 ## v0.5.3 - 09.08.24
 ### Added
 - Added optional parameter `raw` for `read_module_parameter()` which returns ENUM id instead of name.

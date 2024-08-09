@@ -684,7 +684,6 @@ class ApModule(CpxModule):
         self,
         parameter: str | int,
         instances: int | list = None,
-        raw: bool = False,
     ) -> Any:
         """Read module parameter if available. Access either by ID (faster) or by Name.
 
@@ -728,17 +727,6 @@ class ApModule(CpxModule):
                 )
             )
 
-        # if parameter is ENUM, return the according string. Indexing 0 should always work here
-        # because the check that value is available was done before
-
-        if parameter.enums and not raw:
-            enum_values = []
-            for val in values:
-                enum_values.append(
-                    [k for k, v in parameter.enums.enum_values.items() if v == val][0]
-                )
-            values = enum_values
-
         if len(instances) == 1:
             values = values[0]
 
@@ -746,6 +734,35 @@ class ApModule(CpxModule):
             f"{self.name}: Read {values} from instances {instances} of parameter {parameter.name}"
         )
         return values
+
+    @CpxBase.require_base
+    def read_module_parameter_enum_name(
+        self,
+        parameter: str | int,
+        instances: int | list = None,
+    ) -> Any:
+        if not parameter.enums:
+            raise TypeError(f"Parameter {parameter} is not an enum ")
+
+        enum_id_to_name_dict = {v: k for k, v in parameter.enums.enum_values.items()}
+
+        values = self.read_module_parameter(parameter, instances)
+
+        if len(values) == 1:
+            if values not in enum_id_to_name_dict:
+                raise ValueError(
+                    f"ENUM id {values} is not known (available: {enum_id_to_name_dict})"
+                )
+            return enum_id_to_name_dict[values]
+
+        if len(values) > 1:
+            return [
+                enum_id_to_name_dict[v] for v in values if v in enum_id_to_name_dict
+            ]
+
+        raise ValueError(
+            f"Parameter {parameter} could not be read from instances {instances}"
+        )
 
     @CpxBase.require_base
     def read_diagnosis_code(self) -> int:
