@@ -484,33 +484,7 @@ class ApModule(CpxModule):
         Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
         if self.output_channels:
-<<<<<<< HEAD
             values += self.read_output_channels()
-=======
-            data = self.base.read_reg_data(self.output_register, byte_output_size)
-
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.output_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-
-            elif all(c.data_type == "INT8" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "bb" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT8" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "BB" * (len(data) // 2), data))
-
-            elif all(c.data_type == "INT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
-
-            else:
-                raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported "
-                    "or types are not the same for each channel"
-                )
-
-        Logging.logger.info(f"{self.name}: Reading channels: {values}")
->>>>>>> 71d425d (Changed uint8 handling to shared modbus registers. Still needs verification)
         return values
 
     @CpxBase.require_base
