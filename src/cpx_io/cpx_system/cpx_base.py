@@ -152,7 +152,7 @@ class CpxBase:
         response = self.client.read_holding_registers(register, length)
 
         if response.isError():
-            raise ConnectionAbortedError(f"Modbus Error: {response.exception_code}")
+            raise ConnectionAbortedError(response.message)
 
         data = struct.pack("<" + "H" * len(response.registers), *response.registers)
         return data

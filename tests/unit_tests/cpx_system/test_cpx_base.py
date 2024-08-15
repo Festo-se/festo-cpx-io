@@ -379,7 +379,7 @@ class TestCpxBase:
 
             def __init__(self):
                 self.registers = [0, 1, 2, 3]
-                self.exception_code = "test"
+                self.message = "test"
 
             def isError(self):
                 "mock error function"

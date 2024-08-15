@@ -780,6 +780,7 @@ class ApModule(CpxModule):
     def read_module_parameter(
         self,
         parameter: str | int,
+        instances: int | list = None,
     ) -> Any:
         """Read module parameter if available. Access either by ID (faster) or by Name.
 

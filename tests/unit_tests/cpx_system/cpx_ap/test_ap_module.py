@@ -934,7 +934,7 @@ class TestApModule:
         module.write_channel(1, -1)
 
         # Assert
-        module.base.write_reg_data.assert_called_with(b"\xff\xff", 0)
+        module.base.write_reg_data.assert_called_with(b"\xff\xff", 1)
 
     def test_write_channel_uint16(self, module_fixture):
         """Test write_channel"""
@@ -966,7 +966,7 @@ class TestApModule:
         module.write_channel(1, 1)
 
         # Assert
-        module.base.write_reg_data.assert_called_with(b"\x01\x00", 0)
+        module.base.write_reg_data.assert_called_with(b"\x01\x00", 1)
 
     @pytest.mark.parametrize("input_value", ["INT", "UNKNOWN"])
     def test_write_channel_unknown_type(self, module_fixture, input_value):
