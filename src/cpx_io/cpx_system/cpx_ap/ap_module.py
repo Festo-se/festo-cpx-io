@@ -715,6 +715,18 @@ class ApModule(CpxModule):
             f"{self.name}: Setting {parameter.name}, instances {instances} to {value}"
         )
 
+    def get_parameter_from_identifier(self, parameter_identifier:int|str):
+        
+        if isinstance(parameter_identifier, int):
+            return self.parameter_dict.get(parameter_identifier)
+        elif isinstance(parameter_identifier, str):
+            # iterate over available parameters and extract the one with the correct name
+            for p in self.parameter_dict.values():
+                if p.name == parameter_identifier:
+                    return p
+                
+        raise NotImplementedError(f"{self} has no parameter {parameter_identifier}")
+
     @CpxBase.require_base
     def read_module_parameter(
         self,
@@ -731,19 +743,9 @@ class ApModule(CpxModule):
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        parameter_input = parameter
-        # PARAMETER HANDLING
-        if isinstance(parameter, int):
-            parameter = self.parameter_dict.get(parameter)
-        elif isinstance(parameter, str):
-            # iterate over available parameters and extract the one with the correct name
-            parameter_list = [
-                p for p in self.parameter_dict.values() if p.name == parameter
-            ]
-            parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
-        if parameter is None:
-            raise NotImplementedError(f"{self} has no parameter {parameter_input}")
+        # PARAMETER HANDLING
+        parameter = self.get_parameter_from_identifier(parameter)
 
         if parameter.enums:
             # overwrite the parameter datatype from enum
@@ -772,7 +774,7 @@ class ApModule(CpxModule):
         return values
 
     @CpxBase.require_base
-    def read_module_parameter_enum_name(
+    def read_module_parameter_enum_str(
         self,
         parameter: str | int,
         instances: int | list = None,
@@ -786,21 +788,26 @@ class ApModule(CpxModule):
         :type instance: int | list
         :return: Name of the enum value.
         :rtype: str"""
+
+        # VALUE HANDLING
+        values = self.read_module_parameter(parameter, instances)
+
+        # PARAMETER HANDLING
+        parameter = self.get_parameter_from_identifier(parameter)
+
         if not parameter.enums:
             raise TypeError(f"Parameter {parameter} is not an enum ")
 
         enum_id_to_name_dict = {v: k for k, v in parameter.enums.enum_values.items()}
 
-        values = self.read_module_parameter(parameter, instances)
-
-        if len(values) == 1:
+        if isinstance(values, int):
             if values not in enum_id_to_name_dict:
                 raise ValueError(
                     f"ENUM id {values} is not known (available: {enum_id_to_name_dict})"
                 )
             return enum_id_to_name_dict[values]
 
-        if len(values) > 1:
+        if isinstance(values, list):
             return [
                 enum_id_to_name_dict[v] for v in values if v in enum_id_to_name_dict
             ]

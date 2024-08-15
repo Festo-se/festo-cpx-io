@@ -31,4 +31,4 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     # configure the module
     # you can read/write the parameters from the module. Check the parameter_read_write example
     # for detailed information. The Input Debounce Time parameter will return an enum string.
-    debounce_time = myIO.read_module_parameter("Input Debounce Time")
+    debounce_time = myIO.read_module_parameter_enum_str("Input Debounce Time")
