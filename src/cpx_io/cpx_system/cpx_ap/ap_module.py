@@ -151,6 +151,18 @@ class ApModule(CpxModule):
             ProductCategory.MPA_S,
             ProductCategory.INTERFACE,
         ],
+        "read_module_parameter_enum_str": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
         "read_diagnosis_code": [
             ProductCategory.ANALOG,
             ProductCategory.DIGITAL,
@@ -715,16 +727,17 @@ class ApModule(CpxModule):
             f"{self.name}: Setting {parameter.name}, instances {instances} to {value}"
         )
 
-    def get_parameter_from_identifier(self, parameter_identifier:int|str):
-        
+    def get_parameter_from_identifier(self, parameter_identifier: int | str):
+        """helper function to get parameter object from identifier"""
         if isinstance(parameter_identifier, int):
-            return self.parameter_dict.get(parameter_identifier)
-        elif isinstance(parameter_identifier, str):
+            if parameter_identifier in self.parameter_dict:
+                return self.parameter_dict.get(parameter_identifier)
+        if isinstance(parameter_identifier, str):
             # iterate over available parameters and extract the one with the correct name
             for p in self.parameter_dict.values():
                 if p.name == parameter_identifier:
                     return p
-                
+
         raise NotImplementedError(f"{self} has no parameter {parameter_identifier}")
 
     @CpxBase.require_base
@@ -788,6 +801,7 @@ class ApModule(CpxModule):
         :type instance: int | list
         :return: Name of the enum value.
         :rtype: str"""
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # VALUE HANDLING
         values = self.read_module_parameter(parameter, instances)
