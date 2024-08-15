@@ -251,14 +251,14 @@ def test_ep_parameter_rw_strings(test_cpxap):
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
-    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
-    assert m.read_module_parameter(20022) == "Load supply monitoring active"
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC",
@@ -267,7 +267,7 @@ def test_ep_parameter_rw_strings(test_cpxap):
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
     assert (
-        m.read_module_parameter(20022)
+        m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
     )
 
@@ -309,22 +309,22 @@ def test_8Di_parameter_rw_strings(test_cpxap):
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
-    assert m.read_module_parameter(20014) == "0.1ms"
+    assert m.read_module_parameter_enum_str(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
-    assert m.read_module_parameter(20014) == "10ms"
+    assert m.read_module_parameter_enum_str(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
-    assert m.read_module_parameter(20014) == "20ms"
+    assert m.read_module_parameter_enum_str(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
-    assert m.read_module_parameter(20014) == "3ms"
+    assert m.read_module_parameter_enum_str(20014) == "3ms"
 
 
 def test_4Di4Do(test_cpxap):
@@ -347,17 +347,17 @@ def test_4Di4Do(test_cpxap):
 
     m.set_channel(0)
     time.sleep(0.05)
-    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_output_channel(0) is True
     assert m.read_channel(4) is True
 
     m.clear_channel(0)
     time.sleep(0.05)
-    assert m.read_channel(0, outputs_only=True) is False
+    assert m.read_output_channel(0) is False
     assert m.read_channel(4) is False
 
     m.toggle_channel(0)
     time.sleep(0.05)
-    assert m.read_channel(0, outputs_only=True) is True
+    assert m.read_output_channel(0) is True
     assert m.read_channel(4) is True
 
     m.clear_channel(0)
@@ -389,22 +389,22 @@ def test_4Di4Do_parameter_rw_strings_debounce(test_cpxap):
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
-    assert m.read_module_parameter(20014) == "0.1ms"
+    assert m.read_module_parameter_enum_str(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
-    assert m.read_module_parameter(20014) == "10ms"
+    assert m.read_module_parameter_enum_str(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
-    assert m.read_module_parameter(20014) == "20ms"
+    assert m.read_module_parameter_enum_str(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
-    assert m.read_module_parameter(20014) == "3ms"
+    assert m.read_module_parameter_enum_str(20014) == "3ms"
 
 
 def test_4Di4Do_parameter_write_load(test_cpxap):
@@ -431,14 +431,14 @@ def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
-    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
-    assert m.read_module_parameter(20022) == "Load supply monitoring active"
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC",
@@ -447,7 +447,7 @@ def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
     assert (
-        m.read_module_parameter(20022)
+        m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
     )
 
@@ -470,12 +470,12 @@ def test_4Di4Do_parameter_rw_strings_failstate(test_cpxap):
     m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
-    assert m.read_module_parameter(20052) == "Reset Outputs"
+    assert m.read_module_parameter_enum_str(20052) == "Reset Outputs"
 
     m.write_module_parameter("Behaviour in fail state", "Hold last state")
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
-    assert m.read_module_parameter(20052) == "Hold last state"
+    assert m.read_module_parameter_enum_str(20052) == "Hold last state"
 
 
 def test_4AiUI_None(test_cpxap):

@@ -28,6 +28,7 @@ class ApModule(CpxModule):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-lines
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-public-methods
     # Should be devided in sub classes instead!
 
     # List of all implemented datatypes
@@ -47,6 +48,27 @@ class ApModule(CpxModule):
             ProductCategory.MPA_S,
         ],
         "read_channel": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "read_output_channels": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+        ],
+        "read_output_channel": [
             ProductCategory.ANALOG,
             ProductCategory.DIGITAL,
             ProductCategory.IO_LINK,
@@ -129,6 +151,18 @@ class ApModule(CpxModule):
             ProductCategory.MPA_S,
             ProductCategory.INTERFACE,
         ],
+        "read_module_parameter_enum_str": [
+            ProductCategory.ANALOG,
+            ProductCategory.DIGITAL,
+            ProductCategory.IO_LINK,
+            ProductCategory.VTOM,
+            ProductCategory.VTSA,
+            ProductCategory.VTUG,
+            ProductCategory.VTUX,
+            ProductCategory.MPA_L,
+            ProductCategory.MPA_S,
+            ProductCategory.INTERFACE,
+        ],
         "read_diagnosis_code": [
             ProductCategory.ANALOG,
             ProductCategory.DIGITAL,
@@ -172,16 +206,18 @@ class ApModule(CpxModule):
             ProductCategory.VTOM,
         ],
     }
-    INPUT_FUNCTIONS = ["read_channels", "read_channel"]
-    OUTPUT_FUNCTIONS = [
+    INPUT_FUNCTIONS = {"read_channels", "read_channel"}
+    OUTPUT_FUNCTIONS = {
+        "read_output_channels",
+        "read_output_channel",
         "write_channels",
         "write_channel",
         "set_channel",
         "clear_channel",
         "toggle_channel",
-    ]
-    PARAMETER_FUNCTIONS = ["write_module_parameter", "read_module_parameter"]
-    DIAGNOSIS_FUNCTIONS = ["read_diagnosis_code", "read_diagnosis_information"]
+    }
+    PARAMETER_FUNCTIONS = {"write_module_parameter", "read_module_parameter"}
+    DIAGNOSIS_FUNCTIONS = {"read_diagnosis_code", "read_diagnosis_information"}
 
     @dataclass
     class SystemParameters:
@@ -354,30 +390,53 @@ class ApModule(CpxModule):
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @CpxBase.require_base
-    def read_channels(self, outputs_only: bool = False) -> list:
-        """Read all channels from module and interpret them as the module intends.
+    def read_output_channels(self) -> list:
+        """Read only output channels from module and interpret them as the module intends.
 
-        For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
-        if the outputs are numbered WITH (after) the inputs ("False", default), so the range
-        of output channels is <number of input channels>..<number of input and output channels>
-        If "True", the outputs are numbered from 0..<number of output channels>, the inputs
-        cannot be accessed this way.
-
-        :param outputs_only: Outputs should be numbered independend from inputs, optional
-        :type outputs_only: bool
+        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>,
+        the inputs cannot be accessed this way.
 
         :return: List of values of the channels
         :rtype: list
         """
-
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        byte_input_size = div_ceil(self.information.input_size, 2)
         byte_output_size = div_ceil(self.information.output_size, 2)
 
         values = []
+        # if available, read outputs
+        if self.output_channels:
+            data = self.base.read_reg_data(self.output_register, byte_output_size)
+
+            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+            if all(c.data_type == "BOOL" for c in self.output_channels):
+                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            elif all(c.data_type == "INT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
+            elif all(c.data_type == "UINT16" for c in self.output_channels):
+                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+            else:
+                raise TypeError(
+                    f"Output data type {self.output_channels[0].data_type} are not supported "
+                    "or types are not the same for each channel"
+                )
+        Logging.logger.info(f"{self.name}: Reading output channels: {values}")
+        return values
+
+    @CpxBase.require_base
+    def read_channels(self) -> list:
+        """Read all channels from module and interpret them as the module intends.
+
+        :return: List of values of the channels
+        :rtype: list
+        """
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
+        byte_input_size = div_ceil(self.information.input_size, 2)
+
+        values = []
         # if available, read inputs
-        if self.input_channels and not outputs_only:
+        if self.input_channels:
             data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
@@ -407,43 +466,38 @@ class ApModule(CpxModule):
                     f"Input data type {self.input_channels[0].data_type} are not supported "
                     "or types are not the same for each channel"
                 )
+        Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
-        # if available, read outputs
         if self.output_channels:
-            data = self.base.read_reg_data(self.output_register, byte_output_size)
+            values += self.read_output_channels()
 
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.output_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-            elif all(c.data_type == "INT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
-            else:
-                raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported "
-                    "or types are not the same for each channel"
-                )
-
-        Logging.logger.info(f"{self.name}: Reading channels: {values}")
         return values
 
     @CpxBase.require_base
-    def read_channel(
-        self, channel: int, outputs_only: bool = False, full_size: bool = False
-    ) -> Any:
-        """Read back the value of one channel.
+    def read_output_channel(self, channel: int) -> Any:
+        """Read back the value of one output channel.
 
-        For mixed IN/OUTput modules the optional parameter 'outputs_only' defines
-        if the outputs are numbered WITH (after) the inputs ("False", default), so the range
-        of output channels is <number of input channels>..<number of input and output channels>
-        If "True", the outputs are numbered from 0..<number of output channels>, the inputs
-        cannot be accessed this way.
+        For mixed IN/OUTput modules the outputs are numbered from 0..<number of output channels>,
+        the inputs cannot be accessed this way.
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param outputs_only: Outputs should be numbered independend from inputs, optional
-        :type outputs_only: bool
+        :param full_size: IO-Link channes should be returned in full datalength and not
+            limited to the slave information datalength
+        :type full_size: bool
+        :return: Value of the channel
+        :rtype: bool
+        """
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+        channel_range_check(channel, len(self.output_channels))
+        return self.read_output_channels()[channel]
+
+    @CpxBase.require_base
+    def read_channel(self, channel: int, full_size: bool = False) -> Any:
+        """Read back the value of one channel.
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
         :param full_size: IO-Link channes should be returned in full datalength and not
             limited to the slave information datalength
         :type full_size: bool
@@ -452,19 +506,13 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if outputs_only:
-            channel_count = len(self.output_channels)
-        else:
-            channel_count = (
-                len([c for c in self.input_channels if c.direction == "in"])
-                + len([c for c in self.output_channels if c.direction == "out"])
-                + len(self.inout_channels)
-            )
+        channel_count = (
+            len([c for c in self.input_channels if c.direction == "in"])
+            + len([c for c in self.output_channels if c.direction == "out"])
+            + len(self.inout_channels)
+        )
 
         channel_range_check(channel, channel_count)
-
-        if self.input_channels and outputs_only:
-            channel += len(self.input_channels)
 
         # if datalength is given and full_size is not requested, shorten output
         if self.fieldbus_parameters and not full_size:
@@ -546,7 +594,7 @@ class ApModule(CpxModule):
         if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
-            data = self.read_channels(outputs_only=True)
+            data = self.read_output_channels()
             data[channel] = value
             reg_content = boollist_to_bytes(data)
             self.base.write_reg_data(reg_content, self.output_register)
@@ -611,7 +659,7 @@ class ApModule(CpxModule):
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         # get the relevant value from the register and write the inverse
-        value = self.read_channel(channel, outputs_only=True)
+        value = self.read_output_channel(channel)
         self.write_channel(channel, not value)
 
     # Parameter functions
@@ -679,12 +727,24 @@ class ApModule(CpxModule):
             f"{self.name}: Setting {parameter.name}, instances {instances} to {value}"
         )
 
+    def get_parameter_from_identifier(self, parameter_identifier: int | str):
+        """helper function to get parameter object from identifier"""
+        if isinstance(parameter_identifier, int):
+            if parameter_identifier in self.parameter_dict:
+                return self.parameter_dict.get(parameter_identifier)
+        if isinstance(parameter_identifier, str):
+            # iterate over available parameters and extract the one with the correct name
+            for p in self.parameter_dict.values():
+                if p.name == parameter_identifier:
+                    return p
+
+        raise NotImplementedError(f"{self} has no parameter {parameter_identifier}")
+
     @CpxBase.require_base
     def read_module_parameter(
         self,
         parameter: str | int,
         instances: int | list = None,
-        raw: bool = False,
     ) -> Any:
         """Read module parameter if available. Access either by ID (faster) or by Name.
 
@@ -696,19 +756,9 @@ class ApModule(CpxModule):
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        parameter_input = parameter
-        # PARAMETER HANDLING
-        if isinstance(parameter, int):
-            parameter = self.parameter_dict.get(parameter)
-        elif isinstance(parameter, str):
-            # iterate over available parameters and extract the one with the correct name
-            parameter_list = [
-                p for p in self.parameter_dict.values() if p.name == parameter
-            ]
-            parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
-        if parameter is None:
-            raise NotImplementedError(f"{self} has no parameter {parameter_input}")
+        # PARAMETER HANDLING
+        parameter = self.get_parameter_from_identifier(parameter)
 
         if parameter.enums:
             # overwrite the parameter datatype from enum
@@ -728,17 +778,6 @@ class ApModule(CpxModule):
                 )
             )
 
-        # if parameter is ENUM, return the according string. Indexing 0 should always work here
-        # because the check that value is available was done before
-
-        if parameter.enums and not raw:
-            enum_values = []
-            for val in values:
-                enum_values.append(
-                    [k for k, v in parameter.enums.enum_values.items() if v == val][0]
-                )
-            values = enum_values
-
         if len(instances) == 1:
             values = values[0]
 
@@ -746,6 +785,50 @@ class ApModule(CpxModule):
             f"{self.name}: Read {values} from instances {instances} of parameter {parameter.name}"
         )
         return values
+
+    @CpxBase.require_base
+    def read_module_parameter_enum_str(
+        self,
+        parameter: str | int,
+        instances: int | list = None,
+    ) -> Any:
+        """Read enum name of module parameter if available. Access either by ID (faster) or by Name.
+
+        :param parameter: Parameter name or ID
+        :type parameter: str | int
+        :param instances: (optional) Index or list of instances of the parameter.
+            If None, all instances will be written
+        :type instance: int | list
+        :return: Name of the enum value.
+        :rtype: str"""
+        self._check_function_supported(inspect.currentframe().f_code.co_name)
+
+        # VALUE HANDLING
+        values = self.read_module_parameter(parameter, instances)
+
+        # PARAMETER HANDLING
+        parameter = self.get_parameter_from_identifier(parameter)
+
+        if not parameter.enums:
+            raise TypeError(f"Parameter {parameter} is not an enum ")
+
+        enum_id_to_name_dict = {v: k for k, v in parameter.enums.enum_values.items()}
+
+        if isinstance(values, int):
+            if values not in enum_id_to_name_dict:
+                raise ValueError(
+                    f"ENUM id {values} is not known (available: {enum_id_to_name_dict})"
+                )
+            return enum_id_to_name_dict[values]
+
+        if isinstance(values, list):
+            return [
+                enum_id_to_name_dict[v] for v in values if v in enum_id_to_name_dict
+            ]
+
+        raise ValueError(
+            f"Parameter {parameter} could not be read from instances {instances}"
+        )
 
     @CpxBase.require_base
     def read_diagnosis_code(self) -> int:

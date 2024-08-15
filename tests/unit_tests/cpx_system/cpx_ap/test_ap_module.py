@@ -572,7 +572,7 @@ class TestApModule:
             ),
         ],
     )
-    def test_read_channel_correct_value_outputs_only(
+    def test_read_output_channel_correct_value(
         self, module_fixture, input_value, expected_value
     ):
         """Test read channel"""
@@ -584,12 +584,11 @@ class TestApModule:
         module.input_channels = [0, 1, 2, 4]  # dummy input channels
         module.output_channels = input_value
 
-        module.read_channels = Mock(return_value=module.input_channels + expected_value)
+        module.read_output_channels = Mock(return_value=expected_value)
 
         # Act
         channel_values = [
-            module.read_channel(idx, outputs_only=True)
-            for idx in range(len(input_value))
+            module.read_output_channel(idx) for idx in range(len(input_value))
         ]
 
         # Assert
@@ -882,7 +881,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        module.read_channels = Mock(return_value=[False] * 4)
+        module.read_output_channels = Mock(return_value=[False] * 4)
 
         module.output_channels = [
             Channel(
@@ -1162,7 +1161,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
-        module.read_channel = Mock(return_value=True)
+        module.read_output_channel = Mock(return_value=True)
         module.output_channels = [
             Channel(
                 array_size=None,
@@ -1192,7 +1191,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
-        module.read_channel = Mock(return_value=False)
+        module.read_output_channel = Mock(return_value=False)
         module.output_channels = [
             Channel(
                 array_size=None,
