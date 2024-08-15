@@ -624,7 +624,9 @@ class ApModule(CpxModule):
             # if channel number is odd, value needs to be shifted 8 bit in the register
             reg |= struct.pack("<b", value) << (channel % 2) * 8
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting int8 channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting int8 channel {channel} to {value}"
+            )
 
         # Handle uint8
         elif self.output_channels[channel].data_type == "UINT8" and isinstance(
@@ -635,7 +637,9 @@ class ApModule(CpxModule):
             # if channel number is odd, value needs to be shifted 8 bit in the register
             reg |= struct.pack("<B", value) << (channel % 2) * 8
             self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting uint8 channel {channel} to {value}")
+            Logging.logger.info(
+                f"{self.name}: Setting uint8 channel {channel} to {value}"
+            )
 
         # Handle int16
         elif self.output_channels[channel].data_type == "INT16" and isinstance(
