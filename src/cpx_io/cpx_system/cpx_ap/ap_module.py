@@ -144,11 +144,11 @@ class ApModule(CpxModule):
             function_is_supported = False
 
         # check if there are parameters if it's a parameter function
-        elif func_name in PARAMETER_FUNCTIONS and not self.parameter_dict:
+        elif func_name in PARAMETER_FUNCTIONS and not self.module_dicts.parameters:
             function_is_supported = False
 
         # check if there are diagnosis information if it's a diagnosis function
-        elif func_name in DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
+        elif func_name in DIAGNOSIS_FUNCTIONS and not self.module_dicts.diagnosis:
             function_is_supported = False
 
         return function_is_supported
@@ -445,7 +445,7 @@ class ApModule(CpxModule):
             else:
                 reg = struct.pack("<B", value) + reg[:1]
 
-            self.base.write_reg_data(reg, self.output_register)
+            self.base.write_reg_data(reg, self.start_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting uint8 channel {channel} to {value}"
             )
