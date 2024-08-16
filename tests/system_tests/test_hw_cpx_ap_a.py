@@ -282,6 +282,7 @@ def test_ep_parameter_rw_strings(test_cpxap):
         == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
     )
 
+
 def test_ep_parameter_rw_raw(test_cpxap):
     m = test_cpxap.modules[0]
 
@@ -305,10 +306,8 @@ def test_ep_parameter_rw_raw(test_cpxap):
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
-    assert (
-        m.read_module_parameter(20022)
-        == 1
-    )
+    assert m.read_module_parameter(20022) == 1
+
 
 def test_16Di_read_channels(test_cpxap):
     m = test_cpxap.modules[1]

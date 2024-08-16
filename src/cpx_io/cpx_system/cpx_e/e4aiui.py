@@ -21,7 +21,7 @@ class CpxE4AiUI(CpxModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.base.next_input_register = self.input_register + 5
+        self.base.next_input_register = self.start_registers.inputs + 5
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
@@ -30,7 +30,7 @@ class CpxE4AiUI(CpxModule):
         :return: Values of all channels
         :rtype: list[int]
         """
-        reg = self.base.read_reg_data(self.input_register, length=4)
+        reg = self.base.read_reg_data(self.start_registers.inputs, length=4)
         values = list(struct.unpack("<" + "h" * (len(reg) // 2), reg))
         Logging.logger.info(f"{self.name}: Reading channels: {values}")
         return values
@@ -41,7 +41,7 @@ class CpxE4AiUI(CpxModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 4)
+        data = self.base.read_reg_data(self.start_registers.inputs + 4)
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret

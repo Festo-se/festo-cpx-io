@@ -92,8 +92,8 @@ class CpxAp(CpxBase):
         self.next_output_register = None
         self.next_input_register = None
 
-        self.diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
-        self.next_diagnosis_register = self.diagnosis_register + 6  # global diagnosis
+        self.global_diagnosis = ap_modbus_registers.DIAGNOSIS.register_address
+        self.next_diagnosis_register = self.global_diagnosis + 6
 
         self.set_timeout(int(timeout * 1000))
 
@@ -433,7 +433,7 @@ class CpxAp(CpxBase):
 
         :ret value: Diagnosis state
         :rtype: dict"""
-        reg = self.read_reg_data(self.diagnosis_register, length=2)
+        reg = self.read_reg_data(self.global_diagnosis, length=2)
         diagnosis_keys = [
             "Device available",
             "Current",
@@ -467,7 +467,7 @@ class CpxAp(CpxBase):
 
         :ret value: Amount of active diagnosis
         :rtype: int"""
-        reg = self.read_reg_data(self.diagnosis_register + 2)
+        reg = self.read_reg_data(self.global_diagnosis + 2)
         return int.from_bytes(reg, byteorder="little")
 
     def read_latest_diagnosis_index(self) -> int:
@@ -476,7 +476,7 @@ class CpxAp(CpxBase):
 
         :ret value: Modul index
         :rtype: int or None"""
-        reg = self.read_reg_data(self.diagnosis_register + 3)
+        reg = self.read_reg_data(self.global_diagnosis + 3)
         # subtract one because AP starts with module index 1
         module_index = int.from_bytes(reg, byteorder="little") - 1
         if module_index < 0:
@@ -488,7 +488,7 @@ class CpxAp(CpxBase):
 
         :ret value: Diagnosis code
         :rtype: int"""
-        reg = self.read_reg_data(self.diagnosis_register + 4, length=2)
+        reg = self.read_reg_data(self.global_diagnosis + 4, length=2)
         return int.from_bytes(reg, byteorder="little")
 
     def write_parameter(

@@ -5,6 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
+from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
 
 class TestCpxE4AiUI:
@@ -39,7 +40,7 @@ class TestCpxE4AiUI:
         """Test read channels"""
         # Arrange
         cpxe4aiui = CpxE4AiUI()
-        cpxe4aiui.input_register = 0
+        cpxe4aiui.start_registers = StartRegisters(inputs=0)
         cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -62,7 +63,7 @@ class TestCpxE4AiUI:
         # Assert
         assert channel_values == [0, 1000, 2000, 3000]
         cpxe4aiui.base.read_reg_data.assert_called_with(
-            cpxe4aiui.input_register, length=4
+            cpxe4aiui.start_registers.inputs, length=4
         )
 
     def test_getitem_0_to_3(self):
@@ -79,7 +80,7 @@ class TestCpxE4AiUI:
         # Assert
         assert channel_values == [0, 1000, 2000, 3000]
         cpxe4aiui.base.read_reg_data.assert_called_with(
-            cpxe4aiui.input_register, length=4
+            cpxe4aiui.start_registers.inputs, length=4
         )
 
     @pytest.mark.parametrize(

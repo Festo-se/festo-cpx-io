@@ -70,3 +70,11 @@ class Channels:
     inputs: list
     outputs: list
     inouts: list
+
+
+@dataclass
+class ModuleDicts:
+    """ModuleDicts dataclass"""
+
+    parameters: dict
+    diagnosis: dict

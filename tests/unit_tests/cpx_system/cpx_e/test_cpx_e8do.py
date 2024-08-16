@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from cpx_io.cpx_system.cpx_e.e8do import CpxE8Do
+from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
 
 class TestCpxE8Do:
@@ -38,7 +39,7 @@ class TestCpxE8Do:
         """Test read status"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.input_register = 0
+        cpxe8do.start_registers = StartRegisters(inputs=0)
         cpxe8do.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -51,20 +52,20 @@ class TestCpxE8Do:
         """Test read channels"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.input_register = 0
+        cpxe8do.start_registers = StartRegisters(inputs=0)
         cpxe8do.base = Mock(read_reg_data=Mock(return_value=b"\xAE"))
 
         # Act
         channel_values = [cpxe8do.read_channel(idx) for idx in range(8)]
 
         assert channel_values == [False, True, True, True, False, True, False, True]
-        cpxe8do.base.read_reg_data.assert_called_with(cpxe8do.input_register)
+        cpxe8do.base.read_reg_data.assert_called_with(cpxe8do.start_registers.inputs)
 
     def test_getitem_0_to_7(self):
         """Test get item"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.input_register = 0
+        cpxe8do.start_registers = StartRegisters(inputs=0)
         cpxe8do.base = Mock(read_reg_data=Mock(return_value=b"\xAE"))
 
         # Act
@@ -72,7 +73,7 @@ class TestCpxE8Do:
 
         # Assert
         assert channel_values == [False, True, True, True, False, True, False, True]
-        cpxe8do.base.read_reg_data.assert_called_with(cpxe8do.input_register)
+        cpxe8do.base.read_reg_data.assert_called_with(cpxe8do.start_registers.inputs)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
@@ -96,7 +97,7 @@ class TestCpxE8Do:
         """test write channel true"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = 0
+        cpxe8do.start_registers = StartRegisters(outputs=0)
         cpxe8do.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -117,7 +118,7 @@ class TestCpxE8Do:
         """test write channel true"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = 0
+        cpxe8do.start_registers = StartRegisters(outputs=0)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -139,7 +140,7 @@ class TestCpxE8Do:
         """test write channel true"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = output_register
+        cpxe8do.start_registers = StartRegisters(outputs=output_register)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -163,7 +164,7 @@ class TestCpxE8Do:
         """Test set item true"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = output_register
+        cpxe8do.start_registers = StartRegisters(outputs=output_register)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -178,7 +179,7 @@ class TestCpxE8Do:
         """Test set channel"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = 0
+        cpxe8do.start_registers = StartRegisters(outputs=0)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -193,7 +194,7 @@ class TestCpxE8Do:
         """Test clear channel"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = 0
+        cpxe8do.start_registers = StartRegisters(outputs=0)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -208,7 +209,7 @@ class TestCpxE8Do:
         """Test toggle channel"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.output_register = 0
+        cpxe8do.start_registers = StartRegisters(outputs=0)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -217,7 +218,7 @@ class TestCpxE8Do:
         cpxe8do.toggle_channel(2)
 
         # Assert
-        cpxe8do.base.write_reg_data.assert_called_with(b"\xAA", cpxe8do.output_register)
+        cpxe8do.base.write_reg_data.assert_called_with(b"\xAA", cpxe8do.start_registers.outputs)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",

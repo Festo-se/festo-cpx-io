@@ -1,12 +1,12 @@
 """ModuleDiagnosis builder functions from APDD"""
 
-from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
+from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import ModuleDiagnosis
 
 
 def build_diagnosis(diagnosis_dict):
     """Builds one Diagnosis"""
 
-    return ApModule.ModuleDiagnosis(
+    return ModuleDiagnosis(
         diagnosis_dict.get("Description"),
         diagnosis_dict.get("DiagnosisId"),
         diagnosis_dict.get("Guideline"),

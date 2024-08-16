@@ -21,8 +21,8 @@ class CpxE8Do(CpxModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.base.next_output_register = self.output_register + 1
-        self.base.next_input_register = self.input_register + 2
+        self.base.next_output_register = self.start_registers.outputs + 1
+        self.base.next_input_register = self.start_registers.inputs + 2
 
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
@@ -31,7 +31,7 @@ class CpxE8Do(CpxModule):
         :return: Values of all channels
         :rtype: list[bool]
         """
-        data = self.base.read_reg_data(self.input_register)
+        data = self.base.read_reg_data(self.start_registers.inputs)
         ret = bytes_to_boollist(data, num_bytes=1)
         Logging.logger.info(f"{self.name}: Reading channels: {ret}")
         return ret
@@ -57,7 +57,7 @@ class CpxE8Do(CpxModule):
         if len(data) != 8:
             raise ValueError(f"Data len error: expected: 8, got: {len(data)}")
         integer_data = boollist_to_bytes(data)
-        self.base.write_reg_data(integer_data, self.output_register)
+        self.base.write_reg_data(integer_data, self.start_registers.outputs)
 
         Logging.logger.info(f"{self.name}: Setting channels to {data}")
 
@@ -70,10 +70,10 @@ class CpxE8Do(CpxModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        data = bytes_to_boollist(self.base.read_reg_data(self.output_register))
+        data = bytes_to_boollist(self.base.read_reg_data(self.start_registers.outputs))
         data[channel] = value
         reg = boollist_to_bytes(data)
-        self.base.write_reg_data(reg, self.output_register)
+        self.base.write_reg_data(reg, self.start_registers.outputs)
 
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {value}")
 
@@ -83,7 +83,7 @@ class CpxE8Do(CpxModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 1)
+        data = self.base.read_reg_data(self.start_registers.inputs + 1)
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret

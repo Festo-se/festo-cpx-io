@@ -2,6 +2,7 @@
 
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_base import CpxBase
+from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
 
 class CpxModule:
@@ -11,8 +12,8 @@ class CpxModule:
         self.base = None
         self.position = None
 
-        self.output_register = None
-        self.input_register = None
+        self.start_registers = StartRegisters()
+
         self._name = None
         self.name = name
 
@@ -61,10 +62,10 @@ class CpxModule:
             i += 1
         self.name = temp_name
 
-        self.output_register = self.base.next_output_register
-        self.input_register = self.base.next_input_register
+        self.start_registers.outputs = self.base.next_output_register
+        self.start_registers.inputs = self.base.next_input_register
 
         Logging.logger.debug(
-            f"Configured {self} with output register {self.output_register} "
-            f"and input register {self.input_register}"
+            f"Configured {self} with output register {self.start_registers.outputs} "
+            f"and input register {self.start_registers.inputs}"
         )

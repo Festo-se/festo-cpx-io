@@ -5,6 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import OperatingMode, AddressSpace
+from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
 
 class TestCpxE4Iol:
@@ -58,7 +59,7 @@ class TestCpxE4Iol:
         """Test read channels"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.input_register = 0
+        cpxe4iol.start_registers = StartRegisters(inputs=0)
         cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -81,7 +82,7 @@ class TestCpxE4Iol:
         # Assert
         assert channel_values == [b"\xA0\xA1", b"\xB0\xB1", b"\xC0\xC1", b"\xD0\xD1"]
         cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.input_register, length=4
+            cpxe4iol.start_registers.inputs, length=4
         )
 
     def test_read_8byte_channel_0_to_3(self):
@@ -106,7 +107,7 @@ class TestCpxE4Iol:
             b"\xD1\x10\xD1\x11\xD1\x13\xD1\x14",
         ]
         cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.input_register, length=16
+            cpxe4iol.start_registers.inputs, length=16
         )
 
     def test_getitem_0_to_3(self):
@@ -123,7 +124,7 @@ class TestCpxE4Iol:
         # Assert
         assert channel_values == [b"\x00\xAB", b"\x00\xCD", b"\x00\xEF", b"\x00\x12"]
         cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.input_register, length=4
+            cpxe4iol.start_registers.inputs, length=4
         )
 
     @pytest.mark.parametrize(
@@ -139,7 +140,7 @@ class TestCpxE4Iol:
         """test write channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.output_register = output_register
+        cpxe4iol.start_registers = StartRegisters(outputs=output_register)
         cpxe4iol.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -152,7 +153,7 @@ class TestCpxE4Iol:
         """Test set channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.output_register = 0
+        cpxe4iol.start_registers = StartRegisters(outputs=0)
         cpxe4iol.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -160,7 +161,7 @@ class TestCpxE4Iol:
 
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
-            b"\xFE\x00", cpxe4iol.output_register
+            b"\xFE\x00", cpxe4iol.start_registers.outputs
         )
 
     @pytest.mark.parametrize(

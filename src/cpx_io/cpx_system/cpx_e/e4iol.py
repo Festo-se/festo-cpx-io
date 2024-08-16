@@ -47,11 +47,11 @@ class CpxE4Iol(CpxModule):
         super().configure(*args)
 
         self.base.next_output_register = (
-            self.output_register + self.module_input_size * 4
+            self.start_registers.outputs + self.module_input_size * 4
         )
         # include echo output registers and one diagnosis register
         self.base.next_input_register = (
-            self.input_register
+            self.start_registers.inputs
             + self.module_input_size * 4
             + self.module_output_size * 4
             + 1
@@ -63,7 +63,7 @@ class CpxE4Iol(CpxModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 4)
+        data = self.base.read_reg_data(self.start_registers.inputs + 4)
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
@@ -77,7 +77,7 @@ class CpxE4Iol(CpxModule):
         """
 
         reg = self.base.read_reg_data(
-            self.input_register, length=self.module_input_size * 4
+            self.start_registers.inputs, length=self.module_input_size * 4
         )
         # module_input_size is in 16bit registers per channel
         # channel_size should be in bytes
@@ -114,7 +114,9 @@ class CpxE4Iol(CpxModule):
         """
         channel_size = self.module_output_size
 
-        self.base.write_reg_data(data, self.output_register + channel_size * channel)
+        self.base.write_reg_data(
+            data, self.start_registers.outputs + channel_size * channel
+        )
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
 
     @CpxBase.require_base

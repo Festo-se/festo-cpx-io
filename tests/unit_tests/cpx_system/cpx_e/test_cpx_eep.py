@@ -1,4 +1,5 @@
 """Contains tests for cpx_eep class"""
+
 from unittest.mock import Mock
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 

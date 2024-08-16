@@ -78,5 +78,5 @@ class TestBuildApModule:
         assert ap_module.channels.inputs == inputs + inouts
         assert ap_module.channels.outputs == outputs + inouts
         assert ap_module.channels.inouts == inouts
-        assert len(ap_module.parameter_dict) == len(parameter_list)
-        assert len(ap_module.diagnosis_dict) == len(diagnosis_list)
+        assert len(ap_module.module_dicts.parameters) == len(parameter_list)
+        assert len(ap_module.module_dicts.diagnosis) == len(diagnosis_list)

@@ -5,6 +5,7 @@ import pytest
 
 from cpx_io.cpx_system.cpx_e.e16di import CpxE16Di
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import DebounceTime, SignalExtension
+from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
 
 class TestCpxE16Di:
@@ -39,7 +40,7 @@ class TestCpxE16Di:
         """Test read channels"""
         # Arrange
         cpxe16di = CpxE16Di()
-        cpxe16di.input_register = 0
+        cpxe16di.start_registers = StartRegisters(inputs=0)
         cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -76,7 +77,7 @@ class TestCpxE16Di:
             True,
             True,
         ]
-        cpxe16di.base.read_reg_data.assert_called_with(cpxe16di.input_register)
+        cpxe16di.base.read_reg_data.assert_called_with(cpxe16di.start_registers.inputs)
 
     def test_getitem_0_to_15(self):
         """Test get item"""
@@ -106,7 +107,7 @@ class TestCpxE16Di:
             True,
             True,
         ]
-        cpxe16di.base.read_reg_data.assert_called_with(cpxe16di.input_register)
+        cpxe16di.base.read_reg_data.assert_called_with(cpxe16di.start_registers.inputs)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",

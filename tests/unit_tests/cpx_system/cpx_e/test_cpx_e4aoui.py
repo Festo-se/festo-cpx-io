@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange
+from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
 
 class TestCpxE4AoUI:
@@ -38,7 +39,7 @@ class TestCpxE4AoUI:
         """Test read status"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.input_register = 0
+        cpxe4aoui.start_registers = StartRegisters(inputs=0)
         cpxe4aoui.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -61,7 +62,7 @@ class TestCpxE4AoUI:
         # Assert
         assert channel_values == [0, 1000, 2000, 3000]
         cpxe4aoui.base.read_reg_data.assert_called_with(
-            cpxe4aoui.input_register, length=4
+            cpxe4aoui.start_registers.inputs, length=4
         )
 
     def test_getitem_0_to_3(self):
@@ -78,7 +79,7 @@ class TestCpxE4AoUI:
         # Assert
         assert channel_values == [0, 1000, 2000, 3000]
         cpxe4aoui.base.read_reg_data.assert_called_with(
-            cpxe4aoui.input_register, length=4
+            cpxe4aoui.start_registers.inputs, length=4
         )
 
     @pytest.mark.parametrize(
@@ -94,7 +95,7 @@ class TestCpxE4AoUI:
         """test write channel"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = output_register
+        cpxe4aoui.start_registers = StartRegisters(outputs=output_register)
         cpxe4aoui.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -107,7 +108,7 @@ class TestCpxE4AoUI:
         """test write channels"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = 0
+        cpxe4aoui.start_registers = StartRegisters(outputs=0)
         cpxe4aoui.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -115,7 +116,7 @@ class TestCpxE4AoUI:
 
         # Assert
         cpxe4aoui.base.write_reg_data.assert_called_with(
-            b"\x00\x00\x01\x00\x02\x00\x03\x00", cpxe4aoui.output_register
+            b"\x00\x00\x01\x00\x02\x00\x03\x00", cpxe4aoui.start_registers.outputs
         )
 
     @pytest.mark.parametrize("input_value", [-1, 4])
@@ -123,7 +124,7 @@ class TestCpxE4AoUI:
         """test read channel"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = 0
+        cpxe4aoui.start_registers = StartRegisters(outputs=0)
         cpxe4aoui.base = Mock()
 
         # Act & Assert
@@ -135,7 +136,7 @@ class TestCpxE4AoUI:
         """test write channel"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = 0
+        cpxe4aoui.start_registers = StartRegisters(outputs=0)
         cpxe4aoui.base = Mock()
 
         # Act & Assert
@@ -147,7 +148,7 @@ class TestCpxE4AoUI:
         """test write channels"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = 0
+        cpxe4aoui.start_registers = StartRegisters(outputs=0)
         cpxe4aoui.base = Mock()
 
         # Act & Assert
@@ -158,7 +159,7 @@ class TestCpxE4AoUI:
         """test write channels"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = 0
+        cpxe4aoui.start_registers = StartRegisters(outputs=0)
         cpxe4aoui.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -166,14 +167,14 @@ class TestCpxE4AoUI:
 
         # Assert
         cpxe4aoui.base.write_reg_data.assert_called_with(
-            b"\x00\x00\xff\xff\xfe\xff\xfd\xff", cpxe4aoui.output_register
+            b"\x00\x00\xff\xff\xfe\xff\xfd\xff", cpxe4aoui.start_registers.outputs
         )
 
     def test_set_channel_0(self):
         """Test set channel"""
         # Arrange
         cpxe4aoui = CpxE4AoUI()
-        cpxe4aoui.output_register = 0
+        cpxe4aoui.start_registers = StartRegisters(outputs=0)
         cpxe4aoui.base = Mock(write_reg_data=Mock())
 
         # Act
@@ -181,7 +182,7 @@ class TestCpxE4AoUI:
 
         # Assert
         cpxe4aoui.base.write_reg_data.assert_called_with(
-            b"\xE8\x03", cpxe4aoui.output_register
+            b"\xE8\x03", cpxe4aoui.start_registers.outputs
         )
 
     @pytest.mark.parametrize(

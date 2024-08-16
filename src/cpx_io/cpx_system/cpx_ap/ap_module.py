@@ -17,6 +17,7 @@ from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import (
     ModuleDiagnosis,
     SystemParameters,
     Channels,
+    ModuleDicts,
 )
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
@@ -61,13 +62,10 @@ class ApModule(CpxModule):
             channels[2],
         )
 
-        self.diagnosis_register = None
-
-        self.parameter_dict = {p.parameter_id: p for p in parameter_list}
-        self.diagnosis_dict = {
-            int(d.diagnosis_id.lstrip("0x"), base=16): d for d in diagnosis_list
-        }
-
+        self.module_dicts = ModuleDicts(
+            {p.parameter_id: p for p in parameter_list},
+            {int(d.diagnosis_id.lstrip("0x"), base=16): d for d in diagnosis_list},
+        )
         self.fieldbus_parameters = None
 
     def __repr__(self):
@@ -129,11 +127,11 @@ class ApModule(CpxModule):
             function_is_supported = False
 
         # check if there are parameters if it's a parameter function
-        elif func_name in PARAMETER_FUNCTIONS and not self.parameter_dict:
+        elif func_name in PARAMETER_FUNCTIONS and not self.module_dicts.parameters:
             function_is_supported = False
 
         # check if there are diagnosis information if it's a diagnosis function
-        elif func_name in DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
+        elif func_name in DIAGNOSIS_FUNCTIONS and not self.module_dicts.diagnosis:
             function_is_supported = False
 
         return function_is_supported
@@ -148,7 +146,7 @@ class ApModule(CpxModule):
 
         super().configure(base=base, position=position)
 
-        self.diagnosis_register = self.base.next_diagnosis_register
+        self.start_registers.diagnosis = self.base.next_diagnosis_register
 
         self.base.next_output_register += div_ceil(self.information.output_size, 2)
         self.base.next_input_register += div_ceil(self.information.input_size, 2)
@@ -175,7 +173,9 @@ class ApModule(CpxModule):
         values = []
         # if available, read outputs
         if self.channels.outputs:
-            data = self.base.read_reg_data(self.output_register, byte_output_size)
+            data = self.base.read_reg_data(
+                self.start_registers.outputs, byte_output_size
+            )
 
             # Remember to update the SUPPORTED_DATATYPES list when you add more types here
             if all(c.data_type == "BOOL" for c in self.channels.outputs):
@@ -212,7 +212,7 @@ class ApModule(CpxModule):
         values = []
         # if available, read inputs
         if self.channels.inputs:
-            data = self.base.read_reg_data(self.input_register, byte_input_size)
+            data = self.base.read_reg_data(self.start_registers.inputs, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
@@ -326,7 +326,7 @@ class ApModule(CpxModule):
             isinstance(d, bool) for d in data
         ):
             reg = boollist_to_bytes(data)
-            self.base.write_reg_data(reg, self.output_register)
+            self.base.write_reg_data(reg, self.start_registers.outputs)
             Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
             return
 
@@ -365,7 +365,7 @@ class ApModule(CpxModule):
             byte_channel_size = self.channels.inouts[0].array_size
 
             self.base.write_reg_data(
-                value, self.output_register + byte_channel_size // 2 * channel
+                value, self.start_registers.outputs + byte_channel_size // 2 * channel
             )
             Logging.logger.info(
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
@@ -378,7 +378,7 @@ class ApModule(CpxModule):
             data = self.read_output_channels()
             data[channel] = value
             reg_content = boollist_to_bytes(data)
-            self.base.write_reg_data(reg_content, self.output_register)
+            self.base.write_reg_data(reg_content, self.start_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting bool channel {channel} to {value}"
             )
@@ -388,10 +388,10 @@ class ApModule(CpxModule):
             value, int
         ):
             # Two channels share one modbus register, so read it first to write it back later
-            reg = self.base.read_reg_data(reg, self.output_register)
+            reg = self.base.read_reg_data(reg, self.start_registers.outputs)
             # if channel number is odd, value needs to be shifted 8 bit in the register
             reg |= struct.pack("<b", value) << (channel % 2) * 8
-            self.base.write_reg_data(reg, self.output_register)
+            self.base.write_reg_data(reg, self.start_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting int8 channel {channel} to {value}"
             )
@@ -401,10 +401,10 @@ class ApModule(CpxModule):
             value, int
         ):
             # Two channels share one modbus register, so read it first to write it back later
-            reg = self.base.read_reg_data(reg, self.output_register)
+            reg = self.base.read_reg_data(reg, self.start_registers.outputs)
             # if channel number is odd, value needs to be shifted 8 bit in the register
             reg |= struct.pack("<B", value) << (channel % 2) * 8
-            self.base.write_reg_data(reg, self.output_register)
+            self.base.write_reg_data(reg, self.start_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting uint8 channel {channel} to {value}"
             )
@@ -414,7 +414,7 @@ class ApModule(CpxModule):
             value, int
         ):
             reg = struct.pack("<h", value)
-            self.base.write_reg_data(reg, self.output_register + channel)
+            self.base.write_reg_data(reg, self.start_registers.outputs + channel)
             Logging.logger.info(
                 f"{self.name}: Setting int16 channel {channel} to {value}"
             )
@@ -424,7 +424,7 @@ class ApModule(CpxModule):
             value, int
         ):
             reg = struct.pack("<H", value)
-            self.base.write_reg_data(reg, self.output_register + channel)
+            self.base.write_reg_data(reg, self.start_registers.outputs + channel)
             Logging.logger.info(
                 f"{self.name}: Setting uint16 channel {channel} to {value}"
             )
@@ -492,11 +492,11 @@ class ApModule(CpxModule):
         parameter_input = parameter
         # PARAMETER HANDLING
         if isinstance(parameter, int):
-            parameter = self.parameter_dict.get(parameter)
+            parameter = self.module_dicts.parameters.get(parameter)
         elif isinstance(parameter, str):
             # iterate over available parameters and extract the one with the correct name
             parameter_list = [
-                p for p in self.parameter_dict.values() if p.name == parameter
+                p for p in self.module_dicts.parameters.values() if p.name == parameter
             ]
             parameter = parameter_list[0] if len(parameter_list) == 1 else None
 
@@ -538,11 +538,11 @@ class ApModule(CpxModule):
     def get_parameter_from_identifier(self, parameter_identifier: int | str):
         """helper function to get parameter object from identifier"""
         if isinstance(parameter_identifier, int):
-            if parameter_identifier in self.parameter_dict:
-                return self.parameter_dict.get(parameter_identifier)
+            if parameter_identifier in self.module_dicts.parameters:
+                return self.module_dicts.parameters.get(parameter_identifier)
         if isinstance(parameter_identifier, str):
             # iterate over available parameters and extract the one with the correct name
-            for p in self.parameter_dict.values():
+            for p in self.module_dicts.parameters.values():
                 if p.name == parameter_identifier:
                     return p
 
@@ -649,7 +649,7 @@ class ApModule(CpxModule):
         :rtype: tuple"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        reg = self.base.read_reg_data(self.diagnosis_register + 4, length=2)
+        reg = self.base.read_reg_data(self.start_registers.diagnosis + 4, length=2)
         return int.from_bytes(reg, byteorder="little")
 
     @CpxBase.require_base
@@ -666,7 +666,7 @@ class ApModule(CpxModule):
 
         diagnosis_code = self.read_diagnosis_code()
 
-        return self.diagnosis_dict.get(diagnosis_code)
+        return self.module_dicts.diagnosis.get(diagnosis_code)
 
     # Busmodule special functions
     @CpxBase.require_base
@@ -680,31 +680,45 @@ class ApModule(CpxModule):
 
         params = SystemParameters(
             dhcp_enable=self.base.read_parameter(
-                self.position, self.parameter_dict.get(12000)
+                self.position, self.module_dicts.parameters.get(12000)
             ),
             ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12001))
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12001)
+                )
             ),
             subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12002)),
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12002)
+                ),
             ),
             gateway_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12003))
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12003)
+                )
             ),
             active_ip_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12004))
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12004)
+                )
             ),
             active_subnet_mask=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12005))
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12005)
+                )
             ),
             active_gateway_address=convert_uint32_to_octett(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12006))
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12006)
+                )
             ),
             mac_address=convert_to_mac_string(
-                self.base.read_parameter(self.position, self.parameter_dict.get(12007))
+                self.base.read_parameter(
+                    self.position, self.module_dicts.parameters.get(12007)
+                )
             ),
             setup_monitoring_load_supply=self.base.read_parameter(
-                self.position, self.parameter_dict.get(20022)
+                self.position, self.module_dicts.parameters.get(20022)
             )
             & 0xFF,
         )
@@ -724,8 +738,8 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        data45 = self.base.read_reg_data(self.input_register + 16)[0]
-        data67 = self.base.read_reg_data(self.input_register + 17)[0]
+        data45 = self.base.read_reg_data(self.start_registers.inputs + 16)[0]
+        data67 = self.base.read_reg_data(self.start_registers.inputs + 17)[0]
         data = [
             data45 & 0xFF,
             (data45 & 0xFF00) >> 8,
@@ -775,14 +789,14 @@ class ApModule(CpxModule):
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         params = {
-            "port_status_info": self.parameter_dict.get(20074),
-            "revision_id": self.parameter_dict.get(20075),
-            "transmission_rate": self.parameter_dict.get(20076),
-            "actual_cycle_time": self.parameter_dict.get(20077),
-            "actual_vendor_id": self.parameter_dict.get(20078),
-            "actual_device_id": self.parameter_dict.get(20079),
-            "iolink_input_data_length": self.parameter_dict.get(20108),
-            "iolink_output_data_length": self.parameter_dict.get(20109),
+            "port_status_info": self.module_dicts.parameters.get(20074),
+            "revision_id": self.module_dicts.parameters.get(20075),
+            "transmission_rate": self.module_dicts.parameters.get(20076),
+            "actual_cycle_time": self.module_dicts.parameters.get(20077),
+            "actual_vendor_id": self.module_dicts.parameters.get(20078),
+            "actual_device_id": self.module_dicts.parameters.get(20079),
+            "iolink_input_data_length": self.module_dicts.parameters.get(20108),
+            "iolink_output_data_length": self.module_dicts.parameters.get(20109),
         }
         channel_params = []
 
