@@ -5,6 +5,10 @@ import json
 from cpx_io.cpx_system.cpx_ap.builder import ap_module_builder
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp, ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import (
+    SUPPORTED_DATATYPES,
+    SUPPORTED_IOL_DATATYPES,
+)
 from cpx_io.utils.logging import Logging
 
 
@@ -25,9 +29,9 @@ def check_apdd(apdd: dict) -> int:
                 module.apdd_information.product_category
                 == ProductCategory.IO_LINK.value
             ):
-                supported_types = ApModule.SUPPORTED_IOL_DATATYPES
+                supported_types = SUPPORTED_IOL_DATATYPES
             else:
-                supported_types = ApModule.SUPPORTED_DATATYPES
+                supported_types = SUPPORTED_DATATYPES
 
             check_if_apdd_datatypes_are_implemented(module, supported_types)
 
@@ -65,7 +69,9 @@ def check_if_apdd_datatypes_are_implemented(
     """Checks if the used datatypes from ApModule are in the list of supported datatypes"""
     used_types = [
         i.data_type
-        for i in module.input_channels + module.output_channels + module.inout_channels
+        for i in module.channels.inputs
+        + module.channels.outputs
+        + module.channels.inouts
     ]
     missing_types = [
         datatype for datatype in used_types if datatype not in supported_types

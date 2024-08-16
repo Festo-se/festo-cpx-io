@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from typing import List
-from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
+from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import ApddInformation
 from cpx_io.utils.logging import Logging
 
 
@@ -61,7 +61,7 @@ def build_apdd_information(apdd, variant):
             "from https://www.festo.com"
         )
 
-    return ApModule.ApddInformation(
+    return ApddInformation(
         variant.description,
         variant.name.lower().replace("-", "_").replace(" ", "_"),
         variant.name,

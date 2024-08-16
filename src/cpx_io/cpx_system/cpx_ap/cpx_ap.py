@@ -339,7 +339,7 @@ class CpxAp(CpxBase):
                 byteorder="little",
                 signed=False,
             ),
-            input_channels=int.from_bytes(
+            output_channels=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(ap_modbus_registers.INPUT_CHANNELS, position)
                 ),
@@ -353,7 +353,7 @@ class CpxAp(CpxBase):
                 byteorder="little",
                 signed=False,
             ),
-            output_channels=int.from_bytes(
+            input_channels=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(ap_modbus_registers.OUTPUT_CHANNELS, position)
                 ),

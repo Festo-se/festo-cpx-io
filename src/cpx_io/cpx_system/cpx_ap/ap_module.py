@@ -3,10 +3,21 @@
 import struct
 import inspect
 from typing import Any
-from dataclasses import dataclass
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
+    DIAGNOSIS_FUNCTIONS,
+    INPUT_FUNCTIONS,
+    OUTPUT_FUNCTIONS,
+    PARAMETER_FUNCTIONS,
+    PRODUCT_CATEGORY_MAPPING,
+)
+from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import (
+    ModuleDiagnosis,
+    SystemParameters,
+    Channels,
+)
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import (
@@ -25,256 +36,12 @@ class ApModule(CpxModule):
     functions of the individual modules, see the system documentation of the
     CpxAp object"""
 
-    # pylint: disable=too-many-instance-attributes
-    # pylint: disable=too-many-lines
-    # pylint: disable=too-many-arguments
-    # pylint: disable=too-many-public-methods
-    # pylint: disable=too-many-branches
+    # p#ylint: disable=too-many-instance-attributes
+    # p#ylint: disable=too-many-lines
+    # p#ylint: disable=too-many-arguments
+    # p#ylint: disable=too-many-public-methods
+    # p#ylint: disable=too-many-branches
     # This is not intended, should be divided in sub classes instead!
-
-    # List of all implemented datatypes
-    SUPPORTED_DATATYPES = ["UINT16", "INT16", "UINT8", "INT8", "BOOL"]
-    SUPPORTED_IOL_DATATYPES = ["UINT8"]
-
-    PRODUCT_CATEGORY_MAPPING = {
-        "read_channels": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "read_channel": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "read_output_channels": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "read_output_channel": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "write_channels": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "write_channel": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "set_channel": [
-            ProductCategory.DIGITAL,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "clear_channel": [
-            ProductCategory.DIGITAL,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "toggle_channel": [
-            ProductCategory.DIGITAL,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-        ],
-        "write_module_parameter": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-            ProductCategory.INTERFACE,
-        ],
-        "read_module_parameter": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-            ProductCategory.INTERFACE,
-        ],
-        "read_module_parameter_enum_str": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-            ProductCategory.INTERFACE,
-        ],
-        "read_diagnosis_code": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-            ProductCategory.INTERFACE,
-        ],
-        "read_diagnosis_information": [
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.VTOM,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-            ProductCategory.INTERFACE,
-        ],
-        "read_system_parameters": [ProductCategory.INTERFACE],
-        "read_pqi": [ProductCategory.IO_LINK],
-        "read_fieldbus_parameters": [ProductCategory.IO_LINK],
-        "read_isdu": [ProductCategory.IO_LINK],
-        "write_isdu": [ProductCategory.IO_LINK],
-        "configure": [
-            ProductCategory.INTERFACE,
-            ProductCategory.ANALOG,
-            ProductCategory.DIGITAL,
-            ProductCategory.IO_LINK,
-            ProductCategory.INFRASTRUCTURE,
-            ProductCategory.MPA_L,
-            ProductCategory.MPA_S,
-            ProductCategory.VTSA,
-            ProductCategory.VTUG,
-            ProductCategory.VTUX,
-            ProductCategory.VTOM,
-        ],
-    }
-    INPUT_FUNCTIONS = {"read_channels", "read_channel"}
-    OUTPUT_FUNCTIONS = {
-        "read_output_channels",
-        "read_output_channel",
-        "write_channels",
-        "write_channel",
-        "set_channel",
-        "clear_channel",
-        "toggle_channel",
-    }
-    PARAMETER_FUNCTIONS = {"write_module_parameter", "read_module_parameter"}
-    DIAGNOSIS_FUNCTIONS = {"read_diagnosis_code", "read_diagnosis_information"}
-
-    @dataclass
-    class SystemParameters:
-        """SystemParameters"""
-
-        # pylint: disable=too-many-instance-attributes
-        dhcp_enable: bool = None
-        ip_address: str = None
-        subnet_mask: str = None
-        gateway_address: str = None
-        active_ip_address: str = None
-        active_subnet_mask: str = None
-        active_gateway_address: str = None
-        mac_address: str = None
-        setup_monitoring_load_supply: int = None
-
-    @dataclass
-    class ApddInformation:
-        """ApddInformation"""
-
-        # pylint: disable=too-many-instance-attributes
-        description: str
-        name: str
-        module_type: str
-        configurator_code: str
-        part_number: str
-        module_class: str
-        module_code: str
-        order_text: str
-        product_category: str
-        product_family: str
-
-    @dataclass
-    class ModuleParameters:
-        """AP Parameters of module"""
-
-        # pylint: disable=too-many-instance-attributes
-        fieldbus_serial_number: int
-        product_key: str
-        firmware_version: str
-        module_code: int
-        temp_asic: int
-        logic_voltage: float
-        load_voltage: float
-        hw_version: int
-        io_link_variant: str = "n.a."
-        operating_supply: bool = False
-
-    @dataclass
-    class ModuleDiagnosis:
-        """ModuleDiagnosis dataclass"""
-
-        description: str
-        diagnosis_id: str
-        guideline: str
-        name: str
 
     def __init__(
         self,
@@ -282,16 +49,17 @@ class ApModule(CpxModule):
         channels: tuple = None,
         parameter_list: list = None,
         diagnosis_list: list = None,
-        name: str = None,
     ):
-        super().__init__(name=name)
+        super().__init__(name=apdd_information.name)
         self.information = None
         self.name = apdd_information.name
         self.apdd_information = apdd_information
 
-        self.input_channels = channels[0] + channels[2]
-        self.output_channels = channels[1] + channels[2]
-        self.inout_channels = channels[2]
+        self.channels = Channels(
+            channels[0] + channels[2],
+            channels[1] + channels[2],
+            channels[2],
+        )
 
         self.diagnosis_register = None
 
@@ -341,31 +109,31 @@ class ApModule(CpxModule):
 
         function_is_supported = True
         # check if function is known at all
-        if not self.PRODUCT_CATEGORY_MAPPING.get(func_name):
+        if not PRODUCT_CATEGORY_MAPPING.get(func_name):
             function_is_supported = False
 
         # check if function is supported for the product category
         elif self.apdd_information.product_category not in [
-            v.value for v in self.PRODUCT_CATEGORY_MAPPING.get(func_name)
+            v.value for v in PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
             function_is_supported = False
 
         # check if outputs are available if it's an output function
-        elif func_name in self.OUTPUT_FUNCTIONS and not self.output_channels:
+        elif func_name in OUTPUT_FUNCTIONS and not self.channels.outputs:
             function_is_supported = False
 
         # check if inputs or outputs are available if it's an input function
-        elif func_name in self.INPUT_FUNCTIONS and not (
-            self.input_channels or self.output_channels
+        elif func_name in INPUT_FUNCTIONS and not (
+            self.channels.inputs or self.channels.outputs
         ):
             function_is_supported = False
 
         # check if there are parameters if it's a parameter function
-        elif func_name in self.PARAMETER_FUNCTIONS and not self.parameter_dict:
+        elif func_name in PARAMETER_FUNCTIONS and not self.parameter_dict:
             function_is_supported = False
 
         # check if there are diagnosis information if it's a diagnosis function
-        elif func_name in self.DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
+        elif func_name in DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
             function_is_supported = False
 
         return function_is_supported
@@ -406,25 +174,25 @@ class ApModule(CpxModule):
 
         values = []
         # if available, read outputs
-        if self.output_channels:
+        if self.channels.outputs:
             data = self.base.read_reg_data(self.output_register, byte_output_size)
 
             # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.output_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+            if all(c.data_type == "BOOL" for c in self.channels.outputs):
+                values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
 
-            elif all(c.data_type == "INT8" for c in self.output_channels):
+            elif all(c.data_type == "INT8" for c in self.channels.outputs):
                 values.extend(struct.unpack("<" + "b" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT8" for c in self.output_channels):
+            elif all(c.data_type == "UINT8" for c in self.channels.outputs):
                 values.extend(struct.unpack("<" + "B" * (len(data) // 2), data))
 
-            elif all(c.data_type == "INT16" for c in self.output_channels):
+            elif all(c.data_type == "INT16" for c in self.channels.outputs):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.output_channels):
+            elif all(c.data_type == "UINT16" for c in self.channels.outputs):
                 values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
             else:
                 raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported "
+                    f"Output data type {self.channels.outputs[0].data_type} are not supported "
                     "or types are not the same for each channel"
                 )
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
@@ -443,14 +211,14 @@ class ApModule(CpxModule):
 
         values = []
         # if available, read inputs
-        if self.input_channels:
+        if self.channels.inputs:
             data = self.base.read_reg_data(self.input_register, byte_input_size)
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
-                byte_channel_size = self.inout_channels[0].array_size
-                # for IO-Link only the inout_channels are relevant
-                data = data[: len(self.inout_channels * byte_channel_size)]
+                byte_channel_size = self.channels.inouts[0].array_size
+                # for IO-Link only the channels.inouts are relevant
+                data = data[: len(self.channels.inouts * byte_channel_size)]
 
                 channels = [
                     data[i : i + byte_channel_size]
@@ -462,28 +230,28 @@ class ApModule(CpxModule):
                 return channels
 
             # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.input_channels):
-                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+            if all(c.data_type == "BOOL" for c in self.channels.inputs):
+                values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
 
             # TODO: Check if the assignment of two bytes per modbus register data works
-            elif all(c.data_type == "INT8" for c in self.input_channels):
+            elif all(c.data_type == "INT8" for c in self.channels.inputs):
                 values.extend(struct.unpack("<" + "bb" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT8" for c in self.input_channels):
+            elif all(c.data_type == "UINT8" for c in self.channels.inputs):
                 values.extend(struct.unpack("<" + "BB" * (len(data) // 2), data))
 
-            elif all(c.data_type == "INT16" for c in self.input_channels):
+            elif all(c.data_type == "INT16" for c in self.channels.inputs):
                 values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.input_channels):
+            elif all(c.data_type == "UINT16" for c in self.channels.inputs):
                 values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
 
             else:
                 raise TypeError(
-                    f"Input data type {self.input_channels[0].data_type} are not supported "
+                    f"Input data type {self.channels.inputs[0].data_type} are not supported "
                     "or types are not the same for each channel"
                 )
         Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
-        if self.output_channels:
+        if self.channels.outputs:
             values += self.read_output_channels()
         return values
 
@@ -503,7 +271,7 @@ class ApModule(CpxModule):
         :rtype: bool
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        channel_range_check(channel, len(self.output_channels))
+        channel_range_check(channel, len(self.channels.outputs))
         return self.read_output_channels()[channel]
 
     @CpxBase.require_base
@@ -521,9 +289,9 @@ class ApModule(CpxModule):
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         channel_count = (
-            len([c for c in self.input_channels if c.direction == "in"])
-            + len([c for c in self.output_channels if c.direction == "out"])
-            + len(self.inout_channels)
+            len([c for c in self.channels.inputs if c.direction == "in"])
+            + len([c for c in self.channels.outputs if c.direction == "out"])
+            + len(self.channels.inouts)
         )
 
         channel_range_check(channel, channel_count)
@@ -547,14 +315,14 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        if len(data) != len(self.output_channels):
+        if len(data) != len(self.channels.outputs):
             raise ValueError(
-                f"Data must be list of {len(self.output_channels)} elements"
+                f"Data must be list of {len(self.channels.outputs)} elements"
             )
 
         # Handle bool
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if all(c.data_type == "BOOL" for c in self.output_channels) and all(
+        if all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
             isinstance(d, bool) for d in data
         ):
             reg = boollist_to_bytes(data)
@@ -566,14 +334,14 @@ class ApModule(CpxModule):
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(
             c.data_type in ["INT8", "UINT8", "INT16", "UINT16"]
-            for c in self.output_channels
+            for c in self.channels.outputs
         ) and all(isinstance(d, int) for d in data):
             for i, d in enumerate(data):
                 self.write_channel(i, d)
             return
 
         raise TypeError(
-            f"Output data type {self.output_channels[0].data_type} is not supported or "
+            f"Output data type {self.channels.outputs[0].data_type} is not supported or "
             "types are not the same for each channel (which is also not supported)"
         )
 
@@ -589,12 +357,12 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        channel_range_check(channel, len(self.output_channels))
+        channel_range_check(channel, len(self.channels.outputs))
 
         # IO-Link special
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             # This assumes all channels are the same.
-            byte_channel_size = self.inout_channels[0].array_size
+            byte_channel_size = self.channels.inouts[0].array_size
 
             self.base.write_reg_data(
                 value, self.output_register + byte_channel_size // 2 * channel
@@ -604,7 +372,7 @@ class ApModule(CpxModule):
             )
 
         # Handle bool
-        elif all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
+        elif all(c.data_type == "BOOL" for c in self.channels.outputs) and isinstance(
             value, bool
         ):
             data = self.read_output_channels()
@@ -616,7 +384,7 @@ class ApModule(CpxModule):
             )
 
         # Handle int8
-        elif self.output_channels[channel].data_type == "INT8" and isinstance(
+        elif self.channels.outputs[channel].data_type == "INT8" and isinstance(
             value, int
         ):
             # Two channels share one modbus register, so read it first to write it back later
@@ -629,7 +397,7 @@ class ApModule(CpxModule):
             )
 
         # Handle uint8
-        elif self.output_channels[channel].data_type == "UINT8" and isinstance(
+        elif self.channels.outputs[channel].data_type == "UINT8" and isinstance(
             value, int
         ):
             # Two channels share one modbus register, so read it first to write it back later
@@ -642,7 +410,7 @@ class ApModule(CpxModule):
             )
 
         # Handle int16
-        elif self.output_channels[channel].data_type == "INT16" and isinstance(
+        elif self.channels.outputs[channel].data_type == "INT16" and isinstance(
             value, int
         ):
             reg = struct.pack("<h", value)
@@ -652,7 +420,7 @@ class ApModule(CpxModule):
             )
 
         # Handle uint16
-        elif self.output_channels[channel].data_type == "UINT16" and isinstance(
+        elif self.channels.outputs[channel].data_type == "UINT16" and isinstance(
             value, int
         ):
             reg = struct.pack("<H", value)
@@ -664,7 +432,7 @@ class ApModule(CpxModule):
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         else:
             raise TypeError(
-                f"{self.output_channels[0].data_type} is not supported or type(value) "
+                f"{self.channels.outputs[0].data_type} is not supported or type(value) "
                 f"is not compatible"
             )
 
@@ -910,7 +678,7 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        params = self.SystemParameters(
+        params = SystemParameters(
             dhcp_enable=self.base.read_parameter(
                 self.position, self.parameter_dict.get(12000)
             ),

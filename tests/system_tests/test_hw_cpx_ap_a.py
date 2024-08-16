@@ -135,38 +135,38 @@ def test_modules(test_cpxap):
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].input_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].input_channels) == 16  # 16di
-    assert len(test_cpxap.modules[3].input_channels) == 0  # 8Do
-    assert len(test_cpxap.modules[2].input_channels) == 12  # 12Di4Do
-    assert len(test_cpxap.modules[4].input_channels) == 8  # 8Di
-    assert len(test_cpxap.modules[5].input_channels) == 8  # 4Iol
-    assert len(test_cpxap.modules[6].input_channels) == 0  # Vabx
-    assert len(test_cpxap.modules[7].input_channels) == 0  # Vaem
-    assert len(test_cpxap.modules[8].input_channels) == 0  # Vmpal
-    assert len(test_cpxap.modules[9].input_channels) == 0  # Vaba
+    assert len(test_cpxap.modules[0].channels.inputs) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inputs) == 16  # 16di
+    assert len(test_cpxap.modules[3].channels.inputs) == 0  # 8Do
+    assert len(test_cpxap.modules[2].channels.inputs) == 12  # 12Di4Do
+    assert len(test_cpxap.modules[4].channels.inputs) == 8  # 8Di
+    assert len(test_cpxap.modules[5].channels.inputs) == 8  # 4Iol
+    assert len(test_cpxap.modules[6].channels.inputs) == 0  # Vabx
+    assert len(test_cpxap.modules[7].channels.inputs) == 0  # Vaem
+    assert len(test_cpxap.modules[8].channels.inputs) == 0  # Vmpal
+    assert len(test_cpxap.modules[9].channels.inputs) == 0  # Vaba
 
-    assert len(test_cpxap.modules[0].output_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].output_channels) == 0  # 16Di
-    assert len(test_cpxap.modules[2].output_channels) == 4  # 12Di4Do
-    assert len(test_cpxap.modules[3].output_channels) == 8  # 8Do
-    assert len(test_cpxap.modules[4].output_channels) == 0  # 8Di
-    assert len(test_cpxap.modules[5].output_channels) == 4  # 4Iol
-    assert len(test_cpxap.modules[6].output_channels) == 32  # Vabx
-    assert len(test_cpxap.modules[7].output_channels) == 24  # Vaem
-    assert len(test_cpxap.modules[8].output_channels) == 32  # Vmpal
-    assert len(test_cpxap.modules[9].output_channels) == 24  # Vaba
+    assert len(test_cpxap.modules[0].channels.outputs) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.outputs) == 0  # 16Di
+    assert len(test_cpxap.modules[2].channels.outputs) == 4  # 12Di4Do
+    assert len(test_cpxap.modules[3].channels.outputs) == 8  # 8Do
+    assert len(test_cpxap.modules[4].channels.outputs) == 0  # 8Di
+    assert len(test_cpxap.modules[5].channels.outputs) == 4  # 4Iol
+    assert len(test_cpxap.modules[6].channels.outputs) == 32  # Vabx
+    assert len(test_cpxap.modules[7].channels.outputs) == 24  # Vaem
+    assert len(test_cpxap.modules[8].channels.outputs) == 32  # Vmpal
+    assert len(test_cpxap.modules[9].channels.outputs) == 24  # Vaba
 
-    assert len(test_cpxap.modules[0].inout_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].inout_channels) == 0  # 16Di
-    assert len(test_cpxap.modules[2].inout_channels) == 0  # 12Di4Do
-    assert len(test_cpxap.modules[3].inout_channels) == 0  # 8Do
-    assert len(test_cpxap.modules[4].inout_channels) == 0  # 8Di
-    assert len(test_cpxap.modules[5].inout_channels) == 4  # 4Iol
-    assert len(test_cpxap.modules[6].inout_channels) == 0  # Vabx
-    assert len(test_cpxap.modules[7].inout_channels) == 0  # Vaem
-    assert len(test_cpxap.modules[8].inout_channels) == 0  # Vmpal
-    assert len(test_cpxap.modules[9].inout_channels) == 0  # Vaba
+    assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inouts) == 0  # 16Di
+    assert len(test_cpxap.modules[2].channels.inouts) == 0  # 12Di4Do
+    assert len(test_cpxap.modules[3].channels.inouts) == 0  # 8Do
+    assert len(test_cpxap.modules[4].channels.inouts) == 0  # 8Di
+    assert len(test_cpxap.modules[5].channels.inouts) == 4  # 4Iol
+    assert len(test_cpxap.modules[6].channels.inouts) == 0  # Vabx
+    assert len(test_cpxap.modules[7].channels.inouts) == 0  # Vaem
+    assert len(test_cpxap.modules[8].channels.inouts) == 0  # Vmpal
+    assert len(test_cpxap.modules[9].channels.inouts) == 0  # Vaba
 
 
 @pytest.mark.parametrize("input_value", list(range(10)))

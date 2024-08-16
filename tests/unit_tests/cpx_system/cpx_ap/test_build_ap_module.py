@@ -41,9 +41,9 @@ class TestBuildApModule:
         # Arrange
         ApddInformation = namedtuple("ApddInformation", "uid name")
         apdd_information = ApddInformation(uid="ApddModuleId", name="ApddModuleName")
-        input_channels = [1, 2, 3]
-        output_channels = [4, 5, 6]
-        inout_channels = [7, 8, 9]
+        inputs = [1, 2, 3]
+        outputs = [4, 5, 6]
+        inouts = [7, 8, 9]
         Parameter = namedtuple("Parameter", "parameter_id name")
         parameter_list = [Parameter(i, f"Parameter{i}") for i in range(5)]
         ModuleDiagnosis = namedtuple("Diagnosis", "diagnosis_id name")
@@ -60,9 +60,9 @@ class TestBuildApModule:
         mock_build_actual_variant.return_value = actual_variant
         mock_build_apdd_information.return_value = apdd_information
         mock_build_channel_list.side_effect = [
-            input_channels,
-            output_channels,
-            inout_channels,
+            inputs,
+            outputs,
+            inouts,
         ]
         mock_build_parameter_list.return_value = parameter_list
         mock_build_diagnosis_list.return_value = diagnosis_list
@@ -75,8 +75,8 @@ class TestBuildApModule:
 
         assert ap_module.apdd_information == apdd_information
         assert ap_module.name == apdd_information.name
-        assert ap_module.input_channels == input_channels + inout_channels
-        assert ap_module.output_channels == output_channels + inout_channels
-        assert ap_module.inout_channels == inout_channels
+        assert ap_module.channels.inputs == inputs + inouts
+        assert ap_module.channels.outputs == outputs + inouts
+        assert ap_module.channels.inouts == inouts
         assert len(ap_module.parameter_dict) == len(parameter_list)
         assert len(ap_module.diagnosis_dict) == len(diagnosis_list)
