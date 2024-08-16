@@ -43,6 +43,11 @@ class ApModule(CpxModule):
     # p#ylint: disable=too-many-arguments
     # p#ylint: disable=too-many-public-methods
     # p#ylint: disable=too-many-branches
+    # p#ylint: disable=too-many-instance-attributes
+    # p#ylint: disable=too-many-lines
+    # p#ylint: disable=too-many-arguments
+    # p#ylint: disable=too-many-public-methods
+    # p#ylint: disable=too-many-branches
     # This is not intended, should be divided in sub classes instead!
 
     def __init__(
@@ -53,10 +58,16 @@ class ApModule(CpxModule):
         diagnosis_list: list = None,
     ):
         super().__init__(name=apdd_information.name)
+        super().__init__(name=apdd_information.name)
         self.information = None
         self.name = apdd_information.name
         self.apdd_information = apdd_information
 
+        self.channels = Channels(
+            channels[0] + channels[2],
+            channels[1] + channels[2],
+            channels[2],
+        )
         self.channels = Channels(
             channels[0] + channels[2],
             channels[1] + channels[2],
@@ -109,30 +120,35 @@ class ApModule(CpxModule):
         function_is_supported = True
         # check if function is known at all
         if not PRODUCT_CATEGORY_MAPPING.get(func_name):
+        if not PRODUCT_CATEGORY_MAPPING.get(func_name):
             function_is_supported = False
 
         # check if function is supported for the product category
         elif self.apdd_information.product_category not in [
+            v.value for v in PRODUCT_CATEGORY_MAPPING.get(func_name)
             v.value for v in PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
             function_is_supported = False
 
         # check if outputs are available if it's an output function
         elif func_name in OUTPUT_FUNCTIONS and not self.channels.outputs:
+        elif func_name in OUTPUT_FUNCTIONS and not self.channels.outputs:
             function_is_supported = False
 
         # check if inputs or outputs are available if it's an input function
+        elif func_name in INPUT_FUNCTIONS and not (
+            self.channels.inputs or self.channels.outputs
         elif func_name in INPUT_FUNCTIONS and not (
             self.channels.inputs or self.channels.outputs
         ):
             function_is_supported = False
 
         # check if there are parameters if it's a parameter function
-        elif func_name in PARAMETER_FUNCTIONS and not self.module_dicts.parameters:
+        elif func_name in PARAMETER_FUNCTIONS and not self.parameter_dict:
             function_is_supported = False
 
         # check if there are diagnosis information if it's a diagnosis function
-        elif func_name in DIAGNOSIS_FUNCTIONS and not self.module_dicts.diagnosis:
+        elif func_name in DIAGNOSIS_FUNCTIONS and not self.diagnosis_dict:
             function_is_supported = False
 
         return function_is_supported
@@ -261,7 +277,7 @@ class ApModule(CpxModule):
             decode_string = self._generate_decode_string(self.channels.inputs)
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
+                values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
 
             elif decode_string.lower().count("b") % 2:
                 # if there is an odd number of 8bit values, append one byte
@@ -355,8 +371,8 @@ class ApModule(CpxModule):
             return
 
         # Handle mixed channels
-        for i, c in enumerate(self.channels.outputs):
-            if c.data_type in SUPPORTED_DATATYPES:
+        for i, c in enumerate(self.output_channels):
+            if c.data_type in self.SUPPORTED_DATATYPES:
                 self.write_channel(i, data[i])
             else:
                 raise TypeError(f"Output data type {c.data_type} is not supported")
