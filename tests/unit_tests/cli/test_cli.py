@@ -1,4 +1,5 @@
 """Contains tests for MotionHandler class"""
+
 from unittest.mock import Mock
 from cpx_io.cli.cpx_e import add_cpx_e_parser
 
