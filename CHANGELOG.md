@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ModbusException handling for ConnectionAbortedError and corresponding unittest
 ### Fixed
 - Corrected (U)INT16 handling and corresponding unittests
+# Added
+- System tests for VTUX-AS
 
 ## v0.5.3 - 09.08.24
 ### Added
