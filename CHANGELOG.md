@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for INT8 and UINT8 channels (used by vacuum valves for VTUX)
 - Support for AP modules with different channel types
+- System tests for VTUX-AS
+- Information on channels in system_information docu
 
 ### Changed
 - Removed optional parameter `raw` from `read_module_parameter()`. Added `read_module_parameter_enum_str()` instead.
 - Removed optional parameter `outputs_only` from `read_channel(s)()`. Added `read_output_channel(s)()` instead.
 - Updated examples
-# Added
-- System tests for VTUX-AS
 
 ### Fixed
 - Updated ModbusException handling for ConnectionAbortedError and corresponding unittest

@@ -4,6 +4,16 @@ import inspect
 import json
 from datetime import datetime
 
+def _generage_channel_data(channels: list) -> dict:
+    """Makes a dict of relevant information from the channels list"""
+    channel_list = []
+    for i, c in enumerate(channels):
+        channel_list.append({
+            "Index": i,
+            "Description": c.description,
+            "Datatype": c.data_type,
+    })
+    return channel_list
 
 def _generate_module_data(modules: list) -> dict:
     """Makes a dict of relevant information from the modules list"""
@@ -43,6 +53,12 @@ def _generate_module_data(modules: list) -> dict:
                         "Signature": str(inspect.signature(func)),
                     }
 
+        module_channels = {
+            "Input Channels" : _generage_channel_data(m.input_channels),
+            "Output Channels" : _generage_channel_data(m.output_channels),
+            "InOut Channels" : _generage_channel_data(m.inout_channels),
+        }
+
         module_data.append(
             {
                 "Index": m.position,
@@ -54,6 +70,7 @@ def _generate_module_data(modules: list) -> dict:
                 "Default Name": m.name,
                 "Module Functions": module_functions,
                 "Parameters": parameter_data,
+                "Channels": module_channels,
             }
         )
 
@@ -120,6 +137,18 @@ def generate_system_information_file(ap_system) -> None:
                     func_header = name + doc["Signature"]
                     docstring = doc["Description"].replace("\n:", "<br>:")
                     f.write(f"### {func_header} \n{docstring}\n")
+
+            for k, v in m["Channels"].items():
+                if len(v) > 0:
+                    f.write(f"### {k}\n")
+                    f.write(
+                        "| Index | Description | Type |\n"
+                        "| ----- | ----------- | ---- |\n"
+                    )
+                    for c in v:
+                        f.write(
+                            f"|{c['Index']}|{c['Description']}|{c['Datatype']}|\n"
+                        )
 
             if m["Parameters"]:
                 f.write("### Parameter Table\n")
