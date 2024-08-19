@@ -181,7 +181,7 @@ class ApModule(CpxModule):
             decode_string = "<"
 
             # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            for c in self.output_channels:
+            for c in self.channels.outputs:
                 if c.data_type == "BOOL":
                     decode_string += "?"
                 elif c.data_type == "INT8":
@@ -196,7 +196,7 @@ class ApModule(CpxModule):
                     raise TypeError(f"Input data type {c.data_type} is not supported")
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
+                values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
             elif decode_string.lower().count("b") % 2:
                 # if there is an odd number of 8bit values, append one byte
                 decode_string += "b"  # don't care if signed or unsigned
@@ -205,7 +205,7 @@ class ApModule(CpxModule):
                 )  # dismiss the additional byte
             else:
                 raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported "
+                    f"Output data type {self.channels.outputs[0].data_type} are not supported "
                     "or types are not the same for each channel"
                 )
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
@@ -260,7 +260,7 @@ class ApModule(CpxModule):
                     raise TypeError(f"Input data type {c.data_type} is not supported")
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+                values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
             else:
                 values.extend(struct.unpack(decode_string, data))
 
