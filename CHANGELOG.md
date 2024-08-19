@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Support for INT8 and UINT8 channels (used by vacuum valves for VTUX)
+- Support for AP modules with different channel types
 
 ### Changed
 - Removed optional parameter `raw` from `read_module_parameter()`. Added `read_module_parameter_enum_str()` instead.

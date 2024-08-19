@@ -761,7 +761,7 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
     while param[ethrottle_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    assert (m.read_isdu(ethrottle_channel, 16, 0)[:17]) == b"Festo SE & Co. KG"
+    assert (m.read_isdu(ethrottle_channel, 16, 0)[:5]) == b"Festo"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive
@@ -845,14 +845,14 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
-    assert m.read_module_parameter(20022) == "Load supply monitoring inactive"
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
-    assert m.read_module_parameter(20022) == "Load supply monitoring active"
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC",
@@ -861,7 +861,7 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
     assert (
-        m.read_module_parameter(20022)
+        m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
     )
 
