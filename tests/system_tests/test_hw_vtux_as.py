@@ -138,10 +138,11 @@ def test_vabx_a_s_bv_v4a_parameters(test_cpxap):
         "Setup diagnosis wrong valve connected"
     ) == m.read_module_parameter(20208)
 
+
 def test_vabx_a_s_ve_vbh_read_channels(test_cpxap):
     m = test_cpxap.modules[2]
-    # Channel 0 (INT), Input 0 (UINT), Process Quality 0 (UINT)
-    assert m.read_channels() == [0] * 3
+    # Output (UINT16), Channel 0 (INT), Input 0 (UINT), Process Quality 0 (UINT)
+    assert m.read_channels() == [0, 16, 0, 0]
 
 
 def test_vabx_a_s_ve_vbh_read_output_channels(test_cpxap):
@@ -153,8 +154,10 @@ def test_vabx_a_s_ve_vbh_read_output_channels(test_cpxap):
 def test_vabx_a_s_ve_vbh_read_channel(test_cpxap):
     m = test_cpxap.modules[2]
 
-    for i in range(3):
-        assert m.read_channel(i) == 0
+    assert m.read_channel(0) == 0
+    assert m.read_channel(1) == 16
+    assert m.read_channel(2) == 0
+    assert m.read_channel(3) == 0
 
 
 def test_vabx_a_s_ve_vbh_read_output_channel(test_cpxap):
@@ -166,7 +169,7 @@ def test_vabx_a_s_ve_vbh_read_output_channel(test_cpxap):
 def test_vabx_a_s_ve_vbh_write(test_cpxap):
     m = test_cpxap.modules[2]
 
-    for i in range(-10,10):
+    for i in range(0, 255, 32):
         m.write_channel(0, i)
         time.sleep(0.05)
         assert m.read_output_channel(0) == i
@@ -174,6 +177,8 @@ def test_vabx_a_s_ve_vbh_write(test_cpxap):
         m.write_channel(0, 0)
         time.sleep(0.05)
         assert m.read_output_channel(0) == 0
+
+    m.write_channel(0, 0)
 
 
 def test_vabx_a_s_ve_vbh_parameters(test_cpxap):
@@ -188,7 +193,7 @@ def test_vabx_a_s_ve_vbh_parameters(test_cpxap):
         "Enable monitoring of parameter errors"
     ) == m.read_module_parameter(20030)
     assert m.read_module_parameter(
-        "Behaviour in fail state"
+        "Behavior in fail state"  # Spelling error in current APDD version
     ) == m.read_module_parameter(20052)
     assert m.read_module_parameter(
         "Condition counter set point"
@@ -208,81 +213,69 @@ def test_vabx_a_s_ve_vbh_parameters(test_cpxap):
     assert m.read_module_parameter(
         "Enable diagnosis on B10 overflow"
     ) == m.read_module_parameter(20209)
-    assert m.read_module_parameter(
-        "Process Diagnosis"
-    ) == m.read_module_parameter(20211)
+    assert m.read_module_parameter("Process Diagnosis") == m.read_module_parameter(
+        20211
+    )
     assert m.read_module_parameter(
         "Interlock ejector pulse"
     ) == m.read_module_parameter(20212)
     assert m.read_module_parameter(
         "Threshold process quality"
     ) == m.read_module_parameter(20221)
-    assert m.read_module_parameter(
-        "Limit Evacuation Time"
-    ) == m.read_module_parameter(20240)
-    assert m.read_module_parameter(
-        "Limit Venting Time"
-    ) == m.read_module_parameter(20241)
-    assert m.read_module_parameter(
-        "Auto-Drop Time"
-    ) == m.read_module_parameter(20242)
-    assert m.read_module_parameter(
-        "Automatic Drop Impulse"
-    ) == m.read_module_parameter(20243)
-    assert m.read_module_parameter(
-        "Air-Save Function"
-    ) == m.read_module_parameter(20244)
-    assert m.read_module_parameter(
-        "Switching point A1"
-    ) == m.read_module_parameter(20245)
-    assert m.read_module_parameter(
-        "Hysteresis A"
-    ) == m.read_module_parameter(20246)
-    assert m.read_module_parameter(
-        "Switching Point B1"
-    ) == m.read_module_parameter(20247)
-    assert m.read_module_parameter(
-        "Hysteresis B"
-    ) == m.read_module_parameter(20248)
-    assert m.read_module_parameter(
-        "Switching Point A2"
-    ) == m.read_module_parameter(20249)
-    assert m.read_module_parameter(
-        "Switching Point B2"
-    ) == m.read_module_parameter(20250)
-    assert m.read_module_parameter(
-        "Pressure unit"
-    ) == m.read_module_parameter(20251)
-    assert m.read_module_parameter(
-        "Lock code"
-    ) == m.read_module_parameter(20252)
-    assert m.read_module_parameter(
-        "Switchpoint logic"
-    ) == m.read_module_parameter(20253)
-    assert m.read_module_parameter(
-        "Switchpoint mode"
-    ) == m.read_module_parameter(20254)
+    assert m.read_module_parameter("Limit Evacuation Time") == m.read_module_parameter(
+        20240
+    )
+    assert m.read_module_parameter("Limit Venting Time") == m.read_module_parameter(
+        20241
+    )
+    assert m.read_module_parameter("Auto-Drop Time") == m.read_module_parameter(20242)
+    assert m.read_module_parameter("Automatic Drop Impulse") == m.read_module_parameter(
+        20243
+    )
+    assert m.read_module_parameter("Air-Save Function") == m.read_module_parameter(
+        20244
+    )
+    assert m.read_module_parameter("Switching point A1") == m.read_module_parameter(
+        20245
+    )
+    assert m.read_module_parameter("Hysteresis A") == m.read_module_parameter(20246)
+    assert m.read_module_parameter("Switching Point B1") == m.read_module_parameter(
+        20247
+    )
+    assert m.read_module_parameter("Hysteresis B") == m.read_module_parameter(20248)
+    assert m.read_module_parameter("Switching Point A2") == m.read_module_parameter(
+        20249
+    )
+    assert m.read_module_parameter("Switching Point B2") == m.read_module_parameter(
+        20250
+    )
+    assert m.read_module_parameter("Pressure unit") == m.read_module_parameter(20251)
+    assert m.read_module_parameter("Lock code") == m.read_module_parameter(20252)
+    assert m.read_module_parameter("Switchpoint logic") == m.read_module_parameter(
+        20253
+    )
+    assert m.read_module_parameter("Switchpoint mode") == m.read_module_parameter(20254)
 
 
 def test_vabx_a_s_ve_vbl_read_channels(test_cpxap):
     m = test_cpxap.modules[3]
-    # 8 optional inputs (True) and 8 outputs (False)
-    assert m.read_channels() == [True] * 8 + [False] * 8
+    # Output (UINT16), Channel 0 (INT), Input 0 (UINT), Process Quality 0 (UINT)
+    assert m.read_channels() == [0, 16, 0, 0]
 
 
 def test_vabx_a_s_ve_vbl_read_output_channels(test_cpxap):
     m = test_cpxap.modules[3]
 
-    assert m.read_output_channels() == [False] * 8
+    assert m.read_output_channels() == [0]
 
 
 def test_vabx_a_s_ve_vbl_read_channel(test_cpxap):
     m = test_cpxap.modules[3]
 
-    for i in range(8):
-        assert m.read_channel(i) is True
-    for i in range(8, 16):
-        assert m.read_channel(i) is False
+    assert m.read_channel(0) == 0
+    assert m.read_channel(1) == 16
+    assert m.read_channel(2) == 0
+    assert m.read_channel(3) == 0
 
 
 def test_vabx_a_s_ve_vbl_read_output_channel(test_cpxap):
@@ -294,7 +287,7 @@ def test_vabx_a_s_ve_vbl_read_output_channel(test_cpxap):
 def test_vabx_a_s_ve_vbl_write(test_cpxap):
     m = test_cpxap.modules[3]
 
-    for i in range(-10,10):
+    for i in range(0, 255, 32):
         m.write_channel(0, i)
         time.sleep(0.05)
         assert m.read_output_channel(0) == i
@@ -316,7 +309,7 @@ def test_vabx_a_s_ve_vbl_parameters(test_cpxap):
         "Enable monitoring of parameter errors"
     ) == m.read_module_parameter(20030)
     assert m.read_module_parameter(
-        "Behaviour in fail state"
+        "Behavior in fail state"  # Spelling error in current APDD version
     ) == m.read_module_parameter(20052)
     assert m.read_module_parameter(
         "Condition counter set point"
@@ -336,57 +329,45 @@ def test_vabx_a_s_ve_vbl_parameters(test_cpxap):
     assert m.read_module_parameter(
         "Enable diagnosis on B10 overflow"
     ) == m.read_module_parameter(20209)
-    assert m.read_module_parameter(
-        "Process Diagnosis"
-    ) == m.read_module_parameter(20211)
+    assert m.read_module_parameter("Process Diagnosis") == m.read_module_parameter(
+        20211
+    )
     assert m.read_module_parameter(
         "Interlock ejector pulse"
     ) == m.read_module_parameter(20212)
     assert m.read_module_parameter(
         "Threshold process quality"
     ) == m.read_module_parameter(20221)
-    assert m.read_module_parameter(
-        "Limit Evacuation Time"
-    ) == m.read_module_parameter(20240)
-    assert m.read_module_parameter(
-        "Limit Venting Time"
-    ) == m.read_module_parameter(20241)
-    assert m.read_module_parameter(
-        "Auto-Drop Time"
-    ) == m.read_module_parameter(20242)
-    assert m.read_module_parameter(
-        "Automatic Drop Impulse"
-    ) == m.read_module_parameter(20243)
-    assert m.read_module_parameter(
-        "Air-Save Function"
-    ) == m.read_module_parameter(20244)
-    assert m.read_module_parameter(
-        "Switching point A1"
-    ) == m.read_module_parameter(20245)
-    assert m.read_module_parameter(
-        "Hysteresis A"
-    ) == m.read_module_parameter(20246)
-    assert m.read_module_parameter(
-        "Switching Point B1"
-    ) == m.read_module_parameter(20247)
-    assert m.read_module_parameter(
-        "Hysteresis B"
-    ) == m.read_module_parameter(20248)
-    assert m.read_module_parameter(
-        "Switching Point A2"
-    ) == m.read_module_parameter(20249)
-    assert m.read_module_parameter(
-        "Switching Point B2"
-    ) == m.read_module_parameter(20250)
-    assert m.read_module_parameter(
-        "Pressure unit"
-    ) == m.read_module_parameter(20251)
-    assert m.read_module_parameter(
-        "Lock code"
-    ) == m.read_module_parameter(20252)
-    assert m.read_module_parameter(
-        "Switchpoint logic"
-    ) == m.read_module_parameter(20253)
-    assert m.read_module_parameter(
-        "Switchpoint mode"
-    ) == m.read_module_parameter(20254)
+    assert m.read_module_parameter("Limit Evacuation Time") == m.read_module_parameter(
+        20240
+    )
+    assert m.read_module_parameter("Limit Venting Time") == m.read_module_parameter(
+        20241
+    )
+    assert m.read_module_parameter("Auto-Drop Time") == m.read_module_parameter(20242)
+    assert m.read_module_parameter("Automatic Drop Impulse") == m.read_module_parameter(
+        20243
+    )
+    assert m.read_module_parameter("Air-Save Function") == m.read_module_parameter(
+        20244
+    )
+    assert m.read_module_parameter("Switching point A1") == m.read_module_parameter(
+        20245
+    )
+    assert m.read_module_parameter("Hysteresis A") == m.read_module_parameter(20246)
+    assert m.read_module_parameter("Switching Point B1") == m.read_module_parameter(
+        20247
+    )
+    assert m.read_module_parameter("Hysteresis B") == m.read_module_parameter(20248)
+    assert m.read_module_parameter("Switching Point A2") == m.read_module_parameter(
+        20249
+    )
+    assert m.read_module_parameter("Switching Point B2") == m.read_module_parameter(
+        20250
+    )
+    assert m.read_module_parameter("Pressure unit") == m.read_module_parameter(20251)
+    assert m.read_module_parameter("Lock code") == m.read_module_parameter(20252)
+    assert m.read_module_parameter("Switchpoint logic") == m.read_module_parameter(
+        20253
+    )
+    assert m.read_module_parameter("Switchpoint mode") == m.read_module_parameter(20254)
