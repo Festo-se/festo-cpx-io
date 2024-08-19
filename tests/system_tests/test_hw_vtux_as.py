@@ -24,6 +24,7 @@ def test_module_count(test_cpxap):
     "test module_count"
     assert test_cpxap.read_module_count() == 2
 
+
 def test_modules(test_cpxap):
     assert all(isinstance(m, ApModule) for m in test_cpxap.modules)
 
@@ -59,6 +60,7 @@ def test_vabx_read_channels(test_cpxap):
     # 8 optional inputs (True) and 8 outputs (False)
     assert m.read_channels() == [True] * 8 + [False] * 8
 
+
 def test_vabx_read_output_channels(test_cpxap):
     m = test_cpxap.modules[1]
 
@@ -70,8 +72,9 @@ def test_vabx_read_channel(test_cpxap):
 
     for i in range(8):
         assert m.read_channel(i) is True
-    for i in range(8,16):
+    for i in range(8, 16):
         assert m.read_channel(i) is False
+
 
 def test_vabx_read_output_channel(test_cpxap):
     m = test_cpxap.modules[1]
@@ -113,14 +116,10 @@ def test_vabx_parameters(test_cpxap):
         "Lifecycle counter set point"
     ) == m.read_module_parameter(20116)
     assert m.read_module_parameter(
-        "Type of  Digital Input module" # there is a double space here in the ADPP
+        "Type of  Digital Input module"  # there is a double space here in the ADPP
     ) == m.read_module_parameter(20201)
-    assert m.read_module_parameter(
-        "B10 Value"
-    ) == m.read_module_parameter(20203)
-    assert m.read_module_parameter(
-        "Valve function"
-    ) == m.read_module_parameter(20205)
+    assert m.read_module_parameter("B10 Value") == m.read_module_parameter(20203)
+    assert m.read_module_parameter("Valve function") == m.read_module_parameter(20205)
     assert m.read_module_parameter(
         "Lifecycle counter actual value"
     ) == m.read_module_parameter(20206)
