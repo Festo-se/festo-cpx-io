@@ -321,14 +321,14 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ApInformation(input_size=8, output_size=8)
+        module.information = CpxAp.ApInformation(input_size=2, output_size=2)
 
         module.input_channels = [
             Channel(
                 array_size=None,
                 bits=8,
-                byte_swap_needed=True,
-                channel_id=0,
+                byte_swap_needed=None,
+                channel_id=1,
                 data_type="INT8",
                 description="",
                 direction="in",
@@ -341,8 +341,8 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=8,
-                byte_swap_needed=True,
-                channel_id=0,
+                byte_swap_needed=None,
+                channel_id=2,
                 data_type="INT8",
                 description="",
                 direction="out",
@@ -353,13 +353,15 @@ class TestApModule:
         ] * 2
 
         expected_value = [
-            -255,
-            4352,
-            -17494,
-            4352,
+            -128,
+            127,
+            -128,
+            127,
         ]
+        # it will call read_reg_data twice. Once for input_channels and for output_channels
+        # Both times will return 0x8074 for 2 channels each
 
-        ret_data = b"\xAA\xBB\x00\x11"
+        ret_data = b"\x80\x7F"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -374,14 +376,14 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.ANALOG.value
-        module.information = CpxAp.ApInformation(input_size=8, output_size=8)
+        module.information = CpxAp.ApInformation(input_size=2, output_size=2)
 
         module.input_channels = [
             Channel(
                 array_size=None,
                 bits=8,
-                byte_swap_needed=True,
-                channel_id=0,
+                byte_swap_needed=None,
+                channel_id=1,
                 data_type="UINT8",
                 description="",
                 direction="in",
@@ -394,8 +396,8 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=8,
-                byte_swap_needed=True,
-                channel_id=0,
+                byte_swap_needed=None,
+                channel_id=2,
                 data_type="UINT8",
                 description="",
                 direction="out",
@@ -406,12 +408,13 @@ class TestApModule:
         ] * 2
 
         expected_value = [
-            0xF,
-            0xE,
-            0xC,
-            0xA,
+            0xCA,
+            0xFE,
+            0xCA,
+            0xFE,
         ]
-
+        # it will call read_reg_data twice. Once for input_channels and for output_channels
+        # Both times will return 0xCAFE for 2 channels each
         ret_data = b"\xCA\xFE"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
