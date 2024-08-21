@@ -395,8 +395,8 @@ class ApModule(CpxModule):
         """Generate a struct decode string from the channel information"""
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        
-        # I don't know if this can happen, but if byte_swap_needed is different for 
+
+        # I don't know if this can happen, but if byte_swap_needed is different for
         # the individual channels we need a more complicated handling here.
         # byte_swap_needed can be True, False or None
 

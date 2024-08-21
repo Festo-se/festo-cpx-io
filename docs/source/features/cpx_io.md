@@ -96,7 +96,7 @@ In this implementation, the control (PLC) will be your pc. The cpx-system will b
 #### Import
 Import the required cpx-system
 ```
-from cpx_io.cpx_system.cpx_e.cpx_ap import CpxAP
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAP
 ```
 
 #### Instantiate your cpx-system
