@@ -157,6 +157,37 @@ class ApModule(CpxModule):
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
+    @staticmethod
+    def _generate_decode_string(channels: list) -> str:
+        """Generate a struct decode string from the channel information"""
+
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+        
+        # I don't know if this can happen, but if byte_swap_needed is different for 
+        # the individual channels we need a more complicated handling here.
+        # byte_swap_needed can be True, False or None
+
+        if any(c.byte_swap_needed for c in channels):
+            decode_string = "<"
+        else:
+            decode_string = ">"
+
+        for c in channels:
+            if c.data_type == "BOOL":
+                decode_string += "?"
+            elif c.data_type == "INT8":
+                decode_string += "b"
+            elif c.data_type == "UINT8":
+                decode_string += "B"
+            elif c.data_type == "INT16":
+                decode_string += "h"
+            elif c.data_type == "UINT16":
+                decode_string += "H"
+            else:
+                raise TypeError(f"Data type {c.data_type} is not supported")
+
+        return decode_string
+
     @CpxBase.require_base
     def read_output_channels(self) -> list:
         """Read only output channels from module and interpret them as the module intends.
@@ -178,22 +209,7 @@ class ApModule(CpxModule):
                 self.start_registers.outputs, byte_output_size
             )
 
-            decode_string = "<"
-
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            for c in self.channels.outputs:
-                if c.data_type == "BOOL":
-                    decode_string += "?"
-                elif c.data_type == "INT8":
-                    decode_string += "b"
-                elif c.data_type == "UINT8":
-                    decode_string += "B"
-                elif c.data_type == "INT16":
-                    decode_string += "h"
-                elif c.data_type == "UINT16":
-                    decode_string += "H"
-                else:
-                    raise TypeError(f"Input data type {c.data_type} is not supported")
+            decode_string = self._generate_decode_string(self.output_channels)
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
                 values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
@@ -242,22 +258,7 @@ class ApModule(CpxModule):
                 )
                 return channels
 
-            decode_string = "<"
-
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            for c in self.channels.inputs:
-                if c.data_type == "BOOL":
-                    decode_string += "?"
-                elif c.data_type == "INT8":
-                    decode_string += "b"
-                elif c.data_type == "UINT8":
-                    decode_string += "B"
-                elif c.data_type == "INT16":
-                    decode_string += "h"
-                elif c.data_type == "UINT16":
-                    decode_string += "H"
-                else:
-                    raise TypeError(f"Input data type {c.data_type} is not supported")
+            decode_string = self._generate_decode_string(self.input_channels)
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
                 values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
