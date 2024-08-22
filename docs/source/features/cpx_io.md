@@ -96,16 +96,18 @@ In this implementation, the control (PLC) will be your pc. The cpx-system will b
 #### Import
 Import the required cpx-system
 ```
-from cpx_io.cpx_system.cpx_e.cpx_ap import CpxAP
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 ```
 
 #### Instantiate your cpx-system
-On CPX-AP, the modules will be generated automatically when the CpxAP object is instantiated. Optionally, a modbus timeout in seconds can be set in the constructor.
+On CPX-AP, the modules will be generated automatically when the CpxAp object is instantiated. Optionally, a modbus timeout in seconds can be set in the constructor. Don't forget to close the connection or the CPX will eventually not allow more connections.
 ```
 myCPX = CpxAp(ip_address="192.168.1.1", timeout=1.5)
+... # your code
+myCPX.shutdown()
 ```
 
-The easiest way, is to use it with a context manager, for example
+You don't have to care about closing the connection if you use it with a context manager as this will do everything for you, even if your program breaks.
 ```
 with CpxAp(ip_address="192.168.1.1") as myCPX:
     # print system information

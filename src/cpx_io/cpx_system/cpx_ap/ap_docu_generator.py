@@ -3,6 +3,28 @@
 import inspect
 import json
 from datetime import datetime
+from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+
+
+def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> dict:
+    """Makes a dict of relevant information from the channels list"""
+    channel_dict = {}
+    for k, v in channels.items():
+        channel_list = []
+        for i, c in enumerate(v):
+            channel_list.append(
+                {
+                    "Index": i,
+                    "Description": c.description,
+                    # change datatype to bytes for io-link modules
+                    "Datatype": "Bytes" if module_is_io_link else c.data_type,
+                }
+            )
+        channel_dict[k] = channel_list
+    # only leave the inout channels in the docu for io-link modules
+    if module_is_io_link:
+        return {"Inout Channels": channel_dict["Inout Channels"]}
+    return channel_dict
 
 
 def _generate_module_data(modules: list) -> dict:
@@ -43,6 +65,17 @@ def _generate_module_data(modules: list) -> dict:
                         "Signature": str(inspect.signature(func)),
                     }
 
+        is_io_link = (
+            m.apdd_information.product_category == ProductCategory.IO_LINK.value
+        )
+
+        channels = {
+            "Input Channels": m.input_channels,
+            "Output Channels": m.output_channels,
+            "Inout Channels": m.inout_channels,
+        }
+        module_channels = _generage_channel_data(channels, is_io_link)
+
         module_data.append(
             {
                 "Index": m.position,
@@ -54,6 +87,7 @@ def _generate_module_data(modules: list) -> dict:
                 "Default Name": m.name,
                 "Module Functions": module_functions,
                 "Parameters": parameter_data,
+                "Channels": module_channels,
             }
         )
 
@@ -120,6 +154,16 @@ def generate_system_information_file(ap_system) -> None:
                     func_header = name + doc["Signature"]
                     docstring = doc["Description"].replace("\n:", "<br>:")
                     f.write(f"### {func_header} \n{docstring}\n")
+
+            for k, v in m["Channels"].items():
+                if len(v) > 0:
+                    f.write(f"### {k}\n")
+                    f.write(
+                        "| Index | Description | Type |\n"
+                        "| ----- | ----------- | ---- |\n"
+                    )
+                    for c in v:
+                        f.write(f"|{c['Index']}|{c['Description']}|{c['Datatype']}|\n")
 
             if m["Parameters"]:
                 f.write("### Parameter Table\n")

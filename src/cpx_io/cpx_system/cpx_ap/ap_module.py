@@ -29,10 +29,11 @@ class ApModule(CpxModule):
     # pylint: disable=too-many-lines
     # pylint: disable=too-many-arguments
     # pylint: disable=too-many-public-methods
-    # Should be devided in sub classes instead!
+    # pylint: disable=too-many-branches
+    # This is not intended, should be divided in sub classes instead!
 
     # List of all implemented datatypes
-    SUPPORTED_DATATYPES = ["UINT16", "INT16", "BOOL"]
+    SUPPORTED_DATATYPES = ["UINT16", "INT16", "UINT8", "INT8", "BOOL"]
     SUPPORTED_IOL_DATATYPES = ["UINT8"]
 
     PRODUCT_CATEGORY_MAPPING = {
@@ -389,6 +390,37 @@ class ApModule(CpxModule):
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
+    @staticmethod
+    def _generate_decode_string(channels: list) -> str:
+        """Generate a struct decode string from the channel information"""
+
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+
+        # I don't know if this can happen, but if byte_swap_needed is different for
+        # the individual channels we need a more complicated handling here.
+        # byte_swap_needed can be True, False or None
+
+        if any(c.byte_swap_needed for c in channels):
+            decode_string = "<"
+        else:
+            decode_string = ">"
+
+        for c in channels:
+            if c.data_type == "BOOL":
+                decode_string += "?"
+            elif c.data_type == "INT8":
+                decode_string += "b"
+            elif c.data_type == "UINT8":
+                decode_string += "B"
+            elif c.data_type == "INT16":
+                decode_string += "h"
+            elif c.data_type == "UINT16":
+                decode_string += "H"
+            else:
+                raise TypeError(f"Data type {c.data_type} is not supported")
+
+        return decode_string
+
     @CpxBase.require_base
     def read_output_channels(self) -> list:
         """Read only output channels from module and interpret them as the module intends.
@@ -408,18 +440,19 @@ class ApModule(CpxModule):
         if self.output_channels:
             data = self.base.read_reg_data(self.output_register, byte_output_size)
 
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.output_channels):
+            decode_string = self._generate_decode_string(self.output_channels)
+
+            if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
                 values.extend(bytes_to_boollist(data)[: len(self.output_channels)])
-            elif all(c.data_type == "INT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.output_channels):
-                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+            elif decode_string.lower().count("b") % 2:
+                # if there is an odd number of 8bit values, append one byte
+                decode_string += "b"  # don't care if signed or unsigned
+                values.extend(
+                    struct.unpack(decode_string, data)[:-1]
+                )  # dismiss the additional byte
             else:
-                raise TypeError(
-                    f"Output data type {self.output_channels[0].data_type} are not supported "
-                    "or types are not the same for each channel"
-                )
+                values.extend(struct.unpack(decode_string, data))
+
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
         return values
 
@@ -454,23 +487,25 @@ class ApModule(CpxModule):
                 )
                 return channels
 
-            # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-            if all(c.data_type == "BOOL" for c in self.input_channels):
+            decode_string = self._generate_decode_string(self.input_channels)
+
+            if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
                 values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
-            elif all(c.data_type == "INT16" for c in self.input_channels):
-                values.extend(struct.unpack("<" + "h" * (len(data) // 2), data))
-            elif all(c.data_type == "UINT16" for c in self.input_channels):
-                values.extend(struct.unpack("<" + "H" * (len(data) // 2), data))
+
+            elif decode_string.lower().count("b") % 2:
+                # if there is an odd number of 8bit values, append one byte
+                decode_string += "b"  # don't care if signed or unsigned
+                values.extend(
+                    struct.unpack(decode_string, data)[:-1]
+                )  # dismiss the additional byte
+
             else:
-                raise TypeError(
-                    f"Input data type {self.input_channels[0].data_type} are not supported "
-                    "or types are not the same for each channel"
-                )
+                values.extend(struct.unpack(decode_string, data))
+
         Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
         if self.output_channels:
             values += self.read_output_channels()
-
         return values
 
     @CpxBase.require_base
@@ -539,7 +574,6 @@ class ApModule(CpxModule):
             )
 
         # Handle bool
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(c.data_type == "BOOL" for c in self.output_channels) and all(
             isinstance(d, bool) for d in data
         ):
@@ -548,19 +582,12 @@ class ApModule(CpxModule):
             Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
             return
 
-        # Handle int
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if all(
-            c.data_type in ["INT16", "UINT16"] for c in self.output_channels
-        ) and all(isinstance(d, int) for d in data):
-            for i, d in enumerate(data):
-                self.write_channel(i, d)
-            return
-
-        raise TypeError(
-            f"Output data type {self.output_channels[0].data_type} is not supported or "
-            "types are not the same for each channel (which is also not supported)"
-        )
+        # Handle mixed channels
+        for i, c in enumerate(self.output_channels):
+            if c.data_type in self.SUPPORTED_DATATYPES:
+                self.write_channel(i, data[i])
+            else:
+                raise TypeError(f"Output data type {c.data_type} is not supported")
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:
@@ -587,11 +614,9 @@ class ApModule(CpxModule):
             Logging.logger.info(
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
             )
-            return
 
         # Handle bool
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
+        elif all(c.data_type == "BOOL" for c in self.output_channels) and isinstance(
             value, bool
         ):
             data = self.read_output_channels()
@@ -601,32 +626,67 @@ class ApModule(CpxModule):
             Logging.logger.info(
                 f"{self.name}: Setting bool channel {channel} to {value}"
             )
-            return
+
+        # Handle int8
+        elif self.output_channels[channel].data_type == "INT8" and isinstance(
+            value, int
+        ):
+            # Two channels share one modbus register, so read it first to write it back later
+            reg = self.base.read_reg_data(self.output_register)
+            # if channel number is odd, value needs to be stored in the MSByte
+            if channel % 2:
+                reg = reg[1:] + struct.pack("<b", value)
+            else:
+                reg = struct.pack("<b", value) + reg[:1]
+
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(
+                f"{self.name}: Setting int8 channel {channel} to {value}"
+            )
+
+        # Handle uint8
+        elif self.output_channels[channel].data_type == "UINT8" and isinstance(
+            value, int
+        ):
+            # Two channels share one modbus register, so read it first to write it back later
+            reg = self.base.read_reg_data(self.output_register)
+            # if channel number is odd, value needs to be stored in the MSByte
+            if channel % 2:
+                reg = reg[1:] + struct.pack("<B", value)
+            else:
+                reg = struct.pack("<B", value) + reg[:1]
+
+            self.base.write_reg_data(reg, self.output_register)
+            Logging.logger.info(
+                f"{self.name}: Setting uint8 channel {channel} to {value}"
+            )
 
         # Handle int16
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if self.output_channels[channel].data_type == "INT16" and isinstance(
+        elif self.output_channels[channel].data_type == "INT16" and isinstance(
             value, int
         ):
             reg = struct.pack("<h", value)
-            self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting int channel to {value}")
-            return
+            self.base.write_reg_data(reg, self.output_register + channel)
+            Logging.logger.info(
+                f"{self.name}: Setting int16 channel {channel} to {value}"
+            )
 
         # Handle uint16
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        if self.output_channels[channel].data_type == "UINT16" and isinstance(
+        elif self.output_channels[channel].data_type == "UINT16" and isinstance(
             value, int
         ):
             reg = struct.pack("<H", value)
-            self.base.write_reg_data(reg, self.output_register)
-            Logging.logger.info(f"{self.name}: Setting uint channel to {value}")
-            return
+            self.base.write_reg_data(reg, self.output_register + channel)
+            Logging.logger.info(
+                f"{self.name}: Setting uint16 channel {channel} to {value}"
+            )
 
-        raise TypeError(
-            f"{self.output_channels[0].data_type} is not supported or type(value) "
-            f"is not compatible"
-        )
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+        else:
+            raise TypeError(
+                f"{self.output_channels[0].data_type} is not supported or type(value) "
+                f"is not compatible"
+            )
 
     # Special functions for digital channels
     @CpxBase.require_base

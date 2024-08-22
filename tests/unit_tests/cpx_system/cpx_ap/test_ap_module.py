@@ -312,6 +312,115 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value[:input_value]
 
+    def test_read_channels_correct_values_int8(self, module_fixture):
+        """Test read channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.ANALOG.value
+        module.information = CpxAp.ApInformation(input_size=2, output_size=2)
+
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=8,
+                byte_swap_needed=None,
+                channel_id=1,
+                data_type="INT8",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=8,
+                byte_swap_needed=None,
+                channel_id=2,
+                data_type="INT8",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
+
+        expected_value = [
+            -128,
+            127,
+            -128,
+            127,
+        ]
+        # it will call read_reg_data twice. Once for input_channels and for output_channels
+        # Both times will return 0x8074 for 2 channels each
+
+        ret_data = b"\x80\x7F"
+
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
+
+        # Act
+        channel_values = module.read_channels()
+
+        # Assert
+        assert channel_values == expected_value
+
+    def test_read_channels_correct_values_uint8(self, module_fixture):
+        """Test read channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.ANALOG.value
+        module.information = CpxAp.ApInformation(input_size=2, output_size=2)
+
+        module.input_channels = [
+            Channel(
+                array_size=None,
+                bits=8,
+                byte_swap_needed=None,
+                channel_id=1,
+                data_type="UINT8",
+                description="",
+                direction="in",
+                name="Input %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=8,
+                byte_swap_needed=None,
+                channel_id=2,
+                data_type="UINT8",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=[1],
+                profile_list=[3],
+            )
+        ] * 2
+
+        expected_value = [
+            0xCA,
+            0xFE,
+            0xCA,
+            0xFE,
+        ]
+        # it will call read_reg_data twice. Once for input_channels and for output_channels
+        # Both times will return 0xCAFE for 2 channels each
+        ret_data = b"\xCA\xFE"
+
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
+
+        # Act
+        channel_values = module.read_channels()
+
+        # Assert
+        assert channel_values == expected_value
+
     def test_read_channels_correct_values_int16(self, module_fixture):
         """Test read channels"""
         # Arrange
@@ -706,6 +815,68 @@ class TestApModule:
         # Assert
         module.base.write_reg_data.assert_called_with(b"\xFF", 0)
 
+    def test_write_channels_int8(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=2)
+        module.output_register = 0
+        module.base = Mock()
+        module.write_channel = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="INT8",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 2
+
+        # Act
+        module.write_channels([1, -2])
+
+        # Assert
+        module.write_channel.assert_has_calls([call(0, 1), call(1, -2)])
+
+    def test_write_channels_uint8(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=2)
+        module.output_register = 0
+        module.base = Mock()
+        module.write_channel = Mock()
+
+        module.output_channels = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT8",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 2
+
+        # Act
+        module.write_channels([1, 2])
+
+        # Assert
+        module.write_channel.assert_has_calls([call(0, 1), call(1, 2)])
+
     def test_write_channels_int16(self, module_fixture):
         """Test write_channels"""
         # Arrange
@@ -934,7 +1105,7 @@ class TestApModule:
         module.write_channel(1, -1)
 
         # Assert
-        module.base.write_reg_data.assert_called_with(b"\xff\xff", 0)
+        module.base.write_reg_data.assert_called_with(b"\xff\xff", 1)
 
     def test_write_channel_uint16(self, module_fixture):
         """Test write_channel"""
@@ -966,7 +1137,7 @@ class TestApModule:
         module.write_channel(1, 1)
 
         # Assert
-        module.base.write_reg_data.assert_called_with(b"\x01\x00", 0)
+        module.base.write_reg_data.assert_called_with(b"\x01\x00", 1)
 
     @pytest.mark.parametrize("input_value", ["INT", "UNKNOWN"])
     def test_write_channel_unknown_type(self, module_fixture, input_value):
