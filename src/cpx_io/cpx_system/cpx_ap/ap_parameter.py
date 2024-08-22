@@ -140,8 +140,10 @@ def parameter_pack(
         # but check for the size and return index error if too long
         if "CHAR" in parameter_data_type:
             if len(value) > parameter.array_size:
-                raise IndexError(f"Value {value} is too long for Parameter {parameter.name}."
-                                 f"Allowed size is {parameter.array_size} bytes")
+                raise IndexError(
+                    f"Value {value} is too long for Parameter {parameter.name}."
+                    f"Allowed size is {parameter.array_size} bytes"
+                )
             return bytes(value, encoding="ascii")
 
         pack_data_type = f"<{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
