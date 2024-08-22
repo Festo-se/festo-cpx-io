@@ -652,9 +652,9 @@ class ApModule(CpxModule):
             reg = self.base.read_reg_data(self.output_register)
             # if channel number is odd, value needs to be stored in the MSByte
             if channel % 2:
-                reg = struct.pack("<B", value) + reg[:8]
+                reg = struct.pack("<B", value) + reg[:1]
             else:
-                reg = reg[8:] + struct.pack("<B", value)
+                reg = reg[1:] + struct.pack("<B", value)
             self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(
                 f"{self.name}: Setting uint8 channel {channel} to {value}"
