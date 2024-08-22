@@ -407,9 +407,9 @@ class ApModule(CpxModule):
             reg = self.base.read_reg_data(self.start_registers.outputs)
             # if channel number is odd, value needs to be stored in the MSByte
             if channel % 2:
-                reg = struct.pack("<b", value) + reg[:8]
+                reg = struct.pack("<b", value) + reg[:1]
             else:
-                reg = reg[8:] + struct.pack("<b", value)
+                reg = reg[1:] + struct.pack("<b", value)
 
             self.base.write_reg_data(reg, self.start_registers.outputs)
             Logging.logger.info(
