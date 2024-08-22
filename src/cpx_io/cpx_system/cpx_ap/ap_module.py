@@ -576,9 +576,6 @@ class ApModule(CpxModule):
         :param instances: (optional) Index or list of instances of the parameter.
             If None, all instances will be written
         :type instance: int | list
-        :param return_raw: (optional) option to return the corresponding integer number instead
-            of an enum string
-        :type return_raw: bool
         :return: Value of the parameter. Type depends on the parameter
         :rtype: Any"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
