@@ -258,10 +258,10 @@ class ApModule(CpxModule):
                 )
                 return channels
 
-            decode_string = self._generate_decode_string(self.input_channels)
+            decode_string = self._generate_decode_string(self.channels.inputs)
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+                values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
 
             elif decode_string.lower().count("b") % 2:
                 # if there is an odd number of 8bit values, append one byte
@@ -424,10 +424,12 @@ class ApModule(CpxModule):
             reg = self.base.read_reg_data(self.start_registers.outputs)
             # if channel number is odd, value needs to be stored in the MSByte
             if channel % 2:
-                reg = struct.pack("<B", value) + reg[:1]
-            else:
                 reg = reg[1:] + struct.pack("<B", value)
             self.base.write_reg_data(reg, self.start_registers.outputs)
+            else:
+                reg = struct.pack("<B", value) + reg[:1]
+
+            self.base.write_reg_data(reg, self.output_register)
             Logging.logger.info(
                 f"{self.name}: Setting uint8 channel {channel} to {value}"
             )

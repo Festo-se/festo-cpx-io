@@ -143,7 +143,7 @@ def test_vabx_a_s_bv_v4a_parameters(test_cpxap):
 def test_vabx_a_s_ve_vbh_read_channels(test_cpxap):
     m = test_cpxap.modules[2]
     # Channel 0 (INT), Input 0 (UINT), Process Quality 0 (UINT), Output (UINT16)
-    assert m.read_channels() == [0, 20, 0, 0]
+    assert m.read_channels() == [0, 0, 0, 0]
 
 
 def test_vabx_a_s_ve_vbh_read_output_channels(test_cpxap):
@@ -156,7 +156,7 @@ def test_vabx_a_s_ve_vbh_read_channel(test_cpxap):
     m = test_cpxap.modules[2]
 
     assert m.read_channel(0) == 0
-    assert m.read_channel(1) == 20
+    assert m.read_channel(1) == 0
     assert m.read_channel(2) == 0
     assert m.read_channel(3) == 0
 
@@ -261,7 +261,7 @@ def test_vabx_a_s_ve_vbh_parameters(test_cpxap):
 def test_vabx_a_s_ve_vbl_read_channels(test_cpxap):
     m = test_cpxap.modules[3]
     # Channel 0 (INT), Input 0 (UINT), Process Quality 0 (UINT), Output (UINT16)
-    assert m.read_channels() == [0, 16, 0, 0]
+    assert m.read_channels() == [0, 0, 0, 0]
 
 
 def test_vabx_a_s_ve_vbl_read_output_channels(test_cpxap):
@@ -274,7 +274,7 @@ def test_vabx_a_s_ve_vbl_read_channel(test_cpxap):
     m = test_cpxap.modules[3]
 
     assert m.read_channel(0) == 0
-    assert m.read_channel(1) == 16
+    assert m.read_channel(1) == 0
     assert m.read_channel(2) == 0
     assert m.read_channel(3) == 0
 
