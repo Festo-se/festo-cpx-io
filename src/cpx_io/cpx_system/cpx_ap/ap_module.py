@@ -261,7 +261,15 @@ class ApModule(CpxModule):
             decode_string = self._generate_decode_string(self.input_channels)
 
             if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
+                values.extend(bytes_to_boollist(data)[: len(self.input_channels)])
+
+            elif decode_string.lower().count("b") % 2:
+                # if there is an odd number of 8bit values, append one byte
+                decode_string += "b"  # don't care if signed or unsigned
+                values.extend(
+                    struct.unpack(decode_string, data)[:-1]
+                )  # dismiss the additional byte
+
             else:
                 values.extend(struct.unpack(decode_string, data))
 
