@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Parameter handling for CHAR types
 
+## v0.6.0 - 22.08.24
 ### Added
 - Support for INT8 and UINT8 channels (used by vacuum valves for VTUX)
 - Support for AP modules with different channel types
