@@ -137,8 +137,12 @@ def parameter_pack(
         Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
 
         # for char arrays, ignore the "Arraysize" and use length of the bytes object instead
+        # but check for the size and return index error if too long
         if "CHAR" in parameter_data_type:
-            return struct.pack("s", bytes(value, encoding="ascii"))
+            if len(value) > parameter.array_size:
+                raise IndexError(f"Value {value} is too long for Parameter {parameter.name}."
+                                 f"Allowed size is {parameter.array_size} bytes")
+            return bytes(value, encoding="ascii")
 
         pack_data_type = f"<{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
 
