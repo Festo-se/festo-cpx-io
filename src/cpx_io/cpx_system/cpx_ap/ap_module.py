@@ -762,7 +762,7 @@ class ApModule(CpxModule):
         instances = self._check_instances(parameter, instances)
 
         # VALUE HANDLING
-        if isinstance(value, str):
+        if isinstance(value, str) and parameter.enums:
             value_str = value
             value = parameter.enums.enum_values.get(value)
             # overwrite the parameter datatype from enum

@@ -254,6 +254,48 @@ def test_ep_parameter_write(test_cpxap):
     assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
 
 
+def test_ep_parameter_application_specific_tag(test_cpxap):
+    m = test_cpxap.modules[0]
+
+    # Application specific Tag
+    assert isinstance(m.read_module_parameter(20118), str)
+    m.write_module_parameter(20118, "TestSystemAP")
+    time.sleep(0.05)
+    assert m.read_module_parameter(20118) == "TestSystemAP"
+
+
+def test_ep_parameter_application_specific_tag_too_long(test_cpxap):
+    m = test_cpxap.modules[0]
+
+    # Application specific Tag
+    assert isinstance(m.read_module_parameter(20118), str)
+    with pytest.raises(IndexError):
+        m.write_module_parameter(20118, "x" * 33)
+    time.sleep(0.05)
+    assert m.read_module_parameter(20118) == "TestSystemAP"
+
+
+def test_ep_parameter_location_tag(test_cpxap):
+    m = test_cpxap.modules[0]
+
+    # Application specific Tag
+    assert isinstance(m.read_module_parameter(20207), str)
+    m.write_module_parameter(20207, "TestSystemAP")
+    time.sleep(0.05)
+    assert m.read_module_parameter(20207) == "TestSystemAP"
+
+
+def test_ep_parameter_location_tag_too_long(test_cpxap):
+    m = test_cpxap.modules[0]
+
+    # Application specific Tag
+    assert isinstance(m.read_module_parameter(20207), str)
+    with pytest.raises(IndexError):
+        m.write_module_parameter(20207, "x" * 31)
+    time.sleep(0.05)
+    assert m.read_module_parameter(20207) == "TestSystemAP"
+
+
 def test_ep_parameter_rw_strings(test_cpxap):
     m = test_cpxap.modules[0]
 

@@ -34,12 +34,18 @@ def _generate_module_data(modules: list) -> dict:
     for m in modules:
         parameter_data = []
         for p in m.parameter_dict.values():
+            # overwrite R/W of the network parameters 12000 .. 12003 in the docu
+            # as they do not work when changing them with modbus
             parameter_data.append(
                 {
                     "Id": p.parameter_id,
                     "Name": p.name,
                     "Description": p.description,
-                    "R/W": "R/W" if p.is_writable else "R",
+                    "R/W": (
+                        "R/W"
+                        if (p.is_writable and p.parameter_id not in range(12000, 12004))
+                        else "R"
+                    ),
                     "Type": p.data_type,
                     "Size": (
                         p.array_size
