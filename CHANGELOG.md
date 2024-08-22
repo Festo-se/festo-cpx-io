@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## v0.6.0 - 22.08.24
 ### Added
 - Support for INT8 and UINT8 channels (used by vacuum valves for VTUX)
 - Support for AP modules with different channel types
@@ -19,8 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Updated ModbusException handling for ConnectionAbortedError and corresponding unittest
 - Corrected (U)INT16 handling and corresponding unittests
-- System tests for VTUX-AS
-- Typo in CPX-AP docu (import)
+- Typos in CPX-AP docu (import, instantiation)
 
 ## v0.5.3 - 09.08.24
 ### Added
