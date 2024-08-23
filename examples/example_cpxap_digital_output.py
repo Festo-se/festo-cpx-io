@@ -15,6 +15,13 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     # generated name (get it from documentation) as well as rename it (see digital_input example)
 
     dido = myCPX.modules[1]
+
+    # keep in mind that the outputs will switch on and off as fast as your pc allows. It is very
+    # likely, that you will not see any change on the outputs before the code runs through and 
+    # the connection is closed. If you actually want to see something in this example, I suggest
+    # using the sleep function from the time module to wait. Keep in mind that this will only work
+    # if you disable the modbus timeout by passing timeout=0 in the CpxAp constructor.
+
     # set, clear, toggle a digital output
     dido.set_channel(0)  # sets one channel, returns none
     dido.clear_channel(0)  # clear one channel, returns none
