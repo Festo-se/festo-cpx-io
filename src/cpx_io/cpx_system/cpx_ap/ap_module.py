@@ -6,7 +6,10 @@ from typing import Any
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
-from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import SUPPORTED_DATATYPES
+from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import (
+    SUPPORTED_DATATYPES,
+    SUPPORTED_IOL_DATATYPES,
+)
 from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     DIAGNOSIS_FUNCTIONS,
     INPUT_FUNCTIONS,
@@ -164,15 +167,10 @@ class ApModule(CpxModule):
         """Generate a struct decode string from the channel information"""
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+        # if byte_swap_needed is different for the individual channels we need a more
+        # complicated handling here.
 
-        # I don't know if this can happen, but if byte_swap_needed is different for
-        # the individual channels we need a more complicated handling here.
-        # byte_swap_needed can be True, False or None
-
-        if any(c.byte_swap_needed for c in channels):
-            decode_string = "<"
-        else:
-            decode_string = ">"
+        decode_string = "<" if any(c.byte_swap_needed for c in channels) else ">"
 
         for c in channels:
             if c.data_type == "BOOL":
@@ -201,11 +199,9 @@ class ApModule(CpxModule):
         :rtype: list
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
         byte_output_size = div_ceil(self.information.output_size, 2)
-
         values = []
-        # if available, read outputs
+
         if self.channels.outputs:
             data = self.base.read_reg_data(
                 self.start_registers.outputs, byte_output_size
@@ -235,11 +231,9 @@ class ApModule(CpxModule):
         :rtype: list
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
         byte_input_size = div_ceil(self.information.input_size, 2)
-
         values = []
-        # if available, read inputs
+
         if self.channels.inputs:
             data = self.base.read_reg_data(self.start_registers.inputs, byte_input_size)
 
@@ -344,7 +338,6 @@ class ApModule(CpxModule):
                 f"Data must be list of {len(self.channels.outputs)} elements"
             )
 
-        # Handle bool
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
             isinstance(d, bool) for d in data
@@ -377,7 +370,14 @@ class ApModule(CpxModule):
 
         # IO-Link special
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            # This assumes all channels are the same.
+            if not all(
+                c.data_type in SUPPORTED_IOL_DATATYPES
+                for c in self.channels.inputs
+                + self.channels.outputs
+                + self.channels.inouts
+            ):
+                raise TypeError("Datatypes are not supported for IO-Link modules")
+
             byte_channel_size = self.channels.inouts[0].array_size
 
             self.base.write_reg_data(
@@ -387,7 +387,6 @@ class ApModule(CpxModule):
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
             )
 
-        # Handle bool
         elif all(c.data_type == "BOOL" for c in self.channels.outputs) and isinstance(
             value, bool
         ):
@@ -399,7 +398,6 @@ class ApModule(CpxModule):
                 f"{self.name}: Setting bool channel {channel} to {value}"
             )
 
-        # Handle int8
         elif self.channels.outputs[channel].data_type == "INT8" and isinstance(
             value, int
         ):
@@ -416,7 +414,6 @@ class ApModule(CpxModule):
                 f"{self.name}: Setting int8 channel {channel} to {value}"
             )
 
-        # Handle uint8
         elif self.channels.outputs[channel].data_type == "UINT8" and isinstance(
             value, int
         ):
@@ -433,7 +430,6 @@ class ApModule(CpxModule):
                 f"{self.name}: Setting uint8 channel {channel} to {value}"
             )
 
-        # Handle int16
         elif self.channels.outputs[channel].data_type == "INT16" and isinstance(
             value, int
         ):
@@ -443,7 +439,6 @@ class ApModule(CpxModule):
                 f"{self.name}: Setting int16 channel {channel} to {value}"
             )
 
-        # Handle uint16
         elif self.channels.outputs[channel].data_type == "UINT16" and isinstance(
             value, int
         ):
@@ -489,12 +484,9 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
-        # get the relevant value from the register and write the inverse
         value = self.read_output_channel(channel)
         self.write_channel(channel, not value)
 
-    # Parameter functions
     @CpxBase.require_base
     def write_module_parameter(
         self,
@@ -518,7 +510,6 @@ class ApModule(CpxModule):
         if isinstance(parameter, int):
             parameter = self.module_dicts.parameters.get(parameter)
         elif isinstance(parameter, str):
-            # iterate over available parameters and extract the one with the correct name
             parameter_list = [
                 p for p in self.module_dicts.parameters.values() if p.name == parameter
             ]
@@ -592,8 +583,7 @@ class ApModule(CpxModule):
         # PARAMETER HANDLING
         parameter = self.get_parameter_from_identifier(parameter)
 
-        if parameter.enums:
-            # overwrite the parameter datatype from enum
+        if parameter.enums:  # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
 
         # INSTANCE HANDLING
@@ -669,7 +659,6 @@ class ApModule(CpxModule):
         :ret value: Diagnosis code
         :rtype: tuple"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
         reg = self.base.read_reg_data(self.start_registers.diagnosis + 4, length=2)
         return int.from_bytes(reg, byteorder="little")
 
@@ -684,9 +673,7 @@ class ApModule(CpxModule):
         :ret value: Diagnosis information
         :rtype: ModuleDiagnosis or None if no diagnosis is active"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-
         diagnosis_code = self.read_diagnosis_code()
-
         return self.module_dicts.diagnosis.get(diagnosis_code)
 
     # Busmodule special functions
@@ -794,10 +781,11 @@ class ApModule(CpxModule):
                     "DevCOM": dev_com,
                 }
             )
-        if channel is None:
-            return channels_pqi
 
         Logging.logger.info(f"{self.name}: Reading PQI of channel(s) {channel}")
+
+        if channel is None:
+            return channels_pqi
         return channels_pqi[channel]
 
     @CpxBase.require_base
@@ -840,39 +828,31 @@ class ApModule(CpxModule):
                     self.position, params.get("port_status_info"), channel_item
                 ),
             )
-
             revision_id = self.base.read_parameter(
                 self.position, params.get("revision_id"), channel_item
             )
-
             transmission_rate = transmission_rate_dict.get(
                 self.base.read_parameter(
                     self.position, params.get("transmission_rate"), channel_item
                 ),
             )
-
             actual_cycle_time = self.base.read_parameter(
                 self.position, params.get("actual_cycle_time"), channel_item
             )
-
             actual_vendor_id = self.base.read_parameter(
                 self.position, params.get("actual_vendor_id"), channel_item
             )
-
             actual_device_id = self.base.read_parameter(
                 self.position, params.get("actual_device_id"), channel_item
             )
-
             input_data_length = self.base.read_parameter(
                 self.position, params.get("iolink_input_data_length"), channel_item
             )
-
             output_data_length = self.base.read_parameter(
                 self.position,
                 params.get("iolink_output_data_length"),
                 channel_item,
             )
-
             channel_params.append(
                 {
                     "Port status information": port_status_information,
@@ -940,16 +920,14 @@ class ApModule(CpxModule):
             command, ap_modbus_registers.ISDU_COMMAND.register_address
         )
 
-        stat = 1
-        cnt = 0
+        stat, cnt = 1, 0
         while stat > 0 and cnt < 5000:
             stat = int.from_bytes(
                 self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),
                 byteorder="little",
             )
-
             cnt += 1
-        if cnt >= 5000:
+        if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
 
         ret = self.base.read_reg_data(*ap_modbus_registers.ISDU_DATA)
@@ -959,7 +937,7 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
-        """Write isdu (device parameter) to defined channel.
+        """Write isdu (device parameter) to defined channel. 
         Raises CpxRequestError when write failed.
 
         :param data: Data as 16bit register values in list
@@ -1006,8 +984,7 @@ class ApModule(CpxModule):
             command, ap_modbus_registers.ISDU_COMMAND.register_address
         )
 
-        stat = 1
-        cnt = 0
+        stat, cnt = 1, 0
         while stat > 0 and cnt < 1000:
             stat = int.from_bytes(
                 self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),

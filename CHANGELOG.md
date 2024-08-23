@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Added further explanation to example_cpxap_digital_output
+- Several backend changes in ap_module to clear lately ignored pylint issues
 
 ## v0.6.1 - 22.08.24
 ### Fixed
