@@ -40,7 +40,9 @@ def test_modules(test_cpxap):
 
     assert test_cpxap.modules[0].start_registers.inputs == 5000  # 1 CPX-AP-A-EP-M12
     assert test_cpxap.modules[1].start_registers.inputs == 5000  # 2 VMPA-AP-EPL-G
-    assert test_cpxap.modules[2].start_registers.inputs == 5000  # 3 VMPA14-FB-EMG-D2-8-S
+    assert (
+        test_cpxap.modules[2].start_registers.inputs == 5000
+    )  # 3 VMPA14-FB-EMG-D2-8-S
     assert test_cpxap.modules[3].start_registers.inputs == 5001  # 4 VMPA1-FB-EMS-D2-8
     assert test_cpxap.modules[4].start_registers.inputs == 5001  # 5 VMPA14-FB-EMS-D2-8
     assert test_cpxap.modules[5].start_registers.inputs == 5001  # 6 VMPA2-FB-EMS-D2-4

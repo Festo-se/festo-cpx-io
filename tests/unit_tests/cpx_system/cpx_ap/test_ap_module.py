@@ -15,6 +15,7 @@ from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
 from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
 
+
 class TestApModule:
     "Test ApModule"
 

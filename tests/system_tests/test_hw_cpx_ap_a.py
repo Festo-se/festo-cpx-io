@@ -792,22 +792,30 @@ def test_4iol_parameter_rw_strings_lost(test_cpxap):
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    )
     assert m.read_module_parameter(20050) == [False, False, False, False]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, [1, 2])
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    )
     assert m.read_module_parameter(20050) == [False, True, True, False]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    )
     assert m.read_module_parameter(20050) == [False, True, True, True]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is True
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is True
+    )
     assert m.read_module_parameter(20050) == [True, True, True, True]
 
 
@@ -828,22 +836,30 @@ def test_4iol_parameter_rw_strings_load_supply_enable(test_cpxap):
 
     m.write_module_parameter("Enable of load supply", False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    )
     assert m.read_module_parameter(20086) == [False, False, False, False]
 
     m.write_module_parameter("Enable of load supply", True, [1, 2])
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    )
     assert m.read_module_parameter(20086) == [False, True, True, False]
 
     m.write_module_parameter("Enable of load supply", True, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    )
     assert m.read_module_parameter(20086) == [False, True, True, True]
 
     m.write_module_parameter("Enable of load supply", True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is True
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is True
+    )
     assert m.read_module_parameter(20086) == [True, True, True, True]
 
 

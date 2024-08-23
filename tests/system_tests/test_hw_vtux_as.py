@@ -24,7 +24,6 @@ def test_module_count(test_cpxap):
     assert test_cpxap.read_module_count() == 4
 
 
-
 def test_modules(test_cpxap):
     assert all(isinstance(m, ApModule) for m in test_cpxap.modules)
 

@@ -128,7 +128,7 @@ class TestCpxE8Do:
             cpxe8do.write_channels(input_value)
 
     @pytest.mark.parametrize(
-        "start_registers.outputs, input_value, expected_value",
+        "output_register, input_value, expected_value",
         [
             (0, (0, True), (b"\xAF", 0)),
             (0, (1, False), (b"\xAC", 0)),
@@ -136,11 +136,11 @@ class TestCpxE8Do:
             (1, (1, False), (b"\xAC", 1)),
         ],
     )
-    def test_write_channel(self, start_registers.outputs, input_value, expected_value):
+    def test_write_channel(self, output_register, input_value, expected_value):
         """test write channel true"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.start_registers = StartRegisters(outputs=start_registers.outputs)
+        cpxe8do.start_registers = StartRegisters(outputs=output_register)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -152,7 +152,7 @@ class TestCpxE8Do:
         cpxe8do.base.write_reg_data.assert_called_with(*expected_value)
 
     @pytest.mark.parametrize(
-        "start_registers.outputs, input_value, expected_value",
+        "output_register, input_value, expected_value",
         [
             (0, (0, True), (b"\xAF", 0)),
             (0, (1, False), (b"\xAC", 0)),
@@ -160,11 +160,11 @@ class TestCpxE8Do:
             (1, (1, False), (b"\xAC", 1)),
         ],
     )
-    def test_setitem(self, start_registers.outputs, input_value, expected_value):
+    def test_setitem(self, output_register, input_value, expected_value):
         """Test set item true"""
         # Arrange
         cpxe8do = CpxE8Do()
-        cpxe8do.start_registers = StartRegisters(outputs=start_registers.outputs)
+        cpxe8do.start_registers = StartRegisters(outputs=output_register)
         cpxe8do.base = Mock(
             read_reg_data=Mock(return_value=b"\xAE"), write_reg_data=Mock()
         )
@@ -218,7 +218,9 @@ class TestCpxE8Do:
         cpxe8do.toggle_channel(2)
 
         # Assert
-        cpxe8do.base.write_reg_data.assert_called_with(b"\xAA", cpxe8do.start_registers.outputs)
+        cpxe8do.base.write_reg_data.assert_called_with(
+            b"\xAA", cpxe8do.start_registers.outputs
+        )
 
     @pytest.mark.parametrize(
         "input_value, expected_value",

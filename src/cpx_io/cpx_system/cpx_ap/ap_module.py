@@ -14,7 +14,6 @@ from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     PARAMETER_FUNCTIONS,
     PRODUCT_CATEGORY_MAPPING,
 )
-from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import SUPPORTED_DATATYPES, SUPPORTED_IOL_DATATYPES
 from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import (
     ModuleDiagnosis,
     SystemParameters,
@@ -112,24 +111,19 @@ class ApModule(CpxModule):
         function_is_supported = True
         # check if function is known at all
         if not PRODUCT_CATEGORY_MAPPING.get(func_name):
-        if not PRODUCT_CATEGORY_MAPPING.get(func_name):
             function_is_supported = False
 
         # check if function is supported for the product category
         elif self.apdd_information.product_category not in [
-            v.value for v in PRODUCT_CATEGORY_MAPPING.get(func_name)
             v.value for v in PRODUCT_CATEGORY_MAPPING.get(func_name)
         ]:
             function_is_supported = False
 
         # check if outputs are available if it's an output function
         elif func_name in OUTPUT_FUNCTIONS and not self.channels.outputs:
-        elif func_name in OUTPUT_FUNCTIONS and not self.channels.outputs:
             function_is_supported = False
 
         # check if inputs or outputs are available if it's an input function
-        elif func_name in INPUT_FUNCTIONS and not (
-            self.channels.inputs or self.channels.outputs
         elif func_name in INPUT_FUNCTIONS and not (
             self.channels.inputs or self.channels.outputs
         ):
@@ -228,10 +222,8 @@ class ApModule(CpxModule):
                     struct.unpack(decode_string, data)[:-1]
                 )  # dismiss the additional byte
             else:
-                raise TypeError(
-                    f"Output data type {self.channels.outputs[0].data_type} are not supported "
-                    "or types are not the same for each channel"
-                )
+                values.extend(struct.unpack(decode_string, data))
+
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
         return values
 
@@ -433,7 +425,6 @@ class ApModule(CpxModule):
             # if channel number is odd, value needs to be stored in the MSByte
             if channel % 2:
                 reg = reg[1:] + struct.pack("<B", value)
-            self.base.write_reg_data(reg, self.start_registers.outputs)
             else:
                 reg = struct.pack("<B", value) + reg[:1]
 
