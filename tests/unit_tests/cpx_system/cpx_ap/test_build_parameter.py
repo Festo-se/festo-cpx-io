@@ -58,7 +58,7 @@ class TestBuildParameter:
             "Name": "foo",
             "LimitEnumValues": {"EnumDataType": "bar"},
         }
-        parameter_dict = {
+        module_dicts.parameters = {
             "ParameterId": parameter_id,
             "ParameterInstances": parameter_instances,
             "IsWritable": is_writable,
@@ -67,7 +67,7 @@ class TestBuildParameter:
         enum_dict = {"bar": ["a", "b", "c"]}
 
         # Act
-        parameter = build_parameter(parameter_dict, enum_dict)
+        parameter = build_parameter(module_dicts.parameters, enum_dict)
 
         # Assert
         assert isinstance(parameter, Parameter)
@@ -96,7 +96,7 @@ class TestBuildParameter:
             "LimitEnumValues": {"EnumDataType": "bar"},
             "PhysicalUnitId": "TestPhysicalUnitId",
         }
-        parameter_dict = {
+        module_dicts.parameters = {
             "ParameterId": parameter_id,
             "ParameterInstances": parameter_instances,
             "IsWritable": is_writable,
@@ -107,7 +107,7 @@ class TestBuildParameter:
         units = {"TestPhysicalUnitId": test_physical_unit}
 
         # Act
-        parameter = build_parameter(parameter_dict, enum_dict, units)
+        parameter = build_parameter(module_dicts.parameters, enum_dict, units)
 
         # Assert
         assert isinstance(parameter, Parameter)
@@ -179,14 +179,14 @@ class TestBuildParameterList:
                 "LimitEnumValues": {"EnumDataType": "bar"},
                 "PhysicalUnitId": f"TestPhysicalUnitId{i}",
             }
-            parameter_dict = {
+            module_dicts.parameters = {
                 "ParameterId": i,
                 "ParameterInstances": 1,
                 "IsWritable": False,
                 "DataDefinition": data_definition,
                 "FieldbusSettings": True,
             }
-            parameter_list.append(parameter_dict)
+            parameter_list.append(module_dicts.parameters)
         return parameter_list
 
     def test_build_parameter_list(self):

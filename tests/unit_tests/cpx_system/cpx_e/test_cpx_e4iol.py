@@ -128,7 +128,7 @@ class TestCpxE4Iol:
         )
 
     @pytest.mark.parametrize(
-        "output_register, input_value, expected_value",
+        "start_registers.outputs, input_value, expected_value",
         [
             (0, (0, b"\x00\xAB"), (b"\x00\xAB", 0)),
             (0, (1, b"\x00\xCD"), (b"\x00\xCD", 1)),
@@ -136,11 +136,11 @@ class TestCpxE4Iol:
             (1, (1, b"\x00\xCD"), (b"\x00\xCD", 2)),
         ],
     )
-    def test_write_channel(self, output_register, input_value, expected_value):
+    def test_write_channel(self, start_registers.outputs, input_value, expected_value):
         """test write channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.start_registers = StartRegisters(outputs=output_register)
+        cpxe4iol.start_registers = StartRegisters(outputs=start_registers.outputs)
         cpxe4iol.base = Mock(write_reg_data=Mock())
 
         # Act

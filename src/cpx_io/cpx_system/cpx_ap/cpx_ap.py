@@ -11,6 +11,7 @@ from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_supported_functions import PRODUCT_CATEGORY_MAPPING
 
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.cpx_system.cpx_ap.ap_docu_generator import generate_system_information_file
@@ -265,7 +266,7 @@ class CpxAp(CpxBase):
             print("* Information:")
             print(f"   > {m.apdd_information.description}\n")
             print("* Available Functions: ")
-            for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
+            for function_name in PRODUCT_CATEGORY_MAPPING.keys():
                 if (
                     m.is_function_supported(function_name)
                     and function_name != "configure"
@@ -279,14 +280,14 @@ class CpxAp(CpxBase):
             print(
                 "   > ---------------------------------------------------------------------------"
             )
-            for p in m.parameter_dict.values():
+            for p in m.module_dicts.parameters.values():
                 print(f"   > {p}")
 
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
         for m in self.modules:
             print(f"\n\nModule {m}:")
-            for i, p in m.parameter_dict.items():
+            for i, p in m.module_dicts.parameters.items():
                 r_w = "R/W" if p.is_writable else "R"
                 print(
                     f"{f'  > Read {p.name} (ID {i}):':<64}"

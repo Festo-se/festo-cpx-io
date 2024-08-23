@@ -6,6 +6,7 @@ from typing import Any
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import SUPPORTED_DATATYPES
 from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     DIAGNOSIS_FUNCTIONS,
     INPUT_FUNCTIONS,
@@ -38,17 +39,8 @@ class ApModule(CpxModule):
     functions of the individual modules, see the system documentation of the
     CpxAp object"""
 
-    # p#ylint: disable=too-many-instance-attributes
-    # p#ylint: disable=too-many-lines
-    # p#ylint: disable=too-many-arguments
-    # p#ylint: disable=too-many-public-methods
-    # p#ylint: disable=too-many-branches
-    # p#ylint: disable=too-many-instance-attributes
-    # p#ylint: disable=too-many-lines
-    # p#ylint: disable=too-many-arguments
-    # p#ylint: disable=too-many-public-methods
-    # p#ylint: disable=too-many-branches
-    # This is not intended, should be divided in sub classes instead!
+    # pylint: disable=too-many-public-methods
+    # intended. Module offers many functions for user comfort
 
     def __init__(
         self,
@@ -371,8 +363,8 @@ class ApModule(CpxModule):
             return
 
         # Handle mixed channels
-        for i, c in enumerate(self.output_channels):
-            if c.data_type in self.SUPPORTED_DATATYPES:
+        for i, c in enumerate(self.channels.outputs):
+            if c.data_type in SUPPORTED_DATATYPES:
                 self.write_channel(i, data[i])
             else:
                 raise TypeError(f"Output data type {c.data_type} is not supported")

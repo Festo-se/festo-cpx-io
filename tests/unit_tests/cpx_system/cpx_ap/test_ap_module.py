@@ -323,7 +323,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=2, output_size=2)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -337,7 +337,7 @@ class TestApModule:
                 profile_list=[3],
             )
         ] * 2
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -378,7 +378,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=2, output_size=2)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -392,7 +392,7 @@ class TestApModule:
                 profile_list=[3],
             )
         ] * 2
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -825,11 +825,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.output_register = 0
+        module.start_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -856,11 +856,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.output_register = 0
+        module.start_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,

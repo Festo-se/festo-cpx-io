@@ -113,7 +113,7 @@ class CpxE1Ci(CpxModule):
 
         :return: process data
         :rtype: ProcessData"""
-        # echo output data bit 0 ... 15 are in input_register + 6
+        # echo output data bit 0 ... 15 are in start_registers.inputs + 6
         reg = self.base.read_reg_data(self.start_registers.inputs + 6)
 
         process_data = self.ProcessData.from_bytes(reg[:1])  # take only first byte

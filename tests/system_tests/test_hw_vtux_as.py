@@ -32,39 +32,39 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].output_register == 0  # EP
-    assert test_cpxap.modules[1].output_register == 0  # VABX-A-S-BV-V4A
-    assert test_cpxap.modules[2].output_register == 1  # VABX-A-S-VE-VBH
-    assert test_cpxap.modules[3].output_register == 2  #  VABX-A-S-VE-VBL
+    assert test_cpxap.modules[0].start_registers.outputs == 0  # EP
+    assert test_cpxap.modules[1].start_registers.outputs == 0  # VABX-A-S-BV-V4A
+    assert test_cpxap.modules[2].start_registers.outputs == 1  # VABX-A-S-VE-VBH
+    assert test_cpxap.modules[3].start_registers.outputs == 2  #  VABX-A-S-VE-VBL
 
-    assert test_cpxap.modules[0].input_register == 5000  # EP
-    assert test_cpxap.modules[1].input_register == 5000  # VABX-A-S-BV-V4A
-    assert test_cpxap.modules[2].input_register == 5001  # VABX-A-S-VE-VBH
-    assert test_cpxap.modules[3].input_register == 5003  #  VABX-A-S-VE-VBL
+    assert test_cpxap.modules[0].start_registers.inputs == 5000  # EP
+    assert test_cpxap.modules[1].start_registers.inputs == 5000  # VABX-A-S-BV-V4A
+    assert test_cpxap.modules[2].start_registers.inputs == 5001  # VABX-A-S-VE-VBH
+    assert test_cpxap.modules[3].start_registers.inputs == 5003  #  VABX-A-S-VE-VBL
 
-    assert test_cpxap.diagnosis_register == 11000  # cpx system global diagnosis
-    assert test_cpxap.modules[0].diagnosis_register == 11006  # EP
-    assert test_cpxap.modules[1].diagnosis_register == 11012  # VABX-A-S-BV-V4A
-    assert test_cpxap.modules[2].diagnosis_register == 11018  # VABX-A-S-VE-VBH
-    assert test_cpxap.modules[3].diagnosis_register == 11024  # VABX-A-S-VE-VBL
+    assert test_cpxap.global_diagnosis == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].start_registers.diagnosis == 11006  # EP
+    assert test_cpxap.modules[1].start_registers.diagnosis == 11012  # VABX-A-S-BV-V4A
+    assert test_cpxap.modules[2].start_registers.diagnosis == 11018  # VABX-A-S-VE-VBH
+    assert test_cpxap.modules[3].start_registers.diagnosis == 11024  # VABX-A-S-VE-VBL
 
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].input_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].input_channels) == 8  # VABX-A-S-BV-V4A
-    assert len(test_cpxap.modules[2].input_channels) == 3  # VABX-A-S-VE-VBH
-    assert len(test_cpxap.modules[3].input_channels) == 3  # VABX-A-S-VE-VBL
+    assert len(test_cpxap.modules[0].channels.inputs) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inputs) == 8  # VABX-A-S-BV-V4A
+    assert len(test_cpxap.modules[2].channels.inputs) == 3  # VABX-A-S-VE-VBH
+    assert len(test_cpxap.modules[3].channels.inputs) == 3  # VABX-A-S-VE-VBL
 
-    assert len(test_cpxap.modules[0].output_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].output_channels) == 8  # VABX-A-S-BV-V4A
-    assert len(test_cpxap.modules[2].output_channels) == 1  # VABX-A-S-VE-VBH
-    assert len(test_cpxap.modules[3].output_channels) == 1  # VABX-A-S-VE-VBL
+    assert len(test_cpxap.modules[0].channels.outputs) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.outputs) == 8  # VABX-A-S-BV-V4A
+    assert len(test_cpxap.modules[2].channels.outputs) == 1  # VABX-A-S-VE-VBH
+    assert len(test_cpxap.modules[3].channels.outputs) == 1  # VABX-A-S-VE-VBL
 
-    assert len(test_cpxap.modules[0].inout_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].inout_channels) == 0  # VABX-A-S-BV-V4A
-    assert len(test_cpxap.modules[2].inout_channels) == 0  # VABX-A-S-VE-VBH
-    assert len(test_cpxap.modules[3].inout_channels) == 0  # VABX-A-S-VE-VBL
+    assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inouts) == 0  # VABX-A-S-BV-V4A
+    assert len(test_cpxap.modules[2].channels.inouts) == 0  # VABX-A-S-VE-VBH
+    assert len(test_cpxap.modules[3].channels.inouts) == 0  # VABX-A-S-VE-VBL
 
 
 def test_vabx_a_s_bv_v4a_read_channels(test_cpxap):

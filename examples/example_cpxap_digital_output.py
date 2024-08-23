@@ -40,7 +40,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
 
     # configure the module. Check what parameters are available in the documentation or read
     # them from the module (see parameter_read_write example)
-    for parameter in dido.parameter_dict.values():
+    for parameter in dido.module_dicts.parameters.values():
         print(parameter)
 
     # sets debounce time to 10ms
