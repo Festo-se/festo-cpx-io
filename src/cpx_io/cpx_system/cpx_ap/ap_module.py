@@ -937,7 +937,7 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
-        """Write isdu (device parameter) to defined channel. 
+        """Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed.
 
         :param data: Data as 16bit register values in list
