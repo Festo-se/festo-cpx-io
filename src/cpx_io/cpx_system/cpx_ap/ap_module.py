@@ -3,6 +3,7 @@
 import struct
 import inspect
 from typing import Any
+from collections import namedtuple
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
@@ -20,7 +21,6 @@ from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
 from cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis import ModuleDiagnosis
 from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
 from cpx_io.cpx_system.cpx_ap.dataclasses.channels import Channels
-from cpx_io.cpx_system.cpx_ap.dataclasses.module_dicts import ModuleDicts
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import (
@@ -60,11 +60,14 @@ class ApModule(CpxModule):
             outputs=channels[1] + channels[2],
             inouts=channels[2],
         )
-
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters", "diagnosis"])
         self.module_dicts = ModuleDicts(
-            {p.parameter_id: p for p in parameter_list},
-            {int(d.diagnosis_id.lstrip("0x"), base=16): d for d in diagnosis_list},
+            parameters={p.parameter_id: p for p in parameter_list},
+            diagnosis={
+                int(d.diagnosis_id.lstrip("0x"), base=16): d for d in diagnosis_list
+            },
         )
+
         self.fieldbus_parameters = None
 
     def __repr__(self):

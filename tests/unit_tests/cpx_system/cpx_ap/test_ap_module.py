@@ -2,6 +2,7 @@
 
 from unittest.mock import Mock, call, patch
 import pytest
+from collections import namedtuple
 
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
@@ -136,7 +137,8 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = input_value
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(parameters=input_value)
 
         # Act & Assert
         assert module.is_function_supported("read_module_parameter") == expected_output
@@ -1472,9 +1474,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_index_to_write = 0
@@ -1496,9 +1501,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act & Assert
         parameter_index_to_write = 1
@@ -1514,9 +1522,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, False, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, False, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act & Assert
         parameter_index_to_write = 0
@@ -1532,9 +1543,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_str_to_write = "test"
@@ -1556,9 +1570,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
         module._check_instances = Mock(return_value=[0, 1, 2, 3])
 
         # Act
@@ -1586,9 +1603,12 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_index_to_read = 0
@@ -1607,9 +1627,12 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act & Assert
         parameter_index_to_read = 1
@@ -1624,9 +1647,12 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_str_to_read = "test"
@@ -1645,9 +1671,12 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.module_dicts.parameters = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
         module._check_instances = Mock(return_value=[0, 1, 2, 3])
 
         # Act
@@ -1674,7 +1703,8 @@ class TestApModule:
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
         module.system_entry_registers.diagnosis = 1
-        module.module_dicts.diagnosis = {"x": 0, "y": 1}
+        ModuleDicts = namedtuple("ModuleDicts", ["diagnosis"])
+        module.module_dicts = ModuleDicts(diagnosis={"x": 0, "y": 1})
 
         # Act
         result = module.read_diagnosis_code()
@@ -1703,7 +1733,8 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
         module.read_diagnosis_code = Mock(return_value=0)
-        module.module_dicts.diagnosis = {0: "test0", 1: "test1"}
+        ModuleDicts = namedtuple("ModuleDicts", ["diagnosis"])
+        module.module_dicts = ModuleDicts(diagnosis={0: "test0", 1: "test1"})
 
         # Act
         result = module.read_diagnosis_information()
@@ -1842,16 +1873,19 @@ class TestApModule:
         module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_parameter = Mock(return_value=True)
-        module.module_dicts.parameters = {
-            20074: 20074,
-            20075: 20075,
-            20076: 20076,
-            20077: 20077,
-            20078: 20078,
-            20079: 20079,
-            20108: 20108,
-            20109: 20109,
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                20074: 20074,
+                20075: 20075,
+                20076: 20076,
+                20077: 20077,
+                20078: 20078,
+                20079: 20079,
+                20108: 20108,
+                20109: 20109,
+            }
+        )
 
         # Act
         result = module.read_fieldbus_parameters()
