@@ -1,11 +1,11 @@
-"""AP ApddInformation dataclass"""
+"""ApddInformation dataclass"""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class ApddInformation:
-    """ApddInformation"""
+    """Apdd Information of the module"""
 
     # pylint: disable=too-many-instance-attributes
     description: str

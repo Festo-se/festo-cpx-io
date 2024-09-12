@@ -1,11 +1,11 @@
-"""AP SystemParameters dataclass"""
+"""SystemParameters dataclass"""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class SystemParameters:
-    """SystemParameters"""
+    """Parameters of the system"""
 
     # pylint: disable=too-many-instance-attributes
     dhcp_enable: bool = None

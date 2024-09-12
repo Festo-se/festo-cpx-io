@@ -1,11 +1,11 @@
-"""AP ModuleDiagnosis dataclass"""
+"""ModuleDiagnosis dataclass"""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class ModuleDiagnosis:
-    """ModuleDiagnosis dataclass"""
+    """Diagnosis information of the module"""
 
     description: str
     diagnosis_id: str

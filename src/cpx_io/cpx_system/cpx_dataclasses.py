@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class SystemEntryRegisters:
-    """SystemEntryRegisters dataclass"""
+    """Initial modbus registers of the AP system"""
 
     inputs: int = None
     outputs: int = None

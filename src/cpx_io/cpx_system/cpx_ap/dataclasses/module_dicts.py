@@ -1,11 +1,11 @@
-"""AP ModuleDicts dataclass"""
+"""ModuleDicts dataclass"""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class ModuleDicts:
-    """ModuleDicts dataclass"""
+    """Dictionaries of the module"""
 
     parameters: dict
     diagnosis: dict

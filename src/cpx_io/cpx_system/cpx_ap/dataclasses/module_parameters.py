@@ -1,4 +1,4 @@
-"""AP ModuleParameters dataclass"""
+"""ModuleParameters dataclass"""
 
 from dataclasses import dataclass
 

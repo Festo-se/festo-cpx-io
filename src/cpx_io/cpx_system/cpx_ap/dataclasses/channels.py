@@ -1,11 +1,11 @@
-"""AP Channels dataclass"""
+"""Channels dataclass"""
 
 from dataclasses import dataclass
 
 
 @dataclass
 class Channels:
-    """Channels dataclass"""
+    """Channels of the module"""
 
     inputs: list
     outputs: list
