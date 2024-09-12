@@ -2,7 +2,7 @@
 
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 
-PRODUCT_CATEGORY_MAPPING = {
+SUPPORTED_PRODUCT_FUNCTIONS_DICT = {
     "read_channels": [
         ProductCategory.ANALOG,
         ProductCategory.DIGITAL,

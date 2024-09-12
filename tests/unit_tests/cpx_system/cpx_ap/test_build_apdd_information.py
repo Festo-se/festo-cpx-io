@@ -1,7 +1,7 @@
 """Contains tests for ApddInformation build"""
 
 import pytest
-from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import ApddInformation
+from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
 from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (
     Variant,
     build_variant,

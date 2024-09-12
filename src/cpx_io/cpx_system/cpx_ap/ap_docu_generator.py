@@ -4,7 +4,9 @@ import inspect
 import json
 from datetime import datetime
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
-from cpx_io.cpx_system.cpx_ap.ap_supported_functions import PRODUCT_CATEGORY_MAPPING
+from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
+    SUPPORTED_PRODUCT_FUNCTIONS_DICT,
+)
 
 
 def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> dict:
@@ -62,7 +64,7 @@ def _generate_module_data(modules: list) -> dict:
                 parameter_data[-1]["Enums"] = enum_data
 
         module_functions = {}
-        for function_name in PRODUCT_CATEGORY_MAPPING:
+        for function_name in SUPPORTED_PRODUCT_FUNCTIONS_DICT:
             if m.is_function_supported(function_name):
                 func = getattr(m, function_name)
                 # suppress the configure function

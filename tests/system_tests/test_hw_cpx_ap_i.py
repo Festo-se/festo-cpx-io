@@ -91,30 +91,30 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].start_registers.outputs == 0  # EP
-    assert test_cpxap.modules[1].start_registers.outputs == 0  # 8DI
-    assert test_cpxap.modules[2].start_registers.outputs == 0  # 4DI4DO, adds 1
-    assert test_cpxap.modules[3].start_registers.outputs == 1  # 4AIUI
-    assert test_cpxap.modules[4].start_registers.outputs == 1  # 4IOL, adds 16
-    assert test_cpxap.modules[5].start_registers.outputs == 17  # VABX, adds 2
-    assert test_cpxap.modules[6].start_registers.outputs == 19  # 4Di
+    assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # EP
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 8DI
+    assert test_cpxap.modules[2].system_entry_registers.outputs == 0  # 4DI4DO, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.outputs == 1  # 4AIUI
+    assert test_cpxap.modules[4].system_entry_registers.outputs == 1  # 4IOL, adds 16
+    assert test_cpxap.modules[5].system_entry_registers.outputs == 17  # VABX, adds 2
+    assert test_cpxap.modules[6].system_entry_registers.outputs == 19  # 4Di
 
-    assert test_cpxap.modules[0].start_registers.inputs == 5000  # EP
-    assert test_cpxap.modules[1].start_registers.inputs == 5000  # 8DI, adds 1
-    assert test_cpxap.modules[2].start_registers.inputs == 5001  # 4DI4DO, adds 1
-    assert test_cpxap.modules[3].start_registers.inputs == 5002  # 4AIUI, adds 4
-    assert test_cpxap.modules[4].start_registers.inputs == 5006  # 4IOL, adds 18
-    assert test_cpxap.modules[5].start_registers.inputs == 5024  # VABX
-    assert test_cpxap.modules[6].start_registers.inputs == 5024  # 4Di
+    assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # EP
+    assert test_cpxap.modules[1].system_entry_registers.inputs == 5000  # 8DI, adds 1
+    assert test_cpxap.modules[2].system_entry_registers.inputs == 5001  # 4DI4DO, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.inputs == 5002  # 4AIUI, adds 4
+    assert test_cpxap.modules[4].system_entry_registers.inputs == 5006  # 4IOL, adds 18
+    assert test_cpxap.modules[5].system_entry_registers.inputs == 5024  # VABX
+    assert test_cpxap.modules[6].system_entry_registers.inputs == 5024  # 4Di
 
-    assert test_cpxap.global_diagnosis == 11000  # cpx system global diagnosis
-    assert test_cpxap.modules[0].start_registers.diagnosis == 11006  # EP
-    assert test_cpxap.modules[1].start_registers.diagnosis == 11012  # 8DI
-    assert test_cpxap.modules[2].start_registers.diagnosis == 11018  # 4Di4Do
-    assert test_cpxap.modules[3].start_registers.diagnosis == 11024  # 4AIUI
-    assert test_cpxap.modules[4].start_registers.diagnosis == 11030  # 4IOL
-    assert test_cpxap.modules[5].start_registers.diagnosis == 11036  # VABX
-    assert test_cpxap.modules[6].start_registers.diagnosis == 11042  # 4Di
+    assert test_cpxap.global_diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # EP
+    assert test_cpxap.modules[1].system_entry_registers.diagnosis == 11012  # 8DI
+    assert test_cpxap.modules[2].system_entry_registers.diagnosis == 11018  # 4Di4Do
+    assert test_cpxap.modules[3].system_entry_registers.diagnosis == 11024  # 4AIUI
+    assert test_cpxap.modules[4].system_entry_registers.diagnosis == 11030  # 4IOL
+    assert test_cpxap.modules[5].system_entry_registers.diagnosis == 11036  # VABX
+    assert test_cpxap.modules[6].system_entry_registers.diagnosis == 11042  # 4Di
 
 
 def test_modules_channel_length(test_cpxap):

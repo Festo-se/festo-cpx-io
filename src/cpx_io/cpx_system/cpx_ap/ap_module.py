@@ -15,14 +15,12 @@ from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     INPUT_FUNCTIONS,
     OUTPUT_FUNCTIONS,
     PARAMETER_FUNCTIONS,
-    PRODUCT_CATEGORY_MAPPING,
+    SUPPORTED_PRODUCT_FUNCTIONS_DICT,
 )
-from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import (
-    ModuleDiagnosis,
-    SystemParameters,
-    Channels,
-    ModuleDicts,
-)
+from cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis import ModuleDiagnosis
+from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
+from cpx_io.cpx_system.cpx_ap.dataclasses.channels import Channels
+from cpx_io.cpx_system.cpx_ap.dataclasses.module_dicts import ModuleDicts
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import (
@@ -58,14 +56,9 @@ class ApModule(CpxModule):
         self.apdd_information = apdd_information
 
         self.channels = Channels(
-            channels[0] + channels[2],
-            channels[1] + channels[2],
-            channels[2],
-        )
-        self.channels = Channels(
-            channels[0] + channels[2],
-            channels[1] + channels[2],
-            channels[2],
+            inputs=channels[0] + channels[2],
+            outputs=channels[1] + channels[2],
+            inouts=channels[2],
         )
 
         self.module_dicts = ModuleDicts(
@@ -113,12 +106,12 @@ class ApModule(CpxModule):
 
         function_is_supported = True
         # check if function is known at all
-        if not PRODUCT_CATEGORY_MAPPING.get(func_name):
+        if not SUPPORTED_PRODUCT_FUNCTIONS_DICT.get(func_name):
             function_is_supported = False
 
         # check if function is supported for the product category
         elif self.apdd_information.product_category not in [
-            v.value for v in PRODUCT_CATEGORY_MAPPING.get(func_name)
+            v.value for v in SUPPORTED_PRODUCT_FUNCTIONS_DICT.get(func_name)
         ]:
             function_is_supported = False
 
@@ -152,7 +145,7 @@ class ApModule(CpxModule):
 
         super().configure(base=base, position=position)
 
-        self.start_registers.diagnosis = self.base.next_diagnosis_register
+        self.system_entry_registers.diagnosis = self.base.next_diagnosis_register
 
         self.base.next_output_register += div_ceil(self.information.output_size, 2)
         self.base.next_input_register += div_ceil(self.information.input_size, 2)
@@ -204,7 +197,7 @@ class ApModule(CpxModule):
 
         if self.channels.outputs:
             data = self.base.read_reg_data(
-                self.start_registers.outputs, byte_output_size
+                self.system_entry_registers.outputs, byte_output_size
             )
 
             decode_string = self._generate_decode_string(self.channels.outputs)
@@ -235,7 +228,9 @@ class ApModule(CpxModule):
         values = []
 
         if self.channels.inputs:
-            data = self.base.read_reg_data(self.start_registers.inputs, byte_input_size)
+            data = self.base.read_reg_data(
+                self.system_entry_registers.inputs, byte_input_size
+            )
 
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
@@ -343,7 +338,7 @@ class ApModule(CpxModule):
             isinstance(d, bool) for d in data
         ):
             reg = boollist_to_bytes(data)
-            self.base.write_reg_data(reg, self.start_registers.outputs)
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
             Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
             return
 
@@ -381,7 +376,8 @@ class ApModule(CpxModule):
             byte_channel_size = self.channels.inouts[0].array_size
 
             self.base.write_reg_data(
-                value, self.start_registers.outputs + byte_channel_size // 2 * channel
+                value,
+                self.system_entry_registers.outputs + byte_channel_size // 2 * channel,
             )
             Logging.logger.info(
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
@@ -393,7 +389,7 @@ class ApModule(CpxModule):
             data = self.read_output_channels()
             data[channel] = value
             reg_content = boollist_to_bytes(data)
-            self.base.write_reg_data(reg_content, self.start_registers.outputs)
+            self.base.write_reg_data(reg_content, self.system_entry_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting bool channel {channel} to {value}"
             )
@@ -402,14 +398,14 @@ class ApModule(CpxModule):
             value, int
         ):
             # Two channels share one modbus register, so read it first to write it back later
-            reg = self.base.read_reg_data(self.start_registers.outputs)
+            reg = self.base.read_reg_data(self.system_entry_registers.outputs)
             # if channel number is odd, value needs to be stored in the MSByte
             if channel % 2:
                 reg = struct.pack("<b", value) + reg[:1]
             else:
                 reg = reg[1:] + struct.pack("<b", value)
 
-            self.base.write_reg_data(reg, self.start_registers.outputs)
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting int8 channel {channel} to {value}"
             )
@@ -418,14 +414,14 @@ class ApModule(CpxModule):
             value, int
         ):
             # Two channels share one modbus register, so read it first to write it back later
-            reg = self.base.read_reg_data(self.start_registers.outputs)
+            reg = self.base.read_reg_data(self.system_entry_registers.outputs)
             # if channel number is odd, value needs to be stored in the MSByte
             if channel % 2:
                 reg = reg[1:] + struct.pack("<B", value)
             else:
                 reg = struct.pack("<B", value) + reg[:1]
 
-            self.base.write_reg_data(reg, self.start_registers.outputs)
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
             Logging.logger.info(
                 f"{self.name}: Setting uint8 channel {channel} to {value}"
             )
@@ -434,7 +430,7 @@ class ApModule(CpxModule):
             value, int
         ):
             reg = struct.pack("<h", value)
-            self.base.write_reg_data(reg, self.start_registers.outputs + channel)
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs + channel)
             Logging.logger.info(
                 f"{self.name}: Setting int16 channel {channel} to {value}"
             )
@@ -443,7 +439,7 @@ class ApModule(CpxModule):
             value, int
         ):
             reg = struct.pack("<H", value)
-            self.base.write_reg_data(reg, self.start_registers.outputs + channel)
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs + channel)
             Logging.logger.info(
                 f"{self.name}: Setting uint16 channel {channel} to {value}"
             )
@@ -659,7 +655,9 @@ class ApModule(CpxModule):
         :ret value: Diagnosis code
         :rtype: tuple"""
         self._check_function_supported(inspect.currentframe().f_code.co_name)
-        reg = self.base.read_reg_data(self.start_registers.diagnosis + 4, length=2)
+        reg = self.base.read_reg_data(
+            self.system_entry_registers.diagnosis + 4, length=2
+        )
         return int.from_bytes(reg, byteorder="little")
 
     @CpxBase.require_base
@@ -746,8 +744,8 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        data45 = self.base.read_reg_data(self.start_registers.inputs + 16)[0]
-        data67 = self.base.read_reg_data(self.start_registers.inputs + 17)[0]
+        data45 = self.base.read_reg_data(self.system_entry_registers.inputs + 16)[0]
+        data67 = self.base.read_reg_data(self.system_entry_registers.inputs + 17)[0]
         data = [
             data45 & 0xFF,
             (data45 & 0xFF00) >> 8,

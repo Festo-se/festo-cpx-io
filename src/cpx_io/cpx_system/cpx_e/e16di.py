@@ -20,7 +20,7 @@ class CpxE16Di(CpxModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.base.next_input_register = self.start_registers.inputs + 2
+        self.base.next_input_register = self.system_entry_registers.inputs + 2
 
     @CpxBase.require_base
     def read_channels(self) -> list[bool]:
@@ -29,7 +29,7 @@ class CpxE16Di(CpxModule):
         :return: Values of all channels
         :rtype: list[bool]
         """
-        data = self.base.read_reg_data(self.start_registers.inputs)
+        data = self.base.read_reg_data(self.system_entry_registers.inputs)
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading channels: {ret}")
         return ret
@@ -50,7 +50,7 @@ class CpxE16Di(CpxModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.start_registers.inputs + 1)
+        data = self.base.read_reg_data(self.system_entry_registers.inputs + 1)
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret

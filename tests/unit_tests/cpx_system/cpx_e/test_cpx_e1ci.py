@@ -11,7 +11,7 @@ from cpx_io.cpx_system.cpx_e.cpx_e_enums import (
     SignalEvaluation,
     LatchingEvent,
 )
-from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
+from cpx_io.cpx_system.cpx_dataclasses import SystemEntryRegisters
 
 
 class TestCpxE1Ci:
@@ -46,7 +46,7 @@ class TestCpxE1Ci:
         """Test read channels"""
         # Arrange
         cpxe1ci = CpxE1Ci()
-        cpxe1ci.start_registers = StartRegisters(inputs=0)
+        cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -68,14 +68,14 @@ class TestCpxE1Ci:
         # Assert
         assert value == 0xBEEFCAFE
         cpxe1ci.base.read_reg_data.assert_called_with(
-            cpxe1ci.start_registers.inputs, length=2
+            cpxe1ci.system_entry_registers.inputs, length=2
         )
 
     def test_read_latching_value(self):
         """Test read_latching_value"""
         # Arrange
         cpxe1ci = CpxE1Ci()
-        cpxe1ci.start_registers = StartRegisters(inputs=0)
+        cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xFE\xCA\xEF\xBE"))
 
         # Act
@@ -84,14 +84,14 @@ class TestCpxE1Ci:
         # Assert
         assert latching_value == 0xBEEFCAFE
         cpxe1ci.base.read_reg_data.assert_called_with(
-            cpxe1ci.start_registers.inputs + 2, length=2
+            cpxe1ci.system_entry_registers.inputs + 2, length=2
         )
 
     def test_read_status_word(self):
         """Test read_status_word"""
         # Arrange
         cpxe1ci = CpxE1Ci()
-        cpxe1ci.start_registers = StartRegisters(inputs=0)
+        cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -114,14 +114,14 @@ class TestCpxE1Ci:
         assert sw.speed_measurement is True
 
         cpxe1ci.base.read_reg_data.assert_called_with(
-            cpxe1ci.start_registers.inputs + 4
+            cpxe1ci.system_entry_registers.inputs + 4
         )
 
     def test_read_process_data(self):
         """Test read_process_data"""
         # Arrange
         cpxe1ci = CpxE1Ci()
-        cpxe1ci.start_registers = StartRegisters(inputs=0)
+        cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
 
         # Act
@@ -138,14 +138,14 @@ class TestCpxE1Ci:
         assert pd.block_latching is True
 
         cpxe1ci.base.read_reg_data.assert_called_with(
-            cpxe1ci.start_registers.inputs + 6
+            cpxe1ci.system_entry_registers.inputs + 6
         )
 
     def test_write_process_data_setting_di2(self):
         """Test write_process_data"""
         # Arrange
         cpxe1ci = CpxE1Ci()
-        cpxe1ci.start_registers = StartRegisters(inputs=0)
+        cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(
             read_reg_data=Mock(return_value=b"\xAA"), write_reg_data=Mock()
         )
@@ -155,14 +155,14 @@ class TestCpxE1Ci:
 
         # Assert
         cpxe1ci.base.write_reg_data.assert_called_with(
-            b"\xAB", cpxe1ci.start_registers.outputs
+            b"\xAB", cpxe1ci.system_entry_registers.outputs
         )
 
     def test_write_process_data_block_latching(self):
         """Test write_process_data"""
         # Arrange
         cpxe1ci = CpxE1Ci()
-        cpxe1ci.start_registers = StartRegisters(inputs=0)
+        cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(
             read_reg_data=Mock(return_value=b"\xAA"), write_reg_data=Mock()
         )
@@ -172,7 +172,7 @@ class TestCpxE1Ci:
 
         # Assert
         cpxe1ci.base.write_reg_data.assert_called_with(
-            b"\x2A", cpxe1ci.start_registers.outputs
+            b"\x2A", cpxe1ci.system_entry_registers.outputs
         )
 
     @pytest.mark.parametrize(

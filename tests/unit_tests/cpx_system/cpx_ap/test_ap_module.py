@@ -6,14 +6,12 @@ import pytest
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
-from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import (
-    ApddInformation,
-    SystemParameters,
-)
+from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
+from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
-from cpx_io.cpx_system.cpx_dataclasses import StartRegisters
+from cpx_io.cpx_system.cpx_dataclasses import SystemEntryRegisters
 
 
 class TestApModule:
@@ -152,8 +150,8 @@ class TestApModule:
         assert module_fixture.base is None
         assert module_fixture.position is None
         assert module_fixture.information is None
-        assert module_fixture.start_registers.outputs is None
-        assert module_fixture.start_registers.inputs is None
+        assert module_fixture.system_entry_registers.outputs is None
+        assert module_fixture.system_entry_registers.inputs is None
 
     def test_configure(self, module_fixture):
         """Test configure"""
@@ -795,7 +793,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=8)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.base.write_reg_data = Mock()
 
@@ -826,7 +824,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.start_registers.outputs = 0
+        module.system_entry_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
 
@@ -857,7 +855,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.start_registers.outputs = 0
+        module.system_entry_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
 
@@ -888,7 +886,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.write_channel = Mock()
 
@@ -919,7 +917,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.write_channel = Mock()
 
@@ -954,7 +952,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=8)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
 
         module.channels.outputs = [
@@ -986,7 +984,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=8)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
 
         module.channels.outputs = [
@@ -1053,7 +1051,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
@@ -1085,7 +1083,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
@@ -1117,7 +1115,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
@@ -1150,7 +1148,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
@@ -1208,7 +1206,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.start_registers = StartRegisters(outputs=0)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.information = CpxAp.ApInformation(input_size=34, output_size=32)
         module.base = Mock()
         module.base.write_reg_data = Mock()
@@ -1238,7 +1236,7 @@ class TestApModule:
 
         # Assert
         module.base.write_reg_data.assert_called_with(
-            data, module.start_registers.outputs + input_value
+            data, module.system_entry_registers.outputs + input_value
         )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
@@ -1675,7 +1673,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
-        module.start_registers.diagnosis = 1
+        module.system_entry_registers.diagnosis = 1
         module.module_dicts.diagnosis = {"x": 0, "y": 1}
 
         # Act
@@ -1692,7 +1690,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
-        module.start_registers.diagnosis = 1
+        module.system_entry_registers.diagnosis = 1
 
         # Act & Assert
         with pytest.raises(NotImplementedError):
@@ -1769,7 +1767,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.start_registers.inputs = 0
+        module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
 
@@ -1805,7 +1803,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.start_registers.inputs = 0
+        module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
 
@@ -1841,7 +1839,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.start_registers.inputs = 0
+        module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_parameter = Mock(return_value=True)
         module.module_dicts.parameters = {

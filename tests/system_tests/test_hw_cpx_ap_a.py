@@ -98,39 +98,41 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].start_registers.outputs == 0  # EP
-    assert test_cpxap.modules[1].start_registers.outputs == 0  # 16di
-    assert test_cpxap.modules[2].start_registers.outputs == 0  # 12Di4Do, adds 1
-    assert test_cpxap.modules[3].start_registers.outputs == 1  # 8Do, adds 1
-    assert test_cpxap.modules[4].start_registers.outputs == 2  # 8Di
-    assert test_cpxap.modules[5].start_registers.outputs == 2  # 4Iol
-    assert test_cpxap.modules[6].start_registers.outputs == 18  # Vabx
-    assert test_cpxap.modules[7].start_registers.outputs == 20  # Vaem
-    assert test_cpxap.modules[8].start_registers.outputs == 22  # Vmpal
-    assert test_cpxap.modules[9].start_registers.outputs == 24  # Vaba
+    assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # EP
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 16di
+    assert test_cpxap.modules[2].system_entry_registers.outputs == 0  # 12Di4Do, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.outputs == 1  # 8Do, adds 1
+    assert test_cpxap.modules[4].system_entry_registers.outputs == 2  # 8Di
+    assert test_cpxap.modules[5].system_entry_registers.outputs == 2  # 4Iol
+    assert test_cpxap.modules[6].system_entry_registers.outputs == 18  # Vabx
+    assert test_cpxap.modules[7].system_entry_registers.outputs == 20  # Vaem
+    assert test_cpxap.modules[8].system_entry_registers.outputs == 22  # Vmpal
+    assert test_cpxap.modules[9].system_entry_registers.outputs == 24  # Vaba
 
-    assert test_cpxap.modules[0].start_registers.inputs == 5000  # EP
-    assert test_cpxap.modules[1].start_registers.inputs == 5000  # 16Di, adds 1
-    assert test_cpxap.modules[2].start_registers.inputs == 5001  # 12Di4Do, adds 1
-    assert test_cpxap.modules[3].start_registers.inputs == 5002  # 8Do
-    assert test_cpxap.modules[4].start_registers.inputs == 5002  # 8Di, adds 1
-    assert test_cpxap.modules[5].start_registers.inputs == 5003  # 4Iol
-    assert test_cpxap.modules[6].start_registers.inputs == 5021  # Vabx
-    assert test_cpxap.modules[7].start_registers.inputs == 5021  # Vaem
-    assert test_cpxap.modules[8].start_registers.inputs == 5021  # Vmpal
-    assert test_cpxap.modules[9].start_registers.inputs == 5021  # Vaba
+    assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # EP
+    assert test_cpxap.modules[1].system_entry_registers.inputs == 5000  # 16Di, adds 1
+    assert (
+        test_cpxap.modules[2].system_entry_registers.inputs == 5001
+    )  # 12Di4Do, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.inputs == 5002  # 8Do
+    assert test_cpxap.modules[4].system_entry_registers.inputs == 5002  # 8Di, adds 1
+    assert test_cpxap.modules[5].system_entry_registers.inputs == 5003  # 4Iol
+    assert test_cpxap.modules[6].system_entry_registers.inputs == 5021  # Vabx
+    assert test_cpxap.modules[7].system_entry_registers.inputs == 5021  # Vaem
+    assert test_cpxap.modules[8].system_entry_registers.inputs == 5021  # Vmpal
+    assert test_cpxap.modules[9].system_entry_registers.inputs == 5021  # Vaba
 
-    assert test_cpxap.global_diagnosis == 11000  # cpx system global diagnosis
-    assert test_cpxap.modules[0].start_registers.diagnosis == 11006  # EP
-    assert test_cpxap.modules[1].start_registers.diagnosis == 11012  # 16Di
-    assert test_cpxap.modules[2].start_registers.diagnosis == 11018  # 12Di4Do
-    assert test_cpxap.modules[3].start_registers.diagnosis == 11024  # 8Do
-    assert test_cpxap.modules[4].start_registers.diagnosis == 11030  # 8Di
-    assert test_cpxap.modules[5].start_registers.diagnosis == 11036  # 4Iol
-    assert test_cpxap.modules[6].start_registers.diagnosis == 11042  # Vabx
-    assert test_cpxap.modules[7].start_registers.diagnosis == 11048  # Vaem
-    assert test_cpxap.modules[8].start_registers.diagnosis == 11054  # Vmpal
-    assert test_cpxap.modules[9].start_registers.diagnosis == 11060  # Vaba
+    assert test_cpxap.global_diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # EP
+    assert test_cpxap.modules[1].system_entry_registers.diagnosis == 11012  # 16Di
+    assert test_cpxap.modules[2].system_entry_registers.diagnosis == 11018  # 12Di4Do
+    assert test_cpxap.modules[3].system_entry_registers.diagnosis == 11024  # 8Do
+    assert test_cpxap.modules[4].system_entry_registers.diagnosis == 11030  # 8Di
+    assert test_cpxap.modules[5].system_entry_registers.diagnosis == 11036  # 4Iol
+    assert test_cpxap.modules[6].system_entry_registers.diagnosis == 11042  # Vabx
+    assert test_cpxap.modules[7].system_entry_registers.diagnosis == 11048  # Vaem
+    assert test_cpxap.modules[8].system_entry_registers.diagnosis == 11054  # Vmpal
+    assert test_cpxap.modules[9].system_entry_registers.diagnosis == 11060  # Vaba
 
 
 def test_modules_channel_length(test_cpxap):
@@ -252,48 +254,6 @@ def test_ep_parameter_write(test_cpxap):
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
-
-
-def test_ep_parameter_application_specific_tag(test_cpxap):
-    m = test_cpxap.modules[0]
-
-    # Application specific Tag
-    assert isinstance(m.read_module_parameter(20118), str)
-    m.write_module_parameter(20118, "TestSystemAP")
-    time.sleep(0.05)
-    assert m.read_module_parameter(20118) == "TestSystemAP"
-
-
-def test_ep_parameter_application_specific_tag_too_long(test_cpxap):
-    m = test_cpxap.modules[0]
-
-    # Application specific Tag
-    assert isinstance(m.read_module_parameter(20118), str)
-    with pytest.raises(IndexError):
-        m.write_module_parameter(20118, "x" * 33)
-    time.sleep(0.05)
-    assert m.read_module_parameter(20118) == "TestSystemAP"
-
-
-def test_ep_parameter_location_tag(test_cpxap):
-    m = test_cpxap.modules[0]
-
-    # Application specific Tag
-    assert isinstance(m.read_module_parameter(20207), str)
-    m.write_module_parameter(20207, "TestSystemAP")
-    time.sleep(0.05)
-    assert m.read_module_parameter(20207) == "TestSystemAP"
-
-
-def test_ep_parameter_location_tag_too_long(test_cpxap):
-    m = test_cpxap.modules[0]
-
-    # Application specific Tag
-    assert isinstance(m.read_module_parameter(20207), str)
-    with pytest.raises(IndexError):
-        m.write_module_parameter(20207, "x" * 31)
-    time.sleep(0.05)
-    assert m.read_module_parameter(20207) == "TestSystemAP"
 
 
 def test_ep_parameter_application_specific_tag(test_cpxap):

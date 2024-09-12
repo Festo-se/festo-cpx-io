@@ -1,11 +1,11 @@
-"""CPX dataclasses"""
+"""CPX SystemEntryRegisters dataclass"""
 
 from dataclasses import dataclass
 
 
 @dataclass
-class StartRegisters:
-    """Registers dataclass"""
+class SystemEntryRegisters:
+    """SystemEntryRegisters dataclass"""
 
     inputs: int = None
     outputs: int = None

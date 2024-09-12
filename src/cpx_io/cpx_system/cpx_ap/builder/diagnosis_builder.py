@@ -1,6 +1,6 @@
 """ModuleDiagnosis builder functions from APDD"""
 
-from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import ModuleDiagnosis
+from cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis import ModuleDiagnosis
 
 
 def build_diagnosis(diagnosis_dict):

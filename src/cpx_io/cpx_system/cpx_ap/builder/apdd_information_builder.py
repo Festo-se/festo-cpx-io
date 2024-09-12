@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from typing import List
-from cpx_io.cpx_system.cpx_ap.ap_module_dataclasses import ApddInformation
+from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
 from cpx_io.utils.logging import Logging
 
 

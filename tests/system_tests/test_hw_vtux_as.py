@@ -31,21 +31,33 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].start_registers.outputs == 0  # EP
-    assert test_cpxap.modules[1].start_registers.outputs == 0  # VABX-A-S-BV-V4A
-    assert test_cpxap.modules[2].start_registers.outputs == 1  # VABX-A-S-VE-VBH
-    assert test_cpxap.modules[3].start_registers.outputs == 2  #  VABX-A-S-VE-VBL
+    assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # EP
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # VABX-A-S-BV-V4A
+    assert test_cpxap.modules[2].system_entry_registers.outputs == 1  # VABX-A-S-VE-VBH
+    assert test_cpxap.modules[3].system_entry_registers.outputs == 2  #  VABX-A-S-VE-VBL
 
-    assert test_cpxap.modules[0].start_registers.inputs == 5000  # EP
-    assert test_cpxap.modules[1].start_registers.inputs == 5000  # VABX-A-S-BV-V4A
-    assert test_cpxap.modules[2].start_registers.inputs == 5001  # VABX-A-S-VE-VBH
-    assert test_cpxap.modules[3].start_registers.inputs == 5003  #  VABX-A-S-VE-VBL
+    assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # EP
+    assert (
+        test_cpxap.modules[1].system_entry_registers.inputs == 5000
+    )  # VABX-A-S-BV-V4A
+    assert (
+        test_cpxap.modules[2].system_entry_registers.inputs == 5001
+    )  # VABX-A-S-VE-VBH
+    assert (
+        test_cpxap.modules[3].system_entry_registers.inputs == 5003
+    )  #  VABX-A-S-VE-VBL
 
-    assert test_cpxap.global_diagnosis == 11000  # cpx system global diagnosis
-    assert test_cpxap.modules[0].start_registers.diagnosis == 11006  # EP
-    assert test_cpxap.modules[1].start_registers.diagnosis == 11012  # VABX-A-S-BV-V4A
-    assert test_cpxap.modules[2].start_registers.diagnosis == 11018  # VABX-A-S-VE-VBH
-    assert test_cpxap.modules[3].start_registers.diagnosis == 11024  # VABX-A-S-VE-VBL
+    assert test_cpxap.global_diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # EP
+    assert (
+        test_cpxap.modules[1].system_entry_registers.diagnosis == 11012
+    )  # VABX-A-S-BV-V4A
+    assert (
+        test_cpxap.modules[2].system_entry_registers.diagnosis == 11018
+    )  # VABX-A-S-VE-VBH
+    assert (
+        test_cpxap.modules[3].system_entry_registers.diagnosis == 11024
+    )  # VABX-A-S-VE-VBL
 
 
 def test_modules_channel_length(test_cpxap):
