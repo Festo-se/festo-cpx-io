@@ -922,7 +922,7 @@ class ApModule(CpxModule):
         )
 
         stat, cnt = 1, 0
-        while stat > 0 and cnt < 5000:
+        while stat > 0 and cnt < 1000:
             stat = int.from_bytes(
                 self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),
                 byteorder="little",

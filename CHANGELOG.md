@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- Amount of tries and check are now consistent
 - Docstrings
 ### Changed
 - Added further explanation to example_cpxap_digital_output
