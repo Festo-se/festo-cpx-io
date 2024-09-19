@@ -98,75 +98,77 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].output_register == 0  # EP
-    assert test_cpxap.modules[1].output_register == 0  # 16di
-    assert test_cpxap.modules[2].output_register == 0  # 12Di4Do, adds 1
-    assert test_cpxap.modules[3].output_register == 1  # 8Do, adds 1
-    assert test_cpxap.modules[4].output_register == 2  # 8Di
-    assert test_cpxap.modules[5].output_register == 2  # 4Iol
-    assert test_cpxap.modules[6].output_register == 18  # Vabx
-    assert test_cpxap.modules[7].output_register == 20  # Vaem
-    assert test_cpxap.modules[8].output_register == 22  # Vmpal
-    assert test_cpxap.modules[9].output_register == 24  # Vaba
+    assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # EP
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 16di
+    assert test_cpxap.modules[2].system_entry_registers.outputs == 0  # 12Di4Do, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.outputs == 1  # 8Do, adds 1
+    assert test_cpxap.modules[4].system_entry_registers.outputs == 2  # 8Di
+    assert test_cpxap.modules[5].system_entry_registers.outputs == 2  # 4Iol
+    assert test_cpxap.modules[6].system_entry_registers.outputs == 18  # Vabx
+    assert test_cpxap.modules[7].system_entry_registers.outputs == 20  # Vaem
+    assert test_cpxap.modules[8].system_entry_registers.outputs == 22  # Vmpal
+    assert test_cpxap.modules[9].system_entry_registers.outputs == 24  # Vaba
 
-    assert test_cpxap.modules[0].input_register == 5000  # EP
-    assert test_cpxap.modules[1].input_register == 5000  # 16Di, adds 1
-    assert test_cpxap.modules[2].input_register == 5001  # 12Di4Do, adds 1
-    assert test_cpxap.modules[3].input_register == 5002  # 8Do
-    assert test_cpxap.modules[4].input_register == 5002  # 8Di, adds 1
-    assert test_cpxap.modules[5].input_register == 5003  # 4Iol
-    assert test_cpxap.modules[6].input_register == 5021  # Vabx
-    assert test_cpxap.modules[7].input_register == 5021  # Vaem
-    assert test_cpxap.modules[8].input_register == 5021  # Vmpal
-    assert test_cpxap.modules[9].input_register == 5021  # Vaba
+    assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # EP
+    assert test_cpxap.modules[1].system_entry_registers.inputs == 5000  # 16Di, adds 1
+    assert (
+        test_cpxap.modules[2].system_entry_registers.inputs == 5001
+    )  # 12Di4Do, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.inputs == 5002  # 8Do
+    assert test_cpxap.modules[4].system_entry_registers.inputs == 5002  # 8Di, adds 1
+    assert test_cpxap.modules[5].system_entry_registers.inputs == 5003  # 4Iol
+    assert test_cpxap.modules[6].system_entry_registers.inputs == 5021  # Vabx
+    assert test_cpxap.modules[7].system_entry_registers.inputs == 5021  # Vaem
+    assert test_cpxap.modules[8].system_entry_registers.inputs == 5021  # Vmpal
+    assert test_cpxap.modules[9].system_entry_registers.inputs == 5021  # Vaba
 
-    assert test_cpxap.diagnosis_register == 11000  # cpx system global diagnosis
-    assert test_cpxap.modules[0].diagnosis_register == 11006  # EP
-    assert test_cpxap.modules[1].diagnosis_register == 11012  # 16Di
-    assert test_cpxap.modules[2].diagnosis_register == 11018  # 12Di4Do
-    assert test_cpxap.modules[3].diagnosis_register == 11024  # 8Do
-    assert test_cpxap.modules[4].diagnosis_register == 11030  # 8Di
-    assert test_cpxap.modules[5].diagnosis_register == 11036  # 4Iol
-    assert test_cpxap.modules[6].diagnosis_register == 11042  # Vabx
-    assert test_cpxap.modules[7].diagnosis_register == 11048  # Vaem
-    assert test_cpxap.modules[8].diagnosis_register == 11054  # Vmpal
-    assert test_cpxap.modules[9].diagnosis_register == 11060  # Vaba
+    assert test_cpxap.global_diagnosis_register == 11000  # cpx system global diagnosis
+    assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # EP
+    assert test_cpxap.modules[1].system_entry_registers.diagnosis == 11012  # 16Di
+    assert test_cpxap.modules[2].system_entry_registers.diagnosis == 11018  # 12Di4Do
+    assert test_cpxap.modules[3].system_entry_registers.diagnosis == 11024  # 8Do
+    assert test_cpxap.modules[4].system_entry_registers.diagnosis == 11030  # 8Di
+    assert test_cpxap.modules[5].system_entry_registers.diagnosis == 11036  # 4Iol
+    assert test_cpxap.modules[6].system_entry_registers.diagnosis == 11042  # Vabx
+    assert test_cpxap.modules[7].system_entry_registers.diagnosis == 11048  # Vaem
+    assert test_cpxap.modules[8].system_entry_registers.diagnosis == 11054  # Vmpal
+    assert test_cpxap.modules[9].system_entry_registers.diagnosis == 11060  # Vaba
 
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].input_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].input_channels) == 16  # 16di
-    assert len(test_cpxap.modules[3].input_channels) == 0  # 8Do
-    assert len(test_cpxap.modules[2].input_channels) == 12  # 12Di4Do
-    assert len(test_cpxap.modules[4].input_channels) == 8  # 8Di
-    assert len(test_cpxap.modules[5].input_channels) == 8  # 4Iol
-    assert len(test_cpxap.modules[6].input_channels) == 0  # Vabx
-    assert len(test_cpxap.modules[7].input_channels) == 0  # Vaem
-    assert len(test_cpxap.modules[8].input_channels) == 0  # Vmpal
-    assert len(test_cpxap.modules[9].input_channels) == 0  # Vaba
+    assert len(test_cpxap.modules[0].channels.inputs) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inputs) == 16  # 16di
+    assert len(test_cpxap.modules[3].channels.inputs) == 0  # 8Do
+    assert len(test_cpxap.modules[2].channels.inputs) == 12  # 12Di4Do
+    assert len(test_cpxap.modules[4].channels.inputs) == 8  # 8Di
+    assert len(test_cpxap.modules[5].channels.inputs) == 8  # 4Iol
+    assert len(test_cpxap.modules[6].channels.inputs) == 0  # Vabx
+    assert len(test_cpxap.modules[7].channels.inputs) == 0  # Vaem
+    assert len(test_cpxap.modules[8].channels.inputs) == 0  # Vmpal
+    assert len(test_cpxap.modules[9].channels.inputs) == 0  # Vaba
 
-    assert len(test_cpxap.modules[0].output_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].output_channels) == 0  # 16Di
-    assert len(test_cpxap.modules[2].output_channels) == 4  # 12Di4Do
-    assert len(test_cpxap.modules[3].output_channels) == 8  # 8Do
-    assert len(test_cpxap.modules[4].output_channels) == 0  # 8Di
-    assert len(test_cpxap.modules[5].output_channels) == 4  # 4Iol
-    assert len(test_cpxap.modules[6].output_channels) == 32  # Vabx
-    assert len(test_cpxap.modules[7].output_channels) == 24  # Vaem
-    assert len(test_cpxap.modules[8].output_channels) == 32  # Vmpal
-    assert len(test_cpxap.modules[9].output_channels) == 24  # Vaba
+    assert len(test_cpxap.modules[0].channels.outputs) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.outputs) == 0  # 16Di
+    assert len(test_cpxap.modules[2].channels.outputs) == 4  # 12Di4Do
+    assert len(test_cpxap.modules[3].channels.outputs) == 8  # 8Do
+    assert len(test_cpxap.modules[4].channels.outputs) == 0  # 8Di
+    assert len(test_cpxap.modules[5].channels.outputs) == 4  # 4Iol
+    assert len(test_cpxap.modules[6].channels.outputs) == 32  # Vabx
+    assert len(test_cpxap.modules[7].channels.outputs) == 24  # Vaem
+    assert len(test_cpxap.modules[8].channels.outputs) == 32  # Vmpal
+    assert len(test_cpxap.modules[9].channels.outputs) == 24  # Vaba
 
-    assert len(test_cpxap.modules[0].inout_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].inout_channels) == 0  # 16Di
-    assert len(test_cpxap.modules[2].inout_channels) == 0  # 12Di4Do
-    assert len(test_cpxap.modules[3].inout_channels) == 0  # 8Do
-    assert len(test_cpxap.modules[4].inout_channels) == 0  # 8Di
-    assert len(test_cpxap.modules[5].inout_channels) == 4  # 4Iol
-    assert len(test_cpxap.modules[6].inout_channels) == 0  # Vabx
-    assert len(test_cpxap.modules[7].inout_channels) == 0  # Vaem
-    assert len(test_cpxap.modules[8].inout_channels) == 0  # Vmpal
-    assert len(test_cpxap.modules[9].inout_channels) == 0  # Vaba
+    assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inouts) == 0  # 16Di
+    assert len(test_cpxap.modules[2].channels.inouts) == 0  # 12Di4Do
+    assert len(test_cpxap.modules[3].channels.inouts) == 0  # 8Do
+    assert len(test_cpxap.modules[4].channels.inouts) == 0  # 8Di
+    assert len(test_cpxap.modules[5].channels.inouts) == 4  # 4Iol
+    assert len(test_cpxap.modules[6].channels.inouts) == 0  # Vabx
+    assert len(test_cpxap.modules[7].channels.inouts) == 0  # Vaem
+    assert len(test_cpxap.modules[8].channels.inouts) == 0  # Vmpal
+    assert len(test_cpxap.modules[9].channels.inouts) == 0  # Vaba
 
 
 @pytest.mark.parametrize("input_value", list(range(10)))
@@ -243,15 +245,15 @@ def test_ep_parameter_write(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
 
 
 def test_ep_parameter_application_specific_tag(test_cpxap):
@@ -303,14 +305,14 @@ def test_ep_parameter_rw_strings(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -318,7 +320,7 @@ def test_ep_parameter_rw_strings(test_cpxap):
         "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
     assert (
         m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
@@ -332,14 +334,14 @@ def test_ep_parameter_rw_raw(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
     assert m.read_module_parameter(20022) == 0
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
     assert m.read_module_parameter(20022) == 2
 
     m.write_module_parameter(
@@ -347,7 +349,7 @@ def test_ep_parameter_rw_raw(test_cpxap):
         "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
     assert m.read_module_parameter(20022) == 1
 
 
@@ -367,19 +369,19 @@ def test_16Di_parameter_write(test_cpxap):
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 0
 
     m.write_module_parameter(20014, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 2
 
     m.write_module_parameter(20014, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 3
 
     m.write_module_parameter(20014, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 1
 
 
 def test_16Di_parameter_rw_strings(test_cpxap):
@@ -387,22 +389,22 @@ def test_16Di_parameter_rw_strings(test_cpxap):
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 0
     assert m.read_module_parameter_enum_str(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 2
     assert m.read_module_parameter_enum_str(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 3
     assert m.read_module_parameter_enum_str(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 1
     assert m.read_module_parameter_enum_str(20014) == "3ms"
 
 
@@ -460,19 +462,19 @@ def test_12Di4Do_parameter_write_debounce(test_cpxap):
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 0
 
     m.write_module_parameter(20014, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 2
 
     m.write_module_parameter(20014, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 3
 
     m.write_module_parameter(20014, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 1
 
 
 def test_12Di4Do_parameter_rw_strings_debounce(test_cpxap):
@@ -480,22 +482,22 @@ def test_12Di4Do_parameter_rw_strings_debounce(test_cpxap):
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 0
     assert m.read_module_parameter_enum_str(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 2
     assert m.read_module_parameter_enum_str(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 3
     assert m.read_module_parameter_enum_str(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 1
     assert m.read_module_parameter_enum_str(20014) == "3ms"
 
 
@@ -504,15 +506,15 @@ def test_12Di4Do_parameter_write_load(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
 
 
 def test_12Di4Do_parameter_rw_strings_load(test_cpxap):
@@ -522,14 +524,14 @@ def test_12Di4Do_parameter_rw_strings_load(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -537,7 +539,7 @@ def test_12Di4Do_parameter_rw_strings_load(test_cpxap):
         "Load supply monitoring active, diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
     assert (
         m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
@@ -549,11 +551,11 @@ def test_12Di4Do_parameter_write_failstate(test_cpxap):
 
     m.write_module_parameter(20052, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 0
 
     m.write_module_parameter(20052, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 1
 
 
 def test_12Di4Do_parameter_rw_strings_failstate(test_cpxap):
@@ -561,12 +563,12 @@ def test_12Di4Do_parameter_rw_strings_failstate(test_cpxap):
 
     m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 0
     assert m.read_module_parameter_enum_str(20052) == "Reset Outputs"
 
     m.write_module_parameter("Behaviour in fail state", "Hold last state")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 1
     assert m.read_module_parameter_enum_str(20052) == "Hold last state"
 
 
@@ -591,11 +593,11 @@ def test_8Do_parameter_write_failstate(test_cpxap):
 
     m.write_module_parameter(20052, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 0
 
     m.write_module_parameter(20052, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 1
 
 
 def test_8Do_parameter_rw_strings_failstate(test_cpxap):
@@ -603,12 +605,12 @@ def test_8Do_parameter_rw_strings_failstate(test_cpxap):
 
     m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 0
     assert m.read_module_parameter_enum_str(20052) == "Reset Outputs"
 
     m.write_module_parameter("Behaviour in fail state", "Hold last state")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20052]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 1
     assert m.read_module_parameter_enum_str(20052) == "Hold last state"
 
 
@@ -617,15 +619,15 @@ def test_8Do_parameter_write_load(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
 
 
 def test_8Do_parameter_rw_strings_load(test_cpxap):
@@ -635,14 +637,14 @@ def test_8Do_parameter_rw_strings_load(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -650,7 +652,7 @@ def test_8Do_parameter_rw_strings_load(test_cpxap):
         "Load supply monitoring active, diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
     assert (
         m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
@@ -673,19 +675,19 @@ def test_8Di_parameter_write_debounce(test_cpxap):
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 0
 
     m.write_module_parameter(20014, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 2
 
     m.write_module_parameter(20014, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 3
 
     m.write_module_parameter(20014, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 1
 
 
 def test_8Di_parameter_rw_strings_debounce(test_cpxap):
@@ -693,22 +695,22 @@ def test_8Di_parameter_rw_strings_debounce(test_cpxap):
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 0
     assert m.read_module_parameter_enum_str(20014) == "0.1ms"
 
     m.write_module_parameter("Input Debounce Time", "10ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 2
     assert m.read_module_parameter_enum_str(20014) == "10ms"
 
     m.write_module_parameter("Input Debounce Time", "20ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 3
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 3
     assert m.read_module_parameter_enum_str(20014) == "20ms"
 
     m.write_module_parameter("Input Debounce Time", "3ms")
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20014]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20014]) == 1
     assert m.read_module_parameter_enum_str(20014) == "3ms"
 
 
@@ -735,15 +737,15 @@ def test_4iol_parameter_write_load(test_cpxap):
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
 
     m.write_module_parameter(20022, 2)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
 
     m.write_module_parameter(20022, 1)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
 
 
 def test_4iol_parameter_rw_strings_load(test_cpxap):
@@ -753,14 +755,14 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 0
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 2
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
     assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
 
     m.write_module_parameter(
@@ -768,7 +770,7 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
         "Load supply monitoring active, diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20022]) == 1
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
     assert (
         m.read_module_parameter_enum_str(20022)
         == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
@@ -780,11 +782,11 @@ def test_4iol_parameter_write_lost(test_cpxap):
 
     m.write_module_parameter(20050, False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20050]) is False
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20050]) is False
 
     m.write_module_parameter(20050, True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20050]) is True
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20050]) is True
 
 
 def test_4iol_parameter_rw_strings_lost(test_cpxap):
@@ -792,22 +794,30 @@ def test_4iol_parameter_rw_strings_lost(test_cpxap):
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    )
     assert m.read_module_parameter(20050) == [False, False, False, False]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, [1, 2])
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    )
     assert m.read_module_parameter(20050) == [False, True, True, False]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is False
+    )
     assert m.read_module_parameter(20050) == [False, True, True, True]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20050], 0) is True
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20050], 0) is True
+    )
     assert m.read_module_parameter(20050) == [True, True, True, True]
 
 
@@ -816,11 +826,11 @@ def test_4iol_parameter_write_load_supply_enable(test_cpxap):
 
     m.write_module_parameter(20086, False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20086]) is False
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20086]) is False
 
     m.write_module_parameter(20086, True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20086]) is True
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20086]) is True
 
 
 def test_4iol_parameter_rw_strings_load_supply_enable(test_cpxap):
@@ -828,22 +838,30 @@ def test_4iol_parameter_rw_strings_load_supply_enable(test_cpxap):
 
     m.write_module_parameter("Enable of load supply", False)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20086], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    )
     assert m.read_module_parameter(20086) == [False, False, False, False]
 
     m.write_module_parameter("Enable of load supply", True, [1, 2])
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20086], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    )
     assert m.read_module_parameter(20086) == [False, True, True, False]
 
     m.write_module_parameter("Enable of load supply", True, 3)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20086], 0) is False
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is False
+    )
     assert m.read_module_parameter(20086) == [False, True, True, True]
 
     m.write_module_parameter("Enable of load supply", True)
     time.sleep(0.05)
-    assert m.base.read_parameter(m.position, m.parameter_dict[20086], 0) is True
+    assert (
+        m.base.read_parameter(m.position, m.module_dicts.parameters[20086], 0) is True
+    )
     assert m.read_module_parameter(20086) == [True, True, True, True]
 
 

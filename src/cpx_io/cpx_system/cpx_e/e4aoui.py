@@ -24,8 +24,8 @@ class CpxE4AoUI(CpxModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.base.next_output_register = self.output_register + 4
-        self.base.next_input_register = self.input_register + 5
+        self.base.next_output_register = self.system_entry_registers.outputs + 4
+        self.base.next_input_register = self.system_entry_registers.inputs + 5
 
     @CpxBase.require_base
     def read_channels(self) -> list[int]:
@@ -34,7 +34,7 @@ class CpxE4AoUI(CpxModule):
         :return: Values of all channels
         :rtype: list[int]
         """
-        reg = self.base.read_reg_data(self.input_register, length=4)
+        reg = self.base.read_reg_data(self.system_entry_registers.inputs, length=4)
         values = list(struct.unpack("<" + "h" * (len(reg) // 2), reg))
         Logging.logger.info(f"{self.name}: Reading channels: {values}")
         return values
@@ -45,7 +45,7 @@ class CpxE4AoUI(CpxModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 4)
+        data = self.base.read_reg_data(self.system_entry_registers.inputs + 4)
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Reading status: {ret}")
         return ret
@@ -72,7 +72,7 @@ class CpxE4AoUI(CpxModule):
             raise ValueError(f"Data len error: expected: 4, got: {len(values)}")
 
         reg_data = struct.pack("<hhhh", *values)
-        self.base.write_reg_data(reg_data, self.output_register)
+        self.base.write_reg_data(reg_data, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Writing {values} to channels")
 
     @CpxBase.require_base
@@ -87,7 +87,9 @@ class CpxE4AoUI(CpxModule):
         channel_range_check(channel, 4)
 
         reg_data = value.to_bytes(2, byteorder="little", signed=True)
-        self.base.write_reg_data(reg_data, self.output_register + channel)
+        self.base.write_reg_data(
+            reg_data, self.system_entry_registers.outputs + channel
+        )
         Logging.logger.info(f"{self.name}: Writing {value} to channel {channel}")
 
     @CpxBase.require_base

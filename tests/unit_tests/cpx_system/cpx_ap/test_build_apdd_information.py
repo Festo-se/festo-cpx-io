@@ -1,7 +1,7 @@
 """Contains tests for ApddInformation build"""
 
 import pytest
-from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
+from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
 from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (
     Variant,
     build_variant,
@@ -110,7 +110,7 @@ class TestBuildApddInformation:
         # Act
         apdd_information = build_apdd_information(apdd=apdd, variant=variant)
         # Assert
-        assert isinstance(apdd_information, ApModule.ApddInformation)
+        assert isinstance(apdd_information, ApddInformation)
         assert apdd_information.name == "testvariant3"
         assert apdd_information.module_type == "TestVariant3"
         assert apdd_information.module_code == 3

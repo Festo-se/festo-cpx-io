@@ -4,6 +4,9 @@ import inspect
 import json
 from datetime import datetime
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
+    SUPPORTED_PRODUCT_FUNCTIONS_DICT,
+)
 
 
 def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> dict:
@@ -33,7 +36,7 @@ def _generate_module_data(modules: list) -> dict:
     module_data = []
     for m in modules:
         parameter_data = []
-        for p in m.parameter_dict.values():
+        for p in m.module_dicts.parameters.values():
             # overwrite R/W of the network parameters 12000 .. 12003 in the docu
             # as they do not work when changing them with modbus
             parameter_data.append(
@@ -61,7 +64,7 @@ def _generate_module_data(modules: list) -> dict:
                 parameter_data[-1]["Enums"] = enum_data
 
         module_functions = {}
-        for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
+        for function_name in SUPPORTED_PRODUCT_FUNCTIONS_DICT:
             if m.is_function_supported(function_name):
                 func = getattr(m, function_name)
                 # suppress the configure function
@@ -76,9 +79,9 @@ def _generate_module_data(modules: list) -> dict:
         )
 
         channels = {
-            "Input Channels": m.input_channels,
-            "Output Channels": m.output_channels,
-            "Inout Channels": m.inout_channels,
+            "Input Channels": m.channels.inputs,
+            "Output Channels": m.channels.outputs,
+            "Inout Channels": m.channels.inouts,
         }
         module_channels = _generage_channel_data(channels, is_io_link)
 

@@ -11,6 +11,9 @@ from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
+from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
+    SUPPORTED_PRODUCT_FUNCTIONS_DICT,
+)
 
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 from cpx_io.cpx_system.cpx_ap.ap_docu_generator import generate_system_information_file
@@ -92,8 +95,8 @@ class CpxAp(CpxBase):
         self.next_output_register = None
         self.next_input_register = None
 
-        self.diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
-        self.next_diagnosis_register = self.diagnosis_register + 6  # global diagnosis
+        self.global_diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
+        self.next_diagnosis_register = self.global_diagnosis_register + 6
 
         self.set_timeout(int(timeout * 1000))
 
@@ -265,7 +268,7 @@ class CpxAp(CpxBase):
             print("* Information:")
             print(f"   > {m.apdd_information.description}\n")
             print("* Available Functions: ")
-            for function_name in m.PRODUCT_CATEGORY_MAPPING.keys():
+            for function_name in SUPPORTED_PRODUCT_FUNCTIONS_DICT:
                 if (
                     m.is_function_supported(function_name)
                     and function_name != "configure"
@@ -279,14 +282,14 @@ class CpxAp(CpxBase):
             print(
                 "   > ---------------------------------------------------------------------------"
             )
-            for p in m.parameter_dict.values():
+            for p in m.module_dicts.parameters.values():
                 print(f"   > {p}")
 
     def print_system_state(self) -> None:
         """Prints all parameters and channels from every module"""
         for m in self.modules:
             print(f"\n\nModule {m}:")
-            for i, p in m.parameter_dict.items():
+            for i, p in m.module_dicts.parameters.items():
                 r_w = "R/W" if p.is_writable else "R"
                 print(
                     f"{f'  > Read {p.name} (ID {i}):':<64}"
@@ -339,7 +342,7 @@ class CpxAp(CpxBase):
                 byteorder="little",
                 signed=False,
             ),
-            input_channels=int.from_bytes(
+            output_channels=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(ap_modbus_registers.INPUT_CHANNELS, position)
                 ),
@@ -353,7 +356,7 @@ class CpxAp(CpxBase):
                 byteorder="little",
                 signed=False,
             ),
-            output_channels=int.from_bytes(
+            input_channels=int.from_bytes(
                 self.read_reg_data(
                     *self._module_offset(ap_modbus_registers.OUTPUT_CHANNELS, position)
                 ),
@@ -433,7 +436,7 @@ class CpxAp(CpxBase):
 
         :ret value: Diagnosis state
         :rtype: dict"""
-        reg = self.read_reg_data(self.diagnosis_register, length=2)
+        reg = self.read_reg_data(self.global_diagnosis_register, length=2)
         diagnosis_keys = [
             "Device available",
             "Current",
@@ -467,7 +470,7 @@ class CpxAp(CpxBase):
 
         :ret value: Amount of active diagnosis
         :rtype: int"""
-        reg = self.read_reg_data(self.diagnosis_register + 2)
+        reg = self.read_reg_data(self.global_diagnosis_register + 2)
         return int.from_bytes(reg, byteorder="little")
 
     def read_latest_diagnosis_index(self) -> int:
@@ -476,7 +479,7 @@ class CpxAp(CpxBase):
 
         :ret value: Modul index
         :rtype: int or None"""
-        reg = self.read_reg_data(self.diagnosis_register + 3)
+        reg = self.read_reg_data(self.global_diagnosis_register + 3)
         # subtract one because AP starts with module index 1
         module_index = int.from_bytes(reg, byteorder="little") - 1
         if module_index < 0:
@@ -488,7 +491,7 @@ class CpxAp(CpxBase):
 
         :ret value: Diagnosis code
         :rtype: int"""
-        reg = self.read_reg_data(self.diagnosis_register + 4, length=2)
+        reg = self.read_reg_data(self.global_diagnosis_register + 4, length=2)
         return int.from_bytes(reg, byteorder="little")
 
     def write_parameter(

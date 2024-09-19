@@ -2,13 +2,17 @@
 
 from unittest.mock import Mock, call, patch
 import pytest
+from collections import namedtuple
 
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
+from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
+from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
+from cpx_io.cpx_system.cpx_dataclasses import SystemEntryRegisters
 
 
 class TestApModule:
@@ -17,7 +21,7 @@ class TestApModule:
     @pytest.fixture(scope="function")
     def module_fixture(self):
         """module fixture"""
-        apdd_information = ApModule.ApddInformation(
+        apdd_information = ApddInformation(
             "Description",
             "Name",
             "Module Type",
@@ -55,7 +59,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.input_channels = ["x"] * 4
+        module.channels.inputs = ["x"] * 4
 
         # Act & Assert
         assert module.is_function_supported(input_value) == expected_output
@@ -74,7 +78,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.input_channels = ["x"] * 4
+        module.channels.inputs = ["x"] * 4
 
         # Act & Assert
         assert module.is_function_supported(input_value) == expected_output
@@ -94,7 +98,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.output_channels = input_value
+        module.channels.outputs = input_value
 
         # Act & Assert
         assert module.is_function_supported("write_channels") == expected_output
@@ -115,7 +119,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.input_channels, module.output_channels = input_value
+        module.channels.inputs, module.channels.outputs = input_value
 
         assert module.is_function_supported("read_channels") == expected_output
 
@@ -133,7 +137,8 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = input_value
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(parameters=input_value)
 
         # Act & Assert
         assert module.is_function_supported("read_module_parameter") == expected_output
@@ -147,8 +152,8 @@ class TestApModule:
         assert module_fixture.base is None
         assert module_fixture.position is None
         assert module_fixture.information is None
-        assert module_fixture.output_register is None
-        assert module_fixture.input_register is None
+        assert module_fixture.system_entry_registers.outputs is None
+        assert module_fixture.system_entry_registers.inputs is None
 
     def test_configure(self, module_fixture):
         """Test configure"""
@@ -216,7 +221,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(input_size=8, output_size=0)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -268,7 +273,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(input_size=0, output_size=8)
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -319,7 +324,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=2, output_size=2)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -333,7 +338,7 @@ class TestApModule:
                 profile_list=[3],
             )
         ] * 2
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -374,7 +379,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=2, output_size=2)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -388,7 +393,7 @@ class TestApModule:
                 profile_list=[3],
             )
         ] * 2
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -428,7 +433,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=8, output_size=8)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=16,
@@ -442,7 +447,7 @@ class TestApModule:
                 profile_list=[3],
             )
         ] * 2
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=16,
@@ -481,7 +486,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.information = CpxAp.ApInformation(input_size=8, output_size=8)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=16,
@@ -495,7 +500,7 @@ class TestApModule:
                 profile_list=[3],
             )
         ] * 2
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=16,
@@ -534,7 +539,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(input_size=36, output_size=32)
 
-        module.inout_channels = [
+        module.channels.inouts = [
             Channel(
                 array_size=2,
                 bits=16,
@@ -549,8 +554,8 @@ class TestApModule:
             )
         ] * 4
 
-        module.input_channels = module.inout_channels
-        module.output_channels = module.inout_channels
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
 
         ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
 
@@ -570,7 +575,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(input_size=8)
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -601,7 +606,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
 
-        module.input_channels = [
+        module.channels.inputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -690,8 +695,8 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
 
-        module.input_channels = [0, 1, 2, 4]  # dummy input channels
-        module.output_channels = input_value
+        module.channels.inputs = [0, 1, 2, 4]  # dummy input channels
+        module.channels.outputs = input_value
 
         module.read_output_channels = Mock(return_value=expected_value)
 
@@ -724,7 +729,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
@@ -790,11 +795,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=8)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.base.write_reg_data = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -821,11 +826,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.output_register = 0
+        module.system_entry_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -852,11 +857,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.output_register = 0
+        module.system_entry_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -883,11 +888,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.write_channel = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -914,11 +919,11 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=2)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.write_channel = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -949,10 +954,10 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=8)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -981,10 +986,10 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = CpxAp.ApInformation(output_size=8)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1038,7 +1043,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(order_text="test module")
-        module.input_channels = [1, 2, 3, 4]
+        module.channels.inputs = [1, 2, 3, 4]
         # Act & Assert
         with pytest.raises(NotImplementedError):
             module.write_channels([0] * input_value)
@@ -1048,13 +1053,13 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
         module.read_output_channels = Mock(return_value=[False] * 4)
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1080,13 +1085,13 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
         module.read_channels = Mock(return_value=[False] * 4)
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1112,13 +1117,13 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
         module.read_channels = Mock(return_value=[False] * 4)
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1145,13 +1150,13 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.information = CpxAp.ApInformation(output_size=4)
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
         module.read_channels = Mock(return_value=[False] * 4)
 
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1203,12 +1208,12 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.output_register = 0
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.information = CpxAp.ApInformation(input_size=34, output_size=32)
         module.base = Mock()
         module.base.write_reg_data = Mock()
 
-        module.inout_channels = [
+        module.channels.inouts = [
             Channel(
                 array_size=2,
                 bits=16,
@@ -1223,8 +1228,8 @@ class TestApModule:
             )
         ] * 4
 
-        module.input_channels = module.inout_channels
-        module.output_channels = module.inout_channels
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
 
         data = b"\xAB\xCD"
 
@@ -1233,7 +1238,7 @@ class TestApModule:
 
         # Assert
         module.base.write_reg_data.assert_called_with(
-            data, module.output_register + input_value
+            data, module.system_entry_registers.outputs + input_value
         )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
@@ -1242,7 +1247,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.input_channels = []
+        module.channels.inputs = []
         module.read_channel = Mock()
 
         # Act
@@ -1257,7 +1262,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.base = Mock()
-        module.input_channels = []
+        module.channels.inputs = []
         module.write_channel = Mock()
 
         # Act
@@ -1274,7 +1279,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1303,7 +1308,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1333,7 +1338,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
         module.read_output_channel = Mock(return_value=True)
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1363,7 +1368,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.write_channel = Mock()
         module.read_output_channel = Mock(return_value=False)
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1390,7 +1395,7 @@ class TestApModule:
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1415,7 +1420,7 @@ class TestApModule:
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1442,7 +1447,7 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
         module.information = Mock(output_size=4)
-        module.output_channels = [
+        module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
@@ -1469,9 +1474,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_index_to_write = 0
@@ -1479,7 +1487,7 @@ class TestApModule:
         module.write_module_parameter(parameter_index_to_write, value_to_write)
 
         # Assert
-        parameter = module.parameter_dict.get(0)
+        parameter = module.module_dicts.parameters.get(0)
 
         module.base.write_parameter.assert_called_with(
             module.position, parameter, value_to_write, 0
@@ -1493,9 +1501,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act & Assert
         parameter_index_to_write = 1
@@ -1511,9 +1522,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, False, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, False, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act & Assert
         parameter_index_to_write = 0
@@ -1529,9 +1543,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_str_to_write = "test"
@@ -1539,7 +1556,7 @@ class TestApModule:
         module.write_module_parameter(parameter_str_to_write, value_to_write)
 
         # Assert
-        parameter = module.parameter_dict.get(0)
+        parameter = module.module_dicts.parameters.get(0)
 
         module.base.write_parameter.assert_called_with(
             module.position, parameter, value_to_write, 0
@@ -1553,9 +1570,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
         module._check_instances = Mock(return_value=[0, 1, 2, 3])
 
         # Act
@@ -1564,7 +1584,7 @@ class TestApModule:
         module.write_module_parameter(parameter_index_to_write, value_to_write)
 
         # Assert
-        parameter = module.parameter_dict.get(0)
+        parameter = module.module_dicts.parameters.get(0)
 
         module.base.write_parameter.assert_has_calls(
             [
@@ -1583,16 +1603,19 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_index_to_read = 0
         module.read_module_parameter(parameter_index_to_read)
 
         # Assert
-        parameter = module.parameter_dict.get(0)
+        parameter = module.module_dicts.parameters.get(0)
 
         module.base.read_parameter.assert_called_with(module.position, parameter, 0)
 
@@ -1604,9 +1627,12 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act & Assert
         parameter_index_to_read = 1
@@ -1621,16 +1647,19 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
 
         # Act
         parameter_str_to_read = "test"
         module.read_module_parameter(parameter_str_to_read)
 
         # Assert
-        parameter = module.parameter_dict.get(0)
+        parameter = module.module_dicts.parameters.get(0)
 
         module.base.read_parameter.assert_called_with(module.position, parameter, 0)
 
@@ -1642,9 +1671,12 @@ class TestApModule:
         module.base = Mock()
         module.base.read_parameter = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
-        module.parameter_dict = {
-            0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                0: Parameter(0, {}, True, 0, "INT", 0, "test parameter", "test")
+            }
+        )
         module._check_instances = Mock(return_value=[0, 1, 2, 3])
 
         # Act
@@ -1652,7 +1684,7 @@ class TestApModule:
         module.read_module_parameter(parameter_index_to_read)
 
         # Assert
-        parameter = module.parameter_dict.get(0)
+        parameter = module.module_dicts.parameters.get(0)
 
         module.base.read_parameter.assert_has_calls(
             [
@@ -1670,8 +1702,9 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
-        module.diagnosis_register = 1
-        module.diagnosis_dict = {"x": 0, "y": 1}
+        module.system_entry_registers.diagnosis = 1
+        ModuleDicts = namedtuple("ModuleDicts", ["diagnosis"])
+        module.module_dicts = ModuleDicts(diagnosis={"x": 0, "y": 1})
 
         # Act
         result = module.read_diagnosis_code()
@@ -1687,7 +1720,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
-        module.diagnosis_register = 1
+        module.system_entry_registers.diagnosis = 1
 
         # Act & Assert
         with pytest.raises(NotImplementedError):
@@ -1700,7 +1733,8 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
         module.read_diagnosis_code = Mock(return_value=0)
-        module.diagnosis_dict = {0: "test0", 1: "test1"}
+        ModuleDicts = namedtuple("ModuleDicts", ["diagnosis"])
+        module.module_dicts = ModuleDicts(diagnosis={0: "test0", 1: "test1"})
 
         # Act
         result = module.read_diagnosis_information()
@@ -1747,7 +1781,7 @@ class TestApModule:
         result = module.read_system_parameters()
 
         # Assert
-        assert result == ApModule.SystemParameters(
+        assert result == SystemParameters(
             dhcp_enable=True,
             ip_address="1.1.1.1",
             subnet_mask="1.1.1.1",
@@ -1764,7 +1798,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.input_register = 0
+        module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
 
@@ -1800,7 +1834,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.input_register = 0
+        module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
 
@@ -1836,19 +1870,22 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.input_register = 0
+        module.system_entry_registers.inputs = 0
         module.base = Mock()
         module.base.read_parameter = Mock(return_value=True)
-        module.parameter_dict = {
-            20074: 20074,
-            20075: 20075,
-            20076: 20076,
-            20077: 20077,
-            20078: 20078,
-            20079: 20079,
-            20108: 20108,
-            20109: 20109,
-        }
+        ModuleDicts = namedtuple("ModuleDicts", ["parameters"])
+        module.module_dicts = ModuleDicts(
+            parameters={
+                20074: 20074,
+                20075: 20075,
+                20076: 20076,
+                20077: 20077,
+                20078: 20078,
+                20079: 20079,
+                20108: 20108,
+                20109: 20109,
+            }
+        )
 
         # Act
         result = module.read_fieldbus_parameters()

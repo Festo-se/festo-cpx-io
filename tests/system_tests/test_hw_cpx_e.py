@@ -73,8 +73,8 @@ def test_module_notconfigured(test_cpxe):
 
 def test_1module(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
-    assert e16di.output_register == 40003
-    assert e16di.input_register == 45395
+    assert e16di.system_entry_registers.outputs == 40003
+    assert e16di.system_entry_registers.inputs == 45395
     assert test_cpxe.next_output_register == 40003
     assert test_cpxe.next_input_register == 45397
 
@@ -102,8 +102,8 @@ def test_module_naming(test_cpxe):
 def test_2modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
-    assert e8do.output_register == 40003
-    assert e8do.input_register == 45397
+    assert e8do.system_entry_registers.outputs == 40003
+    assert e8do.system_entry_registers.inputs == 45397
     assert test_cpxe.next_output_register == 40004
     assert test_cpxe.next_input_register == 45399
     assert e8do.position == 2
@@ -253,8 +253,8 @@ def test_3modules(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
-    assert e4ai.output_register == 40004
-    assert e4ai.input_register == 45399
+    assert e4ai.system_entry_registers.outputs == 40004
+    assert e4ai.system_entry_registers.inputs == 45399
     assert test_cpxe.next_output_register == 40004
     assert test_cpxe.next_input_register == 45404
 
@@ -398,8 +398,8 @@ def test_4modules(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    assert e4ao.output_register == 40004
-    assert e4ao.input_register == 45404
+    assert e4ao.system_entry_registers.outputs == 40004
+    assert e4ao.system_entry_registers.inputs == 45404
     assert test_cpxe.next_output_register == 40008
     assert test_cpxe.next_input_register == 45409
 

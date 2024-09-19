@@ -31,48 +31,70 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].output_register == 0  # 1 CPX-AP-A-EP-M12
-    assert test_cpxap.modules[1].output_register == 0  # 2 VMPA-AP-EPL-G
-    assert test_cpxap.modules[2].output_register == 0  # 3 VMPA-P-RP
-    assert test_cpxap.modules[3].output_register == 1  # 4 VPPM-6TA-L-1-F-0L2H__
-    assert test_cpxap.modules[4].output_register == 2  # 5 VMPA1-FB-EMG-8
-    assert test_cpxap.modules[5].output_register == 3  # 6 VMPA-FB-EMG-P5
-    assert test_cpxap.modules[6].output_register == 4  # 7 VMPA-FB-PS-__
-    assert test_cpxap.modules[7].output_register == 4  # 8 VMPA1-FB-EMG-8-S
-    assert test_cpxap.modules[8].output_register == 5  # 9 VMPA2-FB-EMG-4
+    assert (
+        test_cpxap.modules[0].system_entry_registers.outputs == 0
+    )  # 1 CPX-AP-A-EP-M12
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 2 VMPA-AP-EPL-G
+    assert test_cpxap.modules[2].system_entry_registers.outputs == 0  # 3 VMPA-P-RP
+    assert (
+        test_cpxap.modules[3].system_entry_registers.outputs == 1
+    )  # 4 VPPM-6TA-L-1-F-0L2H__
+    assert test_cpxap.modules[4].system_entry_registers.outputs == 2  # 5 VMPA1-FB-EMG-8
+    assert test_cpxap.modules[5].system_entry_registers.outputs == 3  # 6 VMPA-FB-EMG-P5
+    assert test_cpxap.modules[6].system_entry_registers.outputs == 4  # 7 VMPA-FB-PS-__
+    assert (
+        test_cpxap.modules[7].system_entry_registers.outputs == 4
+    )  # 8 VMPA1-FB-EMG-8-S
+    assert test_cpxap.modules[8].system_entry_registers.outputs == 5  # 9 VMPA2-FB-EMG-4
 
-    assert test_cpxap.modules[0].input_register == 5000  # 1 CPX-AP-A-EP-M12
-    assert test_cpxap.modules[1].input_register == 5000  # 2 VMPA-AP-EPL-G
-    assert test_cpxap.modules[2].input_register == 5000  # 3 VMPA-P-RP
-    assert test_cpxap.modules[3].input_register == 5001  # 4 VPPM-6TA-L-1-F-0L2H__
-    assert test_cpxap.modules[4].input_register == 5002  # 5 VMPA1-FB-EMG-8
-    assert test_cpxap.modules[5].input_register == 5002  # 6 VMPA-FB-EMG-P5
-    assert test_cpxap.modules[6].input_register == 5003  # 7 VMPA-FB-PS-__
-    assert test_cpxap.modules[7].input_register == 5004  # 8 VMPA1-FB-EMG-8-S
-    assert test_cpxap.modules[8].input_register == 5005  # 9 VMPA2-FB-EMG-4
+    assert (
+        test_cpxap.modules[0].system_entry_registers.inputs == 5000
+    )  # 1 CPX-AP-A-EP-M12
+    assert (
+        test_cpxap.modules[1].system_entry_registers.inputs == 5000
+    )  # 2 VMPA-AP-EPL-G
+    assert test_cpxap.modules[2].system_entry_registers.inputs == 5000  # 3 VMPA-P-RP
+    assert (
+        test_cpxap.modules[3].system_entry_registers.inputs == 5001
+    )  # 4 VPPM-6TA-L-1-F-0L2H__
+    assert (
+        test_cpxap.modules[4].system_entry_registers.inputs == 5002
+    )  # 5 VMPA1-FB-EMG-8
+    assert (
+        test_cpxap.modules[5].system_entry_registers.inputs == 5002
+    )  # 6 VMPA-FB-EMG-P5
+    assert (
+        test_cpxap.modules[6].system_entry_registers.inputs == 5003
+    )  # 7 VMPA-FB-PS-__
+    assert (
+        test_cpxap.modules[7].system_entry_registers.inputs == 5004
+    )  # 8 VMPA1-FB-EMG-8-S
+    assert (
+        test_cpxap.modules[8].system_entry_registers.inputs == 5005
+    )  # 9 VMPA2-FB-EMG-4
 
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].input_channels) == 0  # CPX-AP-A-EP-M12
-    assert len(test_cpxap.modules[1].input_channels) == 0  # VMPA-AP-EPL-G
-    assert len(test_cpxap.modules[2].input_channels) == 1  # VMPA-P-RP
-    assert len(test_cpxap.modules[3].input_channels) == 1  # VPPM-6TA-L-1-F-0L2H__
-    assert len(test_cpxap.modules[4].input_channels) == 0  # VMPA1-FB-EMG-8
-    assert len(test_cpxap.modules[5].input_channels) == 8  # VMPA-FB-EMG-P5
-    assert len(test_cpxap.modules[6].input_channels) == 1  # VMPA-FB-PS-__
-    assert len(test_cpxap.modules[7].input_channels) == 8  # VMPA1-FB-EMG-8-S
-    assert len(test_cpxap.modules[8].input_channels) == 0  # VMPA2-FB-EMG-4
+    assert len(test_cpxap.modules[0].channels.inputs) == 0  # CPX-AP-A-EP-M12
+    assert len(test_cpxap.modules[1].channels.inputs) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].channels.inputs) == 1  # VMPA-P-RP
+    assert len(test_cpxap.modules[3].channels.inputs) == 1  # VPPM-6TA-L-1-F-0L2H__
+    assert len(test_cpxap.modules[4].channels.inputs) == 0  # VMPA1-FB-EMG-8
+    assert len(test_cpxap.modules[5].channels.inputs) == 8  # VMPA-FB-EMG-P5
+    assert len(test_cpxap.modules[6].channels.inputs) == 1  # VMPA-FB-PS-__
+    assert len(test_cpxap.modules[7].channels.inputs) == 8  # VMPA1-FB-EMG-8-S
+    assert len(test_cpxap.modules[8].channels.inputs) == 0  # VMPA2-FB-EMG-4
 
-    assert len(test_cpxap.modules[0].output_channels) == 0  # CPX-AP-A-EP-M12
-    assert len(test_cpxap.modules[1].output_channels) == 0  # VMPA-AP-EPL-G
-    assert len(test_cpxap.modules[2].output_channels) == 1  # VMPA-P-RP
-    assert len(test_cpxap.modules[3].output_channels) == 1  # VPPM-6TA-L-1-F-0L2H__
-    assert len(test_cpxap.modules[4].output_channels) == 8  # VMPA1-FB-EMG-8
-    assert len(test_cpxap.modules[5].output_channels) == 8  # VMPA-FB-EMG-P5
-    assert len(test_cpxap.modules[6].output_channels) == 0  # VMPA-FB-PS-__
-    assert len(test_cpxap.modules[7].output_channels) == 8  # VMPA1-FB-EMG-8-S
-    assert len(test_cpxap.modules[8].output_channels) == 4  # VMPA2-FB-EMG-4
+    assert len(test_cpxap.modules[0].channels.outputs) == 0  # CPX-AP-A-EP-M12
+    assert len(test_cpxap.modules[1].channels.outputs) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].channels.outputs) == 1  # VMPA-P-RP
+    assert len(test_cpxap.modules[3].channels.outputs) == 1  # VPPM-6TA-L-1-F-0L2H__
+    assert len(test_cpxap.modules[4].channels.outputs) == 8  # VMPA1-FB-EMG-8
+    assert len(test_cpxap.modules[5].channels.outputs) == 8  # VMPA-FB-EMG-P5
+    assert len(test_cpxap.modules[6].channels.outputs) == 0  # VMPA-FB-PS-__
+    assert len(test_cpxap.modules[7].channels.outputs) == 8  # VMPA1-FB-EMG-8-S
+    assert len(test_cpxap.modules[8].channels.outputs) == 4  # VMPA2-FB-EMG-4
 
 
 def test_ep_read_system_parameters(test_cpxap):
@@ -376,7 +398,9 @@ def test_vmpa_fb_ps____read_channel(test_cpxap):
 
 def test_vmpa_fb_ps____read_module_parameters(test_cpxap):
     m = test_cpxap.modules[6]
-    time.sleep(0.05)
+    for _ in range(10):
+        time.sleep(0.05)
+        m.read_module_parameter(20030)
 
     assert m.read_module_parameter(20030) == m.read_module_parameter(
         "Enable monitoring of parameter errors"

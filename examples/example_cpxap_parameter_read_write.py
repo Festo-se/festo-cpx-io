@@ -20,7 +20,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     # or from the documentation or print the available parameters from each module. If the
     # value has enums as value, it will return the enum strings instead of the integer.
     module = myCPX.modules[1]
-    for parameter in module.parameter_dict.values():
+    for parameter in module.module_dicts.parameters.values():
         # if you want to read it and print the correct unit of the value, you can get the unit
         # from the parameter. If you want to get the (if available) enum string, use
         # read_module_parameter_enum_str() instead.
@@ -42,7 +42,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     PARAM_VALUE = "3ms"
     PARAM_ID = 20014
 
-    for parameter in module.parameter_dict.values():
+    for parameter in module.module_dicts.parameters.values():
         print(
             parameter.parameter_id,
             parameter.name,

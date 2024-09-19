@@ -67,8 +67,8 @@ class CpxE1Ci(CpxModule):
     def configure(self, *args):
         super().configure(*args)
 
-        self.base.next_output_register = self.output_register + 1
-        self.base.next_input_register = self.input_register + 8
+        self.base.next_output_register = self.system_entry_registers.outputs + 1
+        self.base.next_input_register = self.system_entry_registers.inputs + 8
 
     @CpxBase.require_base
     def read_value(self) -> int:
@@ -76,7 +76,7 @@ class CpxE1Ci(CpxModule):
 
         :return: counter value or speed
         :rtype: int"""
-        reg = self.base.read_reg_data(self.input_register, length=2)
+        reg = self.base.read_reg_data(self.system_entry_registers.inputs, length=2)
         value = int.from_bytes(reg, byteorder="little")
 
         Logging.logger.info(f"{self.name}: Read counter/speed value: {value}")
@@ -88,7 +88,7 @@ class CpxE1Ci(CpxModule):
 
         :return: latching value
         :rtype: int"""
-        reg = self.base.read_reg_data(self.input_register + 2, length=2)
+        reg = self.base.read_reg_data(self.system_entry_registers.inputs + 2, length=2)
         value = int.from_bytes(reg, byteorder="little")
 
         Logging.logger.info(f"{self.name}: Read latching value: {value}")
@@ -100,7 +100,7 @@ class CpxE1Ci(CpxModule):
 
         :return: status word
         :rtype: StatusWord"""
-        reg = self.base.read_reg_data(self.input_register + 4)
+        reg = self.base.read_reg_data(self.system_entry_registers.inputs + 4)
 
         status_word = self.StatusWord.from_bytes(reg)
 
@@ -113,8 +113,8 @@ class CpxE1Ci(CpxModule):
 
         :return: process data
         :rtype: ProcessData"""
-        # echo output data bit 0 ... 15 are in input_register + 6
-        reg = self.base.read_reg_data(self.input_register + 6)
+        # echo output data bit 0 ... 15 are in system_entry_registers.inputs + 6
+        reg = self.base.read_reg_data(self.system_entry_registers.inputs + 6)
 
         process_data = self.ProcessData.from_bytes(reg[:1])  # take only first byte
 
@@ -149,7 +149,7 @@ class CpxE1Ci(CpxModule):
             pd_updated_dict.get("block_latching"),
         ]
         reg_data = boollist_to_bytes(data)
-        self.base.write_reg_data(reg_data, self.output_register)
+        self.base.write_reg_data(reg_data, self.system_entry_registers.outputs)
 
         Logging.logger.info(f"{self.name}: Write process data {kwargs}")
 
@@ -159,7 +159,7 @@ class CpxE1Ci(CpxModule):
 
         :return: status information (see datasheet)
         :rtype: list[bool]"""
-        data = self.base.read_reg_data(self.input_register + 7)
+        data = self.base.read_reg_data(self.system_entry_registers.inputs + 7)
 
         ret = bytes_to_boollist(data)
         Logging.logger.info(f"{self.name}: Read status {ret}")

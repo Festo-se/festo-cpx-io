@@ -13,7 +13,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     io_link_master = myCPX.modules[4]
 
     # print available parameters or look at documentation
-    for parameter in io_link_master.parameter_dict.values():
+    for parameter in io_link_master.module_dicts.parameters.values():
         print(parameter)
 
     # set operating mode of channel 0 to "IO-Link communication"

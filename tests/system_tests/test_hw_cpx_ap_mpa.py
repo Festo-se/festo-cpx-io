@@ -31,43 +31,65 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].output_register == 0  # 1 CPX-AP-A-EP-M12
-    assert test_cpxap.modules[1].output_register == 0  # 2 VMPA-AP-EPL-G
-    assert test_cpxap.modules[2].output_register == 0  # 3 VMPA14-FB-EMG-D2-8-S
-    assert test_cpxap.modules[3].output_register == 1  # 4 VMPA1-FB-EMS-D2-8
-    assert test_cpxap.modules[4].output_register == 2  # 5 VMPA14-FB-EMS-D2-8
-    assert test_cpxap.modules[5].output_register == 3  # 6 VMPA2-FB-EMS-D2-4
+    assert (
+        test_cpxap.modules[0].system_entry_registers.outputs == 0
+    )  # 1 CPX-AP-A-EP-M12
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 2 VMPA-AP-EPL-G
+    assert (
+        test_cpxap.modules[2].system_entry_registers.outputs == 0
+    )  # 3 VMPA14-FB-EMG-D2-8-S
+    assert (
+        test_cpxap.modules[3].system_entry_registers.outputs == 1
+    )  # 4 VMPA1-FB-EMS-D2-8
+    assert (
+        test_cpxap.modules[4].system_entry_registers.outputs == 2
+    )  # 5 VMPA14-FB-EMS-D2-8
+    assert (
+        test_cpxap.modules[5].system_entry_registers.outputs == 3
+    )  # 6 VMPA2-FB-EMS-D2-4
 
-    assert test_cpxap.modules[0].input_register == 5000  # 1 CPX-AP-A-EP-M12
-    assert test_cpxap.modules[1].input_register == 5000  # 2 VMPA-AP-EPL-G
-    assert test_cpxap.modules[2].input_register == 5000  # 3 VMPA14-FB-EMG-D2-8-S
-    assert test_cpxap.modules[3].input_register == 5001  # 4 VMPA1-FB-EMS-D2-8
-    assert test_cpxap.modules[4].input_register == 5001  # 5 VMPA14-FB-EMS-D2-8
-    assert test_cpxap.modules[5].input_register == 5001  # 6 VMPA2-FB-EMS-D2-4
+    assert (
+        test_cpxap.modules[0].system_entry_registers.inputs == 5000
+    )  # 1 CPX-AP-A-EP-M12
+    assert (
+        test_cpxap.modules[1].system_entry_registers.inputs == 5000
+    )  # 2 VMPA-AP-EPL-G
+    assert (
+        test_cpxap.modules[2].system_entry_registers.inputs == 5000
+    )  # 3 VMPA14-FB-EMG-D2-8-S
+    assert (
+        test_cpxap.modules[3].system_entry_registers.inputs == 5001
+    )  # 4 VMPA1-FB-EMS-D2-8
+    assert (
+        test_cpxap.modules[4].system_entry_registers.inputs == 5001
+    )  # 5 VMPA14-FB-EMS-D2-8
+    assert (
+        test_cpxap.modules[5].system_entry_registers.inputs == 5001
+    )  # 6 VMPA2-FB-EMS-D2-4
 
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].input_channels) == 0  # CPX-AP-A-EP-M12
-    assert len(test_cpxap.modules[1].input_channels) == 0  # VMPA-AP-EPL-G
-    assert len(test_cpxap.modules[2].input_channels) == 8  # VMPA14-FB-EMG-D2-8-S
-    assert len(test_cpxap.modules[3].input_channels) == 0  # VMPA1-FB-EMS-D2-8
-    assert len(test_cpxap.modules[4].input_channels) == 0  # VMPA14-FB-EMS-D2-8
-    assert len(test_cpxap.modules[5].input_channels) == 0  # VMPA2-FB-EMS-D2-4
+    assert len(test_cpxap.modules[0].channels.inputs) == 0  # CPX-AP-A-EP-M12
+    assert len(test_cpxap.modules[1].channels.inputs) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].channels.inputs) == 8  # VMPA14-FB-EMG-D2-8-S
+    assert len(test_cpxap.modules[3].channels.inputs) == 0  # VMPA1-FB-EMS-D2-8
+    assert len(test_cpxap.modules[4].channels.inputs) == 0  # VMPA14-FB-EMS-D2-8
+    assert len(test_cpxap.modules[5].channels.inputs) == 0  # VMPA2-FB-EMS-D2-4
 
-    assert len(test_cpxap.modules[0].output_channels) == 0  # CPX-AP-A-EP-M12
-    assert len(test_cpxap.modules[1].output_channels) == 0  # VMPA-AP-EPL-G
-    assert len(test_cpxap.modules[2].output_channels) == 8  # VMPA14-FB-EMG-D2-8-S
-    assert len(test_cpxap.modules[3].output_channels) == 8  # VMPA1-FB-EMS-D2-8
-    assert len(test_cpxap.modules[4].output_channels) == 8  # VMPA14-FB-EMS-D2-8
-    assert len(test_cpxap.modules[5].output_channels) == 4  # VMPA2-FB-EMS-D2-4
+    assert len(test_cpxap.modules[0].channels.outputs) == 0  # CPX-AP-A-EP-M12
+    assert len(test_cpxap.modules[1].channels.outputs) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].channels.outputs) == 8  # VMPA14-FB-EMG-D2-8-S
+    assert len(test_cpxap.modules[3].channels.outputs) == 8  # VMPA1-FB-EMS-D2-8
+    assert len(test_cpxap.modules[4].channels.outputs) == 8  # VMPA14-FB-EMS-D2-8
+    assert len(test_cpxap.modules[5].channels.outputs) == 4  # VMPA2-FB-EMS-D2-4
 
-    assert len(test_cpxap.modules[0].inout_channels) == 0  # EP
-    assert len(test_cpxap.modules[1].inout_channels) == 0  # VMPA-AP-EPL-G
-    assert len(test_cpxap.modules[2].inout_channels) == 0  # VMPA14-FB-EMG-D2-8-S
-    assert len(test_cpxap.modules[3].inout_channels) == 0  # VMPA1-FB-EMS-D2-8
-    assert len(test_cpxap.modules[4].inout_channels) == 0  # VMPA14-FB-EMS-D2-8
-    assert len(test_cpxap.modules[5].inout_channels) == 0  # VMPA2-FB-EMS-D2-4
+    assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
+    assert len(test_cpxap.modules[1].channels.inouts) == 0  # VMPA-AP-EPL-G
+    assert len(test_cpxap.modules[2].channels.inouts) == 0  # VMPA14-FB-EMG-D2-8-S
+    assert len(test_cpxap.modules[3].channels.inouts) == 0  # VMPA1-FB-EMS-D2-8
+    assert len(test_cpxap.modules[4].channels.inouts) == 0  # VMPA14-FB-EMS-D2-8
+    assert len(test_cpxap.modules[5].channels.inouts) == 0  # VMPA2-FB-EMS-D2-4
 
 
 @pytest.mark.parametrize("input_value", list(range(6)))
@@ -186,7 +208,10 @@ def test_vmpa14_fb_emg_d2_8_s_toggle_channel(test_cpxap):
 
 def test_vmpa14_fb_emg_d2_8_s_read_module_parameters(test_cpxap):
     m = test_cpxap.modules[2]
-    time.sleep(0.05)
+    # wait for longer without disconnect
+    for _ in range(10):
+        time.sleep(0.05)
+        m.read_module_parameter(20095)
 
     assert m.read_module_parameter(20026) == m.read_module_parameter(
         "Enable diagnosis of overload short circuit"
@@ -302,7 +327,10 @@ def test_vmpa1_fb_ems_d2_8_toggle_channel(test_cpxap):
 
 def test_vmpa1_fb_ems_d2_8_read_module_parameters(test_cpxap):
     m = test_cpxap.modules[3]
-    time.sleep(0.05)
+    # wait for longer without disconnect
+    for _ in range(10):
+        time.sleep(0.05)
+        m.read_module_parameter(20095)
 
     assert m.read_module_parameter(20026) == m.read_module_parameter(
         "Enable diagnosis of overload short circuit"
@@ -409,7 +437,10 @@ def test_vmpa14_fb_ems_d2_8_toggle_channel(test_cpxap):
 
 def test_vmpa14_fb_ems_d2_8_read_module_parameters(test_cpxap):
     m = test_cpxap.modules[4]
-    time.sleep(0.05)
+    # wait for longer without disconnect
+    for _i in range(10):
+        time.sleep(0.05)
+        m.read_module_parameter(20095)
 
     assert m.read_module_parameter(20026) == m.read_module_parameter(
         "Enable diagnosis of overload short circuit"
@@ -512,7 +543,10 @@ def test_vmpa2_fb_ems_d2_4_toggle_channel(test_cpxap):
 
 def test_vmpa2_fb_ems_d2_4_read_module_parameters(test_cpxap):
     m = test_cpxap.modules[5]
-    time.sleep(0.05)
+    # wait for longer without disconnect
+    for _ in range(10):
+        time.sleep(0.05)
+        m.read_module_parameter(20095)
 
     assert m.read_module_parameter(20026) == m.read_module_parameter(
         "Enable diagnosis of overload short circuit"
