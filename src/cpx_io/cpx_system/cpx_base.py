@@ -162,7 +162,7 @@ class CpxBase:
 
         :param data: data to write to the register(s)
         :type data: bytes
-        :param register: adress of the first register to read
+        :param register: adress of the first register to write
         :type register: int
         """
         # if odd number of bytes, add one zero byte

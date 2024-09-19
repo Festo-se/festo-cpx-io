@@ -1176,8 +1176,8 @@ class ApModule(CpxModule):
         """Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed.
 
-        :param data: Data as 16bit register values in list
-        :type data: list[int]
+        :param data: Data to write
+        :type data: bytes
         :param channel: Channel number, starting with 0
         :type channel: int
         :param index: io-link parameter index
