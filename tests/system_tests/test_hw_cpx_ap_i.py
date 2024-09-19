@@ -6,7 +6,6 @@ import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
-from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
 
 
 @pytest.fixture(scope="function")
@@ -770,7 +769,60 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
         param = m.read_fieldbus_parameters()
 
 
-def test_4iol_ethrottle_isdu_write(test_cpxap):
+def test_4iol_ethrottle_isdu_write_1byte(test_cpxap):
+    m = test_cpxap.modules[4]
+    ethrottle_channel = 2
+
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ethrottle_channel)
+
+    time.sleep(0.05)
+
+    # wait for operate
+    param = m.read_fieldbus_parameters()
+    while param[ethrottle_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    function_tag_idx = 25
+    # write something different first
+    m.write_isdu(b"\x12\x34", ethrottle_channel, function_tag_idx, 0)
+    time.sleep(0.05)
+    m.write_isdu(b"\xCA", ethrottle_channel, function_tag_idx, 0)
+
+    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0)[:2] == b"\xCA\x00"
+
+    m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
+    # wait for inactive
+    param = m.read_fieldbus_parameters()
+    while param[ethrottle_channel]["Port status information"] != "DEACTIVATED":
+        param = m.read_fieldbus_parameters()
+
+
+def test_4iol_ethrottle_isdu_write_2byte(test_cpxap):
+    m = test_cpxap.modules[4]
+    ethrottle_channel = 2
+
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ethrottle_channel)
+
+    time.sleep(0.05)
+
+    # wait for operate
+    param = m.read_fieldbus_parameters()
+    while param[ethrottle_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    function_tag_idx = 25
+    m.write_isdu(b"\x06\x07", ethrottle_channel, function_tag_idx, 0)
+
+    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0)[:2] == b"\x06\x07"
+
+    m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
+    # wait for inactive
+    param = m.read_fieldbus_parameters()
+    while param[ethrottle_channel]["Port status information"] != "DEACTIVATED":
+        param = m.read_fieldbus_parameters()
+
+
+def test_4iol_ethrottle_isdu_write_4byte(test_cpxap):
     m = test_cpxap.modules[4]
     ethrottle_channel = 2
 
