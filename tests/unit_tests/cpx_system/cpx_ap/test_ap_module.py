@@ -1986,7 +1986,7 @@ class TestApModule:
             module.read_isdu(channel, index, subindex)
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
-    def test_write_isdu(self, module_fixture, input_value):
+    def test_write_isdu_different_channels(self, module_fixture, input_value):
         """Test write_isdu"""
         # Arrange
         module = module_fixture
@@ -1999,8 +1999,8 @@ class TestApModule:
         # Act
         data = b"\xCA\xFE"
         channel = input_value
-        index = 4
-        subindex = 5
+        index = 4  # random
+        subindex = 5  # random
 
         module.write_isdu(data, channel, index, subindex)
 
@@ -2011,7 +2011,50 @@ class TestApModule:
                 call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
                 call(b"\x04\x00", 34004),  # INDEX
                 call(b"\x05\x00", 34005),  # SUBINDEX
-                call(b"\x04\x00", 34006),  # LENGTH (bytes * 2)
+                call(b"\x02\x00", 34006),  # LENGTH (bytes)
+                call(data, 34007),  # DATA
+                call(b"\x65\x00", 34001),  # COMMAND (read 101)
+            ]
+        )
+        module.base.read_reg_data.assert_has_calls([call(34000, 1)])
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [
+            b"\x01",
+            b"\x01\x02",
+            b"\x01\x02\x03",
+            b"\x01\x02\x03\x04",
+        ],
+    )
+    def test_write_isdu_different_lengths(self, module_fixture, input_value):
+        """Test write_isdu"""
+        # Arrange
+        module = module_fixture
+        module.position = 0
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        data = input_value
+        channel = 0  # random
+        index = 4  # random
+        subindex = 5  # random
+
+        module.write_isdu(data, channel, index, subindex)
+
+        # Assert
+        length_to_write = len(data) if not len(data) % 2 else len(data) + 1
+
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                call(b"\x04\x00", 34004),  # INDEX
+                call(b"\x05\x00", 34005),  # SUBINDEX
+                call(length_to_write.to_bytes(2, "little"), 34006),  # LENGTH
                 call(data, 34007),  # DATA
                 call(b"\x65\x00", 34001),  # COMMAND (read 101)
             ]
