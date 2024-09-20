@@ -581,7 +581,6 @@ class ApModule(CpxModule):
 
         # PARAMETER HANDLING
         parameter = self.get_parameter_from_identifier(parameter)
-
         if parameter.enums:  # overwrite the parameter datatype from enum
             parameter.data_type = parameter.enums.data_type
 
@@ -757,7 +756,6 @@ class ApModule(CpxModule):
         ]
 
         channels_pqi = []
-
         for data_item in data:
             port_qualifier = (
                 "input data is valid"
@@ -956,7 +954,9 @@ class ApModule(CpxModule):
         channel = (channel + 1).to_bytes(2, "little")
         index = (index).to_bytes(2, "little")
         subindex = (subindex).to_bytes(2, "little")
-        length = (len(data) * 2).to_bytes(2, "little")
+        # increase length to full 16 bit registers if len(data) is odd
+        length_int = len(data) if not len(data) % 2 else len(data) + 1
+        length = (length_int).to_bytes(2, "little")
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
         command = (101).to_bytes(2, "little")
 
