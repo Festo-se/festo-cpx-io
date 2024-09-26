@@ -6,6 +6,8 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
+from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
+
 
 class TestCpxAp:
     "Test CpxAp"
@@ -35,7 +37,7 @@ class TestCpxAp:
         spec=True,
     )
     @patch(
-        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.add_module",
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._add_module",
         spec=True,
     )
     @patch(
@@ -126,7 +128,7 @@ class TestCpxAp:
         spec=True,
     )
     @patch(
-        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.add_module",
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._add_module",
         spec=True,
     )
     @patch(
@@ -208,7 +210,7 @@ class TestCpxAp:
             return_value=None,
         )
         mock_add_module = mocker.patch(
-            "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.add_module",
+            "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._add_module",
             spec=True,
         )
         mock__grab_apdd = mocker.patch(
@@ -265,7 +267,7 @@ class TestCpxAp:
         )
         mock_join = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.os.path.join",
-            side_effect = lambda *args: "/".join(args)
+            side_effect=lambda *args: "/".join(args),
         )
         mock_listdir = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.os.listdir",
@@ -280,17 +282,22 @@ class TestCpxAp:
         ap_fixture.delete_apdds()
 
         # Assert
-        mock_remove.assert_has_calls([call("mock_apdd_path/file1"), call("mock_apdd_path/file2")])
+        mock_remove.assert_has_calls(
+            [call("mock_apdd_path/file1"), call("mock_apdd_path/file2")]
+        )
 
     def test_create_apdd_path(self, ap_fixture, mocker):
         # Arrange
 
         # need to stop the mock of create_apdd_path from the fixture
         mocker.stopall()
-        mock_user_data_dir = mocker.patch("cpx_io.cpx_system.cpx_ap.cpx_ap.platformdirs.user_data_dir", return_value="/dummy_user/festo")
+        mock_user_data_dir = mocker.patch(
+            "cpx_io.cpx_system.cpx_ap.cpx_ap.platformdirs.user_data_dir",
+            return_value="/dummy_user/festo",
+        )
         mock_join = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.os.path.join",
-            side_effect = lambda *args: "/".join(args)
+            side_effect=lambda *args: "/".join(args),
         )
         mock_makedirs = mocker.patch("cpx_io.cpx_system.cpx_ap.cpx_ap.os.makedirs")
 
@@ -300,16 +307,18 @@ class TestCpxAp:
         # Assert
         assert ret == "/dummy_user/festo/apdds"
 
-
     def test_create_docu_path(self, ap_fixture, mocker):
         # Arrange
 
         # need to stop the mock of create_apdd_path from the fixture
         mocker.stopall()
-        mock_user_data_dir = mocker.patch("cpx_io.cpx_system.cpx_ap.cpx_ap.platformdirs.user_data_dir", return_value="/dummy_user/festo")
+        mock_user_data_dir = mocker.patch(
+            "cpx_io.cpx_system.cpx_ap.cpx_ap.platformdirs.user_data_dir",
+            return_value="/dummy_user/festo",
+        )
         mock_join = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.os.path.join",
-            side_effect = lambda *args: "/".join(args)
+            side_effect=lambda *args: "/".join(args),
         )
         mock_makedirs = mocker.patch("cpx_io.cpx_system.cpx_ap.cpx_ap.os.makedirs")
 
@@ -321,18 +330,26 @@ class TestCpxAp:
 
     def test_getter_modules(self, ap_fixture):
         # Arrange
-        mocked_list = [ApModule(ApddInformation(
-            description= "description",
-            name= "name",
-            module_type= "module_type",
-            configurator_code= "configurator_code",
-            part_number= "part_number",
-            module_class= "module_class",
-            module_code= "module_code",
-            order_text= "order_text",
-            product_category= "product_category",
-            product_family= "product_family"),([],[],[]),[],[])]
-        
+        mocked_list = [
+            ApModule(
+                ApddInformation(
+                    description="description",
+                    name="name",
+                    module_type="module_type",
+                    configurator_code="configurator_code",
+                    part_number="part_number",
+                    module_class="module_class",
+                    module_code="module_code",
+                    order_text="order_text",
+                    product_category="product_category",
+                    product_family="product_family",
+                ),
+                ([], [], []),
+                [],
+                [],
+            )
+        ]
+
         ap_fixture._modules = mocked_list
 
         # Act & Assert
@@ -362,7 +379,9 @@ class TestCpxAp:
             (4294967295, b"\xFF\xFF\xFF\xFF"),
         ],
     )
-    def test_set_timeout_accepted_values(self, ap_fixture, mocker, input_value, expected_output):
+    def test_set_timeout_accepted_values(
+        self, ap_fixture, mocker, input_value, expected_output
+    ):
         # Arrange
         # stop mocking the timeout function
         mocker.stopall()
@@ -385,44 +404,272 @@ class TestCpxAp:
         with pytest.raises(OverflowError):
             ap_fixture.set_timeout(4294967296)
 
-    def test_add_module(self, ap_fixture):
+    @pytest.mark.parametrize(
+        "input_value", [10, 20, 30, 40, 50, 60, 61, 70, 80, 81, 82, 83, 84, 85]
+    )
+    def test_add_module_io_module(self, ap_fixture, mocker, input_value):
         # Arrange
+        # stop mocking the add_module function
+        mocker.stopall()
+
+        apdd_information = ApddInformation(
+            description="description",
+            name="name",
+            module_type="module_type",
+            configurator_code="configurator_code",
+            part_number="part_number",
+            module_class=input_value,
+            module_code="module_code",
+            order_text="order_text",
+            product_category="product_category",
+            product_family="product_family",
+        )
+
+        module = ApModule(apdd_information, [(), (), ()], [], [])
+        module.configure = Mock()
+
+        ap_fixture.update_module_names = Mock()
 
         # Act
+        ret = ap_fixture._add_module(module, apdd_information)
 
-        pass  # Assert
+        # Assert
+        assert ret == module
 
-    def test_read_module_count(self, ap_fixture):
+    def test_add_module_bus_module(self, ap_fixture, mocker):
         # Arrange
+        # stop mocking the add_module function
+        mocker.stopall()
+
+        apdd_information = ApddInformation(
+            description="description",
+            name="name",
+            module_type="module_type",
+            configurator_code="configurator_code",
+            part_number="part_number",
+            module_class=100,
+            module_code="module_code",
+            order_text="order_text",
+            product_category="product_category",
+            product_family="product_family",
+        )
+
+        module = ApModule(apdd_information, [(), (), ()], [], [])
+        module.configure = Mock()
+
+        ap_fixture.update_module_names = Mock()
 
         # Act
+        ret = ap_fixture._add_module(module, apdd_information)
 
-        pass  # Assert
+        # Assert
+        assert ret == module
+        assert ap_fixture.next_output_register == 0
+        assert ap_fixture.next_input_register == 5000
 
-    def test_read_apdd_information(self, ap_fixture):
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            (b"\x00\x00\x00\x00", 0),
+            (b"\x01\x00\x00\x00", 1),
+            (b"\x00\x01\x00\x00", 256),
+            (b"\xFF\xFF\xFF\xFF", 4294967295),
+        ],
+    )
+    def test_read_module_count(self, ap_fixture, mocker, input_value, expected_output):
         # Arrange
+        # stop mocking the add_module function
+        mocker.stopall()
+        ap_fixture.read_reg_data = Mock(return_value=input_value)
 
         # Act
+        ret = ap_fixture.read_module_count()
 
-        pass  # Assert
+        # Assert
+        ap_fixture.read_reg_data.assert_called_with(12000, 1)
+        assert ret == expected_output
+
+    def test_read_apdd_information(self, ap_fixture, mocker):
+        # Arrange
+        # stop mocking the read_apdd_information function
+        mocker.stopall()
+        ap_fixture.read_reg_data = Mock(return_value=b"\x34\x35\x36\x37\x38\x39")
+
+        # Act
+        ret = ap_fixture.read_apdd_information(0)
+
+        # Assert
+        assert isinstance(ret, CpxAp.ApInformation)
 
     def test_read_diagnostics_status(self, ap_fixture):
         # Arrange
+        ap_fixture.read_parameter = Mock(return_value=[0, 1, 2])
 
         # Act
+        ret = ap_fixture.read_diagnostic_status()
 
-        pass  # Assert
+        # Assert
+        assert all(isinstance(r, CpxAp.Diagnostics) for r in ret)
 
-    def test_write_parameter(self, ap_fixture):
+    def test_read_global_diagnosis_state(self, ap_fixture):
         # Arrange
+        ap_fixture.read_reg_data = Mock(return_value=b"\xAA\xAA\xAA\xAA")
 
         # Act
+        ret = ap_fixture.read_global_diagnosis_state()
 
-        pass  # Assert
+        # Assert
+        ap_fixture.read_reg_data.assert_called_with(11000, length=2)
 
-    def test_(self, ap_fixture):
+        assert ret == {
+            "Device available": False,
+            "Current": True,
+            "Voltage": False,
+            "Temperature": True,
+            "reserved": False,
+            "Movement": True,
+            "Configuration / Parameters": False,
+            "Monitoring": True,
+            "Communication": False,
+            "Safety": True,
+            "Internal Hardware": False,
+            "Software": True,
+            "Maintenance": False,
+            "Misc": True,
+            "reserved(14)": False,
+            "reserved(15)": True,
+            "External Device": False,
+            "Security": True,
+            "Encoder": False,
+        }
+
+    def test_read_active_diagnosis_count(self, ap_fixture):
         # Arrange
+        ap_fixture.read_reg_data = Mock(return_value=b"\x01\x00\x00\x00")
+        # Act
+        ret = ap_fixture.read_active_diagnosis_count()
+        # Assert
+        ap_fixture.read_reg_data.assert_called_with(11002)
+        assert ret == 1
+
+    def test_read_latest_diagnosis_index(self, ap_fixture):
+        # Arrange
+        ap_fixture.read_reg_data = Mock(return_value=b"\x01\x00\x00\x00")
+        # Act
+        ret = ap_fixture.read_latest_diagnosis_index()
+        # Assert
+        ap_fixture.read_reg_data.assert_called_with(11003)
+        assert ret == 0
+
+    def test_read_latest_diagnosis_code(self, ap_fixture):
+        # Arrange
+        ap_fixture.read_reg_data = Mock(return_value=b"\x01\x00\x00\x00")
+        # Act
+        ret = ap_fixture.read_latest_diagnosis_code()
+        # Assert
+        ap_fixture.read_reg_data.assert_called_with(11004, length=2)
+        assert ret == 1
+
+    def test_write_parameter_no_instance(self, ap_fixture):
+        # Arrange
+        position = 12
+        parameter = Parameter(
+            parameter_id=1,
+            parameter_instances={},
+            is_writable=True,
+            array_size=0,
+            data_type="UINT8",
+            default_value=0,
+            description="description",
+            name="name",
+        )
+        data = 2
+
+        ap_fixture._write_parameter_raw = Mock()
 
         # Act
+        ap_fixture.write_parameter(position, parameter, data)
 
-        pass  # Assert
+        # Assert
+        ap_fixture._write_parameter_raw.assert_called_with(
+            position, parameter.parameter_id, 0, b"\x02"
+        )
+
+    def test_write_parameter_with_instance(self, ap_fixture):
+        # Arrange
+        position = 12
+        parameter = Parameter(
+            parameter_id=1,
+            parameter_instances={},
+            is_writable=True,
+            array_size=0,
+            data_type="UINT8",
+            default_value=0,
+            description="description",
+            name="name",
+        )
+        data = 2
+        instance = 13
+
+        ap_fixture._write_parameter_raw = Mock()
+
+        # Act
+        ap_fixture.write_parameter(position, parameter, data, instance)
+
+        # Assert
+        ap_fixture._write_parameter_raw.assert_called_with(
+            position, parameter.parameter_id, instance, b"\x02"
+        )
+
+    def test_read_parameter_no_instance(self, ap_fixture):
+        # Arrange
+        position = 12
+        parameter = Parameter(
+            parameter_id=1,
+            parameter_instances={},
+            is_writable=True,
+            array_size=0,
+            data_type="UINT8",
+            default_value=0,
+            description="description",
+            name="name",
+        )
+
+        ap_fixture._read_parameter_raw = Mock(return_value=b"\x02")
+
+        # Act
+        ret = ap_fixture.read_parameter(position, parameter)
+
+        # Assert
+        ap_fixture._read_parameter_raw.assert_called_with(
+            position, parameter.parameter_id, 0
+        )
+
+        assert ret == 2
+
+    def test_read_parameter_with_instance(self, ap_fixture):
+        # Arrange
+        position = 12
+        parameter = Parameter(
+            parameter_id=1,
+            parameter_instances={},
+            is_writable=True,
+            array_size=0,
+            data_type="UINT8",
+            default_value=0,
+            description="description",
+            name="name",
+        )
+        instance = 13
+
+        ap_fixture._read_parameter_raw = Mock(return_value=b"\x02")
+
+        # Act
+        ret = ap_fixture.read_parameter(position, parameter, instance)
+
+        # Assert
+        ap_fixture._read_parameter_raw.assert_called_with(
+            position, parameter.parameter_id, instance
+        )
+
+        assert ret == 2

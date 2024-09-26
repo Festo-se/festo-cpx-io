@@ -33,6 +33,7 @@ from cpx_io.utils.helpers import (
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
 
+
 class ApModule(CpxModule):
     """Generic AP module class. This includes all functions that are shared
     among the modules. To get an overview of your system and the supported
