@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docstrings
 
 ### Changed
+- Some minor code improvements
 - Added further explanation to example_cpxap_digital_output
 - Several backend changes in ap_module to clear lately ignored pylint issues
 

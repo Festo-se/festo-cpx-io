@@ -213,8 +213,8 @@ class CpxAp(CpxBase):
                 f"the timeout is limited to a minimum of {timeout_ms} ms"
             )
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
-        registers = timeout_ms.to_bytes(length=4, byteorder="little")
-        self.write_reg_data(registers, ap_modbus_registers.TIMEOUT.register_address)
+        value_to_write = timeout_ms.to_bytes(length=4, byteorder="little")
+        self.write_reg_data(value_to_write, ap_modbus_registers.TIMEOUT.register_address)
 
         # Check if it actually succeeded
         indata = int.from_bytes(
