@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Length calculation in IO-Link function `write_isdu()`
 - Amount of tries and check are now consistent
 - Docstrings
+
 ### Changed
 - Added further explanation to example_cpxap_digital_output
 - Several backend changes in ap_module to clear lately ignored pylint issues
+
+## Added
+- Unittests for CpxAp
 
 ## v0.6.1 - 22.08.24
 ### Fixed
