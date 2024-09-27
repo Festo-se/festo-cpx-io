@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - CPX-AP ISDU access now returns only relevant and valid data. Optional parameter `datatype`
- defines the expected return value of `read_isdu`. While `write_isdu` checks for the datatype 
+ defines the expected return value of `read_isdu()`. While `write_isdu()` checks for the datatype 
  of parameter `data` and behaves accordingly
 - Added further explanation to example_cpxap_digital_output
 - Several backend changes in ap_module to clear lately ignored pylint issues
