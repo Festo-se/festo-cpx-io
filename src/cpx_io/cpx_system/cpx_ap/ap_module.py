@@ -876,7 +876,7 @@ class ApModule(CpxModule):
 
     @CpxBase.require_base
     def read_isdu(
-        self, channel: int, index: int, subindex: int = 0, datatype: str = "raw"
+        self, channel: int, index: int, subindex: int = 0, data_type: str = "raw"
     ) -> any:
         """Read isdu (device parameter) from defined channel.
         Raises CpxRequestError when read failed.
@@ -887,10 +887,10 @@ class ApModule(CpxModule):
         :type index: int
         :param subindex: (optional) io-link parameter subindex, defaults to 0
         :type subindex: int
-        :param datatype: (optional) datatype for correct interptetation.
+        :param data_type: (optional) datatype for correct interptetation.
             Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
             supported datatypes
-        :type datatype: str
+        :type data_type: str
         :return : Value depending on the datatype
         :rtype : any
         """
@@ -905,15 +905,15 @@ class ApModule(CpxModule):
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
         # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
         # keeps the two files synchronized during development
-        if datatype in ["raw", "str"] and datatype in SUPPORTED_ISDU_DATATYPES:
+        if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
             command = (100).to_bytes(2, "little")
         elif (
-            datatype in ["int", "bool", "float"]
-            and datatype in SUPPORTED_ISDU_DATATYPES
+            data_type in ["int", "bool", "float"]
+            and data_type in SUPPORTED_ISDU_DATATYPES
         ):
             command = (50).to_bytes(2, "little")
         else:
-            raise TypeError(f"Datatype '{datatype}' is not supported by read_isdu()")
+            raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
         # select module, starts with 1
         self.base.write_reg_data(
@@ -959,19 +959,19 @@ class ApModule(CpxModule):
         )
         Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
 
-        if datatype == "raw":
+        if data_type == "raw":
             return ret[:actual_length]
-        if datatype == "str":
+        if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
-        if datatype == "int":
+        if data_type == "int":
             return int.from_bytes(ret, byteorder="little")
-        if datatype == "bool":
+        if data_type == "bool":
             return bool.from_bytes(ret, byteorder="little")
-        if datatype == "float":
+        if data_type == "float":
             return struct.unpack("f", ret[:actual_length])[0]
 
         # this is unnecessary but required for consistent return statements
-        raise TypeError(f"Datatype '{datatype}' is not supported by read_isdu()")
+        raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
     @CpxBase.require_base
     def write_isdu(

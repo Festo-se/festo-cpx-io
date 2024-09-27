@@ -633,7 +633,7 @@ def test_4iol_sdas_read_isdu_string_as_str(test_cpxap):
         param = m.read_fieldbus_parameters()
 
     # Act
-    ret = m.read_isdu(sdas_channel, 0x0010, 0, datatype="str")
+    ret = m.read_isdu(sdas_channel, 0x0010, 0, data_type="str")
     # according to datasheet, this should return "Festo" as 64 byte string
     # It actually returns "Festo AG & Co. KG" on my device, which could be a
     # different hardware version.
@@ -689,7 +689,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
 
     # Act
     m.write_isdu("FESTO", sdas_channel, 0x0018, 0)
-    ret = m.read_isdu(sdas_channel, 0x0018, 0, datatype="str")
+    ret = m.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "FESTO"
@@ -698,7 +698,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
     m.write_isdu("LOL", sdas_channel, 0x0018, 0)
-    ret = m.read_isdu(sdas_channel, 0x0018, 0, datatype="str")
+    ret = m.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "LOL"
@@ -717,7 +717,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
 
     # Act
     m.write_isdu("FESTO", sdas_channel, 0x0018, 0)
-    ret = m.read_isdu(sdas_channel, 0x0018, 0, datatype="str")
+    ret = m.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "FESTO"
@@ -726,7 +726,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
     m.write_isdu("x", sdas_channel, 0x0018, 0)
-    ret = m.read_isdu(sdas_channel, 0x0018, 0, datatype="str")
+    ret = m.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "x"
@@ -766,7 +766,7 @@ def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxap):
 
     # Act
     m.write_isdu(0x0123, sdas_channel, 0x003C, 1)
-    ret = m.read_isdu(sdas_channel, 0x003C, 1, datatype="int")
+    ret = m.read_isdu(sdas_channel, 0x003C, 1, data_type="int")
 
     # Assert
     assert ret == 0x0123
@@ -806,7 +806,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
 
     # Act
     m.write_isdu(1, sdas_channel, 0x003D, 1)
-    ret = m.read_isdu(sdas_channel, 0x003D, 1, datatype="int")
+    ret = m.read_isdu(sdas_channel, 0x003D, 1, data_type="int")
 
     # Assert
     assert ret == 1
@@ -824,7 +824,7 @@ def test_4iol_emcs_read_isdu_str(test_cpxap):
         param = m.read_fieldbus_parameters()
 
     # Act & Assert
-    assert m.read_isdu(emcs_channel, 16, datatype="str") == "Festo"
+    assert m.read_isdu(emcs_channel, 16, data_type="str") == "Festo"
 
 
 def test_4iol_emcs_read_isdu_bool(test_cpxap):
@@ -839,7 +839,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxap):
         param = m.read_fieldbus_parameters()
 
     # Act & Assert
-    assert m.read_isdu(emcs_channel, 259, datatype="bool") is False
+    assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
 def test_4iol_emcs_write_isdu_bool(test_cpxap):
@@ -855,11 +855,11 @@ def test_4iol_emcs_write_isdu_bool(test_cpxap):
 
     # Act & Assert
     m.write_isdu(True, emcs_channel, 259)
-    assert m.read_isdu(emcs_channel, 259, datatype="bool") is True
+    assert m.read_isdu(emcs_channel, 259, data_type="bool") is True
 
     # Reset
     m.write_isdu(False, emcs_channel, 259)
-    assert m.read_isdu(emcs_channel, 259, datatype="bool") is False
+    assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
 def test_4iol_emcs_read_int32_with_move(test_cpxap):
@@ -883,7 +883,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, datatype="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
 
     m.write_channel(emcs_channel, b"\x00\x01")  # Move
     # wait for move to finish
@@ -894,7 +894,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, datatype="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
 
 
 def test_4iol_emcs_read_isdu_float(test_cpxap):
@@ -909,12 +909,12 @@ def test_4iol_emcs_read_isdu_float(test_cpxap):
         param = m.read_fieldbus_parameters()
 
     # read intermediate position
-    ret = m.read_isdu(emcs_channel, 264, datatype="float") * 0.01
+    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
     assert isinstance(ret, float)
     assert 0.01 < ret < 0.03
 
     # read end postion out
-    ret = m.read_isdu(emcs_channel, 262, datatype="float") * 0.01
+    ret = m.read_isdu(emcs_channel, 262, data_type="float") * 0.01
     assert isinstance(ret, float)
     assert 0.01 < ret < 0.03
 
@@ -1081,7 +1081,7 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
     while param[ethrottle_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    assert (m.read_isdu(ethrottle_channel, 16, 0, datatype="str")) == "Festo"
+    assert (m.read_isdu(ethrottle_channel, 16, 0, data_type="str")) == "Festo"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive

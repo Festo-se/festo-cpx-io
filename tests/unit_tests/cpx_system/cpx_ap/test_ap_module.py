@@ -2104,7 +2104,7 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        ret = module.read_isdu(0, 0, datatype=input_value)
+        ret = module.read_isdu(0, 0, data_type=input_value)
 
         # Assert
         assert ret == expected_output
