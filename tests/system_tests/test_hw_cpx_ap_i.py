@@ -597,6 +597,163 @@ def test_4iol_sdas_full(test_cpxap):
     while param[sdas_channel]["Port status information"] != "DEACTIVATED":
         param = m.read_fieldbus_parameters()
 
+def test_4iol_sdas_read_isdu_string(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    ret = m.read_isdu(sdas_channel, 0x0010, 0)
+    # according to datasheet, this should return "Festo" as 64 byte string
+    # It actually returns "Festo AG & Co. KG" on my device, which could be a
+    # different hardware version.
+    # in io-link, strings are encoded byteorder "msb first", so no change required
+    ret_value = ret.decode("ascii")
+
+    # Assert
+    assert ret_value == "Festo AG & Co. KG"
+
+def test_4iol_sdas_write_isdu_string_as_raw(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    m.write_isdu(b"FESTO", sdas_channel, 0x0018, 0)
+    ret = m.read_isdu(sdas_channel, 0x0018, 0)
+
+    # This splits at the first b"\x00" and only uses the left side.
+    ret_value = ret.decode("ascii").split("\x00",1)[0]
+
+    # Assert
+    assert ret_value == "FESTO"
+
+    # Act more
+    # This should test if there are characters remaining in the isdu
+    # from the "FESTO" and if they are returned with it incorrectly
+    m.write_isdu(b"LOL", sdas_channel, 0x0018, 0)
+    ret = m.read_isdu(sdas_channel, 0x0018, 0)
+
+    # This splits at the first b"\x00" and only uses the left side.
+    ret_value = ret.decode("ascii").split("\x00",1)[0]
+
+    # Assert
+    assert ret_value == "LOL"
+
+def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    m.write_isdu("FESTO", sdas_channel, 0x0018, 0)
+    ret = m.read_isdu(sdas_channel, 0x0018, 0, datatype="str")
+
+    # Assert
+    assert ret == "FESTO"
+
+    # Act more
+    # This should test if there are characters remaining in the isdu
+    # from the "FESTO" and if they are returned with it incorrectly
+    m.write_isdu("LOL", sdas_channel, 0x0018, 0)
+    ret = m.read_isdu(sdas_channel, 0x0018, 0, datatype="str")
+
+    # Assert
+    assert ret == "LOL"
+
+def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    m.write_isdu(b"\x01\x23", sdas_channel, 0x003C, 1)
+    ret = m.read_isdu(sdas_channel, 0x003C, 1)
+
+    ret_value = int.from_bytes(ret, byteorder="big")
+
+    # Assert
+    assert ret_value == 0x0123
+
+def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    m.write_isdu(0x0123, sdas_channel, 0x003C, 1)
+    ret = m.read_isdu(sdas_channel, 0x003C, 1, datatype="int")
+
+    # Assert
+    assert ret == 0x0123
+
+def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    m.write_isdu(b"\x01", sdas_channel, 0x003D, 1)
+    ret = m.read_isdu(sdas_channel, 0x003D, 1)
+
+    ret_value = int.from_bytes(ret, byteorder="big")
+
+    # Assert
+    assert ret_value == 0x01
+
+def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
+    m = test_cpxap.modules[4]
+    sdas_channel = 0
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[sdas_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+    
+    # Act
+    m.write_isdu(1, sdas_channel, 0x003D, 1)
+    ret = m.read_isdu(sdas_channel, 0x003D, 1, datatype="int")
+
+    # Assert
+    assert ret == 1
 
 def test_4iol_ehps(test_cpxap):
     m = test_cpxap.modules[4]

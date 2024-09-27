@@ -873,7 +873,7 @@ class ApModule(CpxModule):
         return channel_params
 
     @CpxBase.require_base
-    def read_isdu(self, channel: int, index: int, subindex: int) -> bytes:
+    def read_isdu(self, channel: int, index: int, subindex: int=0, datatype: str ="raw") -> bytes:
         """Read isdu (device parameter) from defined channel.
         Raises CpxRequestError when read failed.
 
@@ -881,10 +881,10 @@ class ApModule(CpxModule):
         :type channel: int
         :param index: io-link parameter index
         :type index: int
-        :param subindex: io-link parameter subindex
+        :param subindex: (optional) io-link parameter subindex, defaults to 0
         :type subindex: int
-        :return: device parameter (index/subindex) for given channel
-        :rtype: bytes
+        :param datatype: (optional) datatype for correct interptetation. Supports "raw" (default), "str", "int"
+        :type datatype: str
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
@@ -894,7 +894,12 @@ class ApModule(CpxModule):
         subindex = subindex.to_bytes(2, "little")
         length = (0).to_bytes(2, "little")  # always zero when reading
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        command = (100).to_bytes(2, "little")
+        if datatype in ["raw", "str"]:
+            command = (100).to_bytes(2, "little")
+        elif datatype in ["int"]:
+            command = (50).to_bytes(2, "little")
+        else:
+            raise TypeError(f"Datatype '{datatype}' is not supported by read_isdu()")
 
         # select module, starts with 1
         self.base.write_reg_data(
@@ -929,18 +934,27 @@ class ApModule(CpxModule):
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
 
-        ret = self.base.read_reg_data(*ap_modbus_registers.ISDU_DATA)
+        # read back the actual length from the length register
+        actual_length = int.from_bytes(self.base.read_reg_data(ap_modbus_registers.ISDU_LENGTH.register_address), 
+                                       byteorder="little")
+
+        ret = self.base.read_reg_data(ap_modbus_registers.ISDU_DATA.register_address, length=actual_length)
         Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
 
-        return ret
+        if datatype == "raw":
+            return ret[:actual_length]
+        if datatype == "str":
+            return ret.decode("ascii").split("\x00",1)[0]
+        if datatype == "int":
+            return int.from_bytes(ret, byteorder="little")
 
     @CpxBase.require_base
-    def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
+    def write_isdu(self, data: bytes|str|int, channel: int, index: int, subindex: int) -> None:
         """Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed.
 
-        :param data: Data to write
-        :type data: bytes
+        :param data: Data to write.
+        :type data: bytes|str|int
         :param channel: Channel number, starting with 0
         :type channel: int
         :param index: io-link parameter index
@@ -954,11 +968,22 @@ class ApModule(CpxModule):
         channel = (channel + 1).to_bytes(2, "little")
         index = (index).to_bytes(2, "little")
         subindex = (subindex).to_bytes(2, "little")
-        # increase length to full 16 bit registers if len(data) is odd
-        length_int = len(data) if not len(data) % 2 else len(data) + 1
-        length = (length_int).to_bytes(2, "little")
-        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        command = (101).to_bytes(2, "little")
+        
+        if isinstance(data, bytes):
+            length = (len(data)).to_bytes(2, "little")
+            command = (101).to_bytes(2, "little")
+
+        elif isinstance(data, str):
+            length = (len(data)).to_bytes(2, "little")
+            command = (101).to_bytes(2, "little")
+            data = data.encode(encoding="ascii")
+
+        elif isinstance(data, int):
+            # calculate bytelength of integer
+            length_int = (data.bit_length() + 7) // 8
+            length = length_int.to_bytes(2, "little")
+            command = (51).to_bytes(2, "little")
+            data = data.to_bytes(length_int, byteorder="little", signed=data < 0)
 
         # select module, starts with 1
         self.base.write_reg_data(
