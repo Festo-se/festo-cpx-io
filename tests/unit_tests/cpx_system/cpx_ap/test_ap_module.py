@@ -2087,9 +2087,13 @@ class TestApModule:
         with pytest.raises(CpxRequestError):
             module.write_isdu(data, channel, index, subindex)
 
-    '''
-    @pytest.mark.parametrize("input_value, expected_output", [("int", 0),("str", "A"),("raw", b"A")])
-    def test_read_isdu_different_datatypes(self, module_fixture):
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [("str", ""), ("int", 0), ("raw", b""), ("bool", False)],
+    )
+    def test_read_isdu_different_datatypes(
+        self, module_fixture, input_value, expected_output
+    ):
         """Test read_isdu"""
         # Arrange
         module = module_fixture
@@ -2097,6 +2101,53 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        module.base.read_reg_data = Mock(return_value=b"A")
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
-       '''
+        # Act
+        ret = module.read_isdu(0, 0, datatype=input_value)
+
+        # Assert
+        assert ret == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value,, length, expected_output",
+        [
+            ("str", 3, b"str"), # string
+            (1, 1, b"\x01"), # int8
+            (0xCAFE, 2, b"\xFE\xCA"), # int16
+            (0xBEBAFECA, 4 , b"\xCA\xFE\xBA\xBE"), # int32
+            (b"\xCA\xFE", 2, b"\xCA\xFE"), # bytes = raw
+            (True, 1, b"\x01"), # bool true
+            (False, 1, b"\x00"), # bool false
+        ],
+    )
+    def test_write_isdu_different_datatypes(
+        self, module_fixture, input_value, length, expected_output
+    ):
+        """Test read_isdu"""
+        # Arrange
+        module = module_fixture
+        module.position = 0
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        module.write_isdu(input_value, 0, 0)
+
+        command = 51 if isinstance(input_value, (bool, int)) else 101
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                call((1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                call(b"\x00\x00", 34004),  # INDEX
+                call(b"\x00\x00", 34005),  # SUBINDEX
+                call(length.to_bytes(2, "little"), 34006),  # LENGTH
+                call(expected_output, 34007),  # DATA
+                call(command.to_bytes(2, "little"), 34001),  # COMMAND
+            ]
+        )
+        module.base.read_reg_data.assert_has_calls([call(34000, 1)])
