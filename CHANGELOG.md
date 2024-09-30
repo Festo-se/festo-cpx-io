@@ -5,10 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## v0.6.2 - 30.09.24
 ### Fixed
 - Length calculation in IO-Link function `write_isdu()`
-- Amount of tries and check are now consistent
-- Docstrings
+- Amount of tries and check in isdu functions are now consistent
+- Fixed some Docstrings 
 
 ### Changed
 - CPX-AP ISDU access now returns only relevant and valid data. Optional parameter `data_type`
@@ -16,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  of parameter `data` and behaves accordingly
 - Made `CpxAp.add_module()` a private function as it should not be accessed by the user
 - Some minor code improvements
-- Added further explanation to example_cpxap_digital_output
+- Added further explanation to `example_cpxap_digital_output.py` regarding timeout
 - Several backend changes in ap_module to clear lately ignored pylint issues
 
 ## Added
