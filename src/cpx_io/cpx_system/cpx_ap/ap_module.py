@@ -10,6 +10,7 @@ from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import (
     SUPPORTED_DATATYPES,
     SUPPORTED_IOL_DATATYPES,
+    SUPPORTED_ISDU_DATATYPES,
 )
 from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     DIAGNOSIS_FUNCTIONS,
@@ -41,6 +42,7 @@ class ApModule(CpxModule):
     CpxAp object"""
 
     # pylint: disable=too-many-public-methods
+    # pylint: disable=too-many-lines
     # intended. Module offers many functions for user comfort
 
     def __init__(
@@ -873,7 +875,9 @@ class ApModule(CpxModule):
         return channel_params
 
     @CpxBase.require_base
-    def read_isdu(self, channel: int, index: int, subindex: int) -> bytes:
+    def read_isdu(
+        self, channel: int, index: int, subindex: int = 0, data_type: str = "raw"
+    ) -> any:
         """Read isdu (device parameter) from defined channel.
         Raises CpxRequestError when read failed.
 
@@ -881,10 +885,14 @@ class ApModule(CpxModule):
         :type channel: int
         :param index: io-link parameter index
         :type index: int
-        :param subindex: io-link parameter subindex
+        :param subindex: (optional) io-link parameter subindex, defaults to 0
         :type subindex: int
-        :return: device parameter (index/subindex) for given channel
-        :rtype: bytes
+        :param data_type: (optional) datatype for correct interptetation.
+            Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
+            supported datatypes
+        :type data_type: str
+        :return : Value depending on the datatype
+        :rtype : any
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
@@ -893,8 +901,19 @@ class ApModule(CpxModule):
         index = index.to_bytes(2, "little")
         subindex = subindex.to_bytes(2, "little")
         length = (0).to_bytes(2, "little")  # always zero when reading
+
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        command = (100).to_bytes(2, "little")
+        # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
+        # keeps the two files synchronized during development
+        if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
+            command = (100).to_bytes(2, "little")
+        elif (
+            data_type in ["int", "bool", "float"]
+            and data_type in SUPPORTED_ISDU_DATATYPES
+        ):
+            command = (50).to_bytes(2, "little")
+        else:
+            raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
         # select module, starts with 1
         self.base.write_reg_data(
@@ -929,18 +948,44 @@ class ApModule(CpxModule):
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
 
-        ret = self.base.read_reg_data(*ap_modbus_registers.ISDU_DATA)
+        # read back the actual length from the length register
+        actual_length = int.from_bytes(
+            self.base.read_reg_data(ap_modbus_registers.ISDU_LENGTH.register_address),
+            byteorder="little",
+        )
+
+        ret = self.base.read_reg_data(
+            ap_modbus_registers.ISDU_DATA.register_address, actual_length
+        )
         Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
 
-        return ret
+        if data_type == "raw":
+            return ret[:actual_length]
+        if data_type == "str":
+            return ret.decode("ascii").split("\x00", 1)[0]
+        if data_type == "int":
+            return int.from_bytes(ret, byteorder="little")
+        if data_type == "bool":
+            return bool.from_bytes(ret, byteorder="little")
+        if data_type == "float":
+            return struct.unpack("f", ret[:actual_length])[0]
+
+        # this is unnecessary but required for consistent return statements
+        raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
     @CpxBase.require_base
-    def write_isdu(self, data: bytes, channel: int, index: int, subindex: int) -> None:
+    def write_isdu(
+        self,
+        data: bytes | str | int | bool,
+        channel: int,
+        index: int,
+        subindex: int = 0,
+    ) -> None:
         """Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed.
 
-        :param data: Data to write
-        :type data: bytes
+        :param data: Data to write.
+        :type data: bytes|str|int|bool
         :param channel: Channel number, starting with 0
         :type channel: int
         :param index: io-link parameter index
@@ -954,11 +999,30 @@ class ApModule(CpxModule):
         channel = (channel + 1).to_bytes(2, "little")
         index = (index).to_bytes(2, "little")
         subindex = (subindex).to_bytes(2, "little")
-        # increase length to full 16 bit registers if len(data) is odd
-        length_int = len(data) if not len(data) % 2 else len(data) + 1
-        length = (length_int).to_bytes(2, "little")
-        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        command = (101).to_bytes(2, "little")
+
+        if isinstance(data, bytes):
+            length = (len(data)).to_bytes(2, "little")
+            command = (101).to_bytes(2, "little")  # write without byteswap
+
+        elif isinstance(data, str):
+            length = (len(data)).to_bytes(2, "little")
+            command = (101).to_bytes(2, "little")  # write without byteswap
+            data = data.encode(encoding="ascii")
+
+        elif isinstance(data, bool):
+            length = (1).to_bytes(2, "little")
+            command = (51).to_bytes(2, "little")  # write with byteswap
+            data = data.to_bytes(1, byteorder="little")
+
+        elif isinstance(data, int):
+            # calculate bytelength of integer
+            length_int = (data.bit_length() + 7) // 8
+            length = length_int.to_bytes(2, "little")
+            command = (51).to_bytes(2, "little")  # write with byteswap
+            data = data.to_bytes(length_int, byteorder="little", signed=data < 0)
+
+        else:
+            raise TypeError(f"Datatype '{type(data)}' is not supported by write_isdu()")
 
         # select module, starts with 1
         self.base.write_reg_data(

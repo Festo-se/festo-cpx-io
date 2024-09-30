@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Docstrings
 
 ### Changed
+- CPX-AP ISDU access now returns only relevant and valid data. Optional parameter `data_type`
+ defines the expected return value of `read_isdu()`. While `write_isdu()` checks for the data_type 
+ of parameter `data` and behaves accordingly
 - Made `CpxAp.add_module()` a private function as it should not be accessed by the user
 - Some minor code improvements
 - Added further explanation to example_cpxap_digital_output
