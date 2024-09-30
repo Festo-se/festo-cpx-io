@@ -34,7 +34,7 @@ stages:
 unit-test:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   before_script:
-    - python -m pip install pytest pytest-cov
+    - python -m pip install pytest pytest-cov pytest-mock
     - python -m pip install .
   script:
     - pytest tests/unit_tests -v --cov=cpx_io
