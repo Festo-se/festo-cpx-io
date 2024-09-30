@@ -31,6 +31,7 @@ from cpx_io.utils.helpers import (
     convert_to_mac_string,
 )
 from cpx_io.utils.logging import Logging
+from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
 
 
 class ApModule(CpxModule):
@@ -44,12 +45,11 @@ class ApModule(CpxModule):
 
     def __init__(
         self,
-        apdd_information: dict = None,
-        channels: tuple = None,
-        parameter_list: list = None,
-        diagnosis_list: list = None,
+        apdd_information: ApddInformation,
+        channels: tuple,
+        parameter_list: list,
+        diagnosis_list: list,
     ):
-        super().__init__(name=apdd_information.name)
         super().__init__(name=apdd_information.name)
         self.information = None
         self.name = apdd_information.name

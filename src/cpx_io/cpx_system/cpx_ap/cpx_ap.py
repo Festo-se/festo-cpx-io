@@ -138,7 +138,7 @@ class CpxAp(CpxBase):
                 )
 
             module = build_ap_module(module_apdd, info.module_code)
-            self.add_module(module, info)
+            self._add_module(module, info)
 
         if generate_docu:
             generate_system_information_file(self)
@@ -213,8 +213,10 @@ class CpxAp(CpxBase):
                 f"the timeout is limited to a minimum of {timeout_ms} ms"
             )
         Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
-        registers = timeout_ms.to_bytes(length=4, byteorder="little")
-        self.write_reg_data(registers, ap_modbus_registers.TIMEOUT.register_address)
+        value_to_write = timeout_ms.to_bytes(length=4, byteorder="little")
+        self.write_reg_data(
+            value_to_write, ap_modbus_registers.TIMEOUT.register_address
+        )
 
         # Check if it actually succeeded
         indata = int.from_bytes(
@@ -225,11 +227,13 @@ class CpxAp(CpxBase):
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
-    def add_module(self, module: ApModule, info: ApInformation) -> None:
+    def _add_module(self, module: ApModule, info: ApInformation) -> None:
         """Adds one module to the base. This is required to use the module.
         The module must be identified by the module code in info.
 
-        :param info: ApInformation object containing the read-out info from the module
+        :param module: Object of the already built module
+        :type module: ApModule
+        :param info: Object containing the read-out info from the module
         :type info: ApInformation
         """
         module.information = info
@@ -459,11 +463,11 @@ class CpxAp(CpxBase):
             "Encoder",
         ]
         # the rest of the bits are "reserved" and therefore trunctuated
-        diagnoisis_dict = {
+        diagnosis_dict = {
             diagnosis_keys[i]: bytes_to_boollist(reg)[i]
             for i in range(len(diagnosis_keys))
         }
-        return diagnoisis_dict
+        return diagnosis_dict
 
     def read_active_diagnosis_count(self) -> int:
         """Read count of currently active diagnosis from the cpx system

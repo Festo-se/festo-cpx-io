@@ -1,8 +1,8 @@
 """Contains tests for ApModule class"""
 
 from unittest.mock import Mock, call, patch
-import pytest
 from collections import namedtuple
+import pytest
 
 from cpx_io.cpx_system.cpx_base import CpxRequestError
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
