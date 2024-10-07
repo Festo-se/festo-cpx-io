@@ -5,7 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
 - Added example code for isdu read/write
+
+### Changed
+- Set dependencies to static versions
 
 ## v0.6.2 - 30.09.24
 ### Fixed
