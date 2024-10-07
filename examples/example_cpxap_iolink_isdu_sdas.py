@@ -20,7 +20,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
         param = io_link_master.read_fieldbus_parameters()
 
     # Read raw isdu value
-    ret = io_link_master.read_isdu(SDAS_CHANNEL, 0x0010) # subindex is optional
+    ret = io_link_master.read_isdu(SDAS_CHANNEL, 0x0010)  # subindex is optional
     # without specifying the data_type, this returns a bytes object. Since in io-Link
     # strings are encoded "msb first", no change is required in decoding. For example:
     print(ret.decode("ascii"))
