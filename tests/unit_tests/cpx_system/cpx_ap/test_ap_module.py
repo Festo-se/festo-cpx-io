@@ -2112,13 +2112,13 @@ class TestApModule:
     @pytest.mark.parametrize(
         "input_value,, length, expected_output",
         [
-            ("str", 3, b"str"), # string
-            (1, 1, b"\x01"), # int8
-            (0xCAFE, 2, b"\xFE\xCA"), # int16
-            (0xBEBAFECA, 4 , b"\xCA\xFE\xBA\xBE"), # int32
-            (b"\xCA\xFE", 2, b"\xCA\xFE"), # bytes = raw
-            (True, 1, b"\x01"), # bool true
-            (False, 1, b"\x00"), # bool false
+            ("str", 3, b"str"),  # string
+            (1, 1, b"\x01"),  # int8
+            (0xCAFE, 2, b"\xFE\xCA"),  # int16
+            (0xBEBAFECA, 4, b"\xCA\xFE\xBA\xBE"),  # int32
+            (b"\xCA\xFE", 2, b"\xCA\xFE"),  # bytes = raw
+            (True, 1, b"\x01"),  # bool true
+            (False, 1, b"\x00"),  # bool false
         ],
     )
     def test_write_isdu_different_datatypes(
