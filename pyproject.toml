@@ -19,10 +19,10 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.10"
 dependencies = [
-    'pymodbus=3.7.0', 
-    'rich=13.7.1',
-    'platformdirs=4.2.2',
-    'requests=2.32.3'
+    'pymodbus==3.7.0', 
+    'rich==13.7.1',
+    'platformdirs==4.2.2',
+    'requests==2.32.3'
 ]
 
 [project.urls]
