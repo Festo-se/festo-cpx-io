@@ -179,6 +179,25 @@ class TestCpxE:
         assert isinstance(cpx_e.modules[3], CpxE16Di)
         assert isinstance(cpx_e.modules[4], CpxE16Di)
 
+    def test_constructor_with_typecode_NI3M4NO(self):  # pylint: disable="invalid-name"
+        """Test constructor with typecode"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE("60E-EP-NI3M4NO")
+
+        # Assert
+        assert len(cpx_e.modules) == 9
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE4AiUI)
+        assert isinstance(cpx_e.modules[2], CpxE16Di)
+        assert isinstance(cpx_e.modules[3], CpxE16Di)
+        assert isinstance(cpx_e.modules[4], CpxE16Di)
+        assert isinstance(cpx_e.modules[5], CpxE4AoUI)
+        assert isinstance(cpx_e.modules[6], CpxE4AoUI)
+        assert isinstance(cpx_e.modules[7], CpxE4AoUI)
+        assert isinstance(cpx_e.modules[8], CpxE4AoUI)
+
     def test_constructor_with_typecode_NI12M(self):  # pylint: disable="invalid-name"
         """Test constructor with typecode"""
         # Arrange

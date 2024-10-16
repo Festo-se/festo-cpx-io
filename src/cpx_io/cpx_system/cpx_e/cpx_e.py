@@ -50,13 +50,53 @@ class CpxE(CpxBase):
             module_list = modules_value
         elif isinstance(modules_value, str):
             Logging.logger.info("Use typecode %s for module setup", modules_value)
-            module_list = module_list_from_typecode(modules_value, CPX_E_MODULE_ID_DICT)
+            cpxe_typecode = self.unwrap_cpxe_typecode(modules_value)
+            module_list = module_list_from_typecode(cpxe_typecode, CPX_E_MODULE_ID_DICT)
         else:
             raise CpxInitError
 
         for mod in module_list:
             self.add_module(mod)
 
+    @staticmethod
+    def unwrap_cpxe_typecode(typecode: str) -> str:
+        """Takes care of the cpx-e typecode merging more than two of the same module
+        type into a number. For example MMM will be merged to 3M while MM stays."""
+        typecode_header = typecode[:7]
+        typecode_config = typecode[7:]
+
+        if typecode_header == "60E-EP-":
+            result = ""
+            i = 0
+            while i < len(typecode_config):
+                if typecode_config[i].isdigit():
+                    num = ""
+                    while i < len(typecode_config) and typecode_config[i].isdigit():
+                        num += typecode_config[i]
+                        i += 1
+                    # if a number is found, look for the key in the dict
+                    for key in CPX_E_MODULE_ID_DICT:
+                        if typecode_config.startswith(key, i):
+                            result += key * int(num)
+                            i += len(key) - 1
+                            break
+                else:
+                    # TODO: check if this is needed
+                    found = False
+                    for key in CPX_E_MODULE_ID_DICT:
+                        if typecode_config.startswith(key, i):
+                            result += key
+                            i += len(key) - 1
+                            found = True
+                            break
+                    if not found:
+                        i += 1
+                i += 1
+            return typecode_header + result
+
+        raise TypeError("Your CPX-E configuration must include the Ethernet/IP "
+                        "Busmodule to be compatible with this software")
+    
     def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number
 
@@ -205,3 +245,4 @@ class CpxE(CpxBase):
         self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
+    

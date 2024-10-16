@@ -1,5 +1,5 @@
 """Helper functions"""
-
+#from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DICT
 
 def div_ceil(x_val: int, y_val: int) -> int:
     """Divides two integers and returns the ceiled result"""
@@ -26,34 +26,9 @@ def convert_to_mac_string(values: list[int]) -> str:
     """Convert list of uint8 to mac adderss string."""
     return ":".join(format(x, "02x") for x in values)
 
-def unwrap_cpxe_typecode(typecode: str) -> str:
-    """Takes care of the cpx-e typecode merging more than two of the same module
-    type into a number. For example MMM will be merged to 3M while MM stays."""
-    typecode_header = typecode[:7]
-    typecode_config = typecode[7:]
-
-    if typecode_header == "60E-EP-":
-        result = ""
-        i = 0
-        while i < len(typecode_config):
-            if typecode_config[i].isdigit():
-                num = ""
-                while i < len(typecode_config) and typecode_config[i].isdigit():
-                    num += typecode_config[i]
-                    i += 1
-                result += typecode_config[i] * int(num)
-            else:
-                result += typecode_config[i]
-            i += 1
-        return typecode_header + result
-
-    raise TypeError("Your CPX-E configuration must include the Ethernet/IP "
-                    "Busmodule to be compatible with this software")
-
 def module_list_from_typecode(typecode: str, module_id_dict: dict) -> list:
     """Creates a module list from a provided typecode."""
     module_list = []
-    typecode = unwrap_cpxe_typecode(typecode)
     for i in range(len(typecode)):
         substring = typecode[i:]
         for key, value in module_id_dict.items():
