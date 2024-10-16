@@ -150,6 +150,67 @@ class TestCpxE:
         assert isinstance(cpx_e.modules[3], CpxE4AoUI)
         assert isinstance(cpx_e.modules[4], CpxE8Do)
 
+    def test_constructor_with_typecode_NIMM(self):  # pylint: disable="invalid-name"
+        """Test constructor with typecode"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE("60E-EP-NIMM")
+
+        # Assert
+        assert len(cpx_e.modules) == 4
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE4AiUI)
+        assert isinstance(cpx_e.modules[2], CpxE16Di)
+        assert isinstance(cpx_e.modules[3], CpxE16Di)
+
+    def test_constructor_with_typecode_NI3M(self):  # pylint: disable="invalid-name"
+        """Test constructor with typecode"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE("60E-EP-NI3M")
+
+        # Assert
+        assert len(cpx_e.modules) == 5
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE4AiUI)
+        assert isinstance(cpx_e.modules[2], CpxE16Di)
+        assert isinstance(cpx_e.modules[3], CpxE16Di)
+        assert isinstance(cpx_e.modules[4], CpxE16Di)
+
+    def test_constructor_with_typecode_NI12M(self):  # pylint: disable="invalid-name"
+        """Test constructor with typecode"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE("60E-EP-NI12M")
+
+        # Assert
+        assert len(cpx_e.modules) == 14
+        assert isinstance(cpx_e.modules[0], CpxEEp)
+        assert isinstance(cpx_e.modules[1], CpxE4AiUI)
+        assert isinstance(cpx_e.modules[2], CpxE16Di)
+        assert isinstance(cpx_e.modules[3], CpxE16Di)
+        assert isinstance(cpx_e.modules[4], CpxE16Di)
+        assert isinstance(cpx_e.modules[5], CpxE16Di)
+        assert isinstance(cpx_e.modules[6], CpxE16Di)
+        assert isinstance(cpx_e.modules[7], CpxE16Di)
+        assert isinstance(cpx_e.modules[8], CpxE16Di)
+        assert isinstance(cpx_e.modules[9], CpxE16Di)
+        assert isinstance(cpx_e.modules[10], CpxE16Di)
+        assert isinstance(cpx_e.modules[11], CpxE16Di)
+        assert isinstance(cpx_e.modules[12], CpxE16Di)
+        assert isinstance(cpx_e.modules[13], CpxE16Di)
+
+    def test_constructor_with_incorrect_typecode(self):
+        """Test constructor with typecode"""
+        # Arrange
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            CpxE("60E-EC-NIM")
+
     def test_name_access_modified_modules_custom_names_removed(self):
         """Test name access"""
         # Arrange
