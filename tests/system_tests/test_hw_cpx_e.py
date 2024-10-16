@@ -1,6 +1,5 @@
 """Tests for cpx-e system"""
 
-import struct
 import time
 import pytest
 
@@ -150,6 +149,35 @@ def test_2modules(test_cpxe):
     assert isinstance(test_cpxe.modules[2], CpxE8Do)
     assert test_cpxe.modules[2] == e8do
 
+def test_8do_independent_write(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+
+    assert e8do.read_channels() == [False, False, False, False, False, False, False, False]
+
+    e8do.write_channel(0, True)
+    time.sleep(0.05)
+    assert e8do.read_channels() == [True, False, False, False, False, False, False, False]
+
+    e8do.write_channel(1, True)
+    time.sleep(0.05)
+    assert e8do.read_channels() == [True, True, False, False, False, False, False, False]
+
+    e8do.set_channel(7)
+    time.sleep(0.05)
+    assert e8do.read_channels() == [True, True, False, False, False, False, False, True]
+
+    time.sleep(0.05)
+    e8do.write_channel(1, False)
+    assert e8do.read_channels() == [True, False, False, False, False, False, False, True]
+
+    e8do.clear_channel(0)
+    time.sleep(0.05)
+    assert e8do.read_channels() == [False, False, False, False, False, False, False, True]
+
+    e8do.toggle_channel(7)
+    time.sleep(0.05)
+    assert e8do.read_channels() == [False, False, False, False, False, False, False, False]
 
 def test_8DO_diagnostics(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())

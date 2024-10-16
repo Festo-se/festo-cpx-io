@@ -70,9 +70,7 @@ class CpxE8Do(CpxModule):
         :value: Value that should be written to the channel
         :type value: bool
         """
-        data = bytes_to_boollist(
-            self.base.read_reg_data(self.system_entry_registers.outputs)
-        )
+        data = self.read_channels()
         data[channel] = value
         reg = boollist_to_bytes(data)
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
