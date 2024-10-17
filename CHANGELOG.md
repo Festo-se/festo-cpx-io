@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## v0.6.3 - 17.10.24
 ### Fixed
 - All "renaming modules" examples
 - Issue with ´CpxE(TYPECODE)´ containing more than two of the same module type
