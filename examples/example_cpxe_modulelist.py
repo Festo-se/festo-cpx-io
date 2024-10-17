@@ -16,6 +16,6 @@ with CpxE(ip_address="192.168.1.1", modules=modules) as myCPX:
     module_0 = myCPX.modules[0]  # access by index
     module_1 = myCPX.cpxe16di  # access by name (automatically generated)
 
-    # rename modules
-    myCPX.modules[0] = "ep_module"  # access by index
-    myCPX.cpxe16di = "digital_input"  # access by name (automatically generated)
+    # rename modules (also see example_cpxe_add_module.py)
+    myCPX.modules[0].name = "ep_module"  # access by index
+    myCPX.cpxe16di.name = "digital_input_module"  # access by name
