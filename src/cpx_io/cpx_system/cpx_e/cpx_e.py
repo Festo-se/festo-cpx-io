@@ -71,6 +71,7 @@ class CpxE(CpxBase):
             while i < len(typecode_config):
                 if typecode_config[i].isdigit():
                     num = ""
+                    # look if there are following numbers
                     while i < len(typecode_config) and typecode_config[i].isdigit():
                         num += typecode_config[i]
                         i += 1
@@ -78,25 +79,19 @@ class CpxE(CpxBase):
                     for key in CPX_E_MODULE_ID_DICT:
                         if typecode_config.startswith(key, i):
                             result += key * int(num)
+                            # set i to the next index after the found key
                             i += len(key) - 1
                             break
                 else:
-                    # TODO: check if this is needed
-                    found = False
-                    for key in CPX_E_MODULE_ID_DICT:
-                        if typecode_config.startswith(key, i):
-                            result += key
-                            i += len(key) - 1
-                            found = True
-                            break
-                    if not found:
-                        i += 1
+                    result += typecode_config[i]
                 i += 1
             return typecode_header + result
 
-        raise TypeError("Your CPX-E configuration must include the Ethernet/IP "
-                        "Busmodule to be compatible with this software")
-    
+        raise TypeError(
+            "Your CPX-E configuration must include the Ethernet/IP "
+            "Busmodule to be compatible with this software"
+        )
+
     def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number
 
@@ -245,4 +240,3 @@ class CpxE(CpxBase):
         self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")
         return module
-    

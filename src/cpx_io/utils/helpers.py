@@ -1,5 +1,5 @@
 """Helper functions"""
-#from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DICT
+
 
 def div_ceil(x_val: int, y_val: int) -> int:
     """Divides two integers and returns the ceiled result"""
@@ -25,6 +25,7 @@ def convert_octett_to_uint32(octetts: str) -> int:
 def convert_to_mac_string(values: list[int]) -> str:
     """Convert list of uint8 to mac adderss string."""
     return ":".join(format(x, "02x") for x in values)
+
 
 def module_list_from_typecode(typecode: str, module_id_dict: dict) -> list:
     """Creates a module list from a provided typecode."""
