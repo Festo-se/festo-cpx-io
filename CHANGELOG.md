@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- Issue with ´CpxE(TYPECODE)´ containing more than two of the same module type
 - CPX-E-8DO `write_channel()` now behaves correctly and does not reset other channels
 
 ### Added
