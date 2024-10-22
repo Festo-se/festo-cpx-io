@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+- Fixed non ascii characters in user path leading to exception
+
 ## v0.6.3 - 17.10.24
 ### Fixed
 - All "renaming modules" examples
