@@ -121,7 +121,7 @@ def generate_system_information_file(ap_system) -> None:
         ap_system.docu_path
         + f"/system_information_{ap_system.ip_address.replace('.','-')}.json",
         "w",
-        encoding="ascii",
+        encoding="utf-8",
     ) as f:
         f.write(json.dumps(system_data, indent=4))
 
@@ -130,7 +130,7 @@ def generate_system_information_file(ap_system) -> None:
         ap_system.docu_path
         + f"/system_information_{ap_system.ip_address.replace('.','-')}.md",
         "w",
-        encoding="ascii",
+        encoding="utf-8",
     ) as f:
         f.write(f"# {system_data['Information']}\n")
         f.write(
