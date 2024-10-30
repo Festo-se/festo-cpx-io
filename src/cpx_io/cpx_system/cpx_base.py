@@ -87,13 +87,13 @@ class CpxBase:
 
         # Read device information
         rreq = ReadDeviceInformationRequest(0x1, 0)
-        rres = self.client.execute(rreq)
+        rres = self.client.execute(False, rreq)
         dev_info["vendor_name"] = rres.information[0].decode("ascii")
         dev_info["product_code"] = rres.information[1].decode("ascii")
         dev_info["revision"] = rres.information[2].decode("ascii")
 
         rreq = ReadDeviceInformationRequest(0x2, 0)
-        rres = self.client.execute(rreq)
+        rres = self.client.execute(False, rreq)
         dev_info["vendor_url"] = rres.information[3].decode("ascii")
         dev_info["product_name"] = rres.information[4].decode("ascii")
         dev_info["model_name"] = rres.information[5].decode("ascii")
