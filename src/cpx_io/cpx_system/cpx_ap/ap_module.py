@@ -468,7 +468,7 @@ class ApModule(CpxModule):
         self.write_channel(channel, True)
 
     @CpxBase.require_base
-    def clear_channel(self, channel: int) -> None:
+    def reset_channel(self, channel: int) -> None:
         """Set one channel to logic low level.
 
         :param channel: Channel number, starting with 0

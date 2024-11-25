@@ -431,7 +431,7 @@ def test_12Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(12) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
     time.sleep(0.05)
     assert m.read_output_channel(0) is False
     assert m.read_channel(12) is False
@@ -441,7 +441,7 @@ def test_12Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(12) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
 
 
 def test_12Di4Do_channel_out_of_range(test_cpxap):
@@ -451,7 +451,7 @@ def test_12Di4Do_channel_out_of_range(test_cpxap):
         m.set_channel(4)
 
     with pytest.raises(IndexError):
-        m.clear_channel(4)
+        m.reset_channel(4)
 
     with pytest.raises(IndexError):
         m.toggle_channel(4)
@@ -580,7 +580,7 @@ def test_8do(test_cpxap):
         m.write_channel(i, True)
         time.sleep(0.05)
         assert m.read_channel(i) is True
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -929,7 +929,7 @@ def test_vabx_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -993,7 +993,7 @@ def test_vaem_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -1057,7 +1057,7 @@ def test_vmpal_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -1121,7 +1121,7 @@ def test_vaba_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)

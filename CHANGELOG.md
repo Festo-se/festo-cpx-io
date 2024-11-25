@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renaming modules manually now checks for duplicates and increments suffix if needed
 
 ### Changed
+- Renamed `clear_channel()` to `reset_channel()`
 - `print_system_information` now prints enum strings for parameters
 
 ### Added

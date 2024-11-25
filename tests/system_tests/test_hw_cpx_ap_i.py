@@ -349,7 +349,7 @@ def test_4Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(4) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
     time.sleep(0.05)
     assert m.read_output_channel(0) is False
     assert m.read_channel(4) is False
@@ -359,7 +359,7 @@ def test_4Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(4) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
 
 
 def test_4Di4Do_parameter_write_debounce(test_cpxap):
@@ -1351,7 +1351,7 @@ def test_vabx_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)

@@ -22,9 +22,9 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     # using the sleep function from the time module to wait. Keep in mind that this will only work
     # if you disable the modbus timeout by passing timeout=0 in the CpxAp constructor.
 
-    # set, clear, toggle a digital output
+    # set, reset, toggle a digital output
     dido.set_channel(0)  # sets one channel, returns none
-    dido.clear_channel(0)  # clear one channel, returns none
+    dido.reset_channel(0)  # reset one channel, returns none
     dido.toggle_channel(0)  # toggle the state of one channel, returns none
 
     # sets all channel to list values [0,1,2,3] and returns none

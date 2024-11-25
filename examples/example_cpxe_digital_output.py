@@ -21,7 +21,7 @@ with CpxE(ip_address="192.168.1.1", modules=[CpxEEp(), CpxE8Do()]) as myCPX:
 
     # set and reset or toggle the state of one channel
     myCPX.cpxe8do.set_channel(0)
-    myCPX.cpxe8do.clear_channel(0)
+    myCPX.cpxe8do.reset_channel(0)
     myCPX.cpxe8do.toggle_channel(0)
 
     # configure the diagnostics of the module

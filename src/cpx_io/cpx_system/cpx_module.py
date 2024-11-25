@@ -44,7 +44,10 @@ class CpxModule:
 
     def _set_name(self, name_requested: str) -> str:
         """Checks if the name already exists and adds counter as suffix"""
-        module_name_list = [module.name for module in self.base.modules]
+        if self.base:
+            module_name_list = [module.name for module in self.base.modules]
+        else:
+            module_name_list = []
         i = 1
         actual_name = name_requested
         while actual_name in module_name_list:

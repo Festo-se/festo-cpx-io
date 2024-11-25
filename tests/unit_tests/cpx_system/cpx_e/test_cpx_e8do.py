@@ -194,8 +194,8 @@ class TestCpxE8Do:
         # Assert
         cpxe8do.base.write_reg_data.assert_called_with(b"\xAF", 0)
 
-    def test_clear_channel(self):
-        """Test clear channel"""
+    def test_reset_channel(self):
+        """Test reset channel"""
         # Arrange
         cpxe8do = CpxE8Do()
         cpxe8do.system_entry_registers = SystemEntryRegisters(outputs=0)
@@ -204,7 +204,7 @@ class TestCpxE8Do:
         )
 
         # Act
-        cpxe8do.clear_channel(1)
+        cpxe8do.reset_channel(1)
 
         # Assert
         cpxe8do.base.write_reg_data.assert_called_with(b"\xAC", 0)

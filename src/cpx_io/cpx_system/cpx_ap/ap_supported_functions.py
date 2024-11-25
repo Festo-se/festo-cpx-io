@@ -76,7 +76,7 @@ SUPPORTED_PRODUCT_FUNCTIONS_DICT = {
         ProductCategory.MPA_L,
         ProductCategory.MPA_S,
     ],
-    "clear_channel": [
+    "reset_channel": [
         ProductCategory.DIGITAL,
         ProductCategory.VTOM,
         ProductCategory.VTSA,
@@ -180,7 +180,7 @@ OUTPUT_FUNCTIONS = {
     "write_channels",
     "write_channel",
     "set_channel",
-    "clear_channel",
+    "reset_channel",
     "toggle_channel",
 }
 PARAMETER_FUNCTIONS = {"write_module_parameter", "read_module_parameter"}

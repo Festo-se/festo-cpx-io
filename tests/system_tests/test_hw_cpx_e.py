@@ -127,7 +127,7 @@ def test_2modules(test_cpxe):
     time.sleep(0.05)
     assert e16di.read_channel(0) is True
 
-    assert e8do.clear_channel(0) is None
+    assert e8do.reset_channel(0) is None
     assert e8do.read_channel(0) is False
     time.sleep(0.05)
     assert e16di.read_channel(0) is False
@@ -137,7 +137,7 @@ def test_2modules(test_cpxe):
     time.sleep(0.05)
     assert e16di.read_channel(0) is True
 
-    assert e8do.clear_channel(0) is None
+    assert e8do.reset_channel(0) is None
     assert e8do.read_channel(0) is False
     time.sleep(0.05)
     assert e16di.read_channel(0) is False
@@ -208,7 +208,7 @@ def test_8do_independent_write(test_cpxe):
         True,
     ]
 
-    e8do.clear_channel(0)
+    e8do.reset_channel(0)
     time.sleep(0.05)
     assert e8do.read_channels() == [
         False,

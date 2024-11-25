@@ -1301,8 +1301,8 @@ class TestApModule:
         module.write_channel.assert_called_with(input_value, True)
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
-    def test_clear_channel_correct_values(self, module_fixture, input_value):
-        """Test clear channel"""
+    def test_reset_channel_correct_values(self, module_fixture, input_value):
+        """Test reset channel"""
         # Arrange
         module = module_fixture
         module.base = Mock()
@@ -1324,7 +1324,7 @@ class TestApModule:
         ] * 4
 
         # Act
-        module.clear_channel(input_value)
+        module.reset_channel(input_value)
 
         # Assert
         module.write_channel.assert_called_with(input_value, False)
@@ -1437,7 +1437,7 @@ class TestApModule:
 
         # Act & Assert
         with pytest.raises(TypeError):
-            module.clear_channel(input_value)
+            module.reset_channel(input_value)
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
     def test_toggle_channel_wrong_output_type(self, module_fixture, input_value):
