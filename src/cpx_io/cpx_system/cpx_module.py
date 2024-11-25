@@ -49,16 +49,16 @@ class CpxModule:
         else:
             module_name_list = []
         i = 1
-        actual_name = name_requested
-        while actual_name in module_name_list:
-            actual_name = f"{self.name}_{i}"
+        temp_name = name_requested
+        while temp_name in module_name_list:
+            temp_name = f"{name_requested}_{i}"
             i += 1
-        if actual_name != name_requested:
+        if temp_name != name_requested:
             Logging.logger.info(
                 f"The name {name_requested} was already taken. "
-                f"Module was renamed {actual_name}"
+                f"Module was renamed {temp_name}"
             )
-        return actual_name
+        return temp_name
 
     def configure(self, base: CpxBase, position: int) -> None:
         """Setup a module with the according base and position in the system

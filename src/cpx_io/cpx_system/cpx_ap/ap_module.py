@@ -343,7 +343,9 @@ class ApModule(CpxModule):
         # IO-Link:
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             if not all(isinstance(d, bytes) for d in data):
-                raise TypeError(f"{self.name}: datatype for IO-Link channels must be bytes")
+                raise TypeError(
+                    f"{self.name}: datatype for IO-Link channels must be bytes"
+                )
 
             byte_channel_size = self.channels.inouts[0].array_size
 
