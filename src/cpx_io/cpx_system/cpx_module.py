@@ -34,13 +34,28 @@ class CpxModule:
         Updates base module list if base exists.
         """
         if name_value:
-            self._name = name_value
+            self._name = self._set_name(name_value)
         else:
             # Use class name (lower cased) as default value
             self._name = type(self).__name__.lower()
 
         if self.base:
             self.base.update_module_names()
+
+    def _set_name(self, name_requested: str) -> str:
+        """Checks if the name already exists and adds counter as suffix"""
+        module_name_list = [module.name for module in self.base.modules]
+        i = 1
+        actual_name = name_requested
+        while actual_name in module_name_list:
+            actual_name = f"{self.name}_{i}"
+            i += 1
+        if actual_name != name_requested:
+            Logging.logger.info(
+                f"The name {name_requested} was already taken. "
+                f"Module was renamed {actual_name}"
+            )
+        return actual_name
 
     def configure(self, base: CpxBase, position: int) -> None:
         """Setup a module with the according base and position in the system
@@ -53,14 +68,7 @@ class CpxModule:
         self.base = base
         self.position = position
 
-        # if name already exists in module list, add a counter as suffix
-        module_name_list = [module.name for module in self.base.modules]
-        i = 1
-        temp_name = self.name
-        while temp_name in module_name_list:
-            temp_name = f"{self.name}_{i}"
-            i += 1
-        self.name = temp_name
+        self.name = self._set_name(self.name)
 
         self.system_entry_registers.outputs = self.base.next_output_register
         self.system_entry_registers.inputs = self.base.next_input_register
