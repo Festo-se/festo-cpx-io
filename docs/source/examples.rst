@@ -26,6 +26,12 @@ digital output
     
 :download:`Download Example <../../examples/example_cpxap_digital_output.py>`
 
+simple diagnosis
+^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_simple_diagnosis.py
+    
+:download:`Download Example <../../examples/example_cpxap_simple_diagnosis.py>`
+
 io link with sdas
 ^^^^^^^^^^^^^^^^^
 .. literalinclude:: ../../examples/example_cpxap_iolink_sdas.py
