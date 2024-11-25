@@ -104,8 +104,8 @@ class CpxE4Iol(CpxModule):
         return self.read_channels()[channel]
 
     @CpxBase.require_base
-    def write_channel(self, channel: int, data: list[int]) -> None:
-        """set one channel to list of uint16 values
+    def write_channel(self, channel: int, data: bytes) -> None:
+        """set one channel to a value
 
         :param channel: Channel number, starting with 0
         :type channel: int
@@ -118,6 +118,27 @@ class CpxE4Iol(CpxModule):
             data, self.system_entry_registers.outputs + channel_size * channel
         )
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
+
+    @CpxBase.require_base
+    def write_channels(self, data: list[bytes]) -> None:
+        """set all channels to values from a list of 4 elements
+
+        :param data: Values to write
+        :type data: list[bytes]
+        """
+        channel_size = self.module_output_size
+
+        if any(len(d) != channel_size for d in data):
+            raise ValueError(
+                f"Your current IO-Link datalength {channel_size} does not match"
+                f"the provided bytes length."
+            )
+        if len(data) != 4:
+            raise ValueError(f"Data len error: expected: 4, got: {len(data)}")
+
+        all_channel_data = bytes(reversed(data))
+        self.base.write_reg_data(all_channel_data, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting all channels to {data}")
 
     @CpxBase.require_base
     def configure_monitoring_uload(self, value: bool) -> None:

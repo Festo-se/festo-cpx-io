@@ -49,6 +49,7 @@ SUPPORTED_PRODUCT_FUNCTIONS_DICT = {
     "write_channels": [
         ProductCategory.ANALOG,
         ProductCategory.DIGITAL,
+        ProductCategory.IO_LINK,
         ProductCategory.VTOM,
         ProductCategory.VTSA,
         ProductCategory.VTUG,

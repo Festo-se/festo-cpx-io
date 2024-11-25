@@ -339,20 +339,45 @@ class ApModule(CpxModule):
             )
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+
+        # IO-Link:
+        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
+            if not all(isinstance(d, bytes) for d in data):
+                raise TypeError(f"{self.name}: datatype for IO-Link channels must be bytes")
+
+            byte_channel_size = self.channels.inouts[0].array_size
+
+            if any(len(d) != byte_channel_size for d in data):
+                raise ValueError(
+                    f"Your current IO-Link datalength {byte_channel_size} does "
+                    f"not match the provided bytes length."
+                )
+
+            all_channel_data = bytes(reversed(data))
+            self.base.write_reg_data(
+                all_channel_data, self.system_entry_registers.outputs
+            )
+
+            Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")
+            return
+
+        # BOOL: all data can be written with one register write
         if all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
             isinstance(d, bool) for d in data
         ):
             reg = boollist_to_bytes(data)
             self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-            Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
+            Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
             return
 
-        # Handle mixed channels
+        # MIXED: Since the channels may be of different types, they are written
+        # individually. This is not the best performance but it works with all types.
         for i, c in enumerate(self.channels.outputs):
             if c.data_type in SUPPORTED_DATATYPES:
                 self.write_channel(i, data[i])
             else:
                 raise TypeError(f"Output data type {c.data_type} is not supported")
+        Logging.logger.info(f"{self.name}: Setting channels to {data}")
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:

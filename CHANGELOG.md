@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- Docstrings and types of CpxE4Iol `write_channel()`
 - Renaming modules manually now checks for duplicates and increments suffix if needed
 
 ### Changed
@@ -13,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `print_system_information` now prints enum strings for parameters
 
 ### Added
+- `write_channels()` function for IO-Link masters
 - Simple diagnosis example
 - Utils to documentation
 
