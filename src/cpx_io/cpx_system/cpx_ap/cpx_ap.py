@@ -297,7 +297,7 @@ class CpxAp(CpxBase):
                 r_w = "R/W" if p.is_writable else "R"
                 print(
                     f"{f'  > Read {p.name} (ID {i}):':<64}"
-                    f"{f'{m.read_module_parameter(i)} {p.unit}':<32}"
+                    f"{f'{m.read_module_parameter_enum_str(i)} {p.unit}':<32}"
                     f"({r_w})"
                 )
 
