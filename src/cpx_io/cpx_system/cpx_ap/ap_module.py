@@ -355,9 +355,18 @@ class ApModule(CpxModule):
                     f"not match the provided bytes length."
                 )
 
-            all_channel_data = bytes(reversed(data))
+            # Join all channel values but invers the 16 bit register order so it's least
+            # significant register first. The byteorder in one register should stay.
+            all_register_data = b""
+            for d in data:
+                # Split the byte object into pairs of bytes = 16 bit registers
+                pairs = [d[i : i + 2] for i in range(0, len(d), 2)]
+                # Reverse the order of the pairs
+                reversed_pairs = pairs[::-1]
+                all_register_data += b"".join(reversed_pairs)
+
             self.base.write_reg_data(
-                all_channel_data, self.system_entry_registers.outputs
+                all_register_data, self.system_entry_registers.outputs
             )
 
             Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")

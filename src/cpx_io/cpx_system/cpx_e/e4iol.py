@@ -112,10 +112,16 @@ class CpxE4Iol(CpxModule):
         :param data: Value to write
         :type data: bytes
         """
-        channel_size = self.module_output_size
+        byte_channel_size = self.module_output_size * 2
+
+        if len(data) != byte_channel_size:
+            raise ValueError(
+                f"Your current IO-Link datalength {byte_channel_size} does not match"
+                f"the provided bytes length."
+            )
 
         self.base.write_reg_data(
-            data, self.system_entry_registers.outputs + channel_size * channel
+            data, self.system_entry_registers.outputs + byte_channel_size // 2 * channel
         )
         Logging.logger.info(f"{self.name}: Setting channel {channel} to {data}")
 
@@ -126,7 +132,7 @@ class CpxE4Iol(CpxModule):
         :param data: Values to write
         :type data: list[bytes]
         """
-        channel_size = self.module_output_size
+        channel_size = self.module_output_size * 2
 
         if any(len(d) != channel_size for d in data):
             raise ValueError(
@@ -136,8 +142,17 @@ class CpxE4Iol(CpxModule):
         if len(data) != 4:
             raise ValueError(f"Data len error: expected: 4, got: {len(data)}")
 
-        all_channel_data = bytes(reversed(data))
-        self.base.write_reg_data(all_channel_data, self.system_entry_registers.outputs)
+        # Join all channel values but invers the 16 bit register order so it's least
+        # significant register first. The byteorder in one register should stay.
+        all_register_data = b""
+        for d in data:
+            # Split the byte object into pairs of bytes = 16 bit registers
+            pairs = [d[i : i + 2] for i in range(0, len(d), 2)]
+            # Reverse the order of the pairs
+            reversed_pairs = pairs[::-1]
+            all_register_data += b"".join(reversed_pairs)
+
+        self.base.write_reg_data(all_register_data, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting all channels to {data}")
 
     @CpxBase.require_base

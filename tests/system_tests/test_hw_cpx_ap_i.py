@@ -82,12 +82,14 @@ def test_module_naming(test_cpxap):
     test_cpxap.cpx_ap_i_ep_m12.name = "test"
     assert isinstance(test_cpxap.test, ApModule)
 
+
 def test_module_naming_same_name(test_cpxap):
     assert isinstance(test_cpxap.cpx_ap_i_ep_m12, ApModule)
     test_cpxap.modules[1].name = "test"
     test_cpxap.modules[2].name = "test"
     assert test_cpxap.test
     assert test_cpxap.test_1
+
 
 def test_modules(test_cpxap):
     assert all(isinstance(m, ApModule) for m in test_cpxap.modules)
@@ -892,6 +894,56 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
 
     m.write_channel(emcs_channel, b"\x00\x01")  # Move
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+
+def test_4iol_write_channels_with_emcs(test_cpxap):
+    m = test_cpxap.modules[4]
+    assert m.apdd_information.module_type == "CPX-AP-I-4IOL-M12 Variant 8"
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # Act & Assert
+    m.write_channels(
+        [
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x02",
+        ]
+    )  # Move
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channels(
+        [
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x01",
+        ]
+    )  # Move
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
         time.sleep(0.01)

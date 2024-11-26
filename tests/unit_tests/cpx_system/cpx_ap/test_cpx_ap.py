@@ -730,9 +730,8 @@ class TestCpxAp:
                 ([], [], []),
                 [],
                 [],
-            )
+            ),
         ]
-
 
         # Assert
         assert ap_fixture.modules[0].name == "name1"
