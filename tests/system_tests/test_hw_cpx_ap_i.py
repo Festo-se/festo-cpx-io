@@ -82,6 +82,12 @@ def test_module_naming(test_cpxap):
     test_cpxap.cpx_ap_i_ep_m12.name = "test"
     assert isinstance(test_cpxap.test, ApModule)
 
+def test_module_naming_same_name(test_cpxap):
+    assert isinstance(test_cpxap.cpx_ap_i_ep_m12, ApModule)
+    test_cpxap.modules[1].name = "test"
+    test_cpxap.modules[2].name = "test"
+    assert test_cpxap.test
+    assert test_cpxap.test_1
 
 def test_modules(test_cpxap):
     assert all(isinstance(m, ApModule) for m in test_cpxap.modules)

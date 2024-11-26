@@ -659,7 +659,8 @@ class ApModule(CpxModule):
         parameter = self.get_parameter_from_identifier(parameter)
 
         if not parameter.enums:
-            raise TypeError(f"Parameter {parameter} is not an enum ")
+            Logging.logger.info(f"{parameter} has no enums. Returning values instead.")
+            return values
 
         enum_id_to_name_dict = {v: k for k, v in parameter.enums.enum_values.items()}
 
