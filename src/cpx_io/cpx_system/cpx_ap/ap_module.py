@@ -30,6 +30,7 @@ from cpx_io.utils.helpers import (
     instance_range_check,
     convert_uint32_to_octett,
     convert_to_mac_string,
+    invert_register_order,
 )
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
@@ -247,13 +248,10 @@ class ApModule(CpxModule):
                     data[i : i + byte_channel_size]
                     for i in range(0, len(data), byte_channel_size)
                 ]
+
                 corrected_channels = []
                 for c in channels:
-                    # Split the byte object into pairs of bytes = 16 bit registers
-                    pairs = [c[i : i + 2] for i in range(0, len(c), 2)]
-                    # Reverse the order of the pairs
-                    reversed_pairs = pairs[::-1]
-                    corrected_channels.append(b"".join(reversed_pairs))
+                    corrected_channels.append(invert_register_order(c))
 
                 Logging.logger.info(
                     f"{self.name}: Reading IO-Link channels: {corrected_channels}"
@@ -367,11 +365,7 @@ class ApModule(CpxModule):
             # significant register first. The byteorder in one register should stay.
             all_register_data = b""
             for d in data:
-                # Split the byte object into pairs of bytes = 16 bit registers
-                pairs = [d[i : i + 2] for i in range(0, len(d), 2)]
-                # Reverse the order of the pairs
-                reversed_pairs = pairs[::-1]
-                all_register_data += b"".join(reversed_pairs)
+                all_register_data += invert_register_order(d)
 
             self.base.write_reg_data(
                 all_register_data, self.system_entry_registers.outputs
@@ -424,12 +418,7 @@ class ApModule(CpxModule):
 
             byte_channel_size = self.channels.inouts[0].array_size
 
-            corrected_value = b""
-            # Split the byte object into pairs of bytes = 16 bit registers
-            pairs = [value[i : i + 2] for i in range(0, len(value), 2)]
-            # Reverse the order of the pairs
-            reversed_pairs = pairs[::-1]
-            corrected_value += b"".join(reversed_pairs)
+            corrected_value = invert_register_order(value)
 
             self.base.write_reg_data(
                 corrected_value,
