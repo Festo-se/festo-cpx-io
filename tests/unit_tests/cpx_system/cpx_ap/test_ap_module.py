@@ -1044,22 +1044,22 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(order_text="test module")
-        module.channels.outputs = [1, 2, 3, 4]
-        module.channels.inputs = [1, 2, 3, 4]
         module.channels.inouts = [
             Channel(
                 array_size=2,
                 bits=8,
-                byte_swap_needed=False,
+                byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
-                description="test",
-                direction="inout",
-                name="name",
-                parameter_group_ids=[],
-                profile_list=[],
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
             )
         ] * 4
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
         # Act & Assert
         with pytest.raises(ValueError):
             module.write_channels([b"\x00\x00"] * input_value)
@@ -1080,22 +1080,22 @@ class TestApModule:
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(order_text="test module")
-        module.channels.outputs = [1, 2, 3, 4]
-        module.channels.inputs = [1, 2, 3, 4]
         module.channels.inouts = [
             Channel(
                 array_size=4,
                 bits=16,
-                byte_swap_needed=False,
+                byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
-                description="test",
-                direction="inout",
-                name="name",
-                parameter_group_ids=[],
-                profile_list=[],
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
             )
         ] * 4
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
         # Act & Assert
         with pytest.raises(ValueError):
             module.write_channels([input_value] * 4)
@@ -1130,22 +1130,22 @@ class TestApModule:
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(order_text="test module")
-        module.channels.outputs = [1, 2, 3, 4]
-        module.channels.inputs = [1, 2, 3, 4]
         module.channels.inouts = [
             Channel(
                 array_size=8,
                 bits=32,
-                byte_swap_needed=False,
+                byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
-                description="test",
-                direction="inout",
-                name="name",
-                parameter_group_ids=[],
-                profile_list=[],
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
             )
         ] * 4
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
         # Act
         module.write_channels([b"\x00\x01\x02\x03\x04\x05\x06\x07"] * 4)
 
@@ -1311,7 +1311,7 @@ class TestApModule:
             3,
         ],
     )
-    def test_write_channel_iolink(self, module_fixture, input_value):
+    def test_write_channel_iolink_2bytes(self, module_fixture, input_value):
         """Test write_channel"""
         # Arrange
         module = module_fixture
@@ -1348,6 +1348,52 @@ class TestApModule:
         module.base.write_reg_data.assert_called_with(
             data, module.system_entry_registers.outputs + input_value
         )
+
+    @pytest.mark.parametrize(
+        "input_value, expected_register",
+        [
+            (0,0),
+            (1,2),
+            (2,4),
+            (3,6),
+        ],
+    )
+    def test_write_channel_iolink_4bytes(self, module_fixture, input_value, expected_register):
+        """Test write_channel"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
+        module.information = CpxAp.ApInformation(input_size=34, output_size=32)
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+
+        module.channels.inouts = [
+            Channel(
+                array_size=4,
+                bits=32,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT8",
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
+            )
+        ] * 4
+
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
+
+        data = b"\xAB\xCD\x01\x02"
+
+        # Act
+        module.write_channel(input_value, data)
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(
+            b"\x01\x02\xAB\xCD", expected_register )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
     def test_get_item_correct_values(self, module_fixture, input_value):

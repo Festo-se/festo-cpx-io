@@ -424,8 +424,15 @@ class ApModule(CpxModule):
 
             byte_channel_size = self.channels.inouts[0].array_size
 
+            corrected_value = b""
+            # Split the byte object into pairs of bytes = 16 bit registers
+            pairs = [value[i : i + 2] for i in range(0, len(value), 2)]
+            # Reverse the order of the pairs
+            reversed_pairs = pairs[::-1]
+            corrected_value += b"".join(reversed_pairs)
+
             self.base.write_reg_data(
-                value,
+                corrected_value,
                 self.system_entry_registers.outputs + byte_channel_size // 2 * channel,
             )
             Logging.logger.info(
