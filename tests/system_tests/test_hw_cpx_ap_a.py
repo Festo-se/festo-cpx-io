@@ -735,7 +735,7 @@ def test_4iol_read_channel(test_cpxap):
             m.read_channel(
                 i,
             )
-            == b""
+            == b"\x00\x00"
         )
         assert m.read_channel(i, full_size=True) == b"\x00\x00\x00\x00\x00\x00\x00\x00"
 

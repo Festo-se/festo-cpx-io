@@ -985,24 +985,24 @@ def test_4iol_ehps(test_cpxap):
     def read_process_data_in(module, channel):
         # ehps provides 3 x 16bit "process data in".
         data = module.read_channel(channel)
-        # unpack it to 3x 16 bit uint
+        # unpack it to 3 x 16 bit uint
         ehps_data = struct.unpack(">HHH", data)
 
         process_data_in = {}
 
-        process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
-        process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
-        process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
-        process_data_in["LatchDataOk"] = bool((ehps_data[0] >> 12) & 1)
-        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[0] >> 11) & 1)
-        process_data_in["ClosedPositionFlag"] = bool((ehps_data[0] >> 10) & 1)
-        process_data_in["GrippedPositionFlag"] = bool((ehps_data[0] >> 9) & 1)
-        process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
+        process_data_in["Error"] = bool((ehps_data[2] >> 15) & 1)
+        process_data_in["DirectionCloseFlag"] = bool((ehps_data[2] >> 14) & 1)
+        process_data_in["DirectionOpenFlag"] = bool((ehps_data[2] >> 13) & 1)
+        process_data_in["LatchDataOk"] = bool((ehps_data[2] >> 12) & 1)
+        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[2] >> 11) & 1)
+        process_data_in["ClosedPositionFlag"] = bool((ehps_data[2] >> 10) & 1)
+        process_data_in["GrippedPositionFlag"] = bool((ehps_data[2] >> 9) & 1)
+        process_data_in["OpenedPositionFlag"] = bool((ehps_data[2] >> 8) & 1)
 
-        process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
+        process_data_in["Ready"] = bool((ehps_data[2] >> 6) & 1)
 
         process_data_in["ErrorNumber"] = ehps_data[1]
-        process_data_in["ActualPosition"] = ehps_data[2]
+        process_data_in["ActualPosition"] = ehps_data[0]
 
         return process_data_in
 
@@ -1031,20 +1031,19 @@ def test_4iol_ehps(test_cpxap):
     gripping_tolerance = 0x0A
 
     data = [
-        control_word_lsb + (control_word_msb << 8),
-        workpiece_no + (gripping_mode << 8),
-        gripping_position,
         gripping_tolerance + (gripping_force << 8),
+        gripping_position,
+        workpiece_no + (gripping_mode << 8),
+        control_word_lsb + (control_word_msb << 8),
     ]
 
     # init
-    # this pack is not good, just for testing I can use legacy code
     process_data_out = struct.pack(">HHHH", *data)
     m.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    data[0] = 0x0100
+    data[3] = 0x0100
     process_data_out = struct.pack(">HHHH", *data)
     m.write_channel(ehps_channel, process_data_out)
 
@@ -1053,7 +1052,7 @@ def test_4iol_ehps(test_cpxap):
         time.sleep(0.05)
 
     # Close command 0x 0200
-    data[0] = 0x0200
+    data[3] = 0x0200
     process_data_out = struct.pack(">HHHH", *data)
     m.write_channel(ehps_channel, process_data_out)
 
@@ -1081,11 +1080,11 @@ def test_4iol_ethrottle(test_cpxap):
         # this unpack is not good, just for testing I can use legacy code
         data = struct.unpack(">Q", data)[0]
         process_input_data = {
-            "Actual Position": data,
-            "Homing Valid": bool(data & 0b1000),
-            "Motion Complete": bool(data & 0b100),
-            "Proximity Switch": bool(data & 0b10),
-            "Reduced Speed": bool(data & 0b1000),
+            "Actual Position": data & 0xFFFFFFFFFFFFFFF0,
+            "Homing Valid": bool(data & 8),
+            "Motion Complete": bool(data & 4),
+            "Proximity Switch": bool(data & 2),
+            "Reduced Speed": bool(data & 1),
         }
         return process_input_data
 
