@@ -8,11 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Docstrings and types of CpxE4Iol `write_channel()`
 - Renaming modules manually now checks for duplicates and increments suffix if needed
+- Register order in bytes on reading and writing from and to IO-Link masters
 
 ### Changed
 - `read_module_parameter_enum_str()` doesn't raise TypeError anymore when no enums available. Instead gives Logger Info message and returns values.
 - Renamed `clear_channel()` to `reset_channel()`
 - `print_system_information` now prints enum strings for parameters
+- removed `read_output_channel()` from IO-Link masters
 
 ### Added
 - `write_channels()` function for IO-Link masters

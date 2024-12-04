@@ -247,10 +247,18 @@ class ApModule(CpxModule):
                     data[i : i + byte_channel_size]
                     for i in range(0, len(data), byte_channel_size)
                 ]
+                corrected_channels = []
+                for c in channels:
+                    # Split the byte object into pairs of bytes = 16 bit registers
+                    pairs = [c[i : i + 2] for i in range(0, len(c), 2)]
+                    # Reverse the order of the pairs
+                    reversed_pairs = pairs[::-1]
+                    corrected_channels.append(b"".join(reversed_pairs))
+
                 Logging.logger.info(
-                    f"{self.name}: Reading IO-Link channels: {channels}"
+                    f"{self.name}: Reading IO-Link channels: {corrected_channels}"
                 )
-                return channels
+                return corrected_channels
 
             decode_string = self._generate_decode_string(self.channels.inputs)
 
@@ -317,7 +325,7 @@ class ApModule(CpxModule):
         # if datalength is given and full_size is not requested, shorten output
         if self.fieldbus_parameters and not full_size:
             return self.read_channels()[channel][
-                : self.fieldbus_parameters[channel]["Input data length"]
+                -(self.fieldbus_parameters[channel]["Input data length"]) :
             ]
 
         return self.read_channels()[channel]
