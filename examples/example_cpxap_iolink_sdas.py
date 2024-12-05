@@ -26,9 +26,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
         param = io_link_master.read_fieldbus_parameters()
 
     # read the channel 0 process data. This takes the device information and returns
-    # only relevant bytes (2). If you want to get all bytes so you have the same length
-    # for all channels, you can read all cahnnels with read_channels() or
-    # read_channel(SDAS_CHANNEL, full_size=True)
+    # only relevant bytes (2)
     sdas_data = io_link_master.read_channel(SDAS_CHANNEL)
 
     # the process data consists of 4 ssc bits and 12 bit pdv (see datasheet sdas)

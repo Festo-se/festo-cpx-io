@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `clear_channel()` to `reset_channel()`
 - `print_system_information` now prints enum strings for parameters
 - removed `read_output_channel()` from IO-Link masters
+- removed `full_size` parameter
 
 ### Added
 - `write_channels()` function for IO-Link masters

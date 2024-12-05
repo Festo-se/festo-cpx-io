@@ -249,14 +249,15 @@ class ApModule(CpxModule):
                     for i in range(0, len(data), byte_channel_size)
                 ]
 
-                corrected_channels = []
-                for c in channels:
-                    corrected_channels.append(invert_register_order(c))
+                channel_data = [
+                    (c[: self.fieldbus_parameters[i]["Input data length"]])
+                    for i, c in enumerate(channels)
+                ]
 
                 Logging.logger.info(
-                    f"{self.name}: Reading IO-Link channels: {corrected_channels}"
+                    f"{self.name}: Reading IO-Link channels: {channel_data}"
                 )
-                return corrected_channels
+                return channel_data
 
             decode_string = self._generate_decode_string(self.channels.inputs)
 
@@ -288,9 +289,6 @@ class ApModule(CpxModule):
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param full_size: IO-Link channes should be returned in full datalength and not
-            limited to the slave information datalength
-        :type full_size: bool
         :return: Value of the channel
         :rtype: bool
         """
@@ -299,14 +297,11 @@ class ApModule(CpxModule):
         return self.read_output_channels()[channel]
 
     @CpxBase.require_base
-    def read_channel(self, channel: int, full_size: bool = False) -> Any:
+    def read_channel(self, channel: int) -> Any:
         """Read back the value of one channel.
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param full_size: IO-Link channes should be returned in full datalength and not
-            limited to the slave information datalength
-        :type full_size: bool
         :return: Value of the channel
         :rtype: bool
         """
@@ -319,12 +314,6 @@ class ApModule(CpxModule):
         )
 
         channel_range_check(channel, channel_count)
-
-        # if datalength is given and full_size is not requested, shorten output
-        if self.fieldbus_parameters and not full_size:
-            return self.read_channels()[channel][
-                -(self.fieldbus_parameters[channel]["Input data length"]) :
-            ]
 
         return self.read_channels()[channel]
 
@@ -361,11 +350,9 @@ class ApModule(CpxModule):
                     f"not match the provided bytes length."
                 )
 
-            # Join all channel values but invers the 16 bit register order so it's least
-            # significant register first. The byteorder in one register should stay.
-            all_register_data = b""
-            for d in data:
-                all_register_data += invert_register_order(d)
+            # Join all channel values to one bytes object so it can be written in one modbus command
+            # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
+            all_register_data = b"".join([invert_register_order(d) for d in data])
 
             self.base.write_reg_data(
                 all_register_data, self.system_entry_registers.outputs
@@ -417,7 +404,8 @@ class ApModule(CpxModule):
                 raise TypeError("Datatypes are not supported for IO-Link modules")
 
             byte_channel_size = self.channels.inouts[0].array_size
-
+            
+            # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
             corrected_value = invert_register_order(value)
 
             self.base.write_reg_data(

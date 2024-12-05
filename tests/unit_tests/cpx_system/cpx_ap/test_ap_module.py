@@ -708,22 +708,7 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value
 
-    @pytest.mark.parametrize(
-        "input_value, expected_value",
-        [
-            (
-                True,
-                [b"\xAB\xCD\xEF\x00\x11\x22\x33\x44"] * 4,
-            ),
-            (
-                False,
-                [b"\x11\x22\x33\x44"] * 4,
-            ),
-        ],
-    )
-    def test_read_channel_correct_value_iolink_full_size_true(
-        self, module_fixture, input_value, expected_value
-    ):
+    def test_read_channel_correct_value_iolink(self, module_fixture   ):
         """Test read channel"""
         # Arrange
         module = module_fixture
@@ -753,12 +738,12 @@ class TestApModule:
 
         # Act
         channel_values = [
-            module.read_channel(idx, full_size=input_value)
-            for idx in range(len(expected_value))
+            module.read_channel(idx)
+            for idx in range(4)
         ]
 
         # Assert
-        assert all(c == e for (c, e) in zip(channel_values, expected_value))
+        assert all(c == b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" for c in channel_values)
 
     def test_read_channels_not_implemented(self, module_fixture):
         """Test read_channels"""
@@ -1352,13 +1337,15 @@ class TestApModule:
     @pytest.mark.parametrize(
         "input_value, expected_register",
         [
-            (0,0),
-            (1,2),
-            (2,4),
-            (3,6),
+            (0, 0),
+            (1, 2),
+            (2, 4),
+            (3, 6),
         ],
     )
-    def test_write_channel_iolink_4bytes(self, module_fixture, input_value, expected_register):
+    def test_write_channel_iolink_4bytes(
+        self, module_fixture, input_value, expected_register
+    ):
         """Test write_channel"""
         # Arrange
         module = module_fixture
@@ -1393,7 +1380,8 @@ class TestApModule:
 
         # Assert
         module.base.write_reg_data.assert_called_with(
-            b"\x01\x02\xAB\xCD", expected_register )
+            b"\x01\x02\xAB\xCD", expected_register
+        )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
     def test_get_item_correct_values(self, module_fixture, input_value):

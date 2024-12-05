@@ -84,7 +84,7 @@ def instance_range_check(instance: int, *args):
 
 
 def invert_register_order(data: bytes) -> bytes:
-    """Inverts the order of 16bit registers in one bytes object but keeps the 
+    """Inverts the order of 16bit registers in one bytes object but keeps the
     byte-order in these registers intact"""
 
     # Split the byte object into pairs of bytes = 16 bit registers

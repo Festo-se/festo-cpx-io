@@ -723,21 +723,17 @@ def test_8Di_parameter_rw_strings_debounce(test_cpxap):
 
 
 def test_4iol_read_channels(test_cpxap):
+    # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
     test = m.read_channels()
-    assert m.read_channels() == [b"\x00\x00\x00\x00\x00\x00\x00\x00"] * 4
+    assert m.read_channels() == [b""] * 4
 
 
 def test_4iol_read_channel(test_cpxap):
+    # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
     for i in range(4):
-        assert (
-            m.read_channel(
-                i,
-            )
-            == b"\x00\x00"
-        )
-        assert m.read_channel(i, full_size=True) == b"\x00\x00\x00\x00\x00\x00\x00\x00"
+        assert m.read_channel(i) == b""
 
 
 def test_vaeb_iol_write_channel(test_cpxap):
@@ -758,14 +754,10 @@ def test_vaeb_iol_write_channel(test_cpxap):
         m.read_channels()
         time.sleep(0.05)
 
-    data_raw_channel = [m.read_channel(i, full_size=False) for i in range(4)]
-    data_raw_channel_full = [m.read_channel(i, full_size=True) for i in range(4)]
+    data_raw_channel = [m.read_channel(i) for i in range(4)]
     data_raw_channels = m.read_channels()
 
     converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
-    data_raw_channel_full = [
-        int.from_bytes(d, byteorder="big") for d in data_raw_channel_full
-    ]
     converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
 
     assert 8 < converted_channel[0] < 12
@@ -773,15 +765,11 @@ def test_vaeb_iol_write_channel(test_cpxap):
     assert 490 < converted_channel[2] < 510
     assert 990 < converted_channel[3] < 1010
 
-    assert 8 < data_raw_channel_full[0] < 12
-    assert 95 < data_raw_channel_full[1] < 105
-    assert 490 < data_raw_channel_full[2] < 510
-    assert 990 < data_raw_channel_full[3] < 1010
-
     assert 8 < converted_channels[0] < 12
     assert 95 < converted_channels[1] < 105
     assert 490 < converted_channels[2] < 510
     assert 990 < converted_channels[3] < 1010
+
 
 def test_vaeb_iol_write_channels(test_cpxap):
     m = test_cpxap.modules[5]
@@ -800,14 +788,10 @@ def test_vaeb_iol_write_channels(test_cpxap):
         m.read_channels()
         time.sleep(0.05)
 
-    data_raw_channel = [m.read_channel(i, full_size=False) for i in range(4)]
-    data_raw_channel_full = [m.read_channel(i, full_size=True) for i in range(4)]
+    data_raw_channel = [m.read_channel(i) for i in range(4)]
     data_raw_channels = m.read_channels()
 
     converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
-    data_raw_channel_full = [
-        int.from_bytes(d, byteorder="big") for d in data_raw_channel_full
-    ]
     converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
 
     assert 8 < converted_channel[0] < 12
@@ -815,15 +799,11 @@ def test_vaeb_iol_write_channels(test_cpxap):
     assert 490 < converted_channel[2] < 510
     assert 990 < converted_channel[3] < 1010
 
-    assert 8 < data_raw_channel_full[0] < 12
-    assert 95 < data_raw_channel_full[1] < 105
-    assert 490 < data_raw_channel_full[2] < 510
-    assert 990 < data_raw_channel_full[3] < 1010
-
     assert 8 < converted_channels[0] < 12
     assert 95 < converted_channels[1] < 105
     assert 490 < converted_channels[2] < 510
     assert 990 < converted_channels[3] < 1010
+
 
 def test_4iol_parameter_write_load(test_cpxap):
     m = test_cpxap.modules[5]
