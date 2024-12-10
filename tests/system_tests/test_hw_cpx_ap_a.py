@@ -736,7 +736,7 @@ def test_4iol_read_channel(test_cpxap):
         assert m.read_channel(i) == b""
 
 
-def test_vaeb_iol_write_channel(test_cpxap):
+def test_vaeb_iol_write_channel_8bytes(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
         m.write_module_parameter("Port Mode", "IOL_AUTOSTART", i)
@@ -770,6 +770,39 @@ def test_vaeb_iol_write_channel(test_cpxap):
     assert 490 < converted_channels[2] < 510
     assert 990 < converted_channels[3] < 1010
 
+def test_vaeb_iol_write_channel_2bytes(test_cpxap):
+    m = test_cpxap.modules[5]
+    for i in range(4):
+        m.write_module_parameter("Port Mode", "IOL_AUTOSTART", i)
+        param = m.read_fieldbus_parameters()
+        while param[i]["Port status information"] != "OPERATE":
+            param = m.read_fieldbus_parameters()
+
+    write_ints = [10, 100, 500, 1000]
+    write_converted = [d.to_bytes(2, byteorder="big") for d in write_ints]
+
+    for c, w in enumerate(write_converted):
+        m.write_channel(c, w)
+
+    for i in range(20):
+        m.read_channels()
+        time.sleep(0.05)
+
+    data_raw_channel = [m.read_channel(i) for i in range(4)]
+    data_raw_channels = m.read_channels()
+
+    converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
+    converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
+
+    assert 8 < converted_channel[0] < 12
+    assert 95 < converted_channel[1] < 105
+    assert 490 < converted_channel[2] < 510
+    assert 990 < converted_channel[3] < 1010
+
+    assert 8 < converted_channels[0] < 12
+    assert 95 < converted_channels[1] < 105
+    assert 490 < converted_channels[2] < 510
+    assert 990 < converted_channels[3] < 1010
 
 def test_vaeb_iol_write_channels(test_cpxap):
     m = test_cpxap.modules[5]

@@ -563,6 +563,10 @@ def test_4iol_sdas(test_cpxap):
     pdv = (process_data & 0xFFF0) >> 4
 
     assert 0 <= pdv <= 4095
+    assert ssc1 is False
+    assert ssc2 is False
+    assert ssc3 is False
+    assert ssc4 is False
 
     assert m[sdas_channel] == m.read_channel(sdas_channel)
 
@@ -844,8 +848,16 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x02")  # Move
+    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
         time.sleep(0.01)
@@ -856,7 +868,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
 
-    m.write_channel(emcs_channel, b"\x00\x01")  # Move
+    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
         time.sleep(0.01)
@@ -976,38 +988,31 @@ def test_4iol_ehps(test_cpxap):
 
     # wait for operate
     param = m.read_fieldbus_parameters()
-    while param[ehps_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    #while param[ehps_channel]["Port status information"] != "OPERATE":
+    #    param = m.read_fieldbus_parameters()
 
     # wait for ready
     process_data_in = read_process_data_in(m, ehps_channel)
-    while not process_data_in["Ready"]:
-        process_data_in = read_process_data_in(m, ehps_channel)
+    #while not process_data_in["Ready"]:
+    #    process_data_in = read_process_data_in(m, ehps_channel)
 
     # demo of process data out
-    control_word_msb = 0x00
-    control_word_lsb = 0x01  # latch
-    gripping_mode = 0x46  # universal
-    workpiece_no = 0x00
-    gripping_position = 0x03E8
-    gripping_force = 0x03  # ca. 85%
-    gripping_tolerance = 0x0A
+    control_word = b"\x00\x01" # latch
+    gripping_mode = b"\x46"  # universal
+    workpiece_no = b"\x00"
+    gripping_position = b"\x03\xE8"
+    gripping_force = b"\x03"  # ca. 85%
+    gripping_tolerance = b"\x0A"
 
-    data = [
-        gripping_tolerance + (gripping_force << 8),
-        gripping_position,
-        workpiece_no + (gripping_mode << 8),
-        control_word_lsb + (control_word_msb << 8),
-    ]
-
+    process_data_out = control_word + gripping_mode + workpiece_no + gripping_position + gripping_force + gripping_tolerance
+    
     # init
-    process_data_out = struct.pack(">HHHH", *data)
     m.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    data[3] = 0x0100
-    process_data_out = struct.pack(">HHHH", *data)
+    control_word = b"\x01\x00"
+    process_data_out = control_word + gripping_mode + workpiece_no + gripping_position + gripping_force + gripping_tolerance
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["OpenedPositionFlag"]:
@@ -1015,8 +1020,8 @@ def test_4iol_ehps(test_cpxap):
         time.sleep(0.05)
 
     # Close command 0x 0200
-    data[3] = 0x0200
-    process_data_out = struct.pack(">HHHH", *data)
+    control_word = b"\x02\x00"
+    process_data_out = control_word + gripping_mode + workpiece_no + gripping_position + gripping_force + gripping_tolerance
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:
@@ -1040,10 +1045,9 @@ def test_4iol_ethrottle(test_cpxap):
     def read_process_data_in(module, channel):
         data = module.read_channel(channel)
         # register order is [msb, ... , ... , lsb]
-        # this unpack is not good, just for testing I can use legacy code
-        data_int = struct.unpack(">Q", data)[0]
+        data_int = int.from_bytes(data, byteorder="big")
         process_input_data = {
-            "Actual Position": data_int & 0xFFFFFFFFFFFFFFF0,
+            "Actual Position": data_int & 0xFFFFFFFFFFFFFF00 >> 8,
             "Homing Valid": bool(data_int & 8),
             "Motion Complete": bool(data_int & 4),
             "Proximity Switch": bool(data_int & 2),

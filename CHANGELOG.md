@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `print_system_information` now prints enum strings for parameters
 - removed `read_output_channel()` from IO-Link masters
 - removed `full_size` parameter
+- `read_channel(s)` with IO-Link now returns correct datalength according to device information and None if device information is missing
 
 ### Added
 - `write_channels()` function for IO-Link masters

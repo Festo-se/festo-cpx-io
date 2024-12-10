@@ -241,7 +241,7 @@ class ApModule(CpxModule):
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
                 byte_channel_size = self.channels.inouts[0].array_size
-                # for IO-Link only the channels.inouts are relevant
+                # for IO-Link only the channels.inouts are relevant, cut to the correct size
                 data = data[: len(self.channels.inouts * byte_channel_size)]
 
                 channels = [
@@ -249,8 +249,11 @@ class ApModule(CpxModule):
                     for i in range(0, len(data), byte_channel_size)
                 ]
 
+                # cut to actual IO-Link device size if available
                 channel_data = [
-                    (c[: self.fieldbus_parameters[i]["Input data length"]])
+                    (c[:self.fieldbus_parameters[i]["Input data length"]])
+                    if self.fieldbus_parameters[i]["Input data length"] > 0
+                    else None
                     for i, c in enumerate(channels)
                 ]
 
@@ -352,7 +355,7 @@ class ApModule(CpxModule):
 
             # Join all channel values to one bytes object so it can be written in one modbus command
             # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
-            all_register_data = b"".join([invert_register_order(d) for d in data])
+            all_register_data = b"".join(invert_register_order(d) for d in data)
 
             self.base.write_reg_data(
                 all_register_data, self.system_entry_registers.outputs
@@ -404,7 +407,11 @@ class ApModule(CpxModule):
                 raise TypeError("Datatypes are not supported for IO-Link modules")
 
             byte_channel_size = self.channels.inouts[0].array_size
-            
+
+            # add missing bytes for full master length
+            if len(value) < byte_channel_size:
+                value = b"\x00" * (byte_channel_size-len(value)) + value
+      
             # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
             corrected_value = invert_register_order(value)
 
