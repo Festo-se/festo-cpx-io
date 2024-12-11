@@ -537,7 +537,7 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.information = CpxAp.ApInformation(input_size=36, output_size=24)
+        module.information = CpxAp.ApInformation(input_size=36, output_size=32)
         module.fieldbus_parameters = [{"Input data length": 2}] * 4
 
         module.channels.inouts = [
@@ -558,7 +558,7 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        ret_data = b"\xAB\xCD" * ((36 + 24) // 2)  # in+out in registers
+        ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 

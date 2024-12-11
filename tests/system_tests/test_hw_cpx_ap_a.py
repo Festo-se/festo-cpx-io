@@ -1,8 +1,8 @@
 """Tests for cpx-ap system"""
 
 import time
-import pytest
 import struct
+import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
