@@ -201,7 +201,7 @@ class TestCpxE4Iol:
 
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
-            b"\x01\x02\x12\xAB\x03\x04\x34\xCD\x05\x06\x56\xEF\x07\x08\x78\x00",
+            b"\x12\xAB\x01\x02\x34\xCD\x03\x04\x56\xEF\x05\x06\x78\x00\x07\x08",
             cpxe4iol.system_entry_registers.outputs,
         )
 
