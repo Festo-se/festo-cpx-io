@@ -30,7 +30,6 @@ from cpx_io.utils.helpers import (
     instance_range_check,
     convert_uint32_to_octett,
     convert_to_mac_string,
-    invert_register_order,
 )
 from cpx_io.utils.logging import Logging
 from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
@@ -356,8 +355,7 @@ class ApModule(CpxModule):
                 )
 
             # Join all channel values to one bytes object so it can be written in one modbus command
-            # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
-            all_register_data = b"".join(invert_register_order(d) for d in data)
+            all_register_data = b"".join(data)
 
             self.base.write_reg_data(
                 all_register_data, self.system_entry_registers.outputs

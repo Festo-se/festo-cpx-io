@@ -819,7 +819,7 @@ def test_vaeb_iol_write_channels_8byte(test_cpxap):
             param = m.read_fieldbus_parameters()
 
     write_ints = [10, 100, 500, 1000]
-    write_converted = [d.to_bytes(8, byteorder="big") for d in write_ints]
+    write_converted = [struct.pack(">HHHH", d, 0, 0, 0) for d in write_ints]
 
     m.write_channels(write_converted)
 

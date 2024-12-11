@@ -81,14 +81,3 @@ def instance_range_check(instance: int, *args):
 
     if instance not in range(start, stop):
         raise IndexError(f"Instance {instance} must be in range({start}, {stop})")
-
-
-def invert_register_order(data: bytes) -> bytes:
-    """Inverts the order of 16bit registers in one bytes object but keeps the
-    byte-order in these registers intact"""
-
-    # Split the byte object into pairs of bytes = 16 bit registers
-    pairs = [data[i : i + 2] for i in range(0, len(data), 2)]
-    # Reverse the order of the pairs
-    reversed_pairs = pairs[::-1]
-    return b"".join(reversed_pairs)
