@@ -2,6 +2,7 @@
 
 import time
 import pytest
+import struct
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
@@ -725,7 +726,6 @@ def test_8Di_parameter_rw_strings_debounce(test_cpxap):
 def test_4iol_read_channels(test_cpxap):
     # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
-    test = m.read_channels()
     assert m.read_channels() == [b""] * 4
 
 
@@ -745,7 +745,7 @@ def test_vaeb_iol_write_channel_8bytes(test_cpxap):
             param = m.read_fieldbus_parameters()
 
     write_ints = [10, 100, 500, 1000]
-    write_converted = [d.to_bytes(8, byteorder="big") for d in write_ints]
+    write_converted = [struct.pack(">HHHH", d, 0, 0, 0) for d in write_ints]
 
     for c, w in enumerate(write_converted):
         m.write_channel(c, w)
@@ -757,8 +757,12 @@ def test_vaeb_iol_write_channel_8bytes(test_cpxap):
         data_raw_channel = [m.read_channel(i) for i in range(4)]
         data_raw_channels = m.read_channels()
 
-        converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
-        converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
+        converted_channel = [
+            int.from_bytes(d, byteorder="big") for d in data_raw_channel
+        ]
+        converted_channels = [
+            int.from_bytes(d, byteorder="big") for d in data_raw_channels
+        ]
 
     assert 6 < converted_channel[0] < 14
     assert 95 < converted_channel[1] < 105

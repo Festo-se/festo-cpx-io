@@ -36,6 +36,7 @@ def test_set_timeout():
     "test timeout"
     with CpxAp(ip_address="172.16.1.41", timeout=0.5) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
+        time.sleep(0.05)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
@@ -43,6 +44,7 @@ def test_set_timeout_below_100ms():
     "test timeout"
     with CpxAp(ip_address="172.16.1.41", timeout=0.05) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
+        time.sleep(0.05)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 100
 
 
@@ -879,6 +881,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
 
+
 def test_4iol_emcs_write_int8_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -921,6 +924,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
 
+
 def test_4iol_emcs_write_int64_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -941,7 +945,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
     # |     -    | State intermediate | State Device | State Move | State Out | State In |
 
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x00\x00\x00\x00\x00\x00\x02")  # Move Out
+    m.write_channel(emcs_channel, b"\x00\x02\x00\x00\x00\x00\x00\x00")  # Move Out
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
         time.sleep(0.01)
@@ -952,7 +956,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
 
-    m.write_channel(emcs_channel, b"\x00\x00\x00\x00\x00\x00\x00\x01")  # Move In
+    m.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
         time.sleep(0.01)
@@ -962,6 +966,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
         m.read_channel(emcs_channel)
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
 
 def test_4iol_write_channels_with_emcs(test_cpxap):
     m = test_cpxap.modules[4]
@@ -1043,25 +1048,25 @@ def test_4iol_ehps(test_cpxap):
     def read_process_data_in(module, channel):
         # ehps provides 3 x 16bit "process data in".
         data = module.read_channel(channel)
-        test = data.hex()
         # unpack it to 3 x 16 bit uint
         ehps_data = struct.unpack(">HHH", data)
 
         process_data_in = {}
 
-        process_data_in["Error"] = bool((ehps_data[2] >> 15) & 1)
-        process_data_in["DirectionCloseFlag"] = bool((ehps_data[2] >> 14) & 1)
-        process_data_in["DirectionOpenFlag"] = bool((ehps_data[2] >> 13) & 1)
-        process_data_in["LatchDataOk"] = bool((ehps_data[2] >> 12) & 1)
-        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[2] >> 11) & 1)
-        process_data_in["ClosedPositionFlag"] = bool((ehps_data[2] >> 10) & 1)
-        process_data_in["GrippedPositionFlag"] = bool((ehps_data[2] >> 9) & 1)
-        process_data_in["OpenedPositionFlag"] = bool((ehps_data[2] >> 8) & 1)
+        process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
+        process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
+        process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
+        process_data_in["LatchDataOk"] = bool((ehps_data[0] >> 12) & 1)
+        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[0] >> 11) & 1)
+        process_data_in["ClosedPositionFlag"] = bool((ehps_data[0] >> 10) & 1)
+        process_data_in["GrippedPositionFlag"] = bool((ehps_data[0] >> 9) & 1)
+        process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
 
-        process_data_in["Ready"] = bool((ehps_data[2] >> 6) & 1)
+        process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
+        assert process_data_in["Ready"]  # must be true when powered
 
         process_data_in["ErrorNumber"] = ehps_data[1]
-        process_data_in["ActualPosition"] = ehps_data[0]
+        process_data_in["ActualPosition"] = ehps_data[2]
 
         return process_data_in
 
@@ -1080,58 +1085,59 @@ def test_4iol_ehps(test_cpxap):
     while not process_data_in["Ready"]:
         process_data_in = read_process_data_in(m, ehps_channel)
 
-    # demo of process data out
-    control_word = b"\x80\x01"  # latch and quit errors
-    gripping_mode = b"\x46"  # universal
-    workpiece_no = b"\x00"
-    gripping_position = b"\x03\xE8"
-    gripping_force = b"\x03"  # ca. 85%
-    gripping_tolerance = b"\x0A"
-
-    process_data_out = (
-        control_word
-        + gripping_mode
-        + workpiece_no
-        + gripping_position
-        + gripping_force
-        + gripping_tolerance
-    )
-
     # init
+    control_word = 0x0001  # latch
+    gripping_mode = 0x46  # b"\x46"  # universal
+    workpiece_no = 0x00  # b"\x00"
+    gripping_position = 0x03E8  # b"\x03\xE8"
+    gripping_force = 0x03  # b"\x03"  # ca. 85%
+    gripping_tolerance = 0x0A  # b"\x0A"
+
+    process_data_out = struct.pack(
+        ">HBBHBB",
+        control_word,
+        gripping_mode,
+        workpiece_no,
+        gripping_position,
+        gripping_force,
+        gripping_tolerance,
+    )
     m.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    control_word = b"\x01\x00"
-    process_data_out = (
-        control_word
-        + gripping_mode
-        + workpiece_no
-        + gripping_position
-        + gripping_force
-        + gripping_tolerance
+    control_word = 0x0100
+    process_data_out = struct.pack(
+        ">HBBHBB",
+        control_word,
+        gripping_mode,
+        workpiece_no,
+        gripping_position,
+        gripping_force,
+        gripping_tolerance,
     )
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["OpenedPositionFlag"]:
-        process_data_in = read_process_data_in(m, ehps_channel)
         time.sleep(0.05)
+        process_data_in = read_process_data_in(m, ehps_channel)
 
     # Close command 0x0200
-    control_word = b"\x02\x00"
-    process_data_out = (
-        control_word
-        + gripping_mode
-        + workpiece_no
-        + gripping_position
-        + gripping_force
-        + gripping_tolerance
+    control_word = 0x0200
+    process_data_out = struct.pack(
+        ">HBBHBB",
+        control_word,
+        gripping_mode,
+        workpiece_no,
+        gripping_position,
+        gripping_force,
+        gripping_tolerance,
     )
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:
-        process_data_in = read_process_data_in(m, ehps_channel)
         time.sleep(0.05)
+        process_data_in = read_process_data_in(m, ehps_channel)
 
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
@@ -1174,7 +1180,7 @@ def test_4iol_ethrottle(test_cpxap):
     process_input_data = read_process_data_in(m, ethrottle_channel)
 
     if not process_input_data["Homing Valid"]:
-        process_output_data = b'\x00\x00\x00\x00\x00\x00\x00\x01'
+        process_output_data = b"\x00\x00\x00\x00\x00\x00\x00\x01"
         m.write_channel(ethrottle_channel, process_output_data)
 
         while not process_input_data["Homing Valid"]:

@@ -538,7 +538,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.information = CpxAp.ApInformation(input_size=36, output_size=24)
-        module.fieldbus_parameters = [{"Input data length":2}] * 4
+        module.fieldbus_parameters = [{"Input data length": 2}] * 4
 
         module.channels.inouts = [
             Channel(
@@ -1371,7 +1371,7 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        data = b"\xAB\xCD\x01\x02"
+        data = b"\x01\x02\xAB\xCD"
 
         # Act
         module.write_channel(input_value, data)

@@ -259,12 +259,6 @@ class ApModule(CpxModule):
                     for i, c in enumerate(channels)
                 ]
 
-                # invert byteorder since IO-Link PDV is "big endian" and Modbus registers "little"
-                # channel_reversed = [invert_register_order(c)
-                #                     if c
-                #                     else None
-                #                     for c in channel_data]
-
                 Logging.logger.info(
                     f"{self.name}: Reading IO-Link channels: {channel_data}"
                 )
@@ -400,6 +394,8 @@ class ApModule(CpxModule):
         :value: Value that should be written to the channel
         :type value: Any
         """
+        # pylint: disable=too-many-branches
+        # intentional, lots of checks are done to guide the user
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         channel_range_check(channel, len(self.channels.outputs))
@@ -416,15 +412,21 @@ class ApModule(CpxModule):
 
             byte_channel_size = self.channels.inouts[0].array_size
 
-            # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
-            corrected_value = invert_register_order(value)
+            if len(value) != byte_channel_size:
+                Logging.logger.warning(
+                    f"Length of value {value} does not match master channel size"
+                    f" of {byte_channel_size} bytes. Shorter values must be padded left!"
+                )
 
+            # add missing bytes for full modbus register
+            if len(value) % 2:
+                value = b"\x00" + value
             # add missing bytes for full master length
             if len(value) < byte_channel_size:
                 value += b"\x00" * (byte_channel_size - len(value))
 
             self.base.write_reg_data(
-                corrected_value,
+                value,
                 self.system_entry_registers.outputs + byte_channel_size // 2 * channel,
             )
             Logging.logger.info(
