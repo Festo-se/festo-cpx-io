@@ -537,7 +537,8 @@ class TestApModule:
         # Arrange
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
-        module.information = CpxAp.ApInformation(input_size=36, output_size=32)
+        module.information = CpxAp.ApInformation(input_size=36, output_size=24)
+        module.fieldbus_parameters = [{"Input data length":2}] * 4
 
         module.channels.inouts = [
             Channel(
@@ -557,7 +558,7 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
+        ret_data = b"\xAB\xCD" * ((36 + 24) // 2)  # in+out in registers
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -708,7 +709,7 @@ class TestApModule:
         # Assert
         assert channel_values == expected_value
 
-    def test_read_channel_correct_value_iolink(self, module_fixture   ):
+    def test_read_channel_correct_value_iolink(self, module_fixture):
         """Test read channel"""
         # Arrange
         module = module_fixture
@@ -737,10 +738,7 @@ class TestApModule:
         module.read_channels = Mock(return_value=ret_data)
 
         # Act
-        channel_values = [
-            module.read_channel(idx)
-            for idx in range(4)
-        ]
+        channel_values = [module.read_channel(idx) for idx in range(4)]
 
         # Assert
         assert all(c == b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" for c in channel_values)

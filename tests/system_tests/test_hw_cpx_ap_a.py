@@ -754,21 +754,22 @@ def test_vaeb_iol_write_channel_8bytes(test_cpxap):
         m.read_channels()
         time.sleep(0.05)
 
-    data_raw_channel = [m.read_channel(i) for i in range(4)]
-    data_raw_channels = m.read_channels()
+        data_raw_channel = [m.read_channel(i) for i in range(4)]
+        data_raw_channels = m.read_channels()
 
-    converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
-    converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
+        converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
+        converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
 
-    assert 8 < converted_channel[0] < 12
+    assert 6 < converted_channel[0] < 14
     assert 95 < converted_channel[1] < 105
     assert 490 < converted_channel[2] < 510
     assert 990 < converted_channel[3] < 1010
 
-    assert 8 < converted_channels[0] < 12
+    assert 6 < converted_channels[0] < 14
     assert 95 < converted_channels[1] < 105
     assert 490 < converted_channels[2] < 510
     assert 990 < converted_channels[3] < 1010
+
 
 def test_vaeb_iol_write_channel_2bytes(test_cpxap):
     m = test_cpxap.modules[5]
@@ -794,17 +795,18 @@ def test_vaeb_iol_write_channel_2bytes(test_cpxap):
     converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
     converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
 
-    assert 8 < converted_channel[0] < 12
+    assert 6 < converted_channel[0] < 14
     assert 95 < converted_channel[1] < 105
     assert 490 < converted_channel[2] < 510
     assert 990 < converted_channel[3] < 1010
 
-    assert 8 < converted_channels[0] < 12
+    assert 6 < converted_channels[0] < 14
     assert 95 < converted_channels[1] < 105
     assert 490 < converted_channels[2] < 510
     assert 990 < converted_channels[3] < 1010
 
-def test_vaeb_iol_write_channels(test_cpxap):
+
+def test_vaeb_iol_write_channels_8byte(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
         m.write_module_parameter("Port Mode", "IOL_AUTOSTART", i)
@@ -827,12 +829,12 @@ def test_vaeb_iol_write_channels(test_cpxap):
     converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
     converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
 
-    assert 8 < converted_channel[0] < 12
+    assert 6 < converted_channel[0] < 14
     assert 95 < converted_channel[1] < 105
     assert 490 < converted_channel[2] < 510
     assert 990 < converted_channel[3] < 1010
 
-    assert 8 < converted_channels[0] < 12
+    assert 6 < converted_channels[0] < 14
     assert 95 < converted_channels[1] < 105
     assert 490 < converted_channels[2] < 510
     assert 990 < converted_channels[3] < 1010

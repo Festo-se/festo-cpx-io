@@ -251,11 +251,19 @@ class ApModule(CpxModule):
 
                 # cut to actual IO-Link device size if available
                 channel_data = [
-                    (c[:self.fieldbus_parameters[i]["Input data length"]])
-                    if self.fieldbus_parameters[i]["Input data length"] > 0
-                    else None
+                    (
+                        (c[: self.fieldbus_parameters[i]["Input data length"]])
+                        if self.fieldbus_parameters[i]["Input data length"] > 0
+                        else None
+                    )
                     for i, c in enumerate(channels)
                 ]
+
+                # invert byteorder since IO-Link PDV is "big endian" and Modbus registers "little"
+                # channel_reversed = [invert_register_order(c)
+                #                     if c
+                #                     else None
+                #                     for c in channel_data]
 
                 Logging.logger.info(
                     f"{self.name}: Reading IO-Link channels: {channel_data}"
@@ -408,12 +416,12 @@ class ApModule(CpxModule):
 
             byte_channel_size = self.channels.inouts[0].array_size
 
-            # add missing bytes for full master length
-            if len(value) < byte_channel_size:
-                value = b"\x00" * (byte_channel_size-len(value)) + value
-      
             # modbus is little endian, pdv is big endian. Need to convert the 16 bit registers
             corrected_value = invert_register_order(value)
+
+            # add missing bytes for full master length
+            if len(value) < byte_channel_size:
+                value += b"\x00" * (byte_channel_size - len(value))
 
             self.base.write_reg_data(
                 corrected_value,
