@@ -1087,35 +1087,28 @@ def test_4iol_ehps(test_cpxap):
 
     # init
     control_word = 0x0001  # latch
-    gripping_mode = 0x46  # b"\x46"  # universal
-    workpiece_no = 0x00  # b"\x00"
-    gripping_position = 0x03E8  # b"\x03\xE8"
-    gripping_force = 0x03  # b"\x03"  # ca. 85%
-    gripping_tolerance = 0x0A  # b"\x0A"
+    gripping_mode = 0x46  # universal
+    workpiece_no = 0x00
+    gripping_position = 0x03E8
+    gripping_force = 0x03  # ca. 85%
+    gripping_tolerance = 0x0A
 
-    process_data_out = struct.pack(
-        ">HBBHBB",
+    pd_list = [
         control_word,
         gripping_mode,
         workpiece_no,
         gripping_position,
         gripping_force,
         gripping_tolerance,
-    )
+    ]
+
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     m.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    control_word = 0x0100
-    process_data_out = struct.pack(
-        ">HBBHBB",
-        control_word,
-        gripping_mode,
-        workpiece_no,
-        gripping_position,
-        gripping_force,
-        gripping_tolerance,
-    )
+    pd_list[0] = 0x0100
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["OpenedPositionFlag"]:
@@ -1123,16 +1116,8 @@ def test_4iol_ehps(test_cpxap):
         process_data_in = read_process_data_in(m, ehps_channel)
 
     # Close command 0x0200
-    control_word = 0x0200
-    process_data_out = struct.pack(
-        ">HBBHBB",
-        control_word,
-        gripping_mode,
-        workpiece_no,
-        gripping_position,
-        gripping_force,
-        gripping_tolerance,
-    )
+    pd_list[0] = 0x0200
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:

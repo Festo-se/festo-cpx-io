@@ -569,6 +569,53 @@ class TestApModule:
         # Assert
         assert channel_values == [b"\xAB\xCD"] * 4
 
+    def test_read_channels_io_link_different_device_lengths(self, module_fixture):
+        """Test read channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.IO_LINK.value
+        module.information = CpxAp.ApInformation(input_size=36, output_size=32)
+        module.fieldbus_parameters = [
+            {"Input data length": 0},
+            {"Input data length": 2},
+            {"Input data length": 3},
+            {"Input data length": 4},
+        ]
+
+        module.channels.inouts = [
+            Channel(
+                array_size=4,
+                bits=32,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT8",
+                description="",
+                direction="in",
+                name="Port %d",
+                parameter_group_ids=[1, 2],
+                profile_list=[50],
+            )
+        ] * 4
+
+        module.channels.inputs = module.channels.inouts
+        module.channels.outputs = module.channels.inouts
+
+        ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
+
+        module.base = Mock(read_reg_data=Mock(return_value=ret_data))
+
+        # Act
+
+        channel_values = module.read_channels()
+
+        # Assert
+        assert channel_values == [
+            None,
+            b"\xAB\xCD",
+            b"\xAB\xCD\xAB",
+            b"\xAB\xCD\xAB\xCD",
+        ]
+
     def test_read_channels_unknown_type(self, module_fixture):
         """Test read channels"""
         # Arrange
