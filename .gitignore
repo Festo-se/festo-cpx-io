@@ -11,5 +11,6 @@ doc/source/cpx_io*.rst
 src/festo_cpx_io.egg-info/*
 venv
 .venv
+.venv39
 coverage.xml
 festo-cpx-io.code-workspace

@@ -192,7 +192,7 @@ class CpxE(CpxBase):
             byteorder="little",
         )
         Logging.logger.debug(f"Read {data} from MODULE_CONFIGURATION register")
-        return data.bit_count()
+        return bin(data).count("1")  # python 3.9 compatible `int.bit_count()` function
 
     def read_fault_detection(self) -> list[bool]:
         """reads the fault detection register from the system
