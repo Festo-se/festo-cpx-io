@@ -1,5 +1,6 @@
 variables:
   COVERAGE_DIRECTORY: "cpxio"
+  TEST_DIRECTORY: "tests/unit_tests"
 
 include:
   - project: 'festo-research/electric-automation/festo-templates'
