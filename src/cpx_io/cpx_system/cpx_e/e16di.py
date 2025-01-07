@@ -3,6 +3,8 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+from typing import Union
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist
@@ -104,7 +106,7 @@ class CpxE16Di(CpxModule):
         Logging.logger.info(f"{self.name}: Setting behaviour after sco to {value}")
 
     @CpxBase.require_base
-    def configure_debounce_time(self, value: DebounceTime | int) -> None:
+    def configure_debounce_time(self, value: Union[DebounceTime, int]) -> None:
         """
         The "Input debounce time" parameter defines when an edge change of the sensor signal
         shall be assumed as a logical input signal. In this way, unwanted signal edge changes
@@ -136,7 +138,9 @@ class CpxE16Di(CpxModule):
         Logging.logger.info(f"{self.name}: Setting debounce time to {value}")
 
     @CpxBase.require_base
-    def configure_signal_extension_time(self, value: SignalExtension | int) -> None:
+    def configure_signal_extension_time(
+        self, value: Union[SignalExtension, int]
+    ) -> None:
         """
         The "Signal extension time" parameter defines the minimum valid duration of the assumed
         signal status of the input signal. Edge changes within the signal extension time are

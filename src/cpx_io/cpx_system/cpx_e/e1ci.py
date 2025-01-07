@@ -4,6 +4,7 @@
 # intended: modules have similar functions
 
 from dataclasses import dataclass
+from typing import Union
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
@@ -166,7 +167,7 @@ class CpxE1Ci(CpxModule):
         return ret
 
     @CpxBase.require_base
-    def configure_signal_type(self, value: SignalType | int) -> None:
+    def configure_signal_type(self, value: Union[SignalType, int]) -> None:
         """The parameter “Signal type/encoder type” defines the encoder supply and connection
         type of the encoder.
 

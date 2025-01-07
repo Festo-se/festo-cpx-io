@@ -3,6 +3,8 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+from typing import Union
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist
@@ -14,7 +16,7 @@ from cpx_io.cpx_system.cpx_e.cpx_e_enums import OperatingMode, AddressSpace
 class CpxE4Iol(CpxModule):
     """Class for CPX-E-4IOL io-link master module"""
 
-    def __init__(self, address_space: int | AddressSpace = 2, **kwargs):
+    def __init__(self, address_space: Union[int, AddressSpace] = 2, **kwargs):
         """The address space (inputs/outputs) provided by the module is set using DIL
         switches (see Datasheet CPX-E-4IOL-...)
 
@@ -243,7 +245,7 @@ class CpxE4Iol(CpxModule):
 
     @CpxBase.require_base
     def configure_cycle_time(
-        self, value: tuple[int], channel: int | list = None
+        self, value: tuple[int], channel: Union[int, list] = None
     ) -> None:
         """The "Cycle time" parameter defines the cycle time (low/high) set by the IO-Link master.
         The setting can be made separately for each IO-Link interface (port).
@@ -284,7 +286,9 @@ class CpxE4Iol(CpxModule):
         )
 
     @CpxBase.require_base
-    def configure_pl_supply(self, value: bool, channel: int | list = None) -> None:
+    def configure_pl_supply(
+        self, value: bool, channel: Union[int, list] = None
+    ) -> None:
         """The "PL supply" parameter defines whether the load voltage supply shall
         be deactivated or activated. The setting can be made separately for each
         IO-Link interface (port). If no channel is specified, the value will be
@@ -328,7 +332,7 @@ class CpxE4Iol(CpxModule):
 
     @CpxBase.require_base
     def configure_operating_mode(
-        self, value: OperatingMode | int, channel: int | list = None
+        self, value: Union[OperatingMode, int], channel: Union[int, list] = None
     ) -> None:
         """The "Operating mode" parameter defines the operating mode of the
         IO-Link® interface (port). The setting can be made separately for
@@ -378,7 +382,9 @@ class CpxE4Iol(CpxModule):
         )
 
     @CpxBase.require_base
-    def read_line_state(self, channel: int | list = None) -> list[str] | str:
+    def read_line_state(
+        self, channel: Union[int, list] = None
+    ) -> Union[list[str], str]:
         """Line state for all channels. If no channel is provided, list of all channels
         is returned.
 
@@ -432,7 +438,9 @@ class CpxE4Iol(CpxModule):
         return ret
 
     @CpxBase.require_base
-    def read_device_error(self, channel: int | list = None) -> tuple[int] | int:
+    def read_device_error(
+        self, channel: Union[int, list] = None
+    ) -> Union[tuple[int], int]:
         """the "Device error code" parameter displays the current lowest-value error code
         (event code) of the connected IO-Link device. If no event is reported, the parameter
         has a value of 0.
