@@ -132,7 +132,7 @@ class TestCpxAp:
     )
     @patch(
         "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count",
-        spec=TCpxAp.read_module_countrue,
+        spec=CpxAp.read_module_count,
     )
     @patch(
         "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information",
