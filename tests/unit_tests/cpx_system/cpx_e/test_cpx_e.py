@@ -230,6 +230,45 @@ class TestCpxE:
         with pytest.raises(TypeError):
             CpxE("60E-EC-NIM")
 
+    def test_name_same_type(self):
+        """Test name access"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE([CpxEEp(), CpxE16Di(), CpxE16Di()])
+
+        # Assert
+        assert cpx_e.modules[0].name == "cpxeep"
+        assert cpx_e.modules[1].name == "cpxe16di"
+        assert cpx_e.modules[2].name == "cpxe16di_1"
+
+    def test_name_same_name(self):
+        """Test name access"""
+        # Arrange
+
+        # Act
+        cpx_e = CpxE([CpxEEp("EP"), CpxE16Di("E16"), CpxE16Di("E16")])
+
+        # Assert
+        assert cpx_e.modules[0].name == "EP"
+        assert cpx_e.modules[1].name == "E16"
+        assert cpx_e.modules[2].name == "E16_1"
+
+    def test_name_rename(self):
+        """Test name access"""
+        # Arrange
+        cpx_e = CpxE([CpxEEp(), CpxE16Di(), CpxE16Di()])
+
+        # Act
+        cpx_e.modules[0].name = "EP"
+        cpx_e.modules[1].name = "E16"
+        cpx_e.modules[2].name = "E16"
+
+        # Assert
+        assert cpx_e.modules[0].name == "EP"
+        assert cpx_e.modules[1].name == "E16"
+        assert cpx_e.modules[2].name == "E16_1"
+
     def test_name_access_modified_modules_custom_names_removed(self):
         """Test name access"""
         # Arrange

@@ -435,6 +435,7 @@ class TestCpxAp:
 
         # Assert
         assert ret == module
+        assert module.name == "name"
 
     def test_add_module_bus_module(self, ap_fixture, mocker):
         # Arrange
@@ -673,3 +674,66 @@ class TestCpxAp:
         )
 
         assert ret == 2
+
+    def test_name(self, ap_fixture):
+        """Test name access"""
+        # Arrange
+        # Act
+        ap_fixture._modules = [
+            ApModule(
+                ApddInformation(
+                    description="description",
+                    name="name1",
+                    module_type="module_type",
+                    configurator_code="configurator_code",
+                    part_number="part_number",
+                    module_class="module_class",
+                    module_code="module_code",
+                    order_text="order_text",
+                    product_category="product_category",
+                    product_family="product_family",
+                ),
+                ([], [], []),
+                [],
+                [],
+            ),
+            ApModule(
+                ApddInformation(
+                    description="description",
+                    name="name2",
+                    module_type="module_type",
+                    configurator_code="configurator_code",
+                    part_number="part_number",
+                    module_class="module_class",
+                    module_code="module_code",
+                    order_text="order_text",
+                    product_category="product_category",
+                    product_family="product_family",
+                ),
+                ([], [], []),
+                [],
+                [],
+            ),
+            ApModule(
+                ApddInformation(
+                    description="description",
+                    name="name3",
+                    module_type="module_type",
+                    configurator_code="configurator_code",
+                    part_number="part_number",
+                    module_class="module_class",
+                    module_code="module_code",
+                    order_text="order_text",
+                    product_category="product_category",
+                    product_family="product_family",
+                ),
+                ([], [], []),
+                [],
+                [],
+            ),
+        ]
+
+        # Assert
+        assert ap_fixture.modules[0].name == "name1"
+        assert ap_fixture.modules[1].name == "name2"
+        assert ap_fixture.modules[2].name == "name3"

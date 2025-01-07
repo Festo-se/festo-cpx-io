@@ -240,17 +240,28 @@ class ApModule(CpxModule):
             if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
                 # IO-Link splits into byte_channel_size chunks. Assumes all channels are the same
                 byte_channel_size = self.channels.inouts[0].array_size
-                # for IO-Link only the channels.inouts are relevant
+                # for IO-Link only the channels.inouts are relevant, cut to the correct size
                 data = data[: len(self.channels.inouts * byte_channel_size)]
 
                 channels = [
                     data[i : i + byte_channel_size]
                     for i in range(0, len(data), byte_channel_size)
                 ]
+
+                # cut to actual IO-Link device size if available
+                channel_data = [
+                    (
+                        (c[: self.fieldbus_parameters[i]["Input data length"]])
+                        if self.fieldbus_parameters[i]["Input data length"] > 0
+                        else None
+                    )
+                    for i, c in enumerate(channels)
+                ]
+
                 Logging.logger.info(
-                    f"{self.name}: Reading IO-Link channels: {channels}"
+                    f"{self.name}: Reading IO-Link channels: {channel_data}"
                 )
-                return channels
+                return channel_data
 
             decode_string = self._generate_decode_string(self.channels.inputs)
 
@@ -282,9 +293,6 @@ class ApModule(CpxModule):
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param full_size: IO-Link channes should be returned in full datalength and not
-            limited to the slave information datalength
-        :type full_size: bool
         :return: Value of the channel
         :rtype: bool
         """
@@ -293,14 +301,11 @@ class ApModule(CpxModule):
         return self.read_output_channels()[channel]
 
     @CpxBase.require_base
-    def read_channel(self, channel: int, full_size: bool = False) -> Any:
+    def read_channel(self, channel: int) -> Any:
         """Read back the value of one channel.
 
         :param channel: Channel number, starting with 0
         :type channel: int
-        :param full_size: IO-Link channes should be returned in full datalength and not
-            limited to the slave information datalength
-        :type full_size: bool
         :return: Value of the channel
         :rtype: bool
         """
@@ -313,12 +318,6 @@ class ApModule(CpxModule):
         )
 
         channel_range_check(channel, channel_count)
-
-        # if datalength is given and full_size is not requested, shorten output
-        if self.fieldbus_parameters and not full_size:
-            return self.read_channels()[channel][
-                : self.fieldbus_parameters[channel]["Input data length"]
-            ]
 
         return self.read_channels()[channel]
 
@@ -339,20 +338,49 @@ class ApModule(CpxModule):
             )
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
+
+        # IO-Link:
+        if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
+            if not all(isinstance(d, bytes) for d in data):
+                raise TypeError(
+                    f"{self.name}: datatype for IO-Link channels must be bytes"
+                )
+
+            byte_channel_size = self.channels.inouts[0].array_size
+
+            if any(len(d) != byte_channel_size for d in data):
+                raise ValueError(
+                    f"Your current IO-Link datalength {byte_channel_size} does "
+                    f"not match the provided bytes length."
+                )
+
+            # Join all channel values to one bytes object so it can be written in one modbus command
+            all_register_data = b"".join(data)
+
+            self.base.write_reg_data(
+                all_register_data, self.system_entry_registers.outputs
+            )
+
+            Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")
+            return
+
+        # BOOL: all data can be written with one register write
         if all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
             isinstance(d, bool) for d in data
         ):
             reg = boollist_to_bytes(data)
             self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-            Logging.logger.info(f"{self.name}: Setting bool channels to {data}")
+            Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
             return
 
-        # Handle mixed channels
+        # MIXED: Since the channels may be of different types, they are written
+        # individually. This is not the best performance but it works with all types.
         for i, c in enumerate(self.channels.outputs):
             if c.data_type in SUPPORTED_DATATYPES:
                 self.write_channel(i, data[i])
             else:
                 raise TypeError(f"Output data type {c.data_type} is not supported")
+        Logging.logger.info(f"{self.name}: Setting channels to {data}")
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:
@@ -364,6 +392,8 @@ class ApModule(CpxModule):
         :value: Value that should be written to the channel
         :type value: Any
         """
+        # pylint: disable=too-many-branches
+        # intentional, lots of checks are done to guide the user
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
         channel_range_check(channel, len(self.channels.outputs))
@@ -379,6 +409,19 @@ class ApModule(CpxModule):
                 raise TypeError("Datatypes are not supported for IO-Link modules")
 
             byte_channel_size = self.channels.inouts[0].array_size
+
+            if len(value) != byte_channel_size:
+                Logging.logger.warning(
+                    f"Length of value {value} does not match master channel size"
+                    f" of {byte_channel_size} bytes. Shorter values must be padded left!"
+                )
+
+            # add missing bytes for full modbus register
+            if len(value) % 2:
+                value = b"\x00" + value
+            # add missing bytes for full master length
+            if len(value) < byte_channel_size:
+                value += b"\x00" * (byte_channel_size - len(value))
 
             self.base.write_reg_data(
                 value,
@@ -468,7 +511,7 @@ class ApModule(CpxModule):
         self.write_channel(channel, True)
 
     @CpxBase.require_base
-    def clear_channel(self, channel: int) -> None:
+    def reset_channel(self, channel: int) -> None:
         """Set one channel to logic low level.
 
         :param channel: Channel number, starting with 0
@@ -632,7 +675,8 @@ class ApModule(CpxModule):
         parameter = self.get_parameter_from_identifier(parameter)
 
         if not parameter.enums:
-            raise TypeError(f"Parameter {parameter} is not an enum ")
+            Logging.logger.info(f"{parameter} has no enums. Returning values instead.")
+            return values
 
         enum_id_to_name_dict = {v: k for k, v in parameter.enums.enum_values.items()}
 

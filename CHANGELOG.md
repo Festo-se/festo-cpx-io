@@ -5,6 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Fixed
+- Docstrings and types of CpxE4Iol `write_channel()`
+- Renaming modules manually now checks for duplicates and increments suffix if needed
+
+### Changed
+- Renamed `clear_channel()` to `reset_channel()`
+- `read_module_parameter_enum_str()` doesn't raise TypeError anymore when no enums available. Instead gives Logger Info message and returns values
+- `print_system_information` now prints enum strings for parameters
+- `read_channel(s)` with IO-Link now returns correct datalength according to device information and None if device information is missing
+
+### Added
+- `write_channels()` function for IO-Link masters
+- Simple diagnosis example
+- Utils files to documentation
+
+### Removed
+- `read_output_channel()` from IO-Link masters
+- `full_size` parameter. CpxAp will return length of device. CpxE will return length of master
 
 ## v0.6.4 - 30.10.24
 ### Changed

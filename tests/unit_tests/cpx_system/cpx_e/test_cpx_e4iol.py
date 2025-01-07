@@ -128,20 +128,21 @@ class TestCpxE4Iol:
         )
 
     @pytest.mark.parametrize(
-        "output_register, input_value, expected_value",
+        "module_output_size, input_value, expected_value",
         [
-            (0, (0, b"\x00\xAB"), (b"\x00\xAB", 0)),
-            (0, (1, b"\x00\xCD"), (b"\x00\xCD", 1)),
-            (1, (0, b"\x00\xAB"), (b"\x00\xAB", 1)),
-            (1, (1, b"\x00\xCD"), (b"\x00\xCD", 2)),
+            (1, (0, b"\x12\xAB"), (b"\x12\xAB", 1000)),
+            (1, (1, b"\x34\xCD"), (b"\x34\xCD", 1001)),
+            (2, (0, b"\x12\xAB\x34\xCD"), (b"\x12\xAB\x34\xCD", 1000)),
+            (2, (1, b"\x12\xAB\x34\xCD"), (b"\x12\xAB\x34\xCD", 1002)),
         ],
     )
-    def test_write_channel(self, output_register, input_value, expected_value):
+    def test_write_channel(self, module_output_size, input_value, expected_value):
         """test write channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.system_entry_registers = SystemEntryRegisters(outputs=output_register)
+        cpxe4iol.system_entry_registers = SystemEntryRegisters(outputs=1000)
         cpxe4iol.base = Mock(write_reg_data=Mock())
+        cpxe4iol.module_output_size = module_output_size
 
         # Act
         cpxe4iol.write_channel(*input_value)
@@ -149,8 +150,8 @@ class TestCpxE4Iol:
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(*expected_value)
 
-    def test_set_channel_0(self):
-        """Test set channel"""
+    def test_setter_channel_0(self):
+        """Test setter channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.system_entry_registers = SystemEntryRegisters(outputs=0)
@@ -162,6 +163,46 @@ class TestCpxE4Iol:
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
             b"\xFE\x00", cpxe4iol.system_entry_registers.outputs
+        )
+
+    def test_write_channels_2byte(self):
+        """Test write channels"""
+        # Arrange
+        cpxe4iol = CpxE4Iol()
+        cpxe4iol.system_entry_registers = SystemEntryRegisters(outputs=1000)
+        cpxe4iol.base = Mock(write_reg_data=Mock())
+        cpxe4iol.module_output_size = 1
+
+        # Act
+        cpxe4iol.write_channels([b"\x12\xAB", b"\x34\xCD", b"\x56\xEF", b"\x78\x00"])
+
+        # Assert
+        cpxe4iol.base.write_reg_data.assert_called_with(
+            b"\x12\xAB\x34\xCD\x56\xEF\x78\x00", cpxe4iol.system_entry_registers.outputs
+        )
+
+    def test_write_channels_4byte(self):
+        """Test write channels"""
+        # Arrange
+        cpxe4iol = CpxE4Iol()
+        cpxe4iol.system_entry_registers = SystemEntryRegisters(outputs=1000)
+        cpxe4iol.base = Mock(write_reg_data=Mock())
+        cpxe4iol.module_output_size = 2
+
+        # Act
+        cpxe4iol.write_channels(
+            [
+                b"\x12\xAB\x01\x02",
+                b"\x34\xCD\x03\x04",
+                b"\x56\xEF\x05\x06",
+                b"\x78\x00\x07\x08",
+            ]
+        )
+
+        # Assert
+        cpxe4iol.base.write_reg_data.assert_called_with(
+            b"\x12\xAB\x01\x02\x34\xCD\x03\x04\x56\xEF\x05\x06\x78\x00\x07\x08",
+            cpxe4iol.system_entry_registers.outputs,
         )
 
     @pytest.mark.parametrize(

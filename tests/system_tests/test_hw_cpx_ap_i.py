@@ -36,6 +36,7 @@ def test_set_timeout():
     "test timeout"
     with CpxAp(ip_address="172.16.1.41", timeout=0.5) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
+        time.sleep(0.05)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
@@ -43,6 +44,7 @@ def test_set_timeout_below_100ms():
     "test timeout"
     with CpxAp(ip_address="172.16.1.41", timeout=0.05) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
+        time.sleep(0.05)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 100
 
 
@@ -81,6 +83,14 @@ def test_module_naming(test_cpxap):
     assert isinstance(test_cpxap.cpx_ap_i_ep_m12, ApModule)
     test_cpxap.cpx_ap_i_ep_m12.name = "test"
     assert isinstance(test_cpxap.test, ApModule)
+
+
+def test_module_naming_same_name(test_cpxap):
+    assert isinstance(test_cpxap.cpx_ap_i_ep_m12, ApModule)
+    test_cpxap.modules[1].name = "test"
+    test_cpxap.modules[2].name = "test"
+    assert test_cpxap.test
+    assert test_cpxap.test_1
 
 
 def test_modules(test_cpxap):
@@ -349,7 +359,7 @@ def test_4Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(4) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
     time.sleep(0.05)
     assert m.read_output_channel(0) is False
     assert m.read_channel(4) is False
@@ -359,7 +369,7 @@ def test_4Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(4) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
 
 
 def test_4Di4Do_parameter_write_debounce(test_cpxap):
@@ -555,47 +565,14 @@ def test_4iol_sdas(test_cpxap):
     pdv = (process_data & 0xFFF0) >> 4
 
     assert 0 <= pdv <= 4095
+    assert ssc1 is False
+    assert ssc2 is False
+    assert ssc3 is False
+    assert ssc4 is False
 
     assert m[sdas_channel] == m.read_channel(sdas_channel)
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", sdas_channel)
-
-
-def test_4iol_sdas_full(test_cpxap):
-    m = test_cpxap.modules[4]
-    sdas_channel = 0
-
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
-
-    time.sleep(0.05)
-
-    # example SDAS-MHS on port 0
-    param = m.read_fieldbus_parameters()
-
-    while param[sdas_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
-
-    sdas_data = m.read_channel(sdas_channel, full_size=True)
-    assert len(sdas_data) == 8
-
-    sdas_data = sdas_data[:2]  # only two bytes relevant
-
-    process_data = int.from_bytes(sdas_data, byteorder="big")
-
-    ssc1 = bool(process_data & 0x1)
-    ssc2 = bool(process_data & 0x2)
-    ssc3 = bool(process_data & 0x4)
-    ssc4 = bool(process_data & 0x8)
-    pdv = (process_data & 0xFFF0) >> 4
-
-    assert 0 <= pdv <= 4095
-
-    assert m[sdas_channel] == m.read_channel(sdas_channel)
-
-    m.write_module_parameter("Port Mode", "DEACTIVATED", sdas_channel)
-
-    while param[sdas_channel]["Port status information"] != "DEACTIVATED":
-        param = m.read_fieldbus_parameters()
 
 
 def test_4iol_sdas_read_isdu_string_as_raw(test_cpxap):
@@ -873,8 +850,16 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x02")  # Move
+    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
         time.sleep(0.01)
@@ -885,7 +870,143 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
 
-    m.write_channel(emcs_channel, b"\x00\x01")  # Move
+    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+
+def test_4iol_emcs_write_int8_with_move(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    m.write_channel(emcs_channel, b"\x02")  # Move Out
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channel(emcs_channel, b"\x01")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+
+def test_4iol_emcs_write_int64_with_move(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    m.write_channel(emcs_channel, b"\x00\x02\x00\x00\x00\x00\x00\x00")  # Move Out
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+
+def test_4iol_write_channels_with_emcs(test_cpxap):
+    m = test_cpxap.modules[4]
+    assert m.apdd_information.module_type == "CPX-AP-I-4IOL-M12 Variant 8"
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # Act & Assert
+    m.write_channels(
+        [
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x02\x00\x00\x00\x00\x00\x00",
+        ]
+    )  # Move
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channels(
+        [
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x00\x00\x00\x00\x00\x00\x00",
+            b"\x00\x01\x00\x00\x00\x00\x00\x00",
+        ]
+    )  # Move
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
         time.sleep(0.01)
@@ -927,7 +1048,7 @@ def test_4iol_ehps(test_cpxap):
     def read_process_data_in(module, channel):
         # ehps provides 3 x 16bit "process data in".
         data = module.read_channel(channel)
-        # unpack it to 3x 16 bit uint
+        # unpack it to 3 x 16 bit uint
         ehps_data = struct.unpack(">HHH", data)
 
         process_data_in = {}
@@ -942,6 +1063,7 @@ def test_4iol_ehps(test_cpxap):
         process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
 
         process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
+        assert process_data_in["Ready"]  # must be true when powered
 
         process_data_in["ErrorNumber"] = ehps_data[1]
         process_data_in["ActualPosition"] = ehps_data[2]
@@ -963,45 +1085,154 @@ def test_4iol_ehps(test_cpxap):
     while not process_data_in["Ready"]:
         process_data_in = read_process_data_in(m, ehps_channel)
 
-    # demo of process data out
-    control_word_msb = 0x00
-    control_word_lsb = 0x01  # latch
+    # init
+    control_word = 0x0001  # latch
     gripping_mode = 0x46  # universal
     workpiece_no = 0x00
     gripping_position = 0x03E8
     gripping_force = 0x03  # ca. 85%
     gripping_tolerance = 0x0A
 
-    data = [
-        control_word_lsb + (control_word_msb << 8),
-        workpiece_no + (gripping_mode << 8),
+    pd_list = [
+        control_word,
+        gripping_mode,
+        workpiece_no,
         gripping_position,
-        gripping_tolerance + (gripping_force << 8),
+        gripping_force,
+        gripping_tolerance,
     ]
 
-    # init
-    # this pack is not good, just for testing I can use legacy code
-    process_data_out = struct.pack(">HHHH", *data)
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     m.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    data[0] = 0x0100
-    process_data_out = struct.pack(">HHHH", *data)
+    pd_list[0] = 0x0100
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["OpenedPositionFlag"]:
-        process_data_in = read_process_data_in(m, ehps_channel)
         time.sleep(0.05)
+        process_data_in = read_process_data_in(m, ehps_channel)
 
-    # Close command 0x 0200
-    data[0] = 0x0200
-    process_data_out = struct.pack(">HHHH", *data)
+    # Close command 0x0200
+    pd_list[0] = 0x0200
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     m.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:
-        process_data_in = read_process_data_in(m, ehps_channel)
         time.sleep(0.05)
+        process_data_in = read_process_data_in(m, ehps_channel)
+
+    assert process_data_in["Error"] is False
+    assert process_data_in["ClosedPositionFlag"] is True
+    assert process_data_in["OpenedPositionFlag"] is False
+
+    m.write_module_parameter("Port Mode", "DEACTIVATED", ehps_channel)
+    # wait for inactive
+    param = m.read_fieldbus_parameters()
+    while param[ehps_channel]["Port status information"] != "DEACTIVATED":
+        param = m.read_fieldbus_parameters()
+
+
+def test_4iol_ehps_write_channels(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    time.sleep(0.05)
+
+    def read_process_data_in(module, channel):
+        # ehps provides 3 x 16bit "process data in".
+        data = module.read_channel(channel)
+        # unpack it to 3 x 16 bit uint
+        ehps_data = struct.unpack(">HHH", data)
+
+        process_data_in = {}
+
+        process_data_in["Error"] = bool((ehps_data[0] >> 15) & 1)
+        process_data_in["DirectionCloseFlag"] = bool((ehps_data[0] >> 14) & 1)
+        process_data_in["DirectionOpenFlag"] = bool((ehps_data[0] >> 13) & 1)
+        process_data_in["LatchDataOk"] = bool((ehps_data[0] >> 12) & 1)
+        process_data_in["UndefinedPositionFlag"] = bool((ehps_data[0] >> 11) & 1)
+        process_data_in["ClosedPositionFlag"] = bool((ehps_data[0] >> 10) & 1)
+        process_data_in["GrippedPositionFlag"] = bool((ehps_data[0] >> 9) & 1)
+        process_data_in["OpenedPositionFlag"] = bool((ehps_data[0] >> 8) & 1)
+
+        process_data_in["Ready"] = bool((ehps_data[0] >> 6) & 1)
+        assert process_data_in["Ready"]  # must be true when powered
+
+        process_data_in["ErrorNumber"] = ehps_data[1]
+        process_data_in["ActualPosition"] = ehps_data[2]
+
+        return process_data_in
+
+    # example EHPS-20-A-LK on port 1
+    ehps_channel = 1
+
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ehps_channel)
+
+    # wait for operate
+    param = m.read_fieldbus_parameters()
+    while param[ehps_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # wait for ready
+    process_data_in = read_process_data_in(m, ehps_channel)
+    while not process_data_in["Ready"]:
+        process_data_in = read_process_data_in(m, ehps_channel)
+
+    # init
+    control_word = 0x0001  # latch
+    gripping_mode = 0x46  # b"\x46"  # universal
+    workpiece_no = 0x00  # b"\x00"
+    gripping_position = 0x03E8  # b"\x03\xE8"
+    gripping_force = 0x03  # b"\x03"  # ca. 85%
+    gripping_tolerance = 0x0A  # b"\x0A"
+
+    process_data_out = struct.pack(
+        ">HBBHBB",
+        control_word,
+        gripping_mode,
+        workpiece_no,
+        gripping_position,
+        gripping_force,
+        gripping_tolerance,
+    )
+    m.write_channels([process_data_out] * 4)
+    time.sleep(0.05)
+
+    # Open command: 0x0100
+    control_word = 0x0100
+    process_data_out = struct.pack(
+        ">HBBHBB",
+        control_word,
+        gripping_mode,
+        workpiece_no,
+        gripping_position,
+        gripping_force,
+        gripping_tolerance,
+    )
+    m.write_channels([process_data_out] * 4)
+
+    while not process_data_in["OpenedPositionFlag"]:
+        time.sleep(0.05)
+        process_data_in = read_process_data_in(m, ehps_channel)
+
+    # Close command 0x0200
+    control_word = 0x0200
+    process_data_out = struct.pack(
+        ">HBBHBB",
+        control_word,
+        gripping_mode,
+        workpiece_no,
+        gripping_position,
+        gripping_force,
+        gripping_tolerance,
+    )
+    m.write_channels([process_data_out] * 4)
+
+    while not process_data_in["ClosedPositionFlag"]:
+        time.sleep(0.05)
+        process_data_in = read_process_data_in(m, ehps_channel)
 
     assert process_data_in["Error"] is False
     assert process_data_in["ClosedPositionFlag"] is True
@@ -1020,14 +1251,13 @@ def test_4iol_ethrottle(test_cpxap):
     def read_process_data_in(module, channel):
         data = module.read_channel(channel)
         # register order is [msb, ... , ... , lsb]
-        # this unpack is not good, just for testing I can use legacy code
-        data = struct.unpack(">Q", data)[0]
+        data_int = int.from_bytes(data, byteorder="big")
         process_input_data = {
-            "Actual Position": data,
-            "Homing Valid": bool(data & 0b1000),
-            "Motion Complete": bool(data & 0b100),
-            "Proximity Switch": bool(data & 0b10),
-            "Reduced Speed": bool(data & 0b1000),
+            "Actual Position": (data_int & 0xFFFFFFFFFFFFFF00) >> 8,
+            "Homing Valid": bool(data_int & 8),
+            "Motion Complete": bool(data_int & 4),
+            "Proximity Switch": bool(data_int & 2),
+            "Reduced Speed": bool(data_int & 1),
         }
         return process_input_data
 
@@ -1045,8 +1275,7 @@ def test_4iol_ethrottle(test_cpxap):
     process_input_data = read_process_data_in(m, ethrottle_channel)
 
     if not process_input_data["Homing Valid"]:
-        process_output_data = [1]
-        process_output_data = struct.pack(">Q", *process_output_data)
+        process_output_data = b"\x00\x00\x00\x00\x00\x00\x00\x01"
         m.write_channel(ethrottle_channel, process_output_data)
 
         while not process_input_data["Homing Valid"]:
@@ -1351,7 +1580,7 @@ def test_vabx_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)

@@ -1,6 +1,7 @@
 """Tests for cpx-e system"""
 
 import time
+import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_base import CpxInitError
@@ -127,7 +128,7 @@ def test_2modules(test_cpxe):
     time.sleep(0.05)
     assert e16di.read_channel(0) is True
 
-    assert e8do.clear_channel(0) is None
+    assert e8do.reset_channel(0) is None
     assert e8do.read_channel(0) is False
     time.sleep(0.05)
     assert e16di.read_channel(0) is False
@@ -137,7 +138,7 @@ def test_2modules(test_cpxe):
     time.sleep(0.05)
     assert e16di.read_channel(0) is True
 
-    assert e8do.clear_channel(0) is None
+    assert e8do.reset_channel(0) is None
     assert e8do.read_channel(0) is False
     time.sleep(0.05)
     assert e16di.read_channel(0) is False
@@ -208,7 +209,7 @@ def test_8do_independent_write(test_cpxe):
         True,
     ]
 
-    e8do.clear_channel(0)
+    e8do.reset_channel(0)
     time.sleep(0.05)
     assert e8do.read_channels() == [
         False,
@@ -696,7 +697,6 @@ def test_4iol_sdas(test_cpxe):
         state = e4iol.read_line_state()[0]
 
 
-"""
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -708,10 +708,11 @@ def test_4iol_ehps(test_cpxe):
 
     # process data decoding (device specific)
     def read_process_data_in(module, channel):
-        # ehps provides 48 bit "process data in".
-        data = module.read_channel(channel)
-        ehps_data = struct.unpack(">HHHH", data)
-        assert ehps_data[3] == 0
+        # ehps provides 3 x 16bit "process data in"
+        # master channel length is 8 bytes, so omit the last two
+        data = module.read_channel(channel)[:-2]
+        # unpack it to 3 x 16 bit uint
+        ehps_data = struct.unpack(">HHH", data)
 
         process_data_in = {}
 
@@ -755,30 +756,30 @@ def test_4iol_ehps(test_cpxe):
         ready = read_process_data_in(e4iol, ehps_channel)["Ready"]
 
     # demo of process data out, also sent to initialize
-    control_word_msb = 0x00
-    control_word_lsb = 0x01  # latch
+    control_word = 0x0001  # latch
     gripping_mode = 0x46  # universal
     workpiece_no = 0x00
     gripping_position = 0x03E8
     gripping_force = 0x03  # ca. 85%
     gripping_tolerance = 0x0A
 
-    data = [
-        control_word_lsb + (control_word_msb << 8),
-        workpiece_no + (gripping_mode << 8),
+    pd_list = [
+        control_word,
+        gripping_mode,
+        workpiece_no,
         gripping_position,
-        gripping_tolerance + (gripping_force << 8),
+        gripping_force,
+        gripping_tolerance,
     ]
 
     # init
-    # this pack is not good, just for testing I can use legacy code
-    process_data_out = struct.pack(">HHHH", *data)
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     e4iol.write_channel(ehps_channel, process_data_out)
     time.sleep(0.05)
 
     # Open command: 0x0100
-    data[0] = 0x0100
-    process_data_out = struct.pack(">HHHH", *data)
+    pd_list[0] = 0x0100
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     e4iol.write_channel(ehps_channel, process_data_out)
 
     process_data_in = read_process_data_in(e4iol, ehps_channel)
@@ -787,8 +788,8 @@ def test_4iol_ehps(test_cpxe):
         time.sleep(0.05)
 
     # Close command 0x 0200
-    data[0] = 0x0200
-    process_data_out = struct.pack(">HHHH", *data)
+    pd_list[0] = 0x0200
+    process_data_out = struct.pack(">HBBHBB", *pd_list)
     e4iol.write_channel(ehps_channel, process_data_out)
 
     while not process_data_in["ClosedPositionFlag"]:
@@ -804,7 +805,6 @@ def test_4iol_ehps(test_cpxe):
     # wait for state to change
     while state != "INACTIVE":
         state = e4iol.read_line_state()[ehps_channel]
-"""
 
 
 def test_1ci_module(test_cpxe):

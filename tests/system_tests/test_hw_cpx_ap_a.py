@@ -1,6 +1,7 @@
 """Tests for cpx-ap system"""
 
 import time
+import struct
 import pytest
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
@@ -89,6 +90,14 @@ def test_module_naming(test_cpxap):
     assert isinstance(test_cpxap.cpx_ap_a_ep_m12, CpxModule)
     test_cpxap.cpx_ap_a_ep_m12.name = "test"
     assert isinstance(test_cpxap.test, CpxModule)
+
+
+def test_module_naming_same_name(test_cpxap):
+    assert isinstance(test_cpxap.cpx_ap_a_ep_m12, CpxModule)
+    test_cpxap.modules[1].name = "test"
+    test_cpxap.modules[2].name = "test"
+    assert test_cpxap.test
+    assert test_cpxap.test_1
 
 
 def test_modules(test_cpxap):
@@ -431,7 +440,7 @@ def test_12Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(12) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
     time.sleep(0.05)
     assert m.read_output_channel(0) is False
     assert m.read_channel(12) is False
@@ -441,7 +450,7 @@ def test_12Di4Do(test_cpxap):
     assert m.read_output_channel(0) is True
     assert m.read_channel(12) is True
 
-    m.clear_channel(0)
+    m.reset_channel(0)
 
 
 def test_12Di4Do_channel_out_of_range(test_cpxap):
@@ -451,7 +460,7 @@ def test_12Di4Do_channel_out_of_range(test_cpxap):
         m.set_channel(4)
 
     with pytest.raises(IndexError):
-        m.clear_channel(4)
+        m.reset_channel(4)
 
     with pytest.raises(IndexError):
         m.toggle_channel(4)
@@ -580,7 +589,7 @@ def test_8do(test_cpxap):
         m.write_channel(i, True)
         time.sleep(0.05)
         assert m.read_channel(i) is True
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -715,21 +724,124 @@ def test_8Di_parameter_rw_strings_debounce(test_cpxap):
 
 
 def test_4iol_read_channels(test_cpxap):
+    # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
-    test = m.read_channels()
-    assert m.read_channels() == [b"\x00\x00\x00\x00\x00\x00\x00\x00"] * 4
+    assert m.read_channels() == [b""] * 4
 
 
 def test_4iol_read_channel(test_cpxap):
+    # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
     for i in range(4):
-        assert (
-            m.read_channel(
-                i,
-            )
-            == b""
-        )
-        assert m.read_channel(i, full_size=True) == b"\x00\x00\x00\x00\x00\x00\x00\x00"
+        assert m.read_channel(i) == b""
+
+
+def test_vaeb_iol_write_channel_8bytes(test_cpxap):
+    m = test_cpxap.modules[5]
+    for i in range(4):
+        m.write_module_parameter("Port Mode", "IOL_AUTOSTART", i)
+        param = m.read_fieldbus_parameters()
+        while param[i]["Port status information"] != "OPERATE":
+            param = m.read_fieldbus_parameters()
+
+    write_ints = [10, 100, 500, 1000]
+    write_converted = [struct.pack(">HHHH", d, 0, 0, 0) for d in write_ints]
+
+    for c, w in enumerate(write_converted):
+        m.write_channel(c, w)
+
+    for i in range(20):
+        m.read_channels()
+        time.sleep(0.05)
+
+        data_raw_channel = [m.read_channel(i) for i in range(4)]
+        data_raw_channels = m.read_channels()
+
+        converted_channel = [
+            int.from_bytes(d, byteorder="big") for d in data_raw_channel
+        ]
+        converted_channels = [
+            int.from_bytes(d, byteorder="big") for d in data_raw_channels
+        ]
+
+    assert 6 < converted_channel[0] < 14
+    assert 95 < converted_channel[1] < 105
+    assert 490 < converted_channel[2] < 510
+    assert 990 < converted_channel[3] < 1010
+
+    assert 6 < converted_channels[0] < 14
+    assert 95 < converted_channels[1] < 105
+    assert 490 < converted_channels[2] < 510
+    assert 990 < converted_channels[3] < 1010
+
+
+def test_vaeb_iol_write_channel_2bytes(test_cpxap):
+    m = test_cpxap.modules[5]
+    for i in range(4):
+        m.write_module_parameter("Port Mode", "IOL_AUTOSTART", i)
+        param = m.read_fieldbus_parameters()
+        while param[i]["Port status information"] != "OPERATE":
+            param = m.read_fieldbus_parameters()
+
+    write_ints = [10, 100, 500, 1000]
+    write_converted = [d.to_bytes(2, byteorder="big") for d in write_ints]
+
+    for c, w in enumerate(write_converted):
+        m.write_channel(c, w)
+
+    for i in range(20):
+        m.read_channels()
+        time.sleep(0.05)
+
+    data_raw_channel = [m.read_channel(i) for i in range(4)]
+    data_raw_channels = m.read_channels()
+
+    converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
+    converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
+
+    assert 6 < converted_channel[0] < 14
+    assert 95 < converted_channel[1] < 105
+    assert 490 < converted_channel[2] < 510
+    assert 990 < converted_channel[3] < 1010
+
+    assert 6 < converted_channels[0] < 14
+    assert 95 < converted_channels[1] < 105
+    assert 490 < converted_channels[2] < 510
+    assert 990 < converted_channels[3] < 1010
+
+
+def test_vaeb_iol_write_channels_8byte(test_cpxap):
+    m = test_cpxap.modules[5]
+    for i in range(4):
+        m.write_module_parameter("Port Mode", "IOL_AUTOSTART", i)
+        param = m.read_fieldbus_parameters()
+        while param[i]["Port status information"] != "OPERATE":
+            param = m.read_fieldbus_parameters()
+
+    write_ints = [10, 100, 500, 1000]
+    write_converted = [struct.pack(">HHHH", d, 0, 0, 0) for d in write_ints]
+
+    m.write_channels(write_converted)
+
+    for i in range(20):
+        m.read_channels()
+        time.sleep(0.05)
+
+    data_raw_channel = [m.read_channel(i) for i in range(4)]
+    data_raw_channels = m.read_channels()
+
+    converted_channel = [int.from_bytes(d, byteorder="big") for d in data_raw_channel]
+    converted_channels = [int.from_bytes(d, byteorder="big") for d in data_raw_channels]
+
+    assert 6 < converted_channel[0] < 14
+    assert 95 < converted_channel[1] < 105
+    assert 490 < converted_channel[2] < 510
+    assert 990 < converted_channel[3] < 1010
+
+    assert 6 < converted_channels[0] < 14
+    assert 95 < converted_channels[1] < 105
+    assert 490 < converted_channels[2] < 510
+    assert 990 < converted_channels[3] < 1010
 
 
 def test_4iol_parameter_write_load(test_cpxap):
@@ -929,7 +1041,7 @@ def test_vabx_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -993,7 +1105,7 @@ def test_vaem_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -1057,7 +1169,7 @@ def test_vmpal_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
@@ -1121,7 +1233,7 @@ def test_vaba_set_clear_toggle(test_cpxap):
         time.sleep(0.05)
         assert m.read_channel(i) is True
         time.sleep(0.05)
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
         assert m.read_channel(i) is False
         m.toggle_channel(i)

@@ -183,7 +183,7 @@ def test_vmpa14_fb_emg_d2_8_s_set_clear_channel(test_cpxap):
 
         assert m.read_output_channel(i) is True
 
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
 
         assert m.read_output_channel(i) is False
@@ -302,7 +302,7 @@ def test_vmpa1_fb_ems_d2_8_set_clear_channel(test_cpxap):
 
         assert m.read_channel(i) is True
 
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
 
         assert m.read_channel(i) is False
@@ -412,7 +412,7 @@ def test_vmpa14_fb_ems_d2_8_set_clear_channel(test_cpxap):
 
         assert m.read_channel(i) is True
 
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
 
         assert m.read_channel(i) is False
@@ -518,7 +518,7 @@ def test_vmpa2_fb_ems_d2_4_set_clear_channel(test_cpxap):
 
         assert m.read_channel(i) is True
 
-        m.clear_channel(i)
+        m.reset_channel(i)
         time.sleep(0.05)
 
         assert m.read_channel(i) is False
