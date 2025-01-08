@@ -22,7 +22,11 @@ from cpx_io.cpx_system.cpx_ap.ap_parameter import (
     parameter_pack,
     parameter_unpack,
 )
-from cpx_io.utils.helpers import div_ceil
+from cpx_io.utils.helpers import (
+    div_ceil,
+    convert_uint32_to_octett,
+    convert_to_mac_string,
+)
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
@@ -295,9 +299,16 @@ class CpxAp(CpxBase):
             print(f"\n\nModule {m}:")
             for i, p in m.module_dicts.parameters.items():
                 r_w = "R/W" if p.is_writable else "R"
+                value = m.read_module_parameter_enum_str(i)
+                # Ip address of an EP module - see read_system_parameters
+                if i in range(12001, 12007):
+                    value = convert_uint32_to_octett(value)
+                # Mac address of an EP module
+                if i == 12007:
+                    value = convert_to_mac_string(value)
                 print(
                     f"{f'  > Read {p.name} (ID {i}):':<64}"
-                    f"{f'{m.read_module_parameter_enum_str(i)} {p.unit}':<32}"
+                    f"{f'{value} {p.unit}':<32}"
                     f"({r_w})"
                 )
 
