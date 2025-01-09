@@ -13,8 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Add `-v, --version` command for cli to print current version
-
-### Added
+- Add pretty error messages for out of bound module/channel index access
 - Extend cli documentation and readme.md
 
 ### Changed

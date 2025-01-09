@@ -1,5 +1,6 @@
 """CLI tool to execute cpx_ap tasks."""
 
+import sys
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 
 # pylint: disable=duplicate-code
@@ -77,11 +78,22 @@ def cpx_ap_func(args):
     if args.system_state:
         cpx_ap.print_system_state()
 
-    if args.subcommand == "read":
-        value = cpx_ap.modules[args.module_index][args.channel_index]
-        print(f"Value: {value}")
-
-    elif args.subcommand == "write":
-        cpx_ap.modules[args.module_index][args.channel_index] = args.value[0] > 0
-
-    cpx_ap.shutdown()
+    try:
+        if args.subcommand == "read":
+            value = cpx_ap.modules[args.module_index][args.channel_index]
+            print(f"Value: {value}")
+        elif args.subcommand == "write":
+            cpx_ap.modules[args.module_index][args.channel_index] = args.value[0] > 0
+    except IndexError as ie:
+        if "Channel" in str(ie):
+            print(
+                f"Error: channel index {args.channel_index} does not exist",
+                file=sys.stderr,
+            )
+        else:
+            print(
+                f"Error: module index {args.module_index} does not exist",
+                file=sys.stderr,
+            )
+    finally:
+        cpx_ap.shutdown()
