@@ -2,7 +2,7 @@
 
 import json
 import struct
-from typing import Any, List
+from typing import Any, List, Union
 from dataclasses import dataclass
 import os
 import platformdirs
@@ -502,7 +502,7 @@ class CpxAp(CpxBase):
         self,
         position: int,
         parameter: Parameter,
-        data: list[int] | int | bool,
+        data: Union[list[int], int, bool],
         instance: int = 0,
     ) -> None:
         """Write parameters via module position, param_id, instance (=channel) and data to write
