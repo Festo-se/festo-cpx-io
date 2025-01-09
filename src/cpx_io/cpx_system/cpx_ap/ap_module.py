@@ -2,7 +2,7 @@
 
 import struct
 import inspect
-from typing import Any
+from typing import Any, Union
 from collections import namedtuple
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
@@ -534,9 +534,9 @@ class ApModule(CpxModule):
     @CpxBase.require_base
     def write_module_parameter(
         self,
-        parameter: str | int,
-        value: int | bool | str,
-        instances: int | list = None,
+        parameter: Union[str, int],
+        value: Union[int, bool, str],
+        instances: Union[int, list] = None,
     ) -> None:
         """Write module parameter if available.
 
@@ -594,7 +594,7 @@ class ApModule(CpxModule):
             f"{self.name}: Setting {parameter.name}, instances {instances} to {value}"
         )
 
-    def get_parameter_from_identifier(self, parameter_identifier: int | str):
+    def get_parameter_from_identifier(self, parameter_identifier: Union[int, str]):
         """helper function to get parameter object from identifier"""
         if isinstance(parameter_identifier, int):
             if parameter_identifier in self.module_dicts.parameters:
@@ -610,8 +610,8 @@ class ApModule(CpxModule):
     @CpxBase.require_base
     def read_module_parameter(
         self,
-        parameter: str | int,
-        instances: int | list = None,
+        parameter: Union[str, int],
+        instances: Union[int, list] = None,
     ) -> Any:
         """Read module parameter if available. Access either by ID (faster) or by Name.
 
@@ -654,8 +654,8 @@ class ApModule(CpxModule):
     @CpxBase.require_base
     def read_module_parameter_enum_str(
         self,
-        parameter: str | int,
-        instances: int | list = None,
+        parameter: Union[str, int],
+        instances: Union[int, list] = None,
     ) -> Any:
         """Read enum name of module parameter if available. Access either by ID (faster) or by Name.
 
@@ -781,7 +781,7 @@ class ApModule(CpxModule):
 
     # IO-Link special functions
     @CpxBase.require_base
-    def read_pqi(self, channel: int = None) -> dict | list[dict]:
+    def read_pqi(self, channel: int = None) -> Union[dict, list[dict]]:
         """Returns Port Qualifier Information for each channel. If no channel is given,
         returns a list of PQI dict for all channels.
 
@@ -1020,7 +1020,7 @@ class ApModule(CpxModule):
     @CpxBase.require_base
     def write_isdu(
         self,
-        data: bytes | str | int | bool,
+        data: Union[bytes, str, int, bool],
         channel: int,
         index: int,
         subindex: int = 0,

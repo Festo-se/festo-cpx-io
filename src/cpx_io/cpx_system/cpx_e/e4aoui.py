@@ -4,6 +4,8 @@
 # intended: modules have similar functions
 
 import struct
+from typing import Union
+
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.utils.boollist import bytes_to_boollist
@@ -320,7 +322,9 @@ class CpxE4AoUI(CpxModule):
         )
 
     @CpxBase.require_base
-    def configure_channel_range(self, channel: int, value: ChannelRange | int) -> None:
+    def configure_channel_range(
+        self, channel: int, value: Union[ChannelRange, int]
+    ) -> None:
         """Set the signal range and type of one channel
 
           * 1: 0...10 V

@@ -4,6 +4,7 @@
 # intended: modules have similar functions
 
 from dataclasses import dataclass
+from typing import Union
 
 from cpx_io.cpx_system.cpx_base import CpxBase
 from cpx_io.cpx_system.cpx_module import CpxModule
@@ -166,7 +167,7 @@ class CpxE1Ci(CpxModule):
         return ret
 
     @CpxBase.require_base
-    def configure_signal_type(self, value: SignalType | int) -> None:
+    def configure_signal_type(self, value: Union[SignalType, int]) -> None:
         """The parameter “Signal type/encoder type” defines the encoder supply and connection
         type of the encoder.
 
@@ -190,7 +191,7 @@ class CpxE1Ci(CpxModule):
         Logging.logger.info(f"{self.name}: Set signal type to {value}")
 
     @CpxBase.require_base
-    def configure_signal_evaluation(self, value: SignalEvaluation | int) -> None:
+    def configure_signal_evaluation(self, value: Union[SignalEvaluation, int]) -> None:
         """The “Signal evaluation” parameter defines the encoder type and evaluation
 
          * 0: Incremental encoder with single evaluation
@@ -333,7 +334,7 @@ class CpxE1Ci(CpxModule):
         Logging.logger.info(f"{self.name}: set latching signal to {value}")
 
     @CpxBase.require_base
-    def configure_latching_event(self, value: LatchingEvent | int) -> None:
+    def configure_latching_event(self, value: Union[LatchingEvent, int]) -> None:
         """The “Latching event” parameter defines whether the “Latching” function is
         triggered on a rising and/or falling edge.
 
@@ -445,7 +446,7 @@ class CpxE1Ci(CpxModule):
 
     @CpxBase.require_base
     def configure_debounce_time_for_digital_inputs(
-        self, value: DigInDebounceTime | int
+        self, value: Union[DigInDebounceTime, int]
     ) -> None:
         """The parameter “Debounce time for digital inputs” defines the total debounce time
         for all digital inputs I0 ... I3
@@ -471,7 +472,7 @@ class CpxE1Ci(CpxModule):
 
     @CpxBase.require_base
     def configure_integration_time_for_speed_measurement(
-        self, value: IntegrationTime | int
+        self, value: Union[IntegrationTime, int]
     ) -> None:
         """The parameter “Integration time for speed measurement” defines the length of the
         measurement cycles for determining the measured value in the “Speed measurement” function
