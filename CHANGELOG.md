@@ -10,14 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `docs` to `doc` for compatibility with template
 - Included python version v3.9
 - Changed types for python v3.9 compatibility
+- print_system_state returns IP and MAC address as string
 
 ### Added
 - Add `-v, --version` command for cli to print current version
 - Add pretty error messages for out of bound module/channel index access
 - Extend cli documentation and readme.md
 
-### Changed
-- print_system_state returns IP and MAC address as string
+### Fixed
+- Fixed cli default CPX-AP write value
 
 ## v0.7.0 - 07.01.25
 ### Fixed

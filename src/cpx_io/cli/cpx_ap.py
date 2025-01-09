@@ -60,7 +60,7 @@ def add_cpx_ap_parser(subparsers):
     )
     parser_write.add_argument(
         "value",
-        nargs="+",
+        nargs="?",
         type=int,
         default=1,
         help="Value to be written (default: %(default)s).",
@@ -83,7 +83,7 @@ def cpx_ap_func(args):
             value = cpx_ap.modules[args.module_index][args.channel_index]
             print(f"Value: {value}")
         elif args.subcommand == "write":
-            cpx_ap.modules[args.module_index][args.channel_index] = args.value[0] > 0
+            cpx_ap.modules[args.module_index][args.channel_index] = args.value > 0
     except IndexError as ie:
         if "Channel" in str(ie):
             print(
