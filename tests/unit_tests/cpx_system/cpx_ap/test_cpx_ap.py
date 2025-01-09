@@ -212,7 +212,7 @@ class TestCpxAp:
         """AP fixture"""
         mock_connected = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.connected",
-            spec=True,
+            spec=CpxAp.connected,
             return_value=True,
         )
         mock_os_listdir = mocker.patch(
@@ -229,35 +229,35 @@ class TestCpxAp:
         )
         mock_add_module = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._add_module",
-            spec=True,
+            spec=CpxAp._add_module,
         )
         mock__grab_apdd = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._grab_apdd",
-            spec=True,
+            spec=CpxAp._grab_apdd,
             return_value={},
         )
         mock_read_apdd_information = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information",
-            spec=True,
+            spec=CpxAp.read_apdd_information,
             return_value=CpxAp.ApInformation(order_text="test", fw_version="0.0.1"),
         )
         mock_read_module_count = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count",
-            spec=True,
+            spec=CpxAp.read_module_count,
             return_value=1,
         )
         mock_create_docu_path = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_docu_path",
-            spec=True,
+            spec=CpxAp.create_docu_path,
             return_value="mock_docu_path",
         )
         mock_create_apdd_path = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_apdd_path",
-            spec=True,
+            spec=CpxAp.create_apdd_path,
             return_value="mock_apdd_path",
         )
         mock_set_timeout = mocker.patch(
-            "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout", spec=True
+            "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout", spec=CpxAp.set_timeout
         )
 
         yield CpxAp()
