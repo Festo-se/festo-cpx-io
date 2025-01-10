@@ -731,14 +731,14 @@ def test_8Di_parameter_rw_strings_debounce(test_cpxap):
 def test_4iol_read_channels(test_cpxap):
     # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
-    assert m.read_channels() == [b""] * 4
+    assert m.read_channels() == [None] * 4
 
 
 def test_4iol_read_channel(test_cpxap):
     # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
     for i in range(4):
-        assert m.read_channel(i) == b""
+        assert m.read_channel(i) is None
 
 
 def test_vaeb_iol_write_channel_8bytes(test_cpxap):
