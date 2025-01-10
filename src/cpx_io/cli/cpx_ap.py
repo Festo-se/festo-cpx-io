@@ -2,6 +2,7 @@
 
 import sys
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
+from cpx_io.utils.helpers import ChannelIndexError
 
 # pylint: disable=duplicate-code
 # intended: cpx-e and cpx-ap have similar parser options
@@ -84,16 +85,15 @@ def cpx_ap_func(args):
             print(f"Value: {value}")
         elif args.subcommand == "write":
             cpx_ap.modules[args.module_index][args.channel_index] = args.value > 0
-    except IndexError as ie:
-        if "Channel" in str(ie):
-            print(
-                f"Error: channel index {args.channel_index} does not exist",
-                file=sys.stderr,
-            )
-        else:
-            print(
-                f"Error: module index {args.module_index} does not exist",
-                file=sys.stderr,
-            )
+    except ChannelIndexError:
+        print(
+            f"Error: channel index {args.channel_index} does not exist",
+            file=sys.stderr,
+        )
+    except IndexError:
+        print(
+            f"Error: module index {args.module_index} does not exist",
+            file=sys.stderr,
+        )
     finally:
         cpx_ap.shutdown()
