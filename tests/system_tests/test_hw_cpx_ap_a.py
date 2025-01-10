@@ -25,9 +25,14 @@ def test_print_system_information(test_cpxap):
     test_cpxap.print_system_information()
 
 
-def test_print_system_state(test_cpxap):
+def test_print_system_state(capfd, test_cpxap):
     "test print"
     test_cpxap.print_system_state()
+    out, _ = capfd.readouterr()
+    assert (
+        f"{f' > Read IP address (ID 12001):':<64}{f'{test_cpxap.ip_address}':<32}"
+        in out
+    )
 
 
 def test_module_count(test_cpxap):
