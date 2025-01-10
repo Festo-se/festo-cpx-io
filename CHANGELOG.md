@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add `-v, --version` command for cli to print current version
 
+### Added
+- Extend cli documentation and readme.md
+
 ## v0.7.0 - 07.01.25
 ### Fixed
 - Docstrings and types of CpxE4Iol `write_channel()`

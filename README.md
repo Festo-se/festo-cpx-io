@@ -54,7 +54,7 @@ action commands:
 
   {read,write}
 ```
-- [`cpx-ap`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cli.html#cpx-e) is a subcommand to execute commands on CPX-AP devices
+- [`cpx-ap`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cli.html#cpx-ap) is a subcommand to execute commands on CPX-AP devices
  ```
 usage: festo-cpx-io cpx-ap [-h] [-si] [-ss] {read,write} ...
 
@@ -69,6 +69,9 @@ action commands:
 
   {read,write}
 ```
+
+For example reading channel 2 from module 3 on a CPX-AP device with ip address 192.178.0.10:
+`festo-cpx-io -i 192.178.0.10 cpx-ap read -m 3 -c 2`
 
 ### [CPX-SYSTEM](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cpx_io.html) - [`cpx_system`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cpx_system.html#)
 #### [CPX-E](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cpx_system.cpx_e.html)
