@@ -697,6 +697,7 @@ def test_4iol_sdas(test_cpxe):
         state = e4iol.read_line_state()[0]
 
 
+@pytest.mark.skip(reason="only test manually due to problematic device")
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())

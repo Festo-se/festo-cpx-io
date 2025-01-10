@@ -741,6 +741,7 @@ def test_4iol_read_channel(test_cpxap):
         assert m.read_channel(i) is None
 
 
+@pytest.mark.skip(reason="hardware removed from test system")
 def test_vaeb_iol_write_channel_8bytes(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
@@ -780,6 +781,7 @@ def test_vaeb_iol_write_channel_8bytes(test_cpxap):
     assert 990 < converted_channels[3] < 1010
 
 
+@pytest.mark.skip(reason="hardware removed from test system")
 def test_vaeb_iol_write_channel_2bytes(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
@@ -815,6 +817,7 @@ def test_vaeb_iol_write_channel_2bytes(test_cpxap):
     assert 990 < converted_channels[3] < 1010
 
 
+@pytest.mark.skip(reason="hardware removed from test system")
 def test_vaeb_iol_write_channels_8byte(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
