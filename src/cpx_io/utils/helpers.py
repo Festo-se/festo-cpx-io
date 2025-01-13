@@ -1,6 +1,13 @@
 """Helper functions"""
 
 
+class ChannelIndexError(IndexError):
+    """Error should be raised if a non-existing channel is addressed"""
+
+    def __init__(self, message="Channel out of range"):
+        super().__init__(message)
+
+
 def div_ceil(x_val: int, y_val: int) -> int:
     """Divides two integers and returns the ceiled result"""
     return (x_val + y_val - 1) // y_val
@@ -71,7 +78,7 @@ def channel_range_check(channel: int, *args):
     start, stop = _args_to_start_stop(args)
 
     if channel not in range(start, stop):
-        raise IndexError(f"Channel {channel} must be in range({start}, {stop})")
+        raise ChannelIndexError(f"Channel {channel} must be in range({start}, {stop})")
 
 
 def instance_range_check(instance: int, *args):

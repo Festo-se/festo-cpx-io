@@ -36,7 +36,19 @@ pip install .
 It supports various subcommands which execute some basic functions.
 
 For more information use the help flag  (`festo-cpx-io -h`).
+```
+usage: festo-cpx-io [-h] [-v] [-i IP_ADDRESS] [-q] {cpx-e,cpx-ap} ...
 
+options:
+  -h, --help            show this help message and exit
+  -v, --version         print current version
+  -i IP_ADDRESS, --ip-address IP_ADDRESS
+                        IP address to connect to (default: 192.168.0.1).
+  -q, --quiet           remove output verbosity
+
+subcommands:
+  {cpx-e,cpx-ap}        Subcommand that should be called
+```
 #### Subcommands
 - [`cpx-e`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cli.html#cpx-e) is a subcommand to execute commands on CPX-E devices
 ```

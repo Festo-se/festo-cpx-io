@@ -1,6 +1,8 @@
 """CLI tool to execute cpx_ap tasks."""
 
+import sys
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
+from cpx_io.utils.helpers import ChannelIndexError
 
 # pylint: disable=duplicate-code
 # intended: cpx-e and cpx-ap have similar parser options
@@ -59,7 +61,7 @@ def add_cpx_ap_parser(subparsers):
     )
     parser_write.add_argument(
         "value",
-        nargs="+",
+        nargs="?",
         type=int,
         default=1,
         help="Value to be written (default: %(default)s).",
@@ -77,11 +79,21 @@ def cpx_ap_func(args):
     if args.system_state:
         cpx_ap.print_system_state()
 
-    if args.subcommand == "read":
-        value = cpx_ap.modules[args.module_index][args.channel_index]
-        print(f"Value: {value}")
-
-    elif args.subcommand == "write":
-        cpx_ap.modules[args.module_index][args.channel_index] = args.value[0] > 0
-
-    cpx_ap.shutdown()
+    try:
+        if args.subcommand == "read":
+            value = cpx_ap.modules[args.module_index][args.channel_index]
+            print(f"Value: {value}")
+        elif args.subcommand == "write":
+            cpx_ap.modules[args.module_index][args.channel_index] = args.value > 0
+    except ChannelIndexError:
+        print(
+            f"Error: channel index {args.channel_index} does not exist",
+            file=sys.stderr,
+        )
+    except IndexError:
+        print(
+            f"Error: module index {args.module_index} does not exist",
+            file=sys.stderr,
+        )
+    finally:
+        cpx_ap.shutdown()
