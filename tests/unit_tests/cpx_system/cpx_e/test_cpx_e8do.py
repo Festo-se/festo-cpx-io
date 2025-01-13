@@ -29,7 +29,7 @@ class TestCpxE8Do:
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
-        cpxe8do.configure(mocked_base, MODULE_POSITION)
+        cpxe8do._configure(mocked_base, MODULE_POSITION)
 
         # Assert
         assert cpxe8do.base == mocked_base

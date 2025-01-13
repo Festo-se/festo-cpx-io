@@ -144,11 +144,9 @@ class ApModule(CpxModule):
         if not self.is_function_supported(func_name):
             raise NotImplementedError(f"{self} has no function <{func_name}>")
 
-    def configure(self, base: CpxBase, position: int) -> None:
-        """This function is used by CpxBase to setup the system. Do not use this function."""
-        self._check_function_supported(inspect.currentframe().f_code.co_name)
-
-        super().configure(base=base, position=position)
+    def _configure(self, base: CpxBase, position: int) -> None:
+        """This function is used by CpxBase to setup the system."""
+        super()._configure(base=base, position=position)
 
         self.system_entry_registers.diagnosis = self.base.next_diagnosis_register
 

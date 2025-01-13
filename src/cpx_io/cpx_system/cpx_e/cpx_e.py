@@ -231,7 +231,9 @@ class CpxE(CpxBase):
 
         :param module: the module that should be added to the system
         """
-        module.configure(self, len(self._modules))
+        # we do not want to expose the configure function in the public API
+        # pylint: disable=protected-access
+        module._configure(self, len(self._modules))
         self._modules.append(module)
         if [type(mod) for mod in self._modules].count(CpxEEp) > 1:
             Logging.logger.warning(

@@ -23,8 +23,8 @@ class CpxE4AoUI(CpxModule):
     def __setitem__(self, key, value):
         self.write_channel(key, value)
 
-    def configure(self, *args):
-        super().configure(*args)
+    def _configure(self, *args):
+        super()._configure(*args)
 
         self.base.next_output_register = self.system_entry_registers.outputs + 4
         self.base.next_input_register = self.system_entry_registers.inputs + 5

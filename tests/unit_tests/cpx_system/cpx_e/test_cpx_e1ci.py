@@ -36,7 +36,7 @@ class TestCpxE1Ci:
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
-        cpxe1ci.configure(mocked_base, MODULE_POSITION)
+        cpxe1ci._configure(mocked_base, MODULE_POSITION)
 
         # Assert
         assert cpxe1ci.base == mocked_base

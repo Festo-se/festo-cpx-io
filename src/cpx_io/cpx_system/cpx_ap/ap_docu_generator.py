@@ -67,12 +67,10 @@ def _generate_module_data(modules: list) -> dict:
         for function_name in SUPPORTED_PRODUCT_FUNCTIONS_DICT:
             if m.is_function_supported(function_name):
                 func = getattr(m, function_name)
-                # suppress the configure function
-                if function_name != "configure":
-                    module_functions[function_name] = {
-                        "Description": inspect.getdoc(func),
-                        "Signature": str(inspect.signature(func)),
-                    }
+                module_functions[function_name] = {
+                    "Description": inspect.getdoc(func),
+                    "Signature": str(inspect.signature(func)),
+                }
 
         is_io_link = (
             m.apdd_information.product_category == ProductCategory.IO_LINK.value
