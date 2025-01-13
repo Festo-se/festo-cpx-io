@@ -147,6 +147,11 @@ class CpxAp(CpxBase):
         if generate_docu:
             generate_system_information_file(self)
 
+    def shutdown(self):
+        if self.current_timeout_ms == 0:
+            self.set_timeout(100)
+        return super().shutdown()
+
     def connected(self) -> bool:
         """Returns information about connection status"""
         return self.client.connected
@@ -230,6 +235,7 @@ class CpxAp(CpxBase):
         )
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
+        self.current_timeout_ms = indata
 
     def _add_module(self, module: ApModule, info: ApInformation) -> None:
         """Adds one module to the base. This is required to use the module.
