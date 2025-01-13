@@ -30,7 +30,7 @@ def test_print_system_state(capfd, test_cpxap):
     test_cpxap.print_system_state()
     out, _ = capfd.readouterr()
     assert (
-        f"{f' > Read IP address (ID 12001):':<64}{f'{test_cpxap.ip_address}':<32}"
+        f"{f'  > Read IP address (ID 12001):':<64}{f'{test_cpxap.ip_address}':<32}"
         in out
     )
 
