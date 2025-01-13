@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Included python version v3.9
 - Changed types for python v3.9 compatibility
 - print_system_state returns IP and MAC address as string
+- Reset the modbus timeout to 0.1s after shutting down an infinite timeout connection (timeout=0)
 
 ### Added
 - Add `-v, --version` command for cli to print current version
