@@ -444,7 +444,7 @@ class TestCpxAp:
         )
 
         module = ApModule(apdd_information, [(), (), ()], [], [])
-        module.configure = Mock()
+        module._configure = Mock()
 
         ap_fixture.update_module_names = Mock()
 
@@ -474,7 +474,7 @@ class TestCpxAp:
         )
 
         module = ApModule(apdd_information, [(), (), ()], [], [])
-        module.configure = Mock()
+        module._configure = Mock()
 
         ap_fixture.update_module_names = Mock()
 

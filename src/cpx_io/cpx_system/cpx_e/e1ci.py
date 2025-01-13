@@ -65,8 +65,8 @@ class CpxE1Ci(CpxModule):
         confirm_latching: bool
         block_latching: bool
 
-    def configure(self, *args):
-        super().configure(*args)
+    def _configure(self, *args):
+        super()._configure(*args)
 
         self.base.next_output_register = self.system_entry_registers.outputs + 1
         self.base.next_input_register = self.system_entry_registers.inputs + 8

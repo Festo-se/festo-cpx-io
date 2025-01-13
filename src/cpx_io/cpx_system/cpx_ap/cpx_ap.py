@@ -253,7 +253,9 @@ class CpxAp(CpxBase):
             self.next_output_register = ap_modbus_registers.OUTPUTS.register_address
             self.next_input_register = ap_modbus_registers.INPUTS.register_address
 
-        module.configure(self, len(self._modules))
+        # we do not want to expose the configure function in the public API
+        # pylint: disable=protected-access
+        module._configure(self, len(self._modules))
         self._modules.append(module)
         self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")

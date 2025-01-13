@@ -159,19 +159,6 @@ SUPPORTED_PRODUCT_FUNCTIONS_DICT = {
     "read_fieldbus_parameters": [ProductCategory.IO_LINK],
     "read_isdu": [ProductCategory.IO_LINK],
     "write_isdu": [ProductCategory.IO_LINK],
-    "configure": [
-        ProductCategory.INTERFACE,
-        ProductCategory.ANALOG,
-        ProductCategory.DIGITAL,
-        ProductCategory.IO_LINK,
-        ProductCategory.INFRASTRUCTURE,
-        ProductCategory.MPA_L,
-        ProductCategory.MPA_S,
-        ProductCategory.VTSA,
-        ProductCategory.VTUG,
-        ProductCategory.VTUX,
-        ProductCategory.VTOM,
-    ],
 }
 INPUT_FUNCTIONS = {"read_channels", "read_channel"}
 OUTPUT_FUNCTIONS = {

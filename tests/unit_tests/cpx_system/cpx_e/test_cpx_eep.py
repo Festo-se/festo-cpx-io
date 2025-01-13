@@ -26,7 +26,7 @@ class TestCpxEEp:
 
         # Act
         MODULE_POSITION = 0
-        cpxeep.configure(mocked_base, MODULE_POSITION)
+        cpxeep._configure(mocked_base, MODULE_POSITION)
 
         # Assert
         assert cpxeep.base == mocked_base
