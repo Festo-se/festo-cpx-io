@@ -30,7 +30,7 @@ class TestCpxE4AiUI:
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
-        cpxe4aiui.configure(mocked_base, MODULE_POSITION)
+        cpxe4aiui._configure(mocked_base, MODULE_POSITION)
 
         # Assert
         assert cpxe4aiui.base == mocked_base

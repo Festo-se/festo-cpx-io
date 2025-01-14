@@ -171,7 +171,7 @@ class TestApModule:
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
-        module.configure(mocked_base, MODULE_POSITION)
+        module._configure(mocked_base, MODULE_POSITION)
 
         # Assert
         assert module.position == MODULE_POSITION
@@ -194,7 +194,7 @@ class TestApModule:
 
         # Act
         MODULE_POSITION = 1  # pylint: disable=invalid-name
-        module.configure(mocked_base, MODULE_POSITION)
+        module._configure(mocked_base, MODULE_POSITION)
 
         # Assert
         assert module.position == MODULE_POSITION
