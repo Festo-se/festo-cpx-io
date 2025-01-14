@@ -877,9 +877,9 @@ class TestApModule:
 
         # Act
         module.write_channels([1, -2])
-
+        
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, -2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b'\x01\xFE'), 0)
 
     def test_write_channels_uint8(self, module_fixture):
         """Test write_channels"""
@@ -910,7 +910,7 @@ class TestApModule:
         module.write_channels([1, 2])
 
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, 2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b'\x01\x02'), 0)        
 
     def test_write_channels_int16(self, module_fixture):
         """Test write_channels"""
@@ -939,9 +939,9 @@ class TestApModule:
 
         # Act
         module.write_channels([1, -2])
-
+        
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, -2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b'\x00\x01\xFF\xFE'), 0)        
 
     def test_write_channels_uint16(self, module_fixture):
         """Test write_channels"""
@@ -972,7 +972,7 @@ class TestApModule:
         module.write_channels([1, 2])
 
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, 2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b'\x00\x01\x00\x02'), 0)
 
     @pytest.mark.parametrize(
         "input_value",

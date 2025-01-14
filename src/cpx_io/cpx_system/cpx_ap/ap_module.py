@@ -372,6 +372,51 @@ class ApModule(CpxModule):
             self.base.write_reg_data(reg, self.system_entry_registers.outputs)
             Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
             return
+            
+        # INT8: all data can be written with one register write
+        if all(c.data_type == "INT8" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            reg = bytearray()
+            for value in data:
+                reg.extend(value.to_bytes(1, signed = True))
+            
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+            Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+            return
+        
+        # UINT8: all data can be written with one register write
+        if all(c.data_type == "UINT8" for c in self.channels.outputs) and all(
+           isinstance(d, int) for d in data
+        ):
+           reg = bytes(data)
+           self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+           Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+           return
+
+        # INT16: all data can be written with one register write
+        if all(c.data_type == "INT16" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            reg = bytearray()
+            for value in data:
+                reg.extend(value.to_bytes(2, byteorder='big', signed = True))
+
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+            Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+            return
+        
+        # UINT16: all data can be written with one register write
+        if all(c.data_type == "UINT16" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            reg = bytearray()
+            for value in data:
+                reg.extend(value.to_bytes(2, byteorder='big', signed = False))
+            
+            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+            Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+            return
 
         # MIXED: Since the channels may be of different types, they are written
         # individually. This is not the best performance but it works with all types.
