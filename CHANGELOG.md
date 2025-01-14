@@ -5,22 +5,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## v0.8.0 - 14.01.25
 ### Changed
-- Used shared gitlab-ci template
 - Renamed `docs` to `doc` for compatibility with template
 - Included python version v3.9
-- Changed types for python v3.9 compatibility
 - print_system_state returns IP and MAC address as string
-- Reset the modbus timeout to 0.1s after shutting down an infinite timeout connection (timeout=0)
+- Reset the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
+- Used shared gitlab-ci template
 
 ### Added
-- Add `-v, --version` command for cli to print current version
-- Add pretty error messages for out of bound module/channel index access
-- Extend cli documentation and readme.md
-- Extend print system state test to verify address string
+- `-v, --version` command for cli to print current version
+- pretty error messages for out of bound module/channel index access
+- Extended cli documentation and readme.md
+- Extended print system state test to verify address string
 
 ### Fixed
-- Fixed cli default CPX-AP write value
+- cli default CPX-AP write value
 
 ## v0.7.0 - 07.01.25
 ### Fixed
