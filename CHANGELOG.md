@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `-v, --version` command for cli to print current version
 - Add pretty error messages for out of bound module/channel index access
 - Extend cli documentation and readme.md
+- Extend print system state test to verify address string
 
 ### Fixed
 - Fixed cli default CPX-AP write value

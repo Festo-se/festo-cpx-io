@@ -697,6 +697,7 @@ def test_4iol_sdas(test_cpxe):
         state = e4iol.read_line_state()[0]
 
 
+@pytest.mark.skip(reason="HW removed from test system")
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
