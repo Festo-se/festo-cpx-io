@@ -391,7 +391,7 @@ class ApModule(CpxModule):
 
         reg = bytearray()
         for value in data:
-            reg.extend(value.to_bytes(1, signed=True))
+            reg.extend(value.to_bytes(1, byteorder="big", signed=True))
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
