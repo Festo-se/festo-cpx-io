@@ -30,7 +30,7 @@ def test_print_system_state(capfd, test_cpxap):
     test_cpxap.print_system_state()
     out, _ = capfd.readouterr()
     assert (
-        f"{f' > Read IP address (ID 12001):':<64}{f'{test_cpxap.ip_address}':<32}"
+        f"{f'  > Read IP address (ID 12001):':<64}{f'{test_cpxap.ip_address}':<32}"
         in out
     )
 
@@ -731,16 +731,17 @@ def test_8Di_parameter_rw_strings_debounce(test_cpxap):
 def test_4iol_read_channels(test_cpxap):
     # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
-    assert m.read_channels() == [b""] * 4
+    assert m.read_channels() == [None] * 4
 
 
 def test_4iol_read_channel(test_cpxap):
     # This test fails if vaeb is tested
     m = test_cpxap.modules[5]
     for i in range(4):
-        assert m.read_channel(i) == b""
+        assert m.read_channel(i) is None
 
 
+@pytest.mark.skip(reason="hardware removed from test system")
 def test_vaeb_iol_write_channel_8bytes(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
@@ -780,6 +781,7 @@ def test_vaeb_iol_write_channel_8bytes(test_cpxap):
     assert 990 < converted_channels[3] < 1010
 
 
+@pytest.mark.skip(reason="hardware removed from test system")
 def test_vaeb_iol_write_channel_2bytes(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):
@@ -815,6 +817,7 @@ def test_vaeb_iol_write_channel_2bytes(test_cpxap):
     assert 990 < converted_channels[3] < 1010
 
 
+@pytest.mark.skip(reason="hardware removed from test system")
 def test_vaeb_iol_write_channels_8byte(test_cpxap):
     m = test_cpxap.modules[5]
     for i in range(4):

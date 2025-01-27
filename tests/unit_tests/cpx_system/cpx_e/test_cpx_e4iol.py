@@ -47,7 +47,7 @@ class TestCpxE4Iol:
         mocked_base = Mock(next_input_register=0, next_output_register=0, modules=[])
 
         # Act
-        cpxe4iol.configure(mocked_base, module_position)
+        cpxe4iol._configure(mocked_base, module_position)
 
         # Assert
         assert cpxe4iol.base == mocked_base

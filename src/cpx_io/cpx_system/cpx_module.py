@@ -60,7 +60,7 @@ class CpxModule:
             )
         return temp_name
 
-    def configure(self, base: CpxBase, position: int) -> None:
+    def _configure(self, base: CpxBase, position: int) -> None:
         """Setup a module with the according base and position in the system
 
         :param base: Base module that implements the modbus functions

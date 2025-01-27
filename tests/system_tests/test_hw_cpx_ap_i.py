@@ -159,10 +159,10 @@ def test_read_diagnosis_code(test_cpxap, input_value):
     assert test_cpxap.modules[input_value].read_diagnosis_information() is None
 
 
-# After running this test, you must restart (power off/on) the system to clear the
-# error codes so that the other tests can run
-
-"""
+@pytest.mark.skip(
+    reason="After running this test, you must restart (power off/on) the"
+    "system to clear the error codes so that the other tests can run"
+)
 def test_read_diagnosis_code_active_iolink(test_cpxap):
     module = test_cpxap.modules[4]
     module.write_module_parameter("Port Mode", "IOL_AUTOSTART", instances=3)
@@ -177,7 +177,6 @@ def test_read_diagnosis_code_active_iolink(test_cpxap):
     module.write_module_parameter("Port Mode", "DEACTIVATED")
     module.write_module_parameter("Validation & Backup", 0)
     assert test_cpxap.read_global_diagnosis_state()["Communication"] is True
-"""
 
 
 def test_getter(test_cpxap):

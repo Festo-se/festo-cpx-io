@@ -147,6 +147,11 @@ class CpxAp(CpxBase):
         if generate_docu:
             generate_system_information_file(self)
 
+    def shutdown(self):
+        if self.current_timeout_ms == 0:
+            self.set_timeout(100)
+        return super().shutdown()
+
     def connected(self) -> bool:
         """Returns information about connection status"""
         return self.client.connected
@@ -230,6 +235,7 @@ class CpxAp(CpxBase):
         )
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
+        self.current_timeout_ms = indata
 
     def _add_module(self, module: ApModule, info: ApInformation) -> None:
         """Adds one module to the base. This is required to use the module.
@@ -247,7 +253,9 @@ class CpxAp(CpxBase):
             self.next_output_register = ap_modbus_registers.OUTPUTS.register_address
             self.next_input_register = ap_modbus_registers.INPUTS.register_address
 
-        module.configure(self, len(self._modules))
+        # we do not want to expose the configure function in the public API
+        # pylint: disable=protected-access
+        module._configure(self, len(self._modules))
         self._modules.append(module)
         self.update_module_names()
         Logging.logger.debug(f"Added module {module.name} ({type(module).__name__})")

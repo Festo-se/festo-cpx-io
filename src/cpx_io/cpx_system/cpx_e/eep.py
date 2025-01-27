@@ -10,7 +10,7 @@ class CpxEEp(CpxModule):
 
     # pylint: disable=too-few-public-methods
 
-    def configure(self, base, position):
+    def _configure(self, base, position):
         self.base = base
         self.position = position
 
