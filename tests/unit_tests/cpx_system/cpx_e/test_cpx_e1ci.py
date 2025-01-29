@@ -47,7 +47,7 @@ class TestCpxE1Ci:
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
+        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xaa\xaa"))
 
         # Act
         status = cpxe1ci.read_status()
@@ -60,7 +60,7 @@ class TestCpxE1Ci:
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.position = 1
-        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xFE\xCA\xEF\xBE"))
+        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xfe\xca\xef\xbe"))
 
         # Act
         value = cpxe1ci.read_value()
@@ -76,7 +76,7 @@ class TestCpxE1Ci:
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xFE\xCA\xEF\xBE"))
+        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xfe\xca\xef\xbe"))
 
         # Act
         latching_value = cpxe1ci.read_latching_value()
@@ -92,7 +92,7 @@ class TestCpxE1Ci:
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
+        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xaa\xaa"))
 
         # Act
         sw = cpxe1ci.read_status_word()
@@ -122,7 +122,7 @@ class TestCpxE1Ci:
         # Arrange
         cpxe1ci = CpxE1Ci()
         cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
+        cpxe1ci.base = Mock(read_reg_data=Mock(return_value=b"\xaa\xaa"))
 
         # Act
         pd = cpxe1ci.read_process_data()
@@ -147,7 +147,7 @@ class TestCpxE1Ci:
         cpxe1ci = CpxE1Ci()
         cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(
-            read_reg_data=Mock(return_value=b"\xAA"), write_reg_data=Mock()
+            read_reg_data=Mock(return_value=b"\xaa"), write_reg_data=Mock()
         )
 
         # Act
@@ -155,7 +155,7 @@ class TestCpxE1Ci:
 
         # Assert
         cpxe1ci.base.write_reg_data.assert_called_with(
-            b"\xAB", cpxe1ci.system_entry_registers.outputs
+            b"\xab", cpxe1ci.system_entry_registers.outputs
         )
 
     def test_write_process_data_block_latching(self):
@@ -164,7 +164,7 @@ class TestCpxE1Ci:
         cpxe1ci = CpxE1Ci()
         cpxe1ci.system_entry_registers = SystemEntryRegisters(inputs=0)
         cpxe1ci.base = Mock(
-            read_reg_data=Mock(return_value=b"\xAA"), write_reg_data=Mock()
+            read_reg_data=Mock(return_value=b"\xaa"), write_reg_data=Mock()
         )
 
         # Act
@@ -172,7 +172,7 @@ class TestCpxE1Ci:
 
         # Assert
         cpxe1ci.base.write_reg_data.assert_called_with(
-            b"\x2A", cpxe1ci.system_entry_registers.outputs
+            b"\x2a", cpxe1ci.system_entry_registers.outputs
         )
 
     @pytest.mark.parametrize(

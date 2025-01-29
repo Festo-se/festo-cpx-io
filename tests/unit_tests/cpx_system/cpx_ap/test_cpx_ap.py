@@ -392,9 +392,9 @@ class TestCpxAp:
             (1, b"\x64\x00\x00\x00"),
             (99, b"\x64\x00\x00\x00"),
             (100, b"\x64\x00\x00\x00"),
-            (200, b"\xC8\x00\x00\x00"),
+            (200, b"\xc8\x00\x00\x00"),
             (10000, b"\x10\x27\x00\x00"),
-            (4294967295, b"\xFF\xFF\xFF\xFF"),
+            (4294967295, b"\xff\xff\xff\xff"),
         ],
     )
     def test_set_timeout_accepted_values(
@@ -492,7 +492,7 @@ class TestCpxAp:
             (b"\x00\x00\x00\x00", 0),
             (b"\x01\x00\x00\x00", 1),
             (b"\x00\x01\x00\x00", 256),
-            (b"\xFF\xFF\xFF\xFF", 4294967295),
+            (b"\xff\xff\xff\xff", 4294967295),
         ],
     )
     def test_read_module_count(self, ap_fixture, mocker, input_value, expected_output):
@@ -532,7 +532,7 @@ class TestCpxAp:
 
     def test_read_global_diagnosis_state(self, ap_fixture):
         # Arrange
-        ap_fixture.read_reg_data = Mock(return_value=b"\xAA\xAA\xAA\xAA")
+        ap_fixture.read_reg_data = Mock(return_value=b"\xaa\xaa\xaa\xaa")
 
         # Act
         ret = ap_fixture.read_global_diagnosis_state()

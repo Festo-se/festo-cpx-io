@@ -62,6 +62,7 @@ class TestCpxBase:
 
         class mock_rres:
             "mock ReadDeviceInformationRequest data"
+
             information = [
                 b"Festo SE & Co. KG",
                 b"CPX-E-EP",
@@ -102,7 +103,7 @@ class TestCpxBase:
             bit7: bool
 
         # Act
-        reg = TestRegister.from_bytes(b"\xAA")
+        reg = TestRegister.from_bytes(b"\xaa")
 
         # Assert
         reg.bit0 = True
@@ -166,7 +167,7 @@ class TestCpxBase:
         integer = reg.to_bytes()
 
         # Assert
-        assert integer == b"\xAA"
+        assert integer == b"\xaa"
 
     def test_bitwiseReg16_from_bytes(self):
         "Test bitwiseReg functions"
@@ -194,7 +195,7 @@ class TestCpxBase:
             bit15: bool
 
         # Act
-        reg = TestRegister.from_bytes(b"\xAA\xFF")
+        reg = TestRegister.from_bytes(b"\xaa\xff")
 
         # Assert
         reg.bit0 = True
@@ -290,7 +291,7 @@ class TestCpxBase:
         integer = reg.to_bytes()
 
         # Assert
-        assert integer == b"\xAA\xFF"
+        assert integer == b"\xaa\xff"
 
     def test_bitwise_reg_int(self):
         "Test bitwiseReg functions"
@@ -395,10 +396,10 @@ class TestCpxBase:
     @pytest.mark.parametrize(
         "input_value, expected_value",
         [
-            (b"\xAA", [0xAA]),
-            (b"\xAA\xBB", [0xBBAA]),
-            (b"\xAA\xBB\xCC", [0xBBAA, 0xCC]),
-            (b"\xAA\xBB\xCC\xDD", [0xBBAA, 0xDDCC]),
+            (b"\xaa", [0xAA]),
+            (b"\xaa\xbb", [0xBBAA]),
+            (b"\xaa\xbb\xcc", [0xBBAA, 0xCC]),
+            (b"\xaa\xbb\xcc\xdd", [0xBBAA, 0xDDCC]),
         ],
     )
     def test_write_reg_data_nBytes(self, input_value, expected_value):

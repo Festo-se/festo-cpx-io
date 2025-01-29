@@ -1339,11 +1339,11 @@ def test_4iol_ethrottle_isdu_write_1byte(test_cpxap):
     # transferred, see sdas isdu write/read testst
     m.write_isdu(b"\x00" * 32, ethrottle_channel, function_tag_idx, 0)
     time.sleep(0.05)
-    m.write_isdu(b"\xCA", ethrottle_channel, function_tag_idx, 0)
+    m.write_isdu(b"\xca", ethrottle_channel, function_tag_idx, 0)
 
-    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0) == b"\xCA" + b"\x00" * 31
+    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0) == b"\xca" + b"\x00" * 31
     # we can also cut the rest off in this case
-    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0)[:1] == b"\xCA"
+    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0)[:1] == b"\xca"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive
