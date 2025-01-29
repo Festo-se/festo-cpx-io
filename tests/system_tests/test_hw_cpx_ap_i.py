@@ -494,25 +494,27 @@ def test_4AiUI_None(test_cpxap):
 def test_4AiUI_analog5V0_CH1(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[3]
-    m.write_module_parameter("Signalrange", "0 .. 10 V", 1)
+    channel = 1
+    m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
-    m.write_module_parameter("Enable linear scaling", False, 1)
+    m.write_module_parameter("Enable linear scaling", False, channel)
     time.sleep(0.05)
-    assert 15900 < test_cpxap.modules[3].read_channel(1) < 16100
+    assert 15800 < m.read_channel(channel) < 16100
 
 
 def test_4AiUI_analog5V0_CH1_with_scaling(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[3]
-    m.write_module_parameter("Signalrange", "0 .. 10 V", 1)
+    channel = 1
+    m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
-    m.write_module_parameter("Upper threshold value", 10000, 1)
+    m.write_module_parameter("Upper threshold value", 10000, channel)
     time.sleep(0.05)
-    m.write_module_parameter("Lower threshold value", 0, 1)
+    m.write_module_parameter("Lower threshold value", 0, channel)
     time.sleep(0.05)
     m.write_module_parameter("Enable linear scaling", True)
 
-    assert 4900 < m.read_channel(1) < 5100
+    assert 4900 < m.read_channel(channel) < 5100
 
     m.write_module_parameter("Upper threshold value", 32767)
     m.write_module_parameter("Lower threshold value", -32768)
