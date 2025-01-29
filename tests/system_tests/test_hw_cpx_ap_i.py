@@ -968,6 +968,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
 
+
 def test_4iol_emcs_write_int32_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -1009,6 +1010,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
         m.read_channel(emcs_channel)
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
 
 def test_4iol_emcs_write_int64_with_move(test_cpxap):
     m = test_cpxap.modules[4]
