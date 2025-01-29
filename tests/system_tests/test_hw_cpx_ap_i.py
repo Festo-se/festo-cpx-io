@@ -926,6 +926,90 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
 
 
+def test_4iol_emcs_write_int16_with_move(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+def test_4iol_emcs_write_int32_with_move(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    m.write_channel(emcs_channel, b"\x00\x02\x00\x00")  # Move Out
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channel(emcs_channel, b"\x00\x01\x00\x00")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
 def test_4iol_emcs_write_int64_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
