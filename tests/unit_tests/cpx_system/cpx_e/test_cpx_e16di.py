@@ -41,7 +41,7 @@ class TestCpxE16Di:
         # Arrange
         cpxe16di = CpxE16Di()
         cpxe16di.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xaa\xaa"))
 
         # Act
         status = cpxe16di.read_status()
@@ -53,7 +53,7 @@ class TestCpxE16Di:
         """Test read channels"""
         # Arrange
         cpxe16di = CpxE16Di()
-        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAE\xCC"))
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xae\xcc"))
 
         # Act
         channel_values = [cpxe16di.read_channel(idx) for idx in range(16)]
@@ -85,7 +85,7 @@ class TestCpxE16Di:
         """Test get item"""
         # Arrange
         cpxe16di = CpxE16Di()
-        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xAE\xCC"))
+        cpxe16di.base = Mock(read_reg_data=Mock(return_value=b"\xae\xcc"))
 
         # Act
         channel_values = [cpxe16di[idx] for idx in range(16)]

@@ -255,7 +255,7 @@ class TestApModule:
             True,
         ]
 
-        ret_data = b"\xFA\xFA"
+        ret_data = b"\xfa\xfa"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -307,7 +307,7 @@ class TestApModule:
             True,
         ]
 
-        ret_data = b"\xFA\xFA"
+        ret_data = b"\xfa\xfa"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -362,7 +362,7 @@ class TestApModule:
         # it will call read_reg_data twice. Once for input_channels and for output_channels
         # Both times will return 0x8074 for 2 channels each
 
-        ret_data = b"\x80\x7F"
+        ret_data = b"\x80\x7f"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -416,7 +416,7 @@ class TestApModule:
         ]
         # it will call read_reg_data twice. Once for input_channels and for output_channels
         # Both times will return 0xCAFE for 2 channels each
-        ret_data = b"\xCA\xFE"
+        ret_data = b"\xca\xfe"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -469,7 +469,7 @@ class TestApModule:
             4352,
         ]
 
-        ret_data = b"\xAA\xBB\x00\x11"
+        ret_data = b"\xaa\xbb\x00\x11"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -522,7 +522,7 @@ class TestApModule:
             0x1100,
         ]
 
-        ret_data = b"\xAA\xBB\x00\x11"
+        ret_data = b"\xaa\xbb\x00\x11"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -558,7 +558,7 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
+        ret_data = b"\xab\xcd" * ((36 + 32) // 2)  # in+out in registers
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -567,7 +567,7 @@ class TestApModule:
         channel_values = module.read_channels()
 
         # Assert
-        assert channel_values == [b"\xAB\xCD"] * 4
+        assert channel_values == [b"\xab\xcd"] * 4
 
     def test_read_channels_io_link_different_device_lengths(self, module_fixture):
         """Test read channels"""
@@ -600,7 +600,7 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        ret_data = b"\xAB\xCD" * ((36 + 32) // 2)  # in+out in registers
+        ret_data = b"\xab\xcd" * ((36 + 32) // 2)  # in+out in registers
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -611,9 +611,9 @@ class TestApModule:
         # Assert
         assert channel_values == [
             None,
-            b"\xAB\xCD",
-            b"\xAB\xCD\xAB",
-            b"\xAB\xCD\xAB\xCD",
+            b"\xab\xcd",
+            b"\xab\xcd\xab",
+            b"\xab\xcd\xab\xcd",
         ]
 
     def test_read_channels_unknown_type(self, module_fixture):
@@ -638,7 +638,7 @@ class TestApModule:
             )
         ] * 4
 
-        ret_data = b"\xFA\xFA"
+        ret_data = b"\xfa\xfa"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
@@ -780,7 +780,7 @@ class TestApModule:
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
 
-        ret_data = [b"\xAB\xCD\xEF\x00\x11\x22\x33\x44"] * 4
+        ret_data = [b"\xab\xcd\xef\x00\x11\x22\x33\x44"] * 4
 
         module.read_channels = Mock(return_value=ret_data)
 
@@ -788,7 +788,7 @@ class TestApModule:
         channel_values = [module.read_channel(idx) for idx in range(4)]
 
         # Assert
-        assert all(c == b"\xAB\xCD\xEF\x00\x11\x22\x33\x44" for c in channel_values)
+        assert all(c == b"\xab\xcd\xef\x00\x11\x22\x33\x44" for c in channel_values)
 
     def test_read_channels_not_implemented(self, module_fixture):
         """Test read_channels"""
@@ -848,7 +848,7 @@ class TestApModule:
         module.write_channels([True] * 8)
 
         # Assert
-        module.base.write_reg_data.assert_called_with(b"\xFF", 0)
+        module.base.write_reg_data.assert_called_with(b"\xff", 0)
 
     def test_write_channels_int8(self, module_fixture):
         """Test write_channels"""
@@ -1369,7 +1369,7 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        data = b"\xAB\xCD"
+        data = b"\xab\xcd"
 
         # Act
         module.write_channel(input_value, data)
@@ -1418,14 +1418,14 @@ class TestApModule:
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
 
-        data = b"\x01\x02\xAB\xCD"
+        data = b"\x01\x02\xab\xcd"
 
         # Act
         module.write_channel(input_value, data)
 
         # Assert
         module.base.write_reg_data.assert_called_with(
-            b"\x01\x02\xAB\xCD", expected_register
+            b"\x01\x02\xab\xcd", expected_register
         )
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
@@ -1888,7 +1888,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
-        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
+        module.base.read_reg_data = Mock(return_value=b"\xca\xfe\xba\xbe")
         module.system_entry_registers.diagnosis = 1
         ModuleDicts = namedtuple("ModuleDicts", ["diagnosis"])
         module.module_dicts = ModuleDicts(diagnosis={"x": 0, "y": 1})
@@ -1906,7 +1906,7 @@ class TestApModule:
         module = module_fixture
         module.apdd_information.product_category = ProductCategory.INTERFACE.value
         module.base = Mock()
-        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE\xBA\xBE")
+        module.base.read_reg_data = Mock(return_value=b"\xca\xfe\xba\xbe")
         module.system_entry_registers.diagnosis = 1
 
         # Act & Assert
@@ -1987,7 +1987,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.system_entry_registers.inputs = 0
         module.base = Mock()
-        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
+        module.base.read_reg_data = Mock(return_value=b"\xca\xfe")
 
         # Act
         result = module.read_pqi()
@@ -2023,7 +2023,7 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.IO_LINK.value
         module.system_entry_registers.inputs = 0
         module.base = Mock()
-        module.base.read_reg_data = Mock(return_value=b"\xCA\xFE")
+        module.base.read_reg_data = Mock(return_value=b"\xca\xfe")
 
         # Act
         results = [module.read_pqi(idx) for idx in range(4)]
@@ -2192,7 +2192,7 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        data = b"\xCA\xFE"
+        data = b"\xca\xfe"
         channel = input_value
         index = 4  # random
         subindex = 5  # random
@@ -2266,7 +2266,7 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x01\x00")
 
         # Act & Assert
-        data = b"\xCA\xFE"
+        data = b"\xca\xfe"
         channel = 0
         index = 4
         subindex = 5
@@ -2301,9 +2301,9 @@ class TestApModule:
         [
             ("str", 3, b"str"),  # string
             (1, 1, b"\x01"),  # int8
-            (0xCAFE, 2, b"\xFE\xCA"),  # int16
-            (0xBEBAFECA, 4, b"\xCA\xFE\xBA\xBE"),  # int32
-            (b"\xCA\xFE", 2, b"\xCA\xFE"),  # bytes = raw
+            (0xCAFE, 2, b"\xfe\xca"),  # int16
+            (0xBEBAFECA, 4, b"\xca\xfe\xba\xbe"),  # int32
+            (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
             (True, 1, b"\x01"),  # bool true
             (False, 1, b"\x00"),  # bool false
         ],
