@@ -335,32 +335,33 @@ class ApModule(CpxModule):
                 f"Data must be list of {len(self.channels.outputs)} elements"
             )
 
+        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            self.handle_io_link_on_write_channels(data)
+            self.__handle_io_link_on_write_channels(data)
         elif all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
             isinstance(d, bool) for d in data
         ):
-            self.handle_bool_on_write_channels(data)
+            self.__handle_bool_on_write_channels(data)
         elif all(c.data_type == "INT8" for c in self.channels.outputs) and all(
             isinstance(d, int) for d in data
         ):
-            self.handle_int8_on_write_channels(data)
+            self.__handle_int8_on_write_channels(data)
         elif all(c.data_type == "UINT8" for c in self.channels.outputs) and all(
             isinstance(d, int) for d in data
         ):
-            self.handle_uint8_on_write_channels(data)
+            self.__handle_uint8_on_write_channels(data)
         elif all(c.data_type == "INT16" for c in self.channels.outputs) and all(
             isinstance(d, int) for d in data
         ):
-            self.handle_int16_on_write_channels(data)
+            self.__handle_int16_on_write_channels(data)
         elif all(c.data_type == "UINT16" for c in self.channels.outputs) and all(
             isinstance(d, int) for d in data
         ):
-            self.handle_uint16_on_write_channels(data)
+            self.__handle_uint16_on_write_channels(data)
         else:
-            self.handle_mixed_datatypes_on_write_channels(data)
+            self.__handle_mixed_datatypes_on_write_channels(data)
 
-    def handle_io_link_on_write_channels(self, data):
+    def __handle_io_link_on_write_channels(self, data):
         """Handles a write_channels of a list with bytes"""
 
         if not all(isinstance(d, bytes) for d in data):
@@ -377,14 +378,14 @@ class ApModule(CpxModule):
         self.base.write_reg_data(all_register_data, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")
 
-    def handle_bool_on_write_channels(self, data):
+    def __handle_bool_on_write_channels(self, data):
         """Handles a write_channels of a list with bool values"""
 
         reg = boollist_to_bytes(data)
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
 
-    def handle_int8_on_write_channels(self, data):
+    def __handle_int8_on_write_channels(self, data):
         """Handles a write_channels of a list with int8 values"""
 
         reg = bytearray()
@@ -393,14 +394,14 @@ class ApModule(CpxModule):
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
-    def handle_uint8_on_write_channels(self, data):
+    def __handle_uint8_on_write_channels(self, data):
         """Handles a write_channels of a list with uint8 values"""
 
         reg = bytes(data)
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
-    def handle_int16_on_write_channels(self, data):
+    def __handle_int16_on_write_channels(self, data):
         """Handles a write_channels of a list with int16 values"""
 
         reg = bytearray()
@@ -409,7 +410,7 @@ class ApModule(CpxModule):
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
-    def handle_uint16_on_write_channels(self, data):
+    def __handle_uint16_on_write_channels(self, data):
         """Handles a write_channels of a list with uint16 values"""
 
         reg = bytearray()
@@ -418,7 +419,7 @@ class ApModule(CpxModule):
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
-    def handle_mixed_datatypes_on_write_channels(self, data):
+    def __handle_mixed_datatypes_on_write_channels(self, data):
         """Handles a write_channels of a list with mixed datatype values"""
 
         for i, c in enumerate(self.channels.outputs):
