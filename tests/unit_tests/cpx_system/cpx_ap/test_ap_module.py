@@ -889,7 +889,6 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers.outputs = 0
         module.base = Mock()
-        module.write_channel = Mock()
 
         module.channels.outputs = [
             Channel(
@@ -920,7 +919,6 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-        module.write_channel = Mock()
 
         module.channels.outputs = [
             Channel(
@@ -953,7 +951,6 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-        module.write_channel = Mock()
 
         module.channels.outputs = [
             Channel(
@@ -974,7 +971,7 @@ class TestApModule:
         module.write_channels([1, -2])
 
         # Assert
-        module.base.write_reg_data.assert_called_with(bytearray(b"\x00\x01\xFF\xFE"), 0)
+        module.base.write_reg_data.assert_called_with(bytearray(b"\x01\x00\xFE\xFF"), 0)
 
     def test_write_channels_uint16(self, module_fixture):
         """Test write_channels"""
@@ -984,7 +981,6 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-        module.write_channel = Mock()
 
         module.channels.outputs = [
             Channel(
@@ -1005,7 +1001,7 @@ class TestApModule:
         module.write_channels([1, 2])
 
         # Assert
-        module.base.write_reg_data.assert_called_with(bytearray(b"\x00\x01\x00\x02"), 0)
+        module.base.write_reg_data.assert_called_with(b"\x01\x00\x02\x00", 0)
 
     def test_write_channels_uint16_negative_value(self, module_fixture):
         """Test write_channels"""

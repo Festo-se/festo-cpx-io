@@ -388,9 +388,9 @@ class ApModule(CpxModule):
     def __handle_int8_on_write_channels(self, data):
         """Handles a write_channels of a list with int8 values"""
 
-        reg = bytearray()
+        reg = b""
         for value in data:
-            reg.extend(value.to_bytes(1, byteorder="big", signed=True))
+            reg += value.to_bytes(1, byteorder="little", signed=True)
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
@@ -404,18 +404,17 @@ class ApModule(CpxModule):
     def __handle_int16_on_write_channels(self, data):
         """Handles a write_channels of a list with int16 values"""
 
-        reg = bytearray()
+        reg = b""
         for value in data:
-            reg.extend(value.to_bytes(2, byteorder="big", signed=True))
+            reg += value.to_bytes(2, byteorder="little", signed=True)
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 
     def __handle_uint16_on_write_channels(self, data):
         """Handles a write_channels of a list with uint16 values"""
-
-        reg = bytearray()
+        reg = b""
         for value in data:
-            reg.extend(value.to_bytes(2, byteorder="big", signed=False))
+            reg += value.to_bytes(2, byteorder="little", signed=False)
         self.base.write_reg_data(reg, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
 

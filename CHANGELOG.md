@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - System test for CPX-AP-A-4AI
-- Performance writes for (u)int on write_channels
 
 ### Changed
 - move requirements into requirements.txt
+- Performance writes for (u)int on write_channels
 
 ## v0.8.0 - 14.01.25
 ### Changed
