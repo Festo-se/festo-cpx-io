@@ -1,9 +1,20 @@
 """CLI tool to execute cpx_e tasks."""
 
+import argparse
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
 # pylint: disable=duplicate-code
 # intended: cpx-e and cpx-ap have similar parser options
+
+
+def str_to_bool(value):
+    """Convert a string to a boolean value."""
+    if value.lower() in ("true", "1"):
+        return True
+    elif value.lower() in ("false", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError(f"Invalid boolean value: {value}")
 
 
 def add_cpx_e_parser(subparsers):
@@ -41,7 +52,7 @@ def add_cpx_e_parser(subparsers):
     parser_write.add_argument(
         "value",
         nargs="+",
-        type=bool,
+        type=str_to_bool,
         default=True,
         help="Value to be written (default: %(default)s).",
     )
@@ -52,7 +63,6 @@ def cpx_e_func(args):
     cpx_e = CpxE(ip_address=args.ip_address, modules=args.typecode)
 
     if args.subcommand == "read":
-        print(f"{args.channel_index}")
         if args.channel_index is not None:
             value = cpx_e.modules[args.module_index][args.channel_index]
             print(f"Value: {value}")
