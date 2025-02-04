@@ -60,7 +60,7 @@ class TestCpxE4Iol:
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
+        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\xaa\xaa"))
 
         # Act
         status = cpxe4iol.read_status()
@@ -73,14 +73,14 @@ class TestCpxE4Iol:
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=b"\xA0\xA1\xB0\xB1\xC0\xC1\xD0\xD1")
+            read_reg_data=Mock(return_value=b"\xa0\xa1\xb0\xb1\xc0\xc1\xd0\xd1")
         )
 
         # Act
         channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
 
         # Assert
-        assert channel_values == [b"\xA0\xA1", b"\xB0\xB1", b"\xC0\xC1", b"\xD0\xD1"]
+        assert channel_values == [b"\xa0\xa1", b"\xb0\xb1", b"\xc0\xc1", b"\xd0\xd1"]
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.system_entry_registers.inputs, length=4
         )
@@ -91,8 +91,8 @@ class TestCpxE4Iol:
         cpxe4iol = CpxE4Iol(8)
         cpxe4iol.base = Mock(
             read_reg_data=Mock(
-                return_value=b"\xA1\x10\xA1\x11\xA1\x13\xA1\x14\xB1\x10\xB1\x11\xB1\x13\xB1\x14"
-                b"\xC1\x10\xC1\x11\xC1\x13\xC1\x14\xD1\x10\xD1\x11\xD1\x13\xD1\x14"
+                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14\xb1\x10\xb1\x11\xb1\x13\xb1\x14"
+                b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14\xd1\x10\xd1\x11\xd1\x13\xd1\x14"
             )
         )
 
@@ -101,10 +101,10 @@ class TestCpxE4Iol:
 
         # Assert
         assert channel_values == [
-            b"\xA1\x10\xA1\x11\xA1\x13\xA1\x14",
-            b"\xB1\x10\xB1\x11\xB1\x13\xB1\x14",
-            b"\xC1\x10\xC1\x11\xC1\x13\xC1\x14",
-            b"\xD1\x10\xD1\x11\xD1\x13\xD1\x14",
+            b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14",
+            b"\xb1\x10\xb1\x11\xb1\x13\xb1\x14",
+            b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14",
+            b"\xd1\x10\xd1\x11\xd1\x13\xd1\x14",
         ]
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.system_entry_registers.inputs, length=16
@@ -115,14 +115,14 @@ class TestCpxE4Iol:
         # Arrange
         cpxe4iol = CpxE4Iol()
         cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=b"\x00\xAB\x00\xCD\x00\xEF\x00\x12")
+            read_reg_data=Mock(return_value=b"\x00\xab\x00\xcd\x00\xef\x00\x12")
         )
 
         # Act
         channel_values = [cpxe4iol[idx] for idx in range(4)]
 
         # Assert
-        assert channel_values == [b"\x00\xAB", b"\x00\xCD", b"\x00\xEF", b"\x00\x12"]
+        assert channel_values == [b"\x00\xab", b"\x00\xcd", b"\x00\xef", b"\x00\x12"]
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.system_entry_registers.inputs, length=4
         )
@@ -130,10 +130,10 @@ class TestCpxE4Iol:
     @pytest.mark.parametrize(
         "module_output_size, input_value, expected_value",
         [
-            (1, (0, b"\x12\xAB"), (b"\x12\xAB", 1000)),
-            (1, (1, b"\x34\xCD"), (b"\x34\xCD", 1001)),
-            (2, (0, b"\x12\xAB\x34\xCD"), (b"\x12\xAB\x34\xCD", 1000)),
-            (2, (1, b"\x12\xAB\x34\xCD"), (b"\x12\xAB\x34\xCD", 1002)),
+            (1, (0, b"\x12\xab"), (b"\x12\xab", 1000)),
+            (1, (1, b"\x34\xcd"), (b"\x34\xcd", 1001)),
+            (2, (0, b"\x12\xab\x34\xcd"), (b"\x12\xab\x34\xcd", 1000)),
+            (2, (1, b"\x12\xab\x34\xcd"), (b"\x12\xab\x34\xcd", 1002)),
         ],
     )
     def test_write_channel(self, module_output_size, input_value, expected_value):
@@ -158,11 +158,11 @@ class TestCpxE4Iol:
         cpxe4iol.base = Mock(write_reg_data=Mock())
 
         # Act
-        cpxe4iol[0] = b"\xFE\x00"
+        cpxe4iol[0] = b"\xfe\x00"
 
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
-            b"\xFE\x00", cpxe4iol.system_entry_registers.outputs
+            b"\xfe\x00", cpxe4iol.system_entry_registers.outputs
         )
 
     def test_write_channels_2byte(self):
@@ -174,11 +174,11 @@ class TestCpxE4Iol:
         cpxe4iol.module_output_size = 1
 
         # Act
-        cpxe4iol.write_channels([b"\x12\xAB", b"\x34\xCD", b"\x56\xEF", b"\x78\x00"])
+        cpxe4iol.write_channels([b"\x12\xab", b"\x34\xcd", b"\x56\xef", b"\x78\x00"])
 
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
-            b"\x12\xAB\x34\xCD\x56\xEF\x78\x00", cpxe4iol.system_entry_registers.outputs
+            b"\x12\xab\x34\xcd\x56\xef\x78\x00", cpxe4iol.system_entry_registers.outputs
         )
 
     def test_write_channels_4byte(self):
@@ -192,16 +192,16 @@ class TestCpxE4Iol:
         # Act
         cpxe4iol.write_channels(
             [
-                b"\x12\xAB\x01\x02",
-                b"\x34\xCD\x03\x04",
-                b"\x56\xEF\x05\x06",
+                b"\x12\xab\x01\x02",
+                b"\x34\xcd\x03\x04",
+                b"\x56\xef\x05\x06",
                 b"\x78\x00\x07\x08",
             ]
         )
 
         # Assert
         cpxe4iol.base.write_reg_data.assert_called_with(
-            b"\x12\xAB\x01\x02\x34\xCD\x03\x04\x56\xEF\x05\x06\x78\x00\x07\x08",
+            b"\x12\xab\x01\x02\x34\xcd\x03\x04\x56\xef\x05\x06\x78\x00\x07\x08",
             cpxe4iol.system_entry_registers.outputs,
         )
 

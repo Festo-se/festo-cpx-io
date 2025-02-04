@@ -1,5 +1,4 @@
-"""CPX Base
-"""
+"""CPX Base"""
 
 import struct
 from dataclasses import dataclass, fields

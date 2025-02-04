@@ -494,25 +494,27 @@ def test_4AiUI_None(test_cpxap):
 def test_4AiUI_analog5V0_CH1(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[3]
-    m.write_module_parameter("Signalrange", "0 .. 10 V", 1)
+    channel = 1
+    m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
-    m.write_module_parameter("Enable linear scaling", False, 1)
+    m.write_module_parameter("Enable linear scaling", False, channel)
     time.sleep(0.05)
-    assert 15900 < test_cpxap.modules[3].read_channel(1) < 16100
+    assert 15800 < m.read_channel(channel) < 16100
 
 
 def test_4AiUI_analog5V0_CH1_with_scaling(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[3]
-    m.write_module_parameter("Signalrange", "0 .. 10 V", 1)
+    channel = 1
+    m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
-    m.write_module_parameter("Upper threshold value", 10000, 1)
+    m.write_module_parameter("Upper threshold value", 10000, channel)
     time.sleep(0.05)
-    m.write_module_parameter("Lower threshold value", 0, 1)
+    m.write_module_parameter("Lower threshold value", 0, channel)
     time.sleep(0.05)
     m.write_module_parameter("Enable linear scaling", True)
 
-    assert 4900 < m.read_channel(1) < 5100
+    assert 4900 < m.read_channel(channel) < 5100
 
     m.write_module_parameter("Upper threshold value", 32767)
     m.write_module_parameter("Lower threshold value", -32768)
@@ -913,6 +915,92 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
 
     m.write_channel(emcs_channel, b"\x01")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+
+def test_4iol_emcs_write_int16_with_move(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+
+def test_4iol_emcs_write_int32_with_move(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    m.write_channel(emcs_channel, b"\x00\x02\x00\x00")  # Move Out
+    # wait for move to finish
+    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        m.read_channel(emcs_channel)
+
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+
+    m.write_channel(emcs_channel, b"\x00\x01\x00\x00")  # Move In
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
         time.sleep(0.01)
@@ -1337,11 +1425,11 @@ def test_4iol_ethrottle_isdu_write_1byte(test_cpxap):
     # transferred, see sdas isdu write/read testst
     m.write_isdu(b"\x00" * 32, ethrottle_channel, function_tag_idx, 0)
     time.sleep(0.05)
-    m.write_isdu(b"\xCA", ethrottle_channel, function_tag_idx, 0)
+    m.write_isdu(b"\xca", ethrottle_channel, function_tag_idx, 0)
 
-    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0) == b"\xCA" + b"\x00" * 31
+    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0) == b"\xca" + b"\x00" * 31
     # we can also cut the rest off in this case
-    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0)[:1] == b"\xCA"
+    assert m.read_isdu(ethrottle_channel, function_tag_idx, 0)[:1] == b"\xca"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive

@@ -5,13 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Changed
-
 ### Added
+- System test for CPX-AP-A-4AI
 - Performance writes for (u)int on write_channels
 
-### Fixed
-
+### Changed
+- move requirements into requirements.txt
 
 ## v0.8.0 - 14.01.25
 ### Changed

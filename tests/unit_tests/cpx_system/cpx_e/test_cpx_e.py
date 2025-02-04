@@ -303,7 +303,7 @@ class TestCpxE:
         """Test module count"""
         # Arrange
         cpx_e = CpxE()
-        cpx_e.read_reg_data = Mock(return_value=b"\xAA\xAA\xAA")
+        cpx_e.read_reg_data = Mock(return_value=b"\xaa\xaa\xaa")
 
         # Act
         module_count = cpx_e.module_count()
@@ -316,7 +316,7 @@ class TestCpxE:
         """Test read fault detection"""
         # Arrange
         cpx_e = CpxE()
-        cpx_e.read_reg_data = Mock(return_value=b"\xAA\xBB\xCC")
+        cpx_e.read_reg_data = Mock(return_value=b"\xaa\xbb\xcc")
 
         # Act
         fault_detection = cpx_e.read_fault_detection()
@@ -328,7 +328,7 @@ class TestCpxE:
     @pytest.mark.parametrize(
         "input_value, expected_value",
         [
-            (b"\xCA\xFE", (True, True)),
+            (b"\xca\xfe", (True, True)),
             (b"\x00\x00", (False, False)),
             (b"\x00\x88", (True, True)),
             (b"\x00\x77", (False, False)),
@@ -382,7 +382,7 @@ class TestCpxE:
                     cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
                 ),
                 call(
-                    b"\x00\xA0",
+                    b"\x00\xa0",
                     cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
                 ),
             ]
@@ -393,7 +393,7 @@ class TestCpxE:
         """Test read_function_number"""
         # Arrange
         cpx_e = CpxE()
-        cpx_e.read_reg_data = Mock(return_value=b"\x00\xA0")
+        cpx_e.read_reg_data = Mock(return_value=b"\x00\xa0")
         cpx_e.write_reg_data = Mock()
 
         # Act

@@ -41,7 +41,7 @@ class TestCpxE4AiUI:
         # Arrange
         cpxe4aiui = CpxE4AiUI()
         cpxe4aiui.system_entry_registers = SystemEntryRegisters(inputs=0)
-        cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=b"\xAA\xAA"))
+        cpxe4aiui.base = Mock(read_reg_data=Mock(return_value=b"\xaa\xaa"))
 
         # Act
         status = cpxe4aiui.read_status()
@@ -54,7 +54,7 @@ class TestCpxE4AiUI:
         # Arrange
         cpxe4aiui = CpxE4AiUI()
         cpxe4aiui.base = Mock(
-            read_reg_data=Mock(return_value=b"\x00\x00\xE8\x03\xD0\x07\xB8\x0B")
+            read_reg_data=Mock(return_value=b"\x00\x00\xe8\x03\xd0\x07\xb8\x0b")
         )
 
         # Act
@@ -71,7 +71,7 @@ class TestCpxE4AiUI:
         # Arrange
         cpxe4aiui = CpxE4AiUI()
         cpxe4aiui.base = Mock(
-            read_reg_data=Mock(return_value=b"\x00\x00\xE8\x03\xD0\x07\xB8\x0B")
+            read_reg_data=Mock(return_value=b"\x00\x00\xe8\x03\xd0\x07\xb8\x0b")
         )
 
         # Act
