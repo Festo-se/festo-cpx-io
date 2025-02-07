@@ -1,9 +1,19 @@
 """CLI tool to execute cpx_e tasks."""
 
+import argparse
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxE
 
 # pylint: disable=duplicate-code
 # intended: cpx-e and cpx-ap have similar parser options
+
+
+def str_to_bool(value):
+    """Convert a string to a boolean value."""
+    if value.lower() in ("true", "1"):
+        return True
+    if value.lower() in ("false", "0"):
+        return False
+    raise argparse.ArgumentTypeError(f"Invalid boolean value: {value}")
 
 
 def add_cpx_e_parser(subparsers):
@@ -29,21 +39,26 @@ def add_cpx_e_parser(subparsers):
         description="Action to perform",
     )
 
-    parser_read = subparsers_cpx.add_parser("read")
+    parser_read = subparsers_cpx.add_parser(
+        "read", help="if no channel is given, all channels are read"
+    )
     parser_read.add_argument(
         "-c", "--channel-index", type=int, help="Channel index to be read"
     )
 
-    parser_write = subparsers_cpx.add_parser("write")
+    parser_write = subparsers_cpx.add_parser(
+        "write",
+        help="if no channel is given, all channels are written if enough values are supplied",
+    )
     parser_write.add_argument(
         "-c", "--channel-index", type=int, help="Channel index to be written"
     )
     parser_write.add_argument(
         "value",
-        nargs="+",
-        type=bool,
-        default=True,
-        help="Value to be written (default: %(default)s).",
+        nargs="*",
+        type=str_to_bool,
+        default=[True],
+        help="Value to be written (default: True).",
     )
 
 
@@ -52,7 +67,6 @@ def cpx_e_func(args):
     cpx_e = CpxE(ip_address=args.ip_address, modules=args.typecode)
 
     if args.subcommand == "read":
-        print(f"{args.channel_index}")
         if args.channel_index is not None:
             value = cpx_e.modules[args.module_index][args.channel_index]
             print(f"Value: {value}")

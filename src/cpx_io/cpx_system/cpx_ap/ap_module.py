@@ -409,7 +409,7 @@ class ApModule(CpxModule):
             byte_channel_size = self.channels.inouts[0].array_size
 
             if len(value) != byte_channel_size:
-                Logging.logger.warning(
+                Logging.logger.info(
                     f"Length of value {value} does not match master channel size"
                     f" of {byte_channel_size} bytes. Shorter values must be padded left!"
                 )
