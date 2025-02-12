@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - moved requirements into requirements.txt
 - demoted logging of IO Link padding from warning to info
+- Performance writes for (u)int on write_channels
 
 ### Fixed
 - fixed CPX-E value parsing for write commands (previously only True was written)
