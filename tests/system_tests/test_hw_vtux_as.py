@@ -260,6 +260,20 @@ def test_vabx_a_s_ve_vbh_write(test_cpxap):
     m.write_channel(0, 0)
 
 
+def test_vabx_a_s_ve_vbh_write_channels(test_cpxap):
+    m = test_cpxap.modules[3]
+
+    m.write_channels([1])
+    time.sleep(0.05)
+    assert m.read_output_channel(0) == 1
+    assert m.read_output_channels() == [1]
+    time.sleep(0.05)
+    m.write_channels([0])
+    time.sleep(0.05)
+    assert m.read_output_channel(0) == 0
+    assert m.read_output_channels() == [0]
+
+
 def test_vabx_a_s_ve_vbh_parameters(test_cpxap):
     m = test_cpxap.modules[3]
     assert m.read_module_parameter(
@@ -381,6 +395,20 @@ def test_vabx_a_s_ve_vbl_write(test_cpxap):
         m.write_channel(0, 0)
         time.sleep(0.05)
         assert m.read_output_channel(0) == 0
+
+
+def test_vabx_a_s_ve_vbl_write_channels(test_cpxap):
+    m = test_cpxap.modules[4]
+
+    m.write_channels([1])
+    time.sleep(0.05)
+    assert m.read_output_channel(0) == 1
+    assert m.read_output_channels() == [1]
+    time.sleep(0.05)
+    m.write_channels([0])
+    time.sleep(0.05)
+    assert m.read_output_channel(0) == 0
+    assert m.read_output_channels() == [0]
 
 
 def test_vabx_a_s_ve_vbl_parameters(test_cpxap):

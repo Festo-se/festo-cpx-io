@@ -336,43 +336,91 @@ class ApModule(CpxModule):
             )
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-
-        # IO-Link:
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
-            if not all(isinstance(d, bytes) for d in data):
-                raise TypeError(
-                    f"{self.name}: datatype for IO-Link channels must be bytes"
-                )
-
-            byte_channel_size = self.channels.inouts[0].array_size
-
-            if any(len(d) != byte_channel_size for d in data):
-                raise ValueError(
-                    f"Your current IO-Link datalength {byte_channel_size} does "
-                    f"not match the provided bytes length."
-                )
-
-            # Join all channel values to one bytes object so it can be written in one modbus command
-            all_register_data = b"".join(data)
-
-            self.base.write_reg_data(
-                all_register_data, self.system_entry_registers.outputs
-            )
-
-            Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")
-            return
-
-        # BOOL: all data can be written with one register write
-        if all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
+            self.__handle_io_link_on_write_channels(data)
+        elif all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
             isinstance(d, bool) for d in data
         ):
-            reg = boollist_to_bytes(data)
-            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-            Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
-            return
+            self.__handle_bool_on_write_channels(data)
+        elif all(c.data_type == "INT8" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            self.__handle_int8_on_write_channels(data)
+        elif all(c.data_type == "UINT8" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            self.__handle_uint8_on_write_channels(data)
+        elif all(c.data_type == "INT16" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            self.__handle_int16_on_write_channels(data)
+        elif all(c.data_type == "UINT16" for c in self.channels.outputs) and all(
+            isinstance(d, int) for d in data
+        ):
+            self.__handle_uint16_on_write_channels(data)
+        else:
+            self.__handle_mixed_datatypes_on_write_channels(data)
 
-        # MIXED: Since the channels may be of different types, they are written
-        # individually. This is not the best performance but it works with all types.
+    def __handle_io_link_on_write_channels(self, data):
+        """Handles a write_channels of a list with bytes"""
+
+        if not all(isinstance(d, bytes) for d in data):
+            raise TypeError(f"{self.name}: datatype for IO-Link channels must be bytes")
+
+        byte_channel_size = self.channels.inouts[0].array_size
+        if any(len(d) != byte_channel_size for d in data):
+            raise ValueError(
+                f"Your current IO-Link datalength {byte_channel_size} does "
+                f"not match the provided bytes length."
+            )
+
+        all_register_data = b"".join(data)
+        self.base.write_reg_data(all_register_data, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")
+
+    def __handle_bool_on_write_channels(self, data):
+        """Handles a write_channels of a list with bool values"""
+
+        reg = boollist_to_bytes(data)
+        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
+
+    def __handle_int8_on_write_channels(self, data):
+        """Handles a write_channels of a list with int8 values"""
+
+        reg = b""
+        for value in data:
+            reg += value.to_bytes(1, byteorder="little", signed=True)
+        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+
+    def __handle_uint8_on_write_channels(self, data):
+        """Handles a write_channels of a list with uint8 values"""
+
+        reg = bytes(data)
+        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+
+    def __handle_int16_on_write_channels(self, data):
+        """Handles a write_channels of a list with int16 values"""
+
+        reg = b""
+        for value in data:
+            reg += value.to_bytes(2, byteorder="little", signed=True)
+        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+
+    def __handle_uint16_on_write_channels(self, data):
+        """Handles a write_channels of a list with uint16 values"""
+        reg = b""
+        for value in data:
+            reg += value.to_bytes(2, byteorder="little", signed=False)
+        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
+        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
+
+    def __handle_mixed_datatypes_on_write_channels(self, data):
+        """Handles a write_channels of a list with mixed datatype values"""
+
         for i, c in enumerate(self.channels.outputs):
             if c.data_type in SUPPORTED_DATATYPES:
                 self.write_channel(i, data[i])

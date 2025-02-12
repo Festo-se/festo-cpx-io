@@ -879,7 +879,7 @@ class TestApModule:
         module.write_channels([1, -2])
 
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, -2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b"\x01\xFE"), 0)
 
     def test_write_channels_uint8(self, module_fixture):
         """Test write_channels"""
@@ -889,7 +889,6 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers.outputs = 0
         module.base = Mock()
-        module.write_channel = Mock()
 
         module.channels.outputs = [
             Channel(
@@ -910,7 +909,39 @@ class TestApModule:
         module.write_channels([1, 2])
 
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, 2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b"\x01\x02"), 0)
+
+    def test_write_channels_uint8_negative_value(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=2)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
+        module.base = Mock()
+
+        module.channels.outputs = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT8",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 2
+
+        # Act and assert
+        with pytest.raises(ValueError):
+            module.write_channels([-1, 2])
+
+        # Act with mixed valid and invalid values
+        with pytest.raises(ValueError):
+            module.write_channels([300, -2])
 
     def test_write_channels_int16(self, module_fixture):
         """Test write_channels"""
@@ -920,7 +951,6 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-        module.write_channel = Mock()
 
         module.channels.outputs = [
             Channel(
@@ -941,9 +971,39 @@ class TestApModule:
         module.write_channels([1, -2])
 
         # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, -2)])
+        module.base.write_reg_data.assert_called_with(bytearray(b"\x01\x00\xFE\xFF"), 0)
 
     def test_write_channels_uint16(self, module_fixture):
+        """Test write_channels"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.information = CpxAp.ApInformation(output_size=2)
+        module.system_entry_registers = SystemEntryRegisters(outputs=0)
+        module.base = Mock()
+
+        module.channels.outputs = [
+            Channel(
+                array_size=None,
+                bits=1,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="UINT16",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            )
+        ] * 2
+
+        # Act
+        module.write_channels([1, 2])
+
+        # Assert
+        module.base.write_reg_data.assert_called_with(b"\x01\x00\x02\x00", 0)
+
+    def test_write_channels_uint16_negative_value(self, module_fixture):
         """Test write_channels"""
         # Arrange
         module = module_fixture
@@ -968,11 +1028,9 @@ class TestApModule:
             )
         ] * 2
 
-        # Act
-        module.write_channels([1, 2])
-
-        # Assert
-        module.write_channel.assert_has_calls([call(0, 1), call(1, 2)])
+        # Act and assert
+        with pytest.raises(OverflowError):
+            module.write_channels([-1, 2])
 
     @pytest.mark.parametrize(
         "input_value",
