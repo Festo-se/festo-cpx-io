@@ -10,7 +10,6 @@ import requests
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
-from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     SUPPORTED_PRODUCT_FUNCTIONS_DICT,
 )
@@ -248,8 +247,8 @@ class CpxAp(CpxBase):
         """
         module.information = info
 
-        # if the module is a bus-module, the in- and output registers have to be set initially
-        if info.module_class == ProductCategory.CONTROLLERS.value:
+        # if it's the first module to add, set the starting registers
+        if self.next_input_register is None and self.next_output_register is None:
             self.next_output_register = ap_modbus_registers.OUTPUTS.register_address
             self.next_input_register = ap_modbus_registers.INPUTS.register_address
 

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - fixed CPX-E value parsing for write commands (previously only True was written)
+- now accepts systems where the bus module is not on AP slot 1 (leftmost module)
 
 ## v0.8.0 - 14.01.25
 ### Changed
