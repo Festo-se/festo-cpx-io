@@ -148,8 +148,6 @@ class CpxAp(CpxBase):
             generate_system_information_file(self)
 
     def shutdown(self):
-        if self.current_timeout_ms == 0:
-            self.set_timeout(100)
         return super().shutdown()
 
     def connected(self) -> bool:
@@ -214,6 +212,10 @@ class CpxAp(CpxBase):
         :param timeout_ms: Modbus timeout in ms (milli-seconds)
         :type timeout_ms: int
         """
+        if timeout_ms is None:
+            print(f"Timeout is None. Not setting the timeout on target device.")
+            return
+
         if 0 < timeout_ms < 100:
             timeout_ms = 100
             Logging.logger.warning(
