@@ -22,6 +22,13 @@ def add_cpx_ap_parser(subparsers):
     parser.add_argument(
         "-ss", "--system-state", action="store_true", help="Print system state"
     )
+    parser.add_argument(
+        "-mt",
+        "--modbus-timeout",
+        type=int,
+        default=None,
+        help="Set modbus connection timeout in ms (default: %(default)s). It's recommended to not set the timeout below 100 ms.",
+    )
 
     subparsers_cpx_ap = parser.add_subparsers(
         dest="subcommand",
@@ -70,7 +77,13 @@ def add_cpx_ap_parser(subparsers):
 
 def cpx_ap_func(args):
     """Executes subcommand based on provided arguments"""
-    cpx_ap = CpxAp(ip_address=args.ip_address, timeout=0.0)
+    modbusTimeout = None
+
+    if args.modbus_timeout is not None:
+        print(f"Got explicit modbus timeout: {args.modbus_timeout} ms")
+        modbusTimeout = args.modbus_timeout / 1000
+
+    cpx_ap = CpxAp(ip_address=args.ip_address, timeout=modbusTimeout)
     if not cpx_ap.connected():
         return
 

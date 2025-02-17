@@ -75,6 +75,7 @@ options:
   -si, --system-information
                         Print system information
   -ss, --system-state   Print system state
+  -mt, --modbus-timeout Set a modbus timeout in ms. It is recommended to set it not below 100 ms.
 
 action commands:
   Action to perform
