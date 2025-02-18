@@ -1270,14 +1270,17 @@ def test_vaba_parameters(test_cpxap):
     ) == m.read_module_parameter(20095)
 
 
+unpatched_requests_get = requests.get
+
+
 def slow_down_get_request(*args, **kwargs):
-    response = requests.get(args[0], timeout=100)
+    response = unpatched_requests_get(args[0], timeout=100)
     time.sleep(0.2)
     return response
 
 
 @mock.patch("requests.get", side_effect=slow_down_get_request)
-def test_connection_timeout_while_apdd():
+def test_connection_timeout_while_apdd(_mock_get):
     # delete apdds to force a slow url request
     with CpxAp(ip_address="172.16.1.42") as cpxap:
         cpxap.delete_apdds()
