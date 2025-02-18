@@ -3,6 +3,8 @@
 import time
 import struct
 import pytest
+import requests
+from unittest import mock
 
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
@@ -1266,3 +1268,19 @@ def test_vaba_parameters(test_cpxap):
     assert m.read_module_parameter(
         "Condition counter actual value"
     ) == m.read_module_parameter(20095)
+
+
+def slow_down_get_request(*args, **kwargs):
+    response = requests.get(args[0], timeout=100)
+    time.sleep(0.2)
+    return response
+
+
+@mock.patch("requests.get", side_effect=slow_down_get_request)
+def test_connection_timeout_while_apdd():
+    # delete apdds to force a slow url request
+    with CpxAp(ip_address="172.16.1.42") as cpxap:
+        cpxap.delete_apdds()
+    with CpxAp(ip_address="172.16.1.42", timeout=0.1) as cpxap:
+        m = cpxap.modules[4]
+        assert m.read_channels() == [False] * 8
