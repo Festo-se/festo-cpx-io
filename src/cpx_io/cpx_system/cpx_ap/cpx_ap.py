@@ -139,6 +139,10 @@ class CpxAp(CpxBase):
                 Logging.logger.debug(
                     f"Loaded apdd {apdd_name} from module index {i} and saved to {self._apdd_path}"
                 )
+                # if the webserver access is rather slow then the modbus connection can timeout
+                # modbus will automatically reconnect with a normal command
+                # the connected flag is not update if a modbus timeout occurs in the background
+                self.client.read_device_information()
 
             module = build_ap_module(module_apdd, info.module_code)
             self._add_module(module, info)
