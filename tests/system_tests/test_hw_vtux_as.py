@@ -31,67 +31,55 @@ def test_modules(test_cpxap):
         assert m.information.input_size >= 0
         assert test_cpxap.modules[i].position == i
 
-    assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # EP
-    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 4AI
+    assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # 4AI
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # EP
     assert test_cpxap.modules[2].system_entry_registers.outputs == 0  # VABX-A-S-BV-V4A
     assert test_cpxap.modules[3].system_entry_registers.outputs == 1  # VABX-A-S-VE-VBH
     assert test_cpxap.modules[4].system_entry_registers.outputs == 2  #  VABX-A-S-VE-VBL
 
-    assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # EP
-    assert test_cpxap.modules[1].system_entry_registers.inputs == 5000  # 4AI
-    assert (
-        test_cpxap.modules[2].system_entry_registers.inputs == 5004
-    )  # VABX-A-S-BV-V4A
-    assert (
-        test_cpxap.modules[3].system_entry_registers.inputs == 5005
-    )  # VABX-A-S-VE-VBH
-    assert (
-        test_cpxap.modules[4].system_entry_registers.inputs == 5007
-    )  #  VABX-A-S-VE-VBL
+    assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # 4AI
+    assert test_cpxap.modules[1].system_entry_registers.inputs == 5004  # EP
+    assert test_cpxap.modules[2].system_entry_registers.inputs == 5004  # ..-V4A
+    assert test_cpxap.modules[3].system_entry_registers.inputs == 5005  # ..-VBH
+    assert test_cpxap.modules[4].system_entry_registers.inputs == 5007  #  ..-VBL
 
     assert test_cpxap.global_diagnosis_register == 11000  # cpx system global diagnosis
-    assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # EP
+    assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # 4AI
     assert test_cpxap.modules[1].system_entry_registers.diagnosis == 11012  # EP
-    assert (
-        test_cpxap.modules[2].system_entry_registers.diagnosis == 11018
-    )  # VABX-A-S-BV-V4A
-    assert (
-        test_cpxap.modules[3].system_entry_registers.diagnosis == 11024
-    )  # VABX-A-S-VE-VBH
-    assert (
-        test_cpxap.modules[4].system_entry_registers.diagnosis == 11030
-    )  # VABX-A-S-VE-VBL
+    assert test_cpxap.modules[2].system_entry_registers.diagnosis == 11018  # ..-V4A
+    assert test_cpxap.modules[3].system_entry_registers.diagnosis == 11024  # ..-VBH
+    assert test_cpxap.modules[4].system_entry_registers.diagnosis == 11030  # ..-VBL
 
 
 def test_modules_channel_length(test_cpxap):
 
-    assert len(test_cpxap.modules[0].channels.inputs) == 0  # EP
-    assert len(test_cpxap.modules[1].channels.inputs) == 4  # 4AI
+    assert len(test_cpxap.modules[0].channels.inputs) == 4  # 4AI
+    assert len(test_cpxap.modules[1].channels.inputs) == 0  # EP
     assert len(test_cpxap.modules[2].channels.inputs) == 8  # VABX-A-S-BV-V4A
     assert len(test_cpxap.modules[3].channels.inputs) == 3  # VABX-A-S-VE-VBH
     assert len(test_cpxap.modules[4].channels.inputs) == 3  # VABX-A-S-VE-VBL
 
-    assert len(test_cpxap.modules[0].channels.outputs) == 0  # EP
-    assert len(test_cpxap.modules[1].channels.outputs) == 0  # 4AI
+    assert len(test_cpxap.modules[0].channels.outputs) == 0  # 4AI
+    assert len(test_cpxap.modules[1].channels.outputs) == 0  # EP
     assert len(test_cpxap.modules[2].channels.outputs) == 8  # VABX-A-S-BV-V4A
     assert len(test_cpxap.modules[3].channels.outputs) == 1  # VABX-A-S-VE-VBH
     assert len(test_cpxap.modules[4].channels.outputs) == 1  # VABX-A-S-VE-VBL
 
-    assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
-    assert len(test_cpxap.modules[1].channels.inouts) == 0  # 4AI
+    assert len(test_cpxap.modules[0].channels.inouts) == 0  # 4AI
+    assert len(test_cpxap.modules[1].channels.inouts) == 0  # EP
     assert len(test_cpxap.modules[2].channels.inouts) == 0  # VABX-A-S-BV-V4A
     assert len(test_cpxap.modules[3].channels.inouts) == 0  # VABX-A-S-VE-VBH
     assert len(test_cpxap.modules[4].channels.inouts) == 0  # VABX-A-S-VE-VBL
 
 
 def test_4AiUI_None(test_cpxap):
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[0]
     assert len(m.read_channels()) == 4
 
 
 def test_4AiUI_analog5V0_CH3(test_cpxap):
     # this depends on external 5.0 Volts at input channel 3
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[0]
     channel = 3
     m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
@@ -102,7 +90,7 @@ def test_4AiUI_analog5V0_CH3(test_cpxap):
 
 def test_4AiUI_analog5V0_CH3_with_scaling(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[0]
     channel = 3
     m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
@@ -120,7 +108,7 @@ def test_4AiUI_analog5V0_CH3_with_scaling(test_cpxap):
 
 
 def test_4AiUI_parameters(test_cpxap):
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[0]
     assert m.read_module_parameter("Temperature unit") == m.read_module_parameter(20032)
     assert m.read_module_parameter("Signalrange") == m.read_module_parameter(20043)
     assert m.read_module_parameter("Upper threshold value") == m.read_module_parameter(
