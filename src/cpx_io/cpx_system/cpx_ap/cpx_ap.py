@@ -67,7 +67,7 @@ class CpxAp(CpxBase):
 
     def __init__(
         self,
-        timeout: float = 0.1,
+        timeout: float = None,
         apdd_path: str = None,
         docu_path: str = None,
         generate_docu: bool = True,
@@ -101,7 +101,12 @@ class CpxAp(CpxBase):
         self.global_diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
         self.next_diagnosis_register = self.global_diagnosis_register + 6
 
-        self.set_timeout(int(timeout * 1000))
+        if timeout is not None:
+            self.set_timeout(int(timeout * 1000))
+        else:
+            Logging.logger.info(
+                "Timeout is None. Not setting the timeout on target device."
+            )
 
         if apdd_path:
             self._apdd_path = apdd_path
@@ -206,11 +211,6 @@ class CpxAp(CpxBase):
         :param timeout_ms: Modbus timeout in ms (milli-seconds)
         :type timeout_ms: int
         """
-        if timeout_ms is None:
-            Logging.logger.info(
-                "Timeout is None. Not setting the timeout on target device."
-            )
-            return
 
         if 0 < timeout_ms < 100:
             timeout_ms = 100
