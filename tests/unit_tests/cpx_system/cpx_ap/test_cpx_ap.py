@@ -3,6 +3,7 @@
 from unittest.mock import Mock, call, patch
 import pytest
 
+from pymodbus.client import ModbusTcpClient
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
@@ -12,6 +13,7 @@ from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 class TestCpxAp:
     "Test CpxAp"
 
+    @patch("pymodbus.client.ModbusTcpClient.__new__", spec=True)
     @patch(
         "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout",
         spec=True,
@@ -69,6 +71,7 @@ class TestCpxAp:
         mock_create_docu_path,
         mock_create_apdd_path,
         mock_set_timeout,
+        mock_modbus_tcp_client,
     ):
         """Test default constructor"""
         # Debugging: Check if mocks are callable
@@ -99,9 +102,10 @@ class TestCpxAp:
         mock_generate_system_information_file.return_value = None
         mock_os_listdir.return_value = [""]
         mock_connected.return_value = True
+        mock_modbus_tcp_client.return_value = Mock()
 
         # Act
-        cpx_ap = CpxAp()
+        cpx_ap = CpxAp(ip_address="0.0.0.0")
 
         # Assert
         assert cpx_ap.next_output_register is None
@@ -118,6 +122,7 @@ class TestCpxAp:
         mock_add_module.assert_called_once()
         mock_generate_system_information_file.assert_called_once()
 
+    @patch("pymodbus.client.ModbusTcpClient.__new__", spec=True)
     @patch(
         "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout",
         spec=CpxAp.set_timeout,
@@ -175,6 +180,7 @@ class TestCpxAp:
         mock_create_docu_path,
         mock_create_apdd_path,
         mock_set_timeout,
+        mock_modbus_tcp_client,
     ):
         """Test constructor"""
         # Arrange
@@ -191,9 +197,12 @@ class TestCpxAp:
         mock_generate_system_information_file.return_value = None
         mock_os_listdir.return_value = [""]
         mock_connected.return_value = True
+        mock_modbus_tcp_client.return_value = Mock()
 
         # Act
-        cpx_ap = CpxAp(apdd_path="myApddPath", docu_path="myDocuPath")
+        cpx_ap = CpxAp(
+            apdd_path="myApddPath", docu_path="myDocuPath", ip_address="0.0.0.0"
+        )
 
         # Assert
         assert cpx_ap.next_output_register is None
@@ -259,8 +268,10 @@ class TestCpxAp:
         mock_set_timeout = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout", spec=CpxAp.set_timeout
         )
-
-        yield CpxAp()
+        mock_modbus_tcp_client = mocker.patch(
+            "pymodbus.client.ModbusTcpClient.__new__", spec=True, return_value=Mock()
+        )
+        yield CpxAp(ip_address="0.0.0.0")
 
     def test_connected(self, ap_fixture):
         # Arrange
