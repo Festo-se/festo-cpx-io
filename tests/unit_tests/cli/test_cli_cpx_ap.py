@@ -58,7 +58,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -76,7 +76,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -92,7 +92,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__.assert_called_with(2)
         assert f"Error: module index 2 does not exist\n" in stderr
@@ -113,7 +113,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -134,7 +134,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__.assert_called_with(2)
         assert f"Error: module index 2 does not exist\n" in stderr
@@ -156,7 +156,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -177,7 +177,7 @@ class TestCli:
         main()
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             5

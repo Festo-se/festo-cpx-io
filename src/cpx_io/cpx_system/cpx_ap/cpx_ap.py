@@ -148,9 +148,6 @@ class CpxAp(CpxBase):
         if generate_docu:
             generate_system_information_file(self)
 
-    def shutdown(self):
-        return super().shutdown()
-
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated
@@ -210,7 +207,9 @@ class CpxAp(CpxBase):
         :type timeout_ms: int
         """
         if timeout_ms is None:
-            print(f"Timeout is None. Not setting the timeout on target device.")
+            Logging.logger.info(
+                "Timeout is None. Not setting the timeout on target device."
+            )
             return
 
         if 0 < timeout_ms < 100:
@@ -234,7 +233,6 @@ class CpxAp(CpxBase):
         )
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
-        self.current_timeout_ms = indata
 
     def _add_module(self, module: ApModule, info: ApInformation) -> None:
         """Adds one module to the base. This is required to use the module.
