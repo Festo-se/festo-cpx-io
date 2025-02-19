@@ -75,8 +75,7 @@ options:
   -si, --system-information
                         Print system information
   -ss, --system-state   Print system state
-  -mt, --modbus-timeout Set a modbus timeout in ms. It is recommended to set it not below 100 ms.
-
+  -mt, --modbus-timeout Set a modbus timeout in seconds (default: None). Minimum timeout is 0.1s (100 ms). Exception: setting timeout to 0.0s means an infinite timeout (no timeout).
 action commands:
   Action to perform
 
