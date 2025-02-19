@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- `-mt, --modbus-timeout` command for cli to set explicitly a timeout
+
+### Changed
+- removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
 
 ## v0.8.1 - 14.02.25
 ### Added
