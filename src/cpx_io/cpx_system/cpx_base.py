@@ -76,6 +76,16 @@ class CpxBase:
             Logging.logger.info("No connection to close")
         return False
 
+    def connected(self) -> bool:
+        """Returns information about connection status"""
+        return self.client.connected
+
+    def check_connection_and_try_reconnect(self):
+        """checks the modbus connection and tries to reconnect if the connection is timedout"""
+        # modbus will automatically reconnect with a normal command
+        # the connected flag is not update if a modbus timeout occurs in the background
+        self.client.read_device_information()
+
     def read_device_info(self) -> dict:
         """Reads device info from the CPX system and returns dict with containing values
 

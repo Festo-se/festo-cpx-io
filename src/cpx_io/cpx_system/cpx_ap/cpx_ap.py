@@ -140,9 +140,7 @@ class CpxAp(CpxBase):
                     f"Loaded apdd {apdd_name} from module index {i} and saved to {self._apdd_path}"
                 )
                 # if the webserver access is rather slow then the modbus connection can timeout
-                # modbus will automatically reconnect with a normal command
-                # the connected flag is not update if a modbus timeout occurs in the background
-                self.client.read_device_information()
+                self.check_connection_and_try_reconnect()
 
             module = build_ap_module(module_apdd, info.module_code)
             self._add_module(module, info)
@@ -154,10 +152,6 @@ class CpxAp(CpxBase):
         if self.current_timeout_ms == 0:
             self.set_timeout(100)
         return super().shutdown()
-
-    def connected(self) -> bool:
-        """Returns information about connection status"""
-        return self.client.connected
 
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
