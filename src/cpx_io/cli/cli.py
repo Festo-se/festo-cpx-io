@@ -2,7 +2,7 @@
 
 import argparse
 import logging
-import pkg_resources
+from importlib.metadata import version
 from cpx_io.cli.cpx_e import add_cpx_e_parser
 from cpx_io.cli.cpx_ap import add_cpx_ap_parser
 from cpx_io.utils.logging import Logging
@@ -22,7 +22,7 @@ def main():
     args, _ = parser.parse_known_args()
 
     if args.version:
-        print(f"festo-cpx-io v{pkg_resources.require('festo-cpx-io')[0].version}")
+        print(f"festo-cpx-io v{version('festo-cpx-io')}")
         return
 
     # recreate argument parser for consistent help text

@@ -2,4 +2,4 @@ pymodbus==3.7.4
 rich==13.9.3
 platformdirs==4.3.6
 requests==2.32.3
-setuptools==66.1.1
+setuptools==75.8.2
