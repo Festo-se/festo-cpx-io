@@ -3,3 +3,5 @@ rich==13.9.3
 platformdirs==4.3.6
 requests==2.32.3
 setuptools==75.8.2
+pytest==8.3.5
+pytest-mock==3.14.0
