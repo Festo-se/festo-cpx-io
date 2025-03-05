@@ -27,7 +27,7 @@ class CpxE(CpxBase):
 
         self.modules = modules
 
-        Logging.logger.info(f"Created {self}")
+        Logging.logger.debug(f"Created {self}")
 
     def __repr__(self):
         return f"{type(self).__name__}: [{', '.join(str(x) for x in self.modules)}]"
@@ -49,7 +49,7 @@ class CpxE(CpxBase):
         elif isinstance(modules_value, list):
             module_list = modules_value
         elif isinstance(modules_value, str):
-            Logging.logger.info("Use typecode %s for module setup", modules_value)
+            Logging.logger.debug("Use typecode %s for module setup", modules_value)
             cpxe_typecode = self.unwrap_cpxe_typecode(modules_value)
             module_list = module_list_from_typecode(cpxe_typecode, CPX_E_MODULE_ID_DICT)
         else:

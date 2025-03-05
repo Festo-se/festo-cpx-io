@@ -98,7 +98,7 @@ class CpxBase:
         dev_info["model_name"] = rres.information[5].decode("ascii")
 
         for key, value in dev_info.items():
-            Logging.logger.info(f"{key.replace('_',' ').title()}: {value}")
+            Logging.logger.debug(f"{key.replace('_',' ').title()}: {value}")
 
         return dev_info
 

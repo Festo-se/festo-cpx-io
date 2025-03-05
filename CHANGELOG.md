@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
+- Logging levels for better usability of Logging functionality
 
 ## v0.8.1 - 14.02.25
 ### Added

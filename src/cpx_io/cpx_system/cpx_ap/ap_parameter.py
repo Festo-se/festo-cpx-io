@@ -81,14 +81,14 @@ def parameter_unpack(
     array_size = parameter.array_size if parameter.array_size else 1
 
     if forced_format:
-        Logging.logger.info(f"Parameter {parameter} forced to type ({forced_format})")
+        Logging.logger.debug(f"Parameter {parameter} forced to type ({forced_format})")
         unpack_data_type = forced_format
     else:
         if parameter.data_type == "ENUM_ID":
             parameter_data_type = parameter.enums.data_type
         else:
             parameter_data_type = parameter.data_type
-        Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
+        Logging.logger.debug(f"Parameter {parameter} is of type {parameter_data_type}")
 
         unpack_data_type = f"<{array_size * TYPE_TO_FORMAT_CHAR[parameter_data_type]}"
 
@@ -134,7 +134,7 @@ def parameter_pack(
             parameter_data_type = parameter.enums.data_type
         else:
             parameter_data_type = parameter.data_type
-        Logging.logger.info(f"Parameter {parameter} is of type {parameter_data_type}")
+        Logging.logger.debug(f"Parameter {parameter} is of type {parameter_data_type}")
 
         # for char arrays, ignore the "Arraysize" and use length of the bytes object instead
         # but check for the size and return index error if too long
@@ -157,5 +157,5 @@ def parameter_pack(
 
         return struct.pack(pack_data_type, value)
 
-    Logging.logger.info(f"Parameter {parameter} forced to type ({forced_format})")
+    Logging.logger.debug(f"Parameter {parameter} forced to type ({forced_format})")
     return struct.pack(forced_format, value)

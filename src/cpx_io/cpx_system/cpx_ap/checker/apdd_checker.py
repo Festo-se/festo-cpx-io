@@ -20,7 +20,7 @@ def check_apdd(apdd: dict) -> int:
     for variant in variant_list:
         variant_code = variant["VariantIdentification"]["ModuleCode"]
         variant_name = variant["VariantIdentification"]["OrderText"]
-        Logging.logger.info(f"Checking variant {variant_code} of {variant_name}")
+        Logging.logger.debug(f"Checking variant {variant_code} of {variant_name}")
         try:
             module = ap_module_builder.build_ap_module(apdd, variant_code)
 
@@ -55,7 +55,7 @@ def check_apdds_in_folder(folder_path: str) -> int:
     for a in apdds:
         with open(folder_path + "/" + a, "r", encoding="utf-8") as f:
             module_apdd = json.load(f)
-        Logging.logger.info(f"Loaded apdd {a} from folder {folder_path}")
+        Logging.logger.debug(f"Loaded apdd {a} from folder {folder_path}")
 
         if check_apdd(module_apdd):
             modules_with_errors += 1
