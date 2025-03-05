@@ -105,7 +105,7 @@ class CpxAp(CpxBase):
             self.set_timeout(int(timeout * 1000))
         else:
             Logging.logger.info(
-                "Timeout is None. Not setting the timeout on target device."
+                "Timeout is not specified. Not setting the timeout on target device."
             )
 
         if apdd_path:
