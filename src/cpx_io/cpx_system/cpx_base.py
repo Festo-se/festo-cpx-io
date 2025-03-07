@@ -35,7 +35,10 @@ class CpxConnectionError(Exception):
 
     def __init__(
         self,
-        message="Failed to connect to the CPX system. Please check your connection and network configuration.",
+        message=(
+            "Failed to connect to the CPX system."
+            "Check your connection and network configuration."
+        ),
     ):
         super().__init__(message)
 
@@ -63,9 +66,11 @@ class CpxBase:
             Logging.logger.info(f"Connected to {ip_address}:502")
         else:
             Logging.logger.warning(f"Failed to connect to {ip_address}:502 via modbus")
-            raise CpxConnectionError(
-                "Modbus connection to the CPX system failed. Please check your connection and network configuration."
+            message = (
+                "Modbus connection to the CPX system failed."
+                "Check your connection and network configuration."
             )
+            raise CpxConnectionError(message)
 
     def __enter__(self):
         return self
