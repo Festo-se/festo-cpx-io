@@ -5,11 +5,39 @@ from dataclasses import dataclass
 import pytest
 
 from pymodbus.client import ModbusTcpClient
-from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError, CpxConnectionError
 
 
 class TestCpxBase:
     "Test CpxBase methods"
+
+    @patch("cpx_io.cpx_system.cpx_base.ModbusTcpClient", spec=True)
+    def test_constructor_modbus_connection_error(self, mock_modbus_client):
+        "Test modbus connection error handling if modbus can not connect"
+
+        # Arrange
+        mock_client_instance = mock_modbus_client.return_value
+        mock_client_instance.connect.return_value = False
+
+        # Act & Assert
+        with pytest.raises(CpxConnectionError):
+            CpxBase("192.168.1.1")
+
+    @patch("cpx_io.cpx_system.cpx_base.ModbusTcpClient", spec=True)
+    def test_constructor_modbus_connection_successful(self, mock_modbus_client):
+        "Test successful modbus connection"
+
+        # Arrange
+        mock_client_instance = mock_modbus_client.return_value
+        mock_client_instance.connect.return_value = True
+
+        # Act
+        cpx = CpxBase("192.168.1.1")
+
+        # Assert
+        assert isinstance(cpx, CpxBase)
+        assert cpx.client == mock_client_instance
+        assert cpx.client.connect.called
 
     def test_constructor_no_ip(self):
         "Test constructor"
