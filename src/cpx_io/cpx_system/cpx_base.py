@@ -30,6 +30,19 @@ class CpxRequestError(Exception):
         super().__init__(message)
 
 
+class CpxConnectionError(Exception):
+    """Error should be raised when a connection to the CPX system fails."""
+
+    def __init__(
+        self,
+        message=(
+            "Failed to connect to the CPX system."
+            "Check your connection and network configuration."
+        ),
+    ):
+        super().__init__(message)
+
+
 class CpxBase:
     """A class to connect to the Festo CPX system and read data from IO modules"""
 
@@ -51,6 +64,13 @@ class CpxBase:
         self.client = ModbusTcpClient(host=ip_address)
         if self.client.connect():
             Logging.logger.info(f"Connected to {ip_address}:502")
+        else:
+            Logging.logger.warning(f"Failed to connect to {ip_address}:502 via modbus")
+            message = (
+                "Modbus connection to the CPX system failed."
+                "Check your connection and network configuration."
+            )
+            raise CpxConnectionError(message)
 
     def __enter__(self):
         return self
