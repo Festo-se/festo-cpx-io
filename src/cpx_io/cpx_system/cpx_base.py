@@ -76,6 +76,17 @@ class CpxBase:
             Logging.logger.info("No connection to close")
         return False
 
+    def connected(self) -> bool:
+        """Returns information about connection status"""
+        return self.client.connected
+
+    def check_connection_and_try_reconnect(self):
+        """checks the modbus connection and tries to reconnect if the connection is timedout"""
+        # the modbus library does not implicitly reconnect with read/write register command,
+        # although reconnection is implicitly configured. The read_device_informaiton() will
+        # automatically reconnect. This is a workaround for implicitly reconnecting!
+        self.client.read_device_information()
+
     def read_device_info(self) -> dict:
         """Reads device info from the CPX system and returns dict with containing values
 

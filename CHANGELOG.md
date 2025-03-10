@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Logging levels for better usability of Logging functionality
 
+### Fixed
+- make the initialization more robust against a slow apdd loading
+
 ## v0.8.1 - 14.02.25
 ### Added
 - System test for CPX-AP-A-4AI
