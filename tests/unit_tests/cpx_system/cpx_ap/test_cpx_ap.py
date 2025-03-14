@@ -170,6 +170,7 @@ class TestCpxAp:
         mock_read_apdd_information,
         mock_read_module_count,
         mock_set_timeout,
+        mock_modbus_tcp_client,
     ):
         """Test constructor with timeout"""
         # Debugging: Check if mocks are callable
@@ -187,13 +188,15 @@ class TestCpxAp:
         # Arrange
         mock_set_timeout.return_value = None
         mock_connected.return_value = True
+        mock_modbus_tcp_client.return_value = Mock()
 
         # Act
-        cpx_ap = CpxAp(timeout=0.1)
+        cpx_ap = CpxAp(ip_address="0.0.0.0", timeout=0.1)
 
         # Assert
         mock_set_timeout.assert_called_once
 
+    @patch("pymodbus.client.ModbusTcpClient.__new__", spec=True)
     @patch(
         "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout",
         spec=CpxAp.set_timeout,
