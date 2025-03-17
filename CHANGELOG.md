@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Modbus connection error which is raised if connection to the target device could not be established 
 - Unit tests for (un)successful modbus connection
+- `-mt, --modbus-timeout` command for cli to set explicitly a timeout
 
 ### Changed
 - Logging levels for better usability of Logging functionality
+- removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
 
 ### Fixed
 - make the initialization more robust against a slow apdd loading

@@ -3,6 +3,7 @@
 import sys
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.utils.helpers import ChannelIndexError
+from cpx_io.utils.logging import Logging
 
 # pylint: disable=duplicate-code
 # intended: cpx-e and cpx-ap have similar parser options
@@ -21,6 +22,15 @@ def add_cpx_ap_parser(subparsers):
     )
     parser.add_argument(
         "-ss", "--system-state", action="store_true", help="Print system state"
+    )
+    parser.add_argument(
+        "-mt",
+        "--modbus-timeout",
+        type=float,
+        default=None,
+        help="Set modbus connection timeout in seconds (default: %(default)s). "
+        "Minimum timeout is 0.1s (100 ms). Exception: setting timeout to 0.0s "
+        "means an infinite timeout (no timeout).",
     )
 
     subparsers_cpx_ap = parser.add_subparsers(
@@ -70,7 +80,11 @@ def add_cpx_ap_parser(subparsers):
 
 def cpx_ap_func(args):
     """Executes subcommand based on provided arguments"""
-    cpx_ap = CpxAp(ip_address=args.ip_address, timeout=0.0)
+
+    if args.modbus_timeout is not None:
+        Logging.logger.info(f"Got explicit modbus timeout: {args.modbus_timeout} s")
+
+    cpx_ap = CpxAp(ip_address=args.ip_address, timeout=args.modbus_timeout)
     if not cpx_ap.connected():
         return
 

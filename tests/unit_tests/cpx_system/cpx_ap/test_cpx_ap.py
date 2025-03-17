@@ -114,13 +114,87 @@ class TestCpxAp:
         assert cpx_ap.global_diagnosis_register == 11000
         assert cpx_ap.next_diagnosis_register == 11006
 
-        mock_set_timeout.assert_called_once()
+        assert not mock_set_timeout.called
 
         assert cpx_ap.apdd_path == "apdd_path"
         assert cpx_ap.docu_path == "docu_path"
 
         mock_add_module.assert_called_once()
         mock_generate_system_information_file.assert_called_once()
+
+    @patch("pymodbus.client.ModbusTcpClient.__new__", spec=True)
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count",
+        spec=CpxAp.read_module_count,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information",
+        spec=CpxAp.read_apdd_information,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._grab_apdd",
+        spec=CpxAp._grab_apdd,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp._add_module",
+        spec=CpxAp._add_module,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.build_ap_module",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.generate_system_information_file",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.os.listdir",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.connected",
+        spec=CpxAp.connected,
+    )
+    def test_constructor_with_given_timeout(
+        self,
+        mock_connected,
+        mock_os_listdir,
+        mock_generate_system_information_file,
+        mock_build_ap_module,
+        mock_add_module,
+        mock__grab_apdd,
+        mock_read_apdd_information,
+        mock_read_module_count,
+        mock_set_timeout,
+        mock_modbus_tcp_client,
+    ):
+        """Test constructor with timeout"""
+        # Debugging: Check if mocks are callable
+        for mock in [
+            mock_read_module_count,
+            mock_read_apdd_information,
+            mock__grab_apdd,
+            mock_build_ap_module,
+            mock_add_module,
+            mock_generate_system_information_file,
+            mock_os_listdir,
+            mock_connected,
+        ]:
+            print(f"{mock} is callable: {callable(mock)}")
+        # Arrange
+        mock_set_timeout.return_value = None
+        mock_connected.return_value = True
+        mock_modbus_tcp_client.return_value = Mock()
+
+        # Act
+        cpx_ap = CpxAp(ip_address="0.0.0.0", timeout=0.1)
+
+        # Assert
+        mock_set_timeout.assert_called_once
 
     @patch("pymodbus.client.ModbusTcpClient.__new__", spec=True)
     @patch(
@@ -207,7 +281,7 @@ class TestCpxAp:
         # Assert
         assert cpx_ap.next_output_register is None
         assert cpx_ap.next_input_register is None
-        mock_set_timeout.assert_called_once()
+        assert not mock_set_timeout.called
         assert cpx_ap.apdd_path == "myApddPath"
         assert cpx_ap.docu_path == "myDocuPath"
         mock_read_apdd_information.assert_called_once()

@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 from cpx_io.cli.cpx_ap import add_cpx_ap_parser, cpx_ap_func
 from cpx_io.cli.cli import main
 from cpx_io.utils.helpers import ChannelIndexError
+from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 
 
 def create_cli_params(param):
@@ -15,18 +16,25 @@ def create_cli_params(param):
         return ["cli.py", "cpx-ap", "--system-information"]
     if "system_state" in param:
         return ["cli.py", "cpx-ap", "--system-state"]
-    args_string = (
-        [
-            "cli.py",
-            "-i",
-            param["ip_address"],
-            param["subcommand"],
-            param["operation"],
-        ]
-        + (["-m", param["module_index"]] if "module_index" in param else [])
-        + (["-c", param["channel_index"]] if "channel_index" in param else [])
-        + ([param["value"]] if "value" in param else [])
-    )
+
+    args_string = [
+        "cli.py",
+        "-i",
+        param["ip_address"],
+        param["subcommand"],
+    ]
+
+    if "modbus_timeout" in param:
+        args_string += ["-mt", str(param["modbus_timeout"])]
+
+    args_string.append(param["operation"])
+
+    if "module_index" in param:
+        args_string += ["-m", param["module_index"]]
+    if "channel_index" in param:
+        args_string += ["-c", param["channel_index"]]
+    if "value" in param:
+        args_string.append(param["value"])
     return args_string
 
 
@@ -58,7 +66,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -76,7 +84,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -92,7 +100,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__.assert_called_with(2)
         assert f"Error: module index 2 does not exist\n" in stderr
@@ -113,7 +121,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -134,7 +142,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__.assert_called_with(2)
         assert f"Error: module index 2 does not exist\n" in stderr
@@ -156,7 +164,7 @@ class TestCli:
 
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             2
@@ -177,8 +185,26 @@ class TestCli:
         main()
         mocked_cpx_ap.assert_called_with(
             ip_address="192.168.0.1",
-            timeout=0.0,
+            timeout=None,
         )
         mocked_cpx_ap.return_value.modules.__getitem__(
             5
         ).__setitem__.assert_called_with(4, True)
+
+    @patch(
+        "sys.argv",
+        create_cli_params(
+            {
+                "modbus_timeout": 0.1,
+            }
+        ),
+    )
+    @patch("cpx_io.cli.cpx_ap.CpxAp")
+    def test_cpe_x_func_set_modbus_timeout(self, mocked_cpx_ap):
+
+        main()
+
+        mocked_cpx_ap.assert_called_with(
+            ip_address="192.168.0.1",
+            timeout=0.1,
+        )
