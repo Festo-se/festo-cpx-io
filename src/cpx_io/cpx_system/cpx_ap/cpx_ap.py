@@ -67,7 +67,7 @@ class CpxAp(CpxBase):
 
     def __init__(
         self,
-        timeout: float = 0.1,
+        timeout: float = None,
         apdd_path: str = None,
         docu_path: str = None,
         generate_docu: bool = True,
@@ -101,7 +101,12 @@ class CpxAp(CpxBase):
         self.global_diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
         self.next_diagnosis_register = self.global_diagnosis_register + 6
 
-        self.set_timeout(int(timeout * 1000))
+        if timeout is not None:
+            self.set_timeout(int(timeout * 1000))
+        else:
+            Logging.logger.info(
+                "Timeout is not specified. Not setting the timeout on target device."
+            )
 
         if apdd_path:
             self._apdd_path = apdd_path
@@ -147,11 +152,6 @@ class CpxAp(CpxBase):
 
         if generate_docu:
             generate_system_information_file(self)
-
-    def shutdown(self):
-        if self.current_timeout_ms == 0:
-            self.set_timeout(100)
-        return super().shutdown()
 
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
@@ -211,6 +211,7 @@ class CpxAp(CpxBase):
         :param timeout_ms: Modbus timeout in ms (milli-seconds)
         :type timeout_ms: int
         """
+
         if 0 < timeout_ms < 100:
             timeout_ms = 100
             Logging.logger.warning(
@@ -232,7 +233,6 @@ class CpxAp(CpxBase):
         )
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
-        self.current_timeout_ms = indata
 
     def _add_module(self, module: ApModule, info: ApInformation) -> None:
         """Adds one module to the base. This is required to use the module.
