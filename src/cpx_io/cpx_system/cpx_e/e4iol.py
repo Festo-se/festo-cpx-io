@@ -3,10 +3,11 @@
 # pylint: disable=duplicate-code
 # intended: modules have similar functions
 
+import struct
 from typing import Union
-
-from cpx_io.cpx_system.cpx_base import CpxBase
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
+from cpx_io.cpx_system.cpx_e import cpx_e_registers
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
@@ -481,3 +482,89 @@ class CpxE4Iol(CpxModule):
             f"{self.name}: Reading channel(s) {channel} device error: {ret}"
         )
         return ret
+
+    @CpxBase.require_base
+    def read_isdu(
+        self, channel: int, index: int, subindex: int = 0, data_type: str = "raw"
+    ) -> any:
+        """Read isdu (device parameter) from defined channel.
+        Raises CpxRequestError when read failed.
+
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param index: io-link parameter index
+        :type index: int
+        :param subindex: (optional) io-link parameter subindex, defaults to 0
+        :type subindex: int
+        :param data_type: (optional) datatype for correct interptetation.
+            Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
+            supported datatypes
+        :type data_type: str
+        :return : Value depending on the datatype
+        :rtype : any
+        """
+
+        module_index = (self.position).to_bytes(2, "little")  # starts with 0 on CPX-E
+        channel = (channel + 1).to_bytes(2, "little")
+        index = index.to_bytes(2, "little")
+        subindex = subindex.to_bytes(2, "little")
+        length = (0).to_bytes(2, "little")  # always zero when reading
+        # command: 50 Read(with byte swap), 51 write(with byte swap)
+        command = (50).to_bytes(2, "little")
+
+        SUPPORTED_ISDU_DATATYPES = ["str", "int", "raw", "bool", "float"]
+
+        if data_type not in SUPPORTED_ISDU_DATATYPES:
+            raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
+
+        # select module, starts with 1
+        self.base.write_reg_data(
+            module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
+        )
+        # select channel, starts with 1
+        self.base.write_reg_data(channel, cpx_e_registers.ISDU_CHANNEL.register_address)
+        # select index
+        self.base.write_reg_data(index, cpx_e_registers.ISDU_INDEX.register_address)
+        # select subindex
+        self.base.write_reg_data(
+            subindex, cpx_e_registers.ISDU_SUBINDEX.register_address
+        )
+        # select length of data in bytes
+        self.base.write_reg_data(length, cpx_e_registers.ISDU_LENGTH.register_address)
+        # command
+        self.base.write_reg_data(command, cpx_e_registers.ISDU_COMMAND.register_address)
+
+        stat, cnt = 1, 0
+        while stat > 0 and cnt < 1000:
+            stat = int.from_bytes(
+                self.base.read_input_reg_data(*cpx_e_registers.ISDU_STATUS),
+                byteorder="little",
+            )
+            cnt += 1
+        if cnt >= 1000:
+            raise CpxRequestError("ISDU data read failed")
+
+        # read back the actual length from the length register
+        actual_length = int.from_bytes(
+            self.base.read_reg_data(cpx_e_registers.ISDU_LENGTH.register_address),
+            byteorder="little",
+        )
+
+        ret = self.base.read_reg_data(
+            cpx_e_registers.ISDU_DATA.register_address, actual_length
+        )
+        Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
+
+        if data_type == "raw":
+            return ret[:actual_length]
+        if data_type == "str":
+            return ret.decode("ascii").split("\x00", 1)[0]
+        if data_type == "int":
+            return int.from_bytes(ret, byteorder="little")
+        if data_type == "bool":
+            return bool.from_bytes(ret, byteorder="little")
+        if data_type == "float":
+            return struct.unpack("f", ret[:actual_length])[0]
+
+        # this is unnecessary but required for consistent return statements
+        raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")

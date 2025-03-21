@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- ISDU access for CPX-E-4IOL
 - Modbus connection error which is raised if connection to the target device could not be established 
 - Unit tests for (un)successful modbus connection
 - `-mt, --modbus-timeout` command for cli to set explicitly a timeout

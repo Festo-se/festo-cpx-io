@@ -697,6 +697,32 @@ def test_4iol_sdas(test_cpxe):
         state = e4iol.read_line_state()[0]
 
 
+def test_4iol_sdas_isdu_read(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    vendor_name = e4iol.read_isdu(0, 16, data_type="str")
+
+    assert vendor_name == "Festo"
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
 @pytest.mark.skip(reason="HW removed from test system")
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
