@@ -187,24 +187,24 @@ class CpxBase:
         data = struct.pack("<" + "H" * len(response.registers), *response.registers)
         return data
 
-    def read_input_reg_data(self, register: int, length: int = 1) -> bytes:
-        """Reads and returns input register(s) from Modbus server without interpreting the data
+    # def read_input_reg_data(self, register: int, length: int = 1) -> bytes:
+    #     """Reads and returns input register(s) from Modbus server without interpreting the data
 
-        :param register: adress of the first register to read
-        :type register: int
-        :param length: number of registers to read (default: 1)
-        :type length: int
-        :return: Register(s) content
-        :rtype: bytes
-        """
+    #     :param register: adress of the first register to read
+    #     :type register: int
+    #     :param length: number of registers to read (default: 1)
+    #     :type length: int
+    #     :return: Register(s) content
+    #     :rtype: bytes
+    #     """
 
-        response = self.client.read_input_registers(register, length)
+    #     response = self.client.read_input_registers(register, length)
 
-        if response.isError():
-            raise ConnectionAbortedError(response.message)
+    #     if response.isError():
+    #         raise ConnectionAbortedError(response.message)
 
-        data = struct.pack("<" + "H" * len(response.registers), *response.registers)
-        return data
+    #     data = struct.pack("<" + "H" * len(response.registers), *response.registers)
+    #     return data
 
     def write_reg_data(self, data: bytes, register: int) -> None:
         """Write bytes object data to register(s).

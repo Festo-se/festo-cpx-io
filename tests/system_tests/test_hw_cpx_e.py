@@ -714,7 +714,7 @@ def test_4iol_sdas_isdu_read(test_cpxe):
 
     vendor_name = e4iol.read_isdu(0, 16, data_type="str")
 
-    assert vendor_name == "Festo"
+    assert vendor_name == "Festo AG & Co. KG"
 
     e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
     state = ""

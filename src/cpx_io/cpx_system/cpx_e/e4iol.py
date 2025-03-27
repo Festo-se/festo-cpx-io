@@ -505,7 +505,7 @@ class CpxE4Iol(CpxModule):
         """
 
         module_index = (self.position).to_bytes(2, "little")  # starts with 0 on CPX-E
-        channel = (channel + 1).to_bytes(2, "little")
+        channel = (channel).to_bytes(2, "little")
         index = index.to_bytes(2, "little")
         subindex = subindex.to_bytes(2, "little")
         length = (0).to_bytes(2, "little")  # always zero when reading
@@ -517,11 +517,11 @@ class CpxE4Iol(CpxModule):
         if data_type not in SUPPORTED_ISDU_DATATYPES:
             raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
-        # select module, starts with 1
+        # select module, starts with 0
         self.base.write_reg_data(
             module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
         )
-        # select channel, starts with 1
+        # select channel, starts with 0
         self.base.write_reg_data(channel, cpx_e_registers.ISDU_CHANNEL.register_address)
         # select index
         self.base.write_reg_data(index, cpx_e_registers.ISDU_INDEX.register_address)
@@ -536,11 +536,14 @@ class CpxE4Iol(CpxModule):
 
         stat, cnt = 1, 0
         while stat > 0 and cnt < 1000:
-            stat = int.from_bytes(
-                self.base.read_input_reg_data(*cpx_e_registers.ISDU_STATUS),
-                byteorder="little",
-            )
-            cnt += 1
+            try:
+                stat = int.from_bytes(
+                    self.base.read_reg_data(*cpx_e_registers.ISDU_STATUS),
+                    byteorder="little",
+                )
+            # CPX-E responds with an error that needs to be caught
+            except ConnectionAbortedError:
+                cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
 
