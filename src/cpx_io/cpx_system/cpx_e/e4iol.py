@@ -512,7 +512,15 @@ class CpxE4Iol(CpxModule):
         # command: 50 Read(with byte swap), 51 write(with byte swap)
         command = (50).to_bytes(2, "little")
 
-        SUPPORTED_ISDU_DATATYPES = ["str", "int", "raw", "bool", "float"]
+        SUPPORTED_ISDU_DATATYPES = [
+            "str",
+            "int",
+            "uint",
+            "sint",
+            "raw",
+            "bool",
+            "float",
+        ]
 
         if data_type not in SUPPORTED_ISDU_DATATYPES:
             raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
@@ -543,11 +551,12 @@ class CpxE4Iol(CpxModule):
                 )
             # CPX-E responds with an error that needs to be caught
             except ConnectionAbortedError:
-                cnt += 1
+                pass
+            cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
 
-        # read back the actual length from the length register
+        # read back the actual length from the length register (this is in bytes)
         actual_length = int.from_bytes(
             self.base.read_reg_data(cpx_e_registers.ISDU_LENGTH.register_address),
             byteorder="little",
@@ -562,12 +571,102 @@ class CpxE4Iol(CpxModule):
             return ret[:actual_length]
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
-        if data_type == "int":
-            return int.from_bytes(ret, byteorder="little")
+        if data_type in ["uint", "int"]:
+            return int.from_bytes(ret, byteorder="big")
+        if data_type == "sint":
+            return int.from_bytes(ret, byteorder="big", signed=True)
         if data_type == "bool":
-            return bool.from_bytes(ret, byteorder="little")
+            return bool.from_bytes(ret, byteorder="big")
         if data_type == "float":
             return struct.unpack("f", ret[:actual_length])[0]
 
         # this is unnecessary but required for consistent return statements
         raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
+
+    @CpxBase.require_base
+    def write_isdu(
+        self,
+        data: Union[bytes, str, int, bool],
+        channel: int,
+        index: int,
+        subindex: int = 0,
+    ) -> None:
+        """Write isdu (device parameter) to defined channel.
+        Raises CpxRequestError when write failed.
+
+        :param data: Data to write.
+        :type data: bytes|str|int|bool
+        :param channel: Channel number, starting with 0
+        :type channel: int
+        :param index: io-link parameter index
+        :type index: int
+        :param subindex: io-link parameter subindex
+        :type subindex: int
+        """
+
+        module_index = (self.position).to_bytes(2, "little")  # starts with 0 on CPX-E
+        channel = (channel).to_bytes(2, "little")
+        index = (index).to_bytes(2, "little")
+        subindex = (subindex).to_bytes(2, "little")
+        command = (51).to_bytes(2, "little")  # 51: write
+
+        if isinstance(data, bytes):
+            length = (len(data)).to_bytes(2, "little")
+
+        elif isinstance(data, str):
+            length = (len(data)).to_bytes(2, "little")
+            data = data.encode(encoding="ascii")
+
+        elif isinstance(data, bool):
+            length = (1).to_bytes(2, "little")
+            data = data.to_bytes(1, byteorder="little")
+
+        elif isinstance(data, int):
+            # calculate bytelength of integer
+            length_int = (data.bit_length() + 7) // 8
+            length = length_int.to_bytes(2, "little")
+            data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+
+        elif isinstance(data, float):
+            data = struct.pack("!f", data)
+            length = len(data).to_bytes(2, "little")
+
+        else:
+            raise TypeError(f"Datatype '{type(data)}' is not supported by write_isdu()")
+
+        # select module, starts with 0
+        self.base.write_reg_data(
+            module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
+        )
+        # select channel, starts with 0
+        self.base.write_reg_data(channel, cpx_e_registers.ISDU_CHANNEL.register_address)
+        # select index
+        self.base.write_reg_data(index, cpx_e_registers.ISDU_INDEX.register_address)
+        # select subindex
+        self.base.write_reg_data(
+            subindex, cpx_e_registers.ISDU_SUBINDEX.register_address
+        )
+        # select length of data in bytes
+        self.base.write_reg_data(length, cpx_e_registers.ISDU_LENGTH.register_address)
+        # write data to data register
+        self.base.write_reg_data(data, cpx_e_registers.ISDU_DATA.register_address)
+        # command
+        self.base.write_reg_data(command, cpx_e_registers.ISDU_COMMAND.register_address)
+
+        # stat, cnt = 1, 0
+        # while stat > 0 and cnt < 1000:
+        #     try:
+        #         stat = int.from_bytes(
+        #             self.base.read_reg_data(*cpx_e_registers.ISDU_STATUS),
+        #             byteorder="little",
+        #         )
+        #     # CPX-E responds with an error that needs to be caught
+        #     except ConnectionAbortedError:
+        #         pass
+        #     cnt += 1
+        # if cnt >= 1000:
+        #     raise CpxRequestError("ISDU data write failed")
+
+        Logging.logger.info(
+            f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
+        )

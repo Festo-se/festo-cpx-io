@@ -723,6 +723,233 @@ def test_4iol_sdas_isdu_read(test_cpxe):
         state = e4iol.read_line_state()[0]
 
 
+def test_4iol_sdas_isdu_write_str(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    # we can write and read the application specific tag ID 24 (dec)
+    e4iol.write_isdu("lol", 0, 24)
+
+    app_spec_tag = e4iol.read_isdu(0, 24, data_type="str")
+
+    assert app_spec_tag == "lol"
+
+    # reset
+    e4iol.write_isdu(" ", 0, 24)
+
+    app_spec_tag = e4iol.read_isdu(0, 24, data_type="str")
+
+    assert app_spec_tag == " "
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
+def test_4iol_sdas_isdu_write_raw(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    # we can write and read the application specific tag ID 24 (dec)
+    e4iol.write_isdu(b"\xCA\xFE", 0, 24)
+
+    # length of this register is 64 byte, so we need to cut them
+    assert e4iol.read_isdu(0, 24, data_type="raw")[:2] == b"\xCA\xFE"
+
+    # reset
+    e4iol.write_isdu(b"\x00\x00", 0, 24)
+
+    assert e4iol.read_isdu(0, 12, data_type="raw")[:2] == b"\x00\x00"
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
+@pytest.mark.parametrize(
+    "input_value, expected_output",
+    [
+        (0, b"\x00\x00\x00\x00"),
+        (1, b"\x01\x00\x00\x00"),
+        (15, b"\x0f\x00\x00\x00"),
+        (16, b"\x10\x00\x00\x00"),
+        (31, b"\x1f\x00\x00\x00"),
+        (32, b"\x20\x00\x00\x00"),
+        (255, b"\xff\x00\x00\x00"),
+        (256, b"\x01\x00\x00\x00"),
+        (511, b"\x01\xff\x00\x00"),
+        (512, b"\x02\x00\x00\x00"),
+        (4094, b"\x0f\xfe\x00\x00"),
+        (4095, b"\x0f\xff\x00\x00"),
+        (65534, b"\xff\xfe\x00\x00"),
+        (65535, b"\xff\xff\x00\x00"),
+        (65535, b"\xff\xff\x00\x00"),
+        (65535, b"\xff\xff\x00\x00"),
+        (0xABCDEF01, b"\xab\xcd\xef\x01"),
+    ],
+)
+def test_4iol_sdas_isdu_write_uint(test_cpxe, input_value, expected_output):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    # we can write and read the application specific tag ID 24 (dec)
+    e4iol.write_isdu(input_value, 0, 24)
+
+    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    assert read_data[:4] == expected_output
+
+    # reset
+    e4iol.write_isdu(0, 0, 24)
+
+    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    assert read_data[:4] == b"\x00\x00\x00\x00"
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
+def test_4iol_sdas_isdu_write_sint(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    # we can write and read the application specific tag ID 24 (dec)
+    e4iol.write_isdu(-1, 0, 24)
+
+    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    read_int = int.from_bytes(read_data[:1], byteorder="big", signed=True)
+    assert read_int == -1
+
+    # reset
+    e4iol.write_isdu(0, 0, 24)
+
+    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    assert read_data[:4] == b"\x00\x00\x00\x00"
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
+def test_4iol_sdas_isdu_write_bool(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    # we can write and read the application specific tag ID 24 (dec)
+    e4iol.write_isdu(True, 0, 24)
+
+    assert e4iol.read_isdu(0, 24, data_type="bool") is True
+
+    # reset
+    e4iol.write_isdu(False, 0, 24)
+
+    assert e4iol.read_isdu(0, 24, data_type="bool") is False
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
+def test_4iol_sdas_isdu_write_float(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol())
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[0]
+
+    # we can write and read the application specific tag ID 24 (dec)
+    e4iol.write_isdu(1.2, 0, 24)
+
+    read_data = e4iol.read_isdu(0, 24, data_type="raw")[:4]
+    read_float = struct.unpack("!f", read_data)[0]
+    assert round(read_float, 1) == 1.2
+
+    # reset
+    e4iol.write_isdu(False, 0, 24)
+
+    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    assert read_data[:4] == b"\x00\x00\x00\x00"
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[0]
+
+
 @pytest.mark.skip(reason="HW removed from test system")
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
