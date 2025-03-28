@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ISDU access for CPX-E-4IOL
 - ISDU type `"sint"` for signed integers, previous `"int"` equals to `"uint"` (both equally usable)
+- Optional parameter `bytelength` for cpx-e isdu read/write functions to specify io-link device length
 - Modbus connection error which is raised if connection to the target device could not be established 
 - Unit tests for (un)successful modbus connection
 - `-mt, --modbus-timeout` command for cli to set explicitly a timeout

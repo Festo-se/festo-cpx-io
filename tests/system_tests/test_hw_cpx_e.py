@@ -666,17 +666,18 @@ def test_4iol_sdas(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
-    sdas_data = e4iol.read_channel(0)  # only two bytes relevant
+    sdas_data = e4iol.read_channel(sdas_channel)  # only two bytes relevant
 
     process_data = int.from_bytes(sdas_data, byteorder="big")
 
@@ -688,13 +689,13 @@ def test_4iol_sdas(test_cpxe):
 
     assert 0 <= pdv <= 4095
 
-    assert e4iol[0] == e4iol.read_channel(0)
+    assert e4iol[sdas_channel] == e4iol.read_channel(sdas_channel)
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_isdu_read(test_cpxe):
@@ -702,25 +703,26 @@ def test_4iol_sdas_isdu_read(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
-    vendor_name = e4iol.read_isdu(0, 16, data_type="str")
+    vendor_name = e4iol.read_isdu(sdas_channel, 16, data_type="str")
 
     assert vendor_name == "Festo AG & Co. KG"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_isdu_write_str(test_cpxe):
@@ -728,35 +730,36 @@ def test_4iol_sdas_isdu_write_str(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu("lol", 0, 24)
+    e4iol.write_isdu("lol", sdas_channel, 24)
 
-    app_spec_tag = e4iol.read_isdu(0, 24, data_type="str")
+    app_spec_tag = e4iol.read_isdu(sdas_channel, 24, data_type="str")
 
     assert app_spec_tag == "lol"
 
     # reset
-    e4iol.write_isdu(" ", 0, 24)
+    e4iol.write_isdu(" ", sdas_channel, 24)
 
-    app_spec_tag = e4iol.read_isdu(0, 24, data_type="str")
+    app_spec_tag = e4iol.read_isdu(sdas_channel, 24, data_type="str")
 
     assert app_spec_tag == " "
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_isdu_write_raw(test_cpxe):
@@ -764,32 +767,33 @@ def test_4iol_sdas_isdu_write_raw(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu(b"\xCA\xFE", 0, 24)
+    e4iol.write_isdu(b"\xCA\xFE", sdas_channel, 24)
 
     # length of this register is 64 byte, so we need to cut them
-    assert e4iol.read_isdu(0, 24, data_type="raw")[:2] == b"\xCA\xFE"
+    assert e4iol.read_isdu(sdas_channel, 24, data_type="raw")[:2] == b"\xCA\xFE"
 
     # reset
-    e4iol.write_isdu(b"\x00\x00", 0, 24)
+    e4iol.write_isdu(b"\x00\x00", sdas_channel, 24)
 
-    assert e4iol.read_isdu(0, 12, data_type="raw")[:2] == b"\x00\x00"
+    assert e4iol.read_isdu(sdas_channel, 12, data_type="raw")[:2] == b"\x00\x00"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 @pytest.mark.parametrize(
@@ -819,33 +823,34 @@ def test_4iol_sdas_isdu_write_uint(test_cpxe, input_value, expected_output):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu(input_value, 0, 24)
+    e4iol.write_isdu(input_value, sdas_channel, 24)
 
     read_data = e4iol.read_isdu(0, 24, data_type="raw")
     assert read_data[:4] == expected_output
 
     # reset
-    e4iol.write_isdu(0, 0, 24)
+    e4iol.write_isdu(0, sdas_channel, 24)
 
-    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    read_data = e4iol.read_isdu(sdas_channel, 24, data_type="raw")
     assert read_data[:4] == b"\x00\x00\x00\x00"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_isdu_write_sint(test_cpxe):
@@ -853,34 +858,35 @@ def test_4iol_sdas_isdu_write_sint(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu(-1, 0, 24)
+    e4iol.write_isdu(-1, sdas_channel, 24)
 
-    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    read_data = e4iol.read_isdu(sdas_channel, 24, data_type="raw")
     read_int = int.from_bytes(read_data[:1], byteorder="big", signed=True)
     assert read_int == -1
 
     # reset
-    e4iol.write_isdu(0, 0, 24)
+    e4iol.write_isdu(0, sdas_channel, 24)
 
-    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    read_data = e4iol.read_isdu(sdas_channel, 24, data_type="raw")
     assert read_data[:4] == b"\x00\x00\x00\x00"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_isdu_write_bool(test_cpxe):
@@ -888,31 +894,32 @@ def test_4iol_sdas_isdu_write_bool(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu(True, 0, 24)
+    e4iol.write_isdu(True, sdas_channel, 24)
 
-    assert e4iol.read_isdu(0, 24, data_type="bool") is True
+    assert e4iol.read_isdu(sdas_channel, 24, data_type="bool") is True
 
     # reset
-    e4iol.write_isdu(False, 0, 24)
+    e4iol.write_isdu(False, sdas_channel, 24)
 
-    assert e4iol.read_isdu(0, 24, data_type="bool") is False
+    assert e4iol.read_isdu(sdas_channel, 24, data_type="bool") is False
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_isdu_write_float(test_cpxe):
@@ -920,34 +927,35 @@ def test_4iol_sdas_isdu_write_float(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu(1.2, 0, 24)
+    e4iol.write_isdu(1.2, sdas_channel, 24)
 
     read_data = e4iol.read_isdu(0, 24, data_type="raw")[:4]
-    read_float = struct.unpack("!f", read_data)[0]
+    read_float = struct.unpack("!f", read_data)[sdas_channel]
     assert round(read_float, 1) == 1.2
 
     # reset
-    e4iol.write_isdu(False, 0, 24)
+    e4iol.write_isdu(False, sdas_channel, 24)
 
-    read_data = e4iol.read_isdu(0, 24, data_type="raw")
+    read_data = e4iol.read_isdu(sdas_channel, 24, data_type="raw")
     assert read_data[:4] == b"\x00\x00\x00\x00"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_read_isdu_string_as_raw(test_cpxe):
@@ -955,18 +963,19 @@ def test_4iol_sdas_read_isdu_string_as_raw(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    ret = e4iol.read_isdu(0, 0x0010, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0010, 0)
     # according to datasheet, this should return "Festo" as 64 byte string
     # It actually returns "Festo AG & Co. KG" on my device, which could be a
     # different hardware version.
@@ -976,11 +985,11 @@ def test_4iol_sdas_read_isdu_string_as_raw(test_cpxe):
     # Assert
     assert ret_value == "Festo AG & Co. KG"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_read_isdu_string_as_str(test_cpxe):
@@ -988,18 +997,19 @@ def test_4iol_sdas_read_isdu_string_as_str(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    ret = e4iol.read_isdu(0, 0x0010, 0, data_type="str")
+    ret = e4iol.read_isdu(sdas_channel, 0x0010, 0, data_type="str")
     # according to datasheet, this should return "Festo" as 64 byte string
     # It actually returns "Festo AG & Co. KG" on my device, which could be a
     # different hardware version.
@@ -1007,11 +1017,11 @@ def test_4iol_sdas_read_isdu_string_as_str(test_cpxe):
     # Assert
     assert ret == "Festo AG & Co. KG"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_write_isdu_string_as_raw(test_cpxe):
@@ -1019,22 +1029,22 @@ def test_4iol_sdas_write_isdu_string_as_raw(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 1
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu(b"FESTO", 0, 0x0018, 0)
-    ret = e4iol.read_isdu(0, 0x0018, 0)
+    e4iol.write_isdu(b"FESTO", sdas_channel, 0x0018, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0018, 0)
 
-    # This splits at the first b"\x00" and only uses the left side.
-    ret_value = ret.decode("ascii").split("\x00", 1)[0]
+    ret_value = ret.decode("ascii")
 
     # Assert
     assert ret_value == "FESTO"
@@ -1042,20 +1052,19 @@ def test_4iol_sdas_write_isdu_string_as_raw(test_cpxe):
     # Act more
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
-    e4iol.write_isdu(b"LOL", 0, 0x0018, 0)
-    ret = e4iol.read_isdu(0, 0x0018, 0)
+    e4iol.write_isdu(b"LOL", sdas_channel, 0x0018, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0018, 0)
 
-    # This splits at the first b"\x00" and only uses the left side.
-    ret_value = ret.decode("ascii").split("\x00", 1)[0]
+    ret_value = ret.decode("ascii")
 
     # Assert
     assert ret_value == "LOL"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_write_isdu_string_as_str(test_cpxe):
@@ -1063,19 +1072,20 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu("FESTO", 0, 0x0018, 0)
-    ret = e4iol.read_isdu(0, 0x0018, 0, data_type="str")
+    e4iol.write_isdu("FESTO", sdas_channel, 0x0018, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "FESTO"
@@ -1083,17 +1093,17 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxe):
     # Act more
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
-    e4iol.write_isdu("LOL", 0, 0x0018, 0)
-    ret = e4iol.read_isdu(0, 0x0018, 0, data_type="str")
+    e4iol.write_isdu("LOL", sdas_channel, 0x0018, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "LOL"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_write_isdu_string_1byte(test_cpxe):
@@ -1101,19 +1111,20 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu("FESTO", 0, 0x0018, 0)
-    ret = e4iol.read_isdu(0, 0x0018, 0, data_type="str")
+    e4iol.write_isdu("FESTO", sdas_channel, 0x0018, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "FESTO"
@@ -1121,17 +1132,17 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxe):
     # Act more
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
-    e4iol.write_isdu("x", 0, 0x0018, 0)
-    ret = e4iol.read_isdu(0, 0x0018, 0, data_type="str")
+    e4iol.write_isdu("x", sdas_channel, 0x0018, 0)
+    ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
     assert ret == "x"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxe):
@@ -1139,30 +1150,31 @@ def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu(b"\x01\x23", 0, 0x003C, 1)
-    ret = e4iol.read_isdu(0, 0x003C, 1)
+    e4iol.write_isdu(b"\x01\x23", sdas_channel, 0x003C, 1)
+    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1)
 
     ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x0123
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxe):
@@ -1170,28 +1182,29 @@ def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu(0x0123, 0, 0x003C, 1)
-    ret = e4iol.read_isdu(0, 0x003C, 1, data_type="int")
+    e4iol.write_isdu(0x0123, sdas_channel, 0x003C, 1)
+    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int")
 
     # Assert
     assert ret == 0x0123
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxe):
@@ -1199,30 +1212,31 @@ def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu(b"\x01", 0, 0x003D, 1)
-    ret = e4iol.read_isdu(0, 0x003D, 1)
+    e4iol.write_isdu(b"\x01", sdas_channel, 0x003D, 1)
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 1)
 
     ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x01
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxe):
@@ -1230,28 +1244,29 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    sdas_channel = 0
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu(1, 0, 0x003D, 1)
-    ret = e4iol.read_isdu(0, 0x003D, 1, data_type="int")
+    e4iol.write_isdu(1, sdas_channel, 0x003D, 1)
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 1, data_type="int")
 
     # Assert
     assert ret == 1
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=0)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=sdas_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[0]
+        state = e4iol.read_line_state()[sdas_channel]
 
 
 def test_4iol_emcs_read_isdu_str(test_cpxe):
@@ -1259,71 +1274,200 @@ def test_4iol_emcs_read_isdu_str(test_cpxe):
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
     e4ao = test_cpxe.add_module(CpxE4AoUI())
-    e4iol = test_cpxe.add_module(CpxE4Iol())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
 
     assert isinstance(e4iol, CpxE4Iol)
 
-    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=3)
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
     state = ""
     # wait for state to change
     while state != "OPERATE":
-        state = e4iol.read_line_state()[3]
+        state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
-    assert e4iol.read_isdu(3, 16, data_type="str") == "Festo"
+    assert e4iol.read_isdu(1, 16, data_type="str") == "Festo"
 
-    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=3)
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
     state = ""
     # wait for state to change
     while state != "INACTIVE":
-        state = e4iol.read_line_state()[3]
+        state = e4iol.read_line_state()[emcs_channel]
 
 
-def test_4iol_emcs_read_isdu_bool(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
+def test_4iol_emcs_read_isdu_bool(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
 
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    assert isinstance(e4iol, CpxE4Iol)
 
-    # Act & Assert
-    assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
-
-
-def test_4iol_emcs_write_isdu_bool(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
-
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
-    m.write_isdu(True, emcs_channel, 259)
-    assert m.read_isdu(emcs_channel, 259, data_type="bool") is True
+    assert e4iol.read_isdu(1, 259, data_type="bool") is False
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+
+def test_4iol_emcs_write_isdu_bool(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    # Act & Assert
+    e4iol.write_isdu(True, emcs_channel, 259)
+    assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is True
 
     # Reset
-    m.write_isdu(False, emcs_channel, 259)
-    assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
+    e4iol.write_isdu(False, emcs_channel, 259)
+    assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
 
 
-def test_4iol_emcs_read_int32_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
+def test_4iol_emcs_reference_movement(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
 
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    e4iol.write_isdu(True, emcs_channel, 260)
+
+    device_status = e4iol.read_isdu(emcs_channel, 36, data_type="int")
+
+    assert device_status == 0
+
+
+def test_4iol_emcs_read_int32_with_move(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # expect to be ready
+    pd = int.from_bytes(e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big")
+    state_in = bool(pd & 0x01)
+    state_out = bool(pd & 0x02)
+    state_intermediate = bool(pd & 0x04)
+    state_device = bool(pd & 0x08)
+
+    assert state_device
+    assert state_in
+    assert not state_out
+    assert not state_intermediate
+
+    # Act & Assert
+    e4iol.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    # wait for move to finish
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x02
+    ):
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        e4iol.read_channel(emcs_channel, bytelength=2)
+
+    assert (
+        e4iol.read_isdu(emcs_channel, 288, data_type="int") > 0xFF
+    )  # TODO: this should be 0x00FFFFFFFF
+
+    e4iol.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    # wait for move to finish
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x01
+    ):
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        e4iol.read_channel(emcs_channel, bytelength=2)
+
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+
+def test_4iol_emcs_write_int8_with_move(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1334,39 +1478,62 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
     # |     -    | State intermediate | State Device | State Move | State Out | State In |
 
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    e4iol.write_channel(emcs_channel, b"\x02")  # Move Out
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x02
+    ):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
         time.sleep(0.05)
-        m.read_channel(emcs_channel)
+        e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert (
+        e4iol.read_isdu(emcs_channel, 288, data_type="int") > 0xFF
+    )  # TODO: this should be 0x00FFFFFFFF
 
-    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    e4iol.write_channel(emcs_channel, b"\x01")  # Move In
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x01
+    ):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
         time.sleep(0.05)
-        m.read_channel(emcs_channel)
+        e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
 
 
-def test_4iol_emcs_write_int8_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
+def test_4iol_emcs_write_int16_with_move(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
 
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1377,39 +1544,62 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
     # |     -    | State intermediate | State Device | State Move | State Out | State In |
 
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x02")  # Move Out
+    e4iol.write_channel(emcs_channel, b"\x00\x02")  # Move Out
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x02
+    ):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
         time.sleep(0.05)
-        m.read_channel(emcs_channel)
+        e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert (
+        e4iol.read_isdu(emcs_channel, 288, data_type="int") > 0xFF
+    )  # TODO: this should be 0x00FFFFFFFF
 
-    m.write_channel(emcs_channel, b"\x01")  # Move In
+    e4iol.write_channel(emcs_channel, b"\x00\x01")  # Move In
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x01
+    ):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
         time.sleep(0.05)
-        m.read_channel(emcs_channel)
+        e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
 
 
-def test_4iol_emcs_write_int16_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
+def test_4iol_emcs_write_int32_with_move(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
 
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1420,185 +1610,78 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
     # |     -    | State intermediate | State Device | State Move | State Out | State In |
 
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    e4iol.write_channel(emcs_channel, b"\x00\x02\x00\x00")  # Move Out
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x02
+    ):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
         time.sleep(0.05)
-        m.read_channel(emcs_channel)
+        e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert (
+        e4iol.read_isdu(emcs_channel, 288, data_type="int") > 0xFF
+    )  # TODO: this should be 0x00FFFFFFFF
 
-    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    e4iol.write_channel(emcs_channel, b"\x00\x01\x00\x00")  # Move In
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x01
+    ):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
         time.sleep(0.05)
-        m.read_channel(emcs_channel)
+        e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
 
-
-def test_4iol_emcs_write_int32_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
-
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
-
-    # ProcessDataOutput (from master view)
-    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
-    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
-
-    # ProcessDataInput (from master view)
-    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
-    # |     -    | State intermediate | State Device | State Move | State Out | State In |
-
-    # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x02\x00\x00")  # Move Out
-    # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
-        time.sleep(0.01)
-
-    for _ in range(10):  # wait some more
-        time.sleep(0.05)
-        m.read_channel(emcs_channel)
-
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
-
-    m.write_channel(emcs_channel, b"\x00\x01\x00\x00")  # Move In
-    # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
-        time.sleep(0.01)
-
-    for _ in range(10):  # wait some more
-        time.sleep(0.05)
-        m.read_channel(emcs_channel)
-
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
 
 
-def test_4iol_emcs_write_int64_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
+def test_4iol_emcs_read_isdu_float(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
 
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    assert isinstance(e4iol, CpxE4Iol)
 
-    # ProcessDataOutput (from master view)
-    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
-    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
-
-    # ProcessDataInput (from master view)
-    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
-    # |     -    | State intermediate | State Device | State Move | State Out | State In |
-
-    # Act & Assert
-    m.write_channel(emcs_channel, b"\x00\x02\x00\x00\x00\x00\x00\x00")  # Move Out
-    # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
-        time.sleep(0.01)
-
-    for _ in range(10):  # wait some more
-        time.sleep(0.05)
-        m.read_channel(emcs_channel)
-
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
-
-    m.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
-    # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
-        time.sleep(0.01)
-
-    for _ in range(10):  # wait some more
-        time.sleep(0.05)
-        m.read_channel(emcs_channel)
-
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
-
-
-def test_4iol_write_channels_with_emcs(test_cpxap):
-    m = test_cpxap.modules[4]
-    assert m.apdd_information.module_type == "CPX-AP-I-4IOL-M12 Variant 8"
-    emcs_channel = 3
-
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
-
-    # Act & Assert
-    m.write_channels(
-        [
-            b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            b"\x00\x02\x00\x00\x00\x00\x00\x00",
-        ]
-    )  # Move
-    # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
-        time.sleep(0.01)
-
-    for _ in range(10):  # wait some more
-        time.sleep(0.05)
-        m.read_channel(emcs_channel)
-
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
-
-    m.write_channels(
-        [
-            b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            b"\x00\x00\x00\x00\x00\x00\x00\x00",
-            b"\x00\x01\x00\x00\x00\x00\x00\x00",
-        ]
-    )  # Move
-    # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
-        time.sleep(0.01)
-
-    for _ in range(10):  # wait some more
-        time.sleep(0.05)
-        m.read_channel(emcs_channel)
-
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
-
-
-def test_4iol_emcs_read_isdu_float(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
-
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
 
     # read intermediate position
-    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
+    ret = e4iol.read_isdu(emcs_channel, 264, data_type="float") * 0.01
     assert isinstance(ret, float)
     assert 0.01 < ret < 0.03
 
     # read end postion out
-    ret = m.read_isdu(emcs_channel, 262, data_type="float") * 0.01
+    ret = e4iol.read_isdu(emcs_channel, 262, data_type="float") * 0.01
     assert isinstance(ret, float)
     assert 0.01 < ret < 0.03
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
 
 
 @pytest.mark.skip(reason="HW removed from test system")

@@ -73,11 +73,13 @@ class CpxE4Iol(CpxModule):
         return ret
 
     @CpxBase.require_base
-    def read_channels(self) -> list[bytes]:
+    def read_channels(self, bytelength: int = None) -> list[bytes]:
         """read all channels as a list of bytes values
 
+        :parameter bytelength: Length of the expected data in bytes. (optional)
+        :type bytelength: int
         :return: All registers from all channels
-        :rtype: list[bytes]
+        :rtype: list[bytes (byteorder big endian)]
         """
 
         reg = self.base.read_reg_data(
@@ -86,26 +88,30 @@ class CpxE4Iol(CpxModule):
         # module_input_size is in 16bit registers per channel
         # channel_size should be in bytes
         channel_size = self.module_input_size * 2
+        if bytelength is None:
+            bytelength = channel_size
 
         channels = [
-            reg[: channel_size * 1],
-            reg[channel_size * 1 : channel_size * 2],
-            reg[channel_size * 2 : channel_size * 3],
-            reg[channel_size * 3 :],
+            reg[: channel_size * 1][:bytelength],
+            reg[channel_size * 1 : channel_size * 2][:bytelength],
+            reg[channel_size * 2 : channel_size * 3][:bytelength],
+            reg[channel_size * 3 :][:bytelength],
         ]
         Logging.logger.info(f"{self.name}: Reading channels: {channels}")
         return channels
 
     @CpxBase.require_base
-    def read_channel(self, channel: int) -> bytes:
+    def read_channel(self, channel: int, bytelength: int = None) -> bytes:
         """read back the value of one channel
 
         :parameter channel: Channel number, starting with 0
         :type channel: int
+        :parameter bytelength: Length of the expected data in bytes. (optional)
+        :type bytelength: int
         :return: Channel value
-        :rtype: bytes
+        :rtype: bytes (byteorder big endian)
         """
-        return self.read_channels()[channel]
+        return self.read_channels(bytelength=bytelength)[channel]
 
     @CpxBase.require_base
     def write_channel(self, channel: int, data: bytes) -> None:
@@ -114,15 +120,22 @@ class CpxE4Iol(CpxModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         :param data: Value to write
-        :type data: bytes
+        :type data: bytes (byteorder big endian)
         """
         byte_channel_size = self.module_output_size * 2
 
-        if len(data) != byte_channel_size:
+        if len(data) > byte_channel_size:
             raise ValueError(
-                f"Your current IO-Link datalength {byte_channel_size} does not match"
-                f"the provided bytes length."
+                f"Your current IO-Link datalength only allows {byte_channel_size} bytes. "
+                f"The provided data length is {len(data)} bytes"
             )
+
+        # if data has an uneven bytesize, fill on the left
+        if len(data) % 2 != 0:
+            data = b"\x00" + data
+        # if data is smaller than the master size, fill on right side
+        if len(data) != byte_channel_size:
+            data += b"\x00" * (byte_channel_size - len(data))
 
         self.base.write_reg_data(
             data, self.system_entry_registers.outputs + byte_channel_size // 2 * channel
@@ -134,17 +147,25 @@ class CpxE4Iol(CpxModule):
         """set all channels to values from a list of 4 elements
 
         :param data: Values to write
-        :type data: list[bytes]
+        :type data: list[bytes (byteorder big endian)]
         """
-        channel_size = self.module_output_size * 2
+        byte_channel_size = self.module_output_size * 2
 
-        if any(len(d) != channel_size for d in data):
+        if any(len(d) > byte_channel_size for d in data):
             raise ValueError(
-                f"Your current IO-Link datalength {channel_size} does not match"
-                f"the provided bytes length."
+                f"Your current IO-Link datalength only allows {byte_channel_size} bytes. "
+                f"The provided data length is {len(data)} bytes"
             )
         if len(data) != 4:
             raise ValueError(f"Data len error: expected: 4, got: {len(data)}")
+
+        for d in data:
+            # if data has an uneven bytesize, fill on the left
+            if len(d) % 2 != 0:
+                d = b"\x00" + d
+            # if data is smaller than the master size, fill on right side
+            if len(d) != byte_channel_size:
+                d += b"\x00" * (byte_channel_size - len(d))
 
         # Join all channel values to one bytes object so it can be written in one modbus command
         all_register_data = b"".join(data)
@@ -572,7 +593,8 @@ class CpxE4Iol(CpxModule):
             ret = ret[:actual_length]
             return bool.from_bytes(ret, byteorder="big")
         if data_type == "float":
-            return struct.unpack("f", ret[:actual_length])[0]
+            ret = ret[:actual_length]
+            return struct.unpack("!f", ret)[0]
 
         # this is unnecessary but required for consistent return statements
         raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
