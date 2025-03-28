@@ -1651,7 +1651,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
 
-def test_4iol_emcs_read_isdu_float(test_cpxe):
+def test_4iol_emcs_write_read_isdu_float(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -1667,15 +1667,21 @@ def test_4iol_emcs_read_isdu_float(test_cpxe):
     while state != "OPERATE":
         state = e4iol.read_line_state()[emcs_channel]
 
+    # write intermediate position
+    e4iol.write_isdu(121.5, emcs_channel, 264)  #  TODO: is this different from cpx-ap?
+
     # read intermediate position
     ret = e4iol.read_isdu(emcs_channel, 264, data_type="float") * 0.01
     assert isinstance(ret, float)
-    assert 0.01 < ret < 0.03
+    assert 1.2 < ret < 1.3
+
+    # write end position out
+    e4iol.write_isdu(121.5, emcs_channel, 262)  #  TODO: is this different from cpx-ap?
 
     # read end postion out
     ret = e4iol.read_isdu(emcs_channel, 262, data_type="float") * 0.01
     assert isinstance(ret, float)
-    assert 0.01 < ret < 0.03
+    assert 1.2 < ret < 1.3
 
     e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
     state = ""
