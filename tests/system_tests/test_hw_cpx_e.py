@@ -1651,6 +1651,45 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
 
+def test_4iol_emcs_write_read_isdu_bool(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    # write reference
+    e4iol.write_isdu(True, emcs_channel, 259)
+
+    # read reference
+    ret = e4iol.read_isdu(emcs_channel, 259, data_type="bool")
+    assert isinstance(ret, bool)
+    assert ret
+
+    # write reference
+    e4iol.write_isdu(False, emcs_channel, 259)
+
+    # read reference
+    ret = e4iol.read_isdu(emcs_channel, 259, data_type="bool")
+    assert isinstance(ret, bool)
+    assert not ret
+
+    e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "INACTIVE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+
 def test_4iol_emcs_write_read_isdu_float(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
