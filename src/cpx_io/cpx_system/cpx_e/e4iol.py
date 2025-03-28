@@ -8,6 +8,7 @@ from typing import Union
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_e import cpx_e_registers
+from cpx_io.cpx_system.cpx_e.cpx_e_supported_datatypes import SUPPORTED_ISDU_DATATYPES
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.helpers import value_range_check
 from cpx_io.utils.logging import Logging
@@ -512,16 +513,6 @@ class CpxE4Iol(CpxModule):
         # command: 50 Read(with byte swap), 51 write(with byte swap)
         command = (50).to_bytes(2, "little")
 
-        SUPPORTED_ISDU_DATATYPES = [
-            "str",
-            "int",
-            "uint",
-            "sint",
-            "raw",
-            "bool",
-            "float",
-        ]
-
         if data_type not in SUPPORTED_ISDU_DATATYPES:
             raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
@@ -572,10 +563,13 @@ class CpxE4Iol(CpxModule):
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
         if data_type in ["uint", "int"]:
+            ret = ret[:actual_length]
             return int.from_bytes(ret, byteorder="big")
         if data_type == "sint":
+            ret = ret[:actual_length]
             return int.from_bytes(ret, byteorder="big", signed=True)
         if data_type == "bool":
+            ret = ret[:actual_length]
             return bool.from_bytes(ret, byteorder="big")
         if data_type == "float":
             return struct.unpack("f", ret[:actual_length])[0]
@@ -652,20 +646,6 @@ class CpxE4Iol(CpxModule):
         self.base.write_reg_data(data, cpx_e_registers.ISDU_DATA.register_address)
         # command
         self.base.write_reg_data(command, cpx_e_registers.ISDU_COMMAND.register_address)
-
-        # stat, cnt = 1, 0
-        # while stat > 0 and cnt < 1000:
-        #     try:
-        #         stat = int.from_bytes(
-        #             self.base.read_reg_data(*cpx_e_registers.ISDU_STATUS),
-        #             byteorder="little",
-        #         )
-        #     # CPX-E responds with an error that needs to be caught
-        #     except ConnectionAbortedError:
-        #         pass
-        #     cnt += 1
-        # if cnt >= 1000:
-        #     raise CpxRequestError("ISDU data write failed")
 
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"

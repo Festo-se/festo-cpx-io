@@ -88,3 +88,20 @@ def instance_range_check(instance: int, *args):
 
     if instance not in range(start, stop):
         raise IndexError(f"Instance {instance} must be in range({start}, {stop})")
+
+
+def invert_register_order(data: bytes):
+    """Inverts the order of 2-byte (16 bit) registers such as in ModbusTCP"""
+
+    # Ensure the data length is even
+    if len(data) % 2 != 0:
+        raise ValueError("The bytes object must have an even length.")
+
+    # Split the bytes object into 16-bit chunks
+    chunks = [data[i : i + 2] for i in range(0, len(data), 2)]
+
+    # Reverse the list of chunks
+    chunks.reverse()
+
+    # Combine the chunks back into a bytes object
+    return b"".join(chunks)
