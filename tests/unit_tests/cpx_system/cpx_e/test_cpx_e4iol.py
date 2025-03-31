@@ -828,7 +828,15 @@ class TestCpxE4Iol:
 
     @pytest.mark.parametrize(
         "input_value, expected_output",
-        [("str", ""), ("int", 0), ("raw", b""), ("bool", False)],
+        [
+            ("str", ""),
+            ("int", 0),
+            ("uint", 0),
+            ("sint", 0),
+            ("raw", b"\x00\x00\x00\x00"),
+            ("bool", False),
+            ("float", 0.0),
+        ],
     )
     def test_read_isdu_different_datatypes(self, input_value, expected_output):
         """Test read_isdu"""
@@ -837,7 +845,10 @@ class TestCpxE4Iol:
         module.position = 1
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+        # need to specify actual_length from register to 4 for float conversion
+        module.base.read_reg_data = Mock(
+            side_effect=[b"\x00\x00", b"\x04\x00", b"\x00\x00\x00\x00"]
+        )
 
         # Act
         ret = module.read_isdu(0, 0, data_type=input_value)
@@ -846,15 +857,21 @@ class TestCpxE4Iol:
         assert ret == expected_output
 
     @pytest.mark.parametrize(
-        "input_value,, length, expected_output",
+        "input_value, length, expected_output",
         [
             ("str", 3, b"str"),  # string
-            (1, 1, b"\x01"),  # int8
-            (0xCAFE, 2, b"\xca\xfe"),  # int16
-            (0xBEBAFECA, 4, b"\xbe\xba\xfe\xca"),  # int32
+            (1, 2, b"\x00\x01"),  # uint8
+            (0xCAFE, 2, b"\xca\xfe"),  # uint16
+            (0xBEBAFECA, 4, b"\xbe\xba\xfe\xca"),  # uint32
+            (-1, 2, b"\xff\xff"),  # sint8
+            (-1925, 2, b"\xf8\x7b"),  # sint16
+            (-999999, 4, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
+            (-99999999, 4, b"\xfa\x0a\x1f\x01"),  # sint32
             (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
             (True, 1, b"\x01\x00"),  # bool true
             (False, 1, b"\x00\x00"),  # bool false
+            (0.0, 4, b"\x00\x00\x00\x00"),  # float 0
+            (-1.23456, 4, b"\xbf\x9e\x06\x10"),  # negative float
         ],
     )
     def test_write_isdu_different_datatypes(self, input_value, length, expected_output):

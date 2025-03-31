@@ -640,6 +640,9 @@ class CpxE4Iol(CpxModule):
         elif isinstance(data, int):
             # calculate bytelength of integer
             length_int = (data.bit_length() + 7) // 8
+            # round up length to even number (because modbus registers are 2 bytes)
+            if length_int % 2:
+                length_int += 1
             length = length_int.to_bytes(2, "little")
             data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
 
