@@ -779,10 +779,10 @@ def test_4iol_sdas_isdu_write_raw(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # we can write and read the application specific tag ID 24 (dec)
-    e4iol.write_isdu(b"\xCA\xFE", sdas_channel, 24)
+    e4iol.write_isdu(b"\xca\xfe", sdas_channel, 24)
 
     # length of this register is 64 byte, so we need to cut them
-    assert e4iol.read_isdu(sdas_channel, 24, data_type="raw")[:2] == b"\xCA\xFE"
+    assert e4iol.read_isdu(sdas_channel, 24, data_type="raw")[:2] == b"\xca\xfe"
 
     # reset
     e4iol.write_isdu(b"\x00\x00", sdas_channel, 24)
@@ -1286,7 +1286,7 @@ def test_4iol_emcs_read_isdu_str(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
-    assert e4iol.read_isdu(1, 16, data_type="str") == "Festo"
+    assert e4iol.read_isdu(emcs_channel, 16, data_type="str") == "Festo"
 
     e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
     state = ""
@@ -1312,7 +1312,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
-    assert e4iol.read_isdu(1, 259, data_type="bool") is False
+    assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
 
     e4iol.configure_operating_mode(OperatingMode.INACTIVE, channel=emcs_channel)
     state = ""

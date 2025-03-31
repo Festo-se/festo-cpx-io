@@ -5,7 +5,9 @@ SUPPORTED_IOL_DATATYPES = ["UINT8"]
 SUPPORTED_ISDU_DATATYPES = [
     "str",
     "int",
+    "uint",
+    "sint",
     "raw",
     "bool",
     "float",
-]  # TODO: add and/or test "sint"
+]

@@ -591,7 +591,7 @@ class CpxE4Iol(CpxModule):
             return int.from_bytes(ret, byteorder="big", signed=True)
         if data_type == "bool":
             ret = ret[:actual_length]
-            return bool.from_bytes(ret, byteorder="big")  # only one byte
+            return bool.from_bytes(ret, byteorder="little")  # only one byte
         if data_type == "float":
             ret = ret[:actual_length]
             return struct.unpack("!f", ret)[0]
@@ -641,6 +641,7 @@ class CpxE4Iol(CpxModule):
             # calculate bytelength of integer
             length_int = (data.bit_length() + 7) // 8
             # round up length to even number (because modbus registers are 2 bytes)
+            # and the automated fill does not work for signed ints (need to fill with 0xff)
             if length_int % 2:
                 length_int += 1
             length = length_int.to_bytes(2, "little")

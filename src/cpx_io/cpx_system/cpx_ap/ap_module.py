@@ -1053,8 +1053,10 @@ class ApModule(CpxModule):
             return ret[:actual_length]
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
-        if data_type == "int":
+        if data_type in ["int", "uint"]:
             return int.from_bytes(ret, byteorder="little")
+        if data_type in ["int", "sint"]:
+            return int.from_bytes(ret, byteorder="little", signed=True)
         if data_type == "bool":
             return bool.from_bytes(ret, byteorder="little")
         if data_type == "float":
@@ -1107,9 +1109,18 @@ class ApModule(CpxModule):
         elif isinstance(data, int):
             # calculate bytelength of integer
             length_int = (data.bit_length() + 7) // 8
+            # round up length to even number (because modbus registers are 2 bytes)
+            # and the automated fill does not work for signed ints (need to fill with 0xff)
+            if length_int % 2:
+                length_int += 1
             length = length_int.to_bytes(2, "little")
             command = (51).to_bytes(2, "little")  # write with byteswap
             data = data.to_bytes(length_int, byteorder="little", signed=data < 0)
+
+        elif isinstance(data, float):
+            data = struct.pack("!f", data)
+            command = (51).to_bytes(2, "little")  # write with byteswap
+            length = len(data).to_bytes(2, "little")
 
         else:
             raise TypeError(f"Datatype '{type(data)}' is not supported by write_isdu()")
