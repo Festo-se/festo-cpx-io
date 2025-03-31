@@ -2376,6 +2376,11 @@ class TestApModule:
         self, module_fixture, input_value, length, expected_output
     ):
         """Test read_isdu"""
+        # Remark
+        # This test is has different byteorders from CPX-AP write_isdu because
+        # there are no dedicated "write with byteswap" commands for CPX-E. We
+        # need to send different byteorders for different types
+
         # Arrange
         module = module_fixture
         module.position = 0

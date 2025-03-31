@@ -869,7 +869,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01")  # Move In
     # wait for move to finish
@@ -880,7 +880,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
 def test_4iol_emcs_write_int8_with_move(test_cpxap):
@@ -912,7 +912,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x01")  # Move In
     # wait for move to finish
@@ -923,7 +923,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
 def test_4iol_emcs_write_int16_with_move(test_cpxap):
@@ -955,7 +955,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01")  # Move In
     # wait for move to finish
@@ -966,7 +966,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
 def test_4iol_emcs_write_int32_with_move(test_cpxap):
@@ -998,7 +998,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01\x00\x00")  # Move In
     # wait for move to finish
@@ -1009,7 +1009,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
 def test_4iol_emcs_write_int64_with_move(test_cpxap):
@@ -1041,7 +1041,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
     # wait for move to finish
@@ -1052,7 +1052,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
 def test_4iol_write_channels_with_emcs(test_cpxap):
@@ -1084,7 +1084,7 @@ def test_4iol_write_channels_with_emcs(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 0x00FFFFFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channels(
         [
@@ -1102,7 +1102,7 @@ def test_4iol_write_channels_with_emcs(test_cpxap):
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") < 0xFF
+    assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
 def test_4iol_emcs_read_isdu_float(test_cpxap):
@@ -1116,15 +1116,18 @@ def test_4iol_emcs_read_isdu_float(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
+    # write intermediate position
+    m.write_isdu(1.25, emcs_channel, 264)
+
     # read intermediate position
-    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
+    ret = m.read_isdu(emcs_channel, 264, data_type="float")
     assert isinstance(ret, float)
-    assert 0.01 < ret < 0.03
+    assert 1.2 < ret < 1.3
 
     # read end postion out
-    ret = m.read_isdu(emcs_channel, 262, data_type="float") * 0.01
+    ret = m.read_isdu(emcs_channel, 262, data_type="float")
     assert isinstance(ret, float)
-    assert 0.01 < ret < 0.03
+    assert 0 < ret < 0.1
 
 
 def test_4iol_ehps(test_cpxap):

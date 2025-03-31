@@ -591,7 +591,7 @@ class CpxE4Iol(CpxModule):
             return int.from_bytes(ret, byteorder="big", signed=True)
         if data_type == "bool":
             ret = ret[:actual_length]
-            return bool.from_bytes(ret, byteorder="little")  # only one byte
+            return bool.from_bytes(ret, byteorder="big")  # only one byte
         if data_type == "float":
             ret = ret[:actual_length]
             return struct.unpack("!f", ret)[0]
@@ -635,7 +635,7 @@ class CpxE4Iol(CpxModule):
 
         elif isinstance(data, bool):
             length = (1).to_bytes(2, "little")
-            data = data.to_bytes(2, byteorder="little")
+            data = data.to_bytes(1, byteorder="big")
 
         elif isinstance(data, int):
             # calculate bytelength of integer
@@ -644,6 +644,8 @@ class CpxE4Iol(CpxModule):
             # and the automated fill does not work for signed ints (need to fill with 0xff)
             if length_int % 2:
                 length_int += 1
+            if length_int == 0:
+                length_int = 2
             length = length_int.to_bytes(2, "little")
             data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
 

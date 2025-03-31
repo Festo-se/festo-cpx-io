@@ -868,8 +868,8 @@ class TestCpxE4Iol:
             (-999999, 4, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
             (-99999999, 4, b"\xfa\x0a\x1f\x01"),  # sint32
             (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
-            (True, 1, b"\x01\x00"),  # bool true
-            (False, 1, b"\x00\x00"),  # bool false
+            (True, 1, b"\x01"),  # bool true
+            (False, 1, b"\x00"),  # bool false
             (0.0, 4, b"\x00\x00\x00\x00"),  # float 0
             (-1.23456, 4, b"\xbf\x9e\x06\x10"),  # negative float
         ],
