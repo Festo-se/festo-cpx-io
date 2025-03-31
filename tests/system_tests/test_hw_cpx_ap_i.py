@@ -1124,10 +1124,13 @@ def test_4iol_emcs_read_isdu_float(test_cpxap):
     assert isinstance(ret, float)
     assert 1.2 < ret < 1.3
 
+    # write postion out
+    m.write_isdu(1.5, emcs_channel, 262)
+
     # read end postion out
     ret = m.read_isdu(emcs_channel, 262, data_type="float")
     assert isinstance(ret, float)
-    assert 0 < ret < 0.1
+    assert 1.4 < ret < 1.6
 
 
 def test_4iol_ehps(test_cpxap):

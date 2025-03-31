@@ -998,7 +998,7 @@ class ApModule(CpxModule):
         if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
             command = (100).to_bytes(2, "little")
         elif (
-            data_type in ["int", "bool", "float"]
+            data_type in ["int", "uint", "sint", "bool", "float"]
             and data_type in SUPPORTED_ISDU_DATATYPES
         ):
             command = (50).to_bytes(2, "little")
@@ -1054,6 +1054,7 @@ class ApModule(CpxModule):
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
         if data_type in ["int", "uint"]:
+            # TODO: Can this register swap be replaced by command 100 and byteorder "big"?
             chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
             inverted_chunks = reversed(chunks)
             ret_inverted_registers = b"".join(inverted_chunks)
@@ -1071,7 +1072,8 @@ class ApModule(CpxModule):
             ret_inverted_registers = b"".join(inverted_chunks)
             return bool.from_bytes(ret_inverted_registers, byteorder="little")
         if data_type == "float":
-            return struct.unpack("f", ret[:actual_length])[0]
+            ret = ret[:actual_length]
+            return struct.unpack("f", ret)[0]
 
         # this is unnecessary but required for consistent return statements
         raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")

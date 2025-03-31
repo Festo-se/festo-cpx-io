@@ -650,7 +650,7 @@ class CpxE4Iol(CpxModule):
             data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
 
         elif isinstance(data, float):
-            data = struct.pack("!f", data)
+            data = struct.pack("f", data)
             length = len(data).to_bytes(2, "little")
 
         else:
