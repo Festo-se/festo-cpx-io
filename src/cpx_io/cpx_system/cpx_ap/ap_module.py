@@ -1110,7 +1110,12 @@ class ApModule(CpxModule):
                 length_int = 1
             length = length_int.to_bytes(2, "little")
             command = (101).to_bytes(2, "little")  # write without byteswap
-            data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+
+            # negative data needs to be filled with 0xff on uneven bytes
+            if data < 0 and length_int % 2:
+                data = data.to_bytes(length_int + 1, byteorder="big", signed=data < 0)
+            else:
+                data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
 
         elif isinstance(data, float):
             data = struct.pack("!f", data)

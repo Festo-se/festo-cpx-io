@@ -2358,13 +2358,13 @@ class TestApModule:
         "input_value,, length, expected_output",
         [
             ("str", 3, b"str"),  # string
-            (1, 2, b"\x01\x00"),  # int8
-            (0xCAFE, 2, b"\xfe\xca"),  # int16
-            (0xBEBAFECA, 4, b"\xca\xfe\xba\xbe"),  # int32
-            (-1, 2, b"\xff\xff"),  # sint8
-            (-1925, 2, b"\x7b\xf8"),  # sint16
-            (-999999, 4, b"\xc1\xbd\xf0\xff"),  # 3byte sint32
-            (-99999999, 4, b"\x01\x1f\x0a\xfa"),  # sint32
+            (1, 1, b"\x01"),  # int8
+            (0xCAFE, 2, b"\xca\xfe"),  # int16
+            (0xCAFEBABE, 4, b"\xca\xfe\xba\xbe"),  # int32
+            (-1, 1, b"\xff\xff"),  # sint8
+            (-1925, 2, b"\xf8\x7b"),  # sint16
+            (-999999, 3, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
+            (-99999999, 4, b"\xfa\x0a\x1f\x01"),  # sint32
             (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
             (True, 1, b"\x01"),  # bool true
             (False, 1, b"\x00"),  # bool false
@@ -2392,7 +2392,7 @@ class TestApModule:
         # Act
         module.write_isdu(input_value, 0, 0)
 
-        command = 51 if isinstance(input_value, (bool, int, float)) else 101
+        command = 101
 
         # Assert
         module.base.write_reg_data.assert_has_calls(
