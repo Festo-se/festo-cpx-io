@@ -130,8 +130,8 @@ class CpxE4Iol(CpxModule):
                 f"The provided data length is {len(data)} bytes"
             )
 
-        # if data has an uneven bytesize, fill on the left
-        if len(data) % 2 != 0:
+        # if data has an uneven bytesize, fill one on the left (byteorder "big")
+        if len(data) % 2:
             data = b"\x00" + data
         # if data is smaller than the master size, fill on right side
         if len(data) != byte_channel_size:
@@ -562,7 +562,7 @@ class CpxE4Iol(CpxModule):
                     byteorder="little",
                 )
             # CPX-E responds with an error that needs to be caught
-            except ConnectionAbortedError:
+            except ConnectionAbortedError as e:
                 pass
             cnt += 1
         if cnt >= 1000:
@@ -584,17 +584,27 @@ class CpxE4Iol(CpxModule):
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
         if data_type in ["uint", "int"]:
-            ret = ret[:actual_length]
-            return int.from_bytes(ret, byteorder="big")
+            chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
+            inverted_chunks = reversed(chunks)
+            ret_inverted_registers = b"".join(inverted_chunks)
+            return int.from_bytes(ret_inverted_registers, byteorder="little")
         if data_type == "sint":
-            ret = ret[:actual_length]
-            return int.from_bytes(ret, byteorder="big", signed=True)
+            chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
+            inverted_chunks = reversed(chunks)
+            ret_inverted_registers = b"".join(inverted_chunks)
+            return int.from_bytes(
+                ret_inverted_registers, byteorder="little", signed=True
+            )
         if data_type == "bool":
-            ret = ret[:actual_length]
-            return bool.from_bytes(ret, byteorder="big")  # only one byte
+            chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
+            inverted_chunks = reversed(chunks)
+            ret_inverted_registers = b"".join(inverted_chunks)
+            return bool.from_bytes(ret_inverted_registers, byteorder="little")
         if data_type == "float":
-            ret = ret[:actual_length]
-            return struct.unpack("!f", ret)[0]
+            # chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
+            # inverted_chunks = reversed(chunks)
+            # ret_inverted_registers = b"".join(inverted_chunks)
+            return struct.unpack("!f", ret[:actual_length])[0]
 
         # this is unnecessary but required for consistent return statements
         raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
@@ -640,17 +650,20 @@ class CpxE4Iol(CpxModule):
         elif isinstance(data, int):
             # calculate bytelength of integer
             length_int = (data.bit_length() + 7) // 8
-            # round up length to even number (because modbus registers are 2 bytes)
-            # and the automated fill does not work for signed ints (need to fill with 0xff)
-            if length_int % 2:
-                length_int += 1
             if length_int == 0:
-                length_int = 2
+                length_int = 1
             length = length_int.to_bytes(2, "little")
-            data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+
+            # negative data needs to be filled with 0xff on uneven bytes
+            if data < 0 and length_int % 2:
+                data = data.to_bytes(
+                    length_int + 1, byteorder="little", signed=data < 0
+                )
+            else:
+                data = data.to_bytes(length_int, byteorder="little", signed=data < 0)
 
         elif isinstance(data, float):
-            data = struct.pack("f", data)
+            data = struct.pack("!f", data)
             length = len(data).to_bytes(2, "little")
 
         else:
