@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
 
 ### Fixed
-- Issue with reading (signed) integer values from IO-Link ISDU with CPX-AP
+- Issues with IO-Link read/write ISDU with CPX-AP
 - make the initialization more robust against a slow apdd loading
 
 ## v0.8.1 - 14.02.25

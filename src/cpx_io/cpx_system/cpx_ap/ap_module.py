@@ -993,19 +993,12 @@ class ApModule(CpxModule):
         length = (0).to_bytes(2, "little")  # always zero when reading
 
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        # it's easiest if we stay on 100 and byteorder "big"
+        command = (100).to_bytes(2, "little")
+
         # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
         # keeps the two files synchronized during development
-        if (
-            data_type in ["raw", "str", "float"]
-            and data_type in SUPPORTED_ISDU_DATATYPES
-        ):
-            command = (100).to_bytes(2, "little")
-        elif (
-            data_type in ["int", "uint", "sint", "bool"]
-            and data_type in SUPPORTED_ISDU_DATATYPES
-        ):
-            command = (50).to_bytes(2, "little")
-        else:
+        if data_type not in SUPPORTED_ISDU_DATATYPES:
             raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
         # select module, starts with 1
@@ -1057,23 +1050,11 @@ class ApModule(CpxModule):
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
         if data_type in ["int", "uint"]:
-            # TODO: Can this register swap be replaced by command 100 and byteorder "big"?
-            chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
-            inverted_chunks = reversed(chunks)
-            ret_inverted_registers = b"".join(inverted_chunks)
-            return int.from_bytes(ret_inverted_registers, byteorder="little")
+            return int.from_bytes(ret[:actual_length], byteorder="big")
         if data_type == "sint":
-            chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
-            inverted_chunks = reversed(chunks)
-            ret_inverted_registers = b"".join(inverted_chunks)
-            return int.from_bytes(
-                ret_inverted_registers, byteorder="little", signed=True
-            )
+            return int.from_bytes(ret[:actual_length], byteorder="big", signed=True)
         if data_type == "bool":
-            chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
-            inverted_chunks = reversed(chunks)
-            ret_inverted_registers = b"".join(inverted_chunks)
-            return bool.from_bytes(ret_inverted_registers, byteorder="little")
+            return bool.from_bytes(ret[:actual_length], byteorder="big")
         if data_type == "float":
             ret = ret[:actual_length]
             return struct.unpack("!f", ret)[0]
