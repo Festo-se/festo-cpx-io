@@ -878,6 +878,34 @@ def test_4iol_emcs_write_isdu_bool(test_cpxap):
     assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
+def test_4iol_emcs_read_write_isdu_float(test_cpxap):
+    m = test_cpxap.modules[4]
+    emcs_channel = 3
+
+    # Setup
+    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
+    time.sleep(0.05)
+    param = m.read_fieldbus_parameters()
+    while param[emcs_channel]["Port status information"] != "OPERATE":
+        param = m.read_fieldbus_parameters()
+
+    # write intermediate position
+    m.write_isdu(125.0, emcs_channel, 264)
+
+    # read intermediate position
+    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
+    assert isinstance(ret, float)
+    assert 1.2 < ret < 1.3
+
+    # reset
+    m.write_isdu(1013.0, emcs_channel, 264)
+
+    # read intermediate position
+    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
+    assert isinstance(ret, float)
+    assert 10.1 < ret < 10.2
+
+
 def test_4iol_emcs_read_int32_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -889,8 +917,12 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    # set out position to 5 mm (uses float32 value * 0.01 mm)
-    m.write_isdu(500.0, emcs_channel, 262)
+    # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 261)
+    # set out position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 262)
+    # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 264)
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -935,8 +967,12 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    # set out position to 5 mm (uses float32 value * 0.01 mm)
-    m.write_isdu(500.0, emcs_channel, 262)
+    # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 261)
+    # set out position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 262)
+    # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 264)
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -981,8 +1017,12 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    # set out position to 5 mm (uses float32 value * 0.01 mm)
-    m.write_isdu(500.0, emcs_channel, 262)
+    # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 261)
+    # set out position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 262)
+    # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 264)
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1027,8 +1067,12 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    # set out position to 5 mm (uses float32 value * 0.01 mm)
-    m.write_isdu(500.0, emcs_channel, 262)
+    # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 261)
+    # set out position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 262)
+    # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 264)
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1073,8 +1117,12 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    # set out position to 5 mm (uses float32 value * 0.01 mm)
-    m.write_isdu(500.0, emcs_channel, 262)
+    # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 261)
+    # set out position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 262)
+    # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 264)
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1089,12 +1137,11 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
     # wait for move to finish
     while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
         time.sleep(0.01)
-
     for _ in range(10):  # wait some more
         time.sleep(0.05)
         m.read_channel(emcs_channel)
 
-    assert m.read_isdu(emcs_channel, 288, data_type="int") > 2
+    assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
     # wait for move to finish
@@ -1120,8 +1167,12 @@ def test_4iol_write_channels_with_emcs(test_cpxap):
     while param[emcs_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    # set out position to 5 mm (uses float32 value * 0.01 mm)
-    m.write_isdu(500.0, emcs_channel, 262)
+    # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 261)
+    # set out position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 262)
+    # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
+    m.write_isdu(1013.0, emcs_channel, 264)
 
     # Act & Assert
     m.write_channels(
@@ -1159,34 +1210,6 @@ def test_4iol_write_channels_with_emcs(test_cpxap):
         m.read_channel(emcs_channel)
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
-
-
-def test_4iol_emcs_read_write_isdu_float(test_cpxap):
-    m = test_cpxap.modules[4]
-    emcs_channel = 3
-
-    # Setup
-    m.write_module_parameter("Port Mode", "IOL_AUTOSTART", emcs_channel)
-    time.sleep(0.05)
-    param = m.read_fieldbus_parameters()
-    while param[emcs_channel]["Port status information"] != "OPERATE":
-        param = m.read_fieldbus_parameters()
-
-    # write intermediate position
-    m.write_isdu(125.0, emcs_channel, 264)
-
-    # read intermediate position
-    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
-    assert isinstance(ret, float)
-    assert 1.2 < ret < 1.3
-
-    # reset
-    m.write_isdu(200.0, emcs_channel, 264)
-
-    # read intermediate position
-    ret = m.read_isdu(emcs_channel, 264, data_type="float") * 0.01
-    assert isinstance(ret, float)
-    assert 1.8 < ret < 2.2
 
 
 def test_4iol_ehps(test_cpxap):

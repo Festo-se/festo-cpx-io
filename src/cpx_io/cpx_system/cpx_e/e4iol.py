@@ -111,7 +111,11 @@ class CpxE4Iol(CpxModule):
         :return: Channel value
         :rtype: bytes (byteorder big endian)
         """
-        return self.read_channels(bytelength=bytelength)[channel]
+        channel_size = self.module_input_size
+        if bytelength is None:
+            bytelength = channel_size * 2
+        register_index = self.system_entry_registers.inputs + channel_size * channel
+        return self.base.read_reg_data(register_index, length=channel_size)[:bytelength]
 
     @CpxBase.require_base
     def write_channel(self, channel: int, data: bytes) -> None:
@@ -130,10 +134,10 @@ class CpxE4Iol(CpxModule):
                 f"The provided data length is {len(data)} bytes"
             )
 
-        # if data has an uneven bytesize, fill one on the left (byteorder "big")
+        # add missing bytes for full modbus register
         if len(data) % 2:
             data = b"\x00" + data
-        # if data is smaller than the master size, fill on right side
+        # add missing bytes for full master length
         if len(data) != byte_channel_size:
             data += b"\x00" * (byte_channel_size - len(data))
 
