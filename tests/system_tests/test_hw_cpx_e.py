@@ -903,7 +903,7 @@ def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    # register 60.1 Setpoint 1
+    # register 60.1 Setpoint 1 (IntT16)
     e4iol.write_isdu(b"\x01\x23", sdas_channel, 0x003C, 1)
     ret = e4iol.read_isdu(sdas_channel, 0x003C, 1)
 
@@ -939,23 +939,25 @@ def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # Act
+    # register 60.1 Setpoint 1  (IntT16) (value must be in range 216 ... 3784)
     e4iol.write_isdu(0x0123, sdas_channel, 0x003C, 1)
     ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int")
+    ret_raw = e4iol.read_isdu(sdas_channel, 0x003C, 1)
 
     # Assert
     assert ret == 0x0123
-
+    assert ret_raw == b"\x01\x23"
     # Act again
     e4iol.write_isdu(0x0100, sdas_channel, 0x003C, 1)
-    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1)
-
-    ret_value = int.from_bytes(ret, byteorder="big")
+    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int")
+    ret_raw = e4iol.read_isdu(sdas_channel, 0x003C, 1)
 
     # Assert
-    assert ret_value == 0x0100
+    assert ret == 0x0100
+    assert ret_raw == b"\x01\x00"
 
 
-def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxe):
+def test_4iol_sdas_readwrite_isdu_uint8_as_raw(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -972,7 +974,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    # register 61.2 Switchpoint mode (0x86 = Cylinder Switch)
+    # register 61.2 Switchpoint mode (UIntT8) (0x86 = Cylinder Switch)
     e4iol.write_isdu(b"\x86", sdas_channel, 0x003D, 2)
     ret = e4iol.read_isdu(sdas_channel, 0x003D, 2)
 
@@ -991,7 +993,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxe):
     assert ret_value == 0x00
 
 
-def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxe):
+def test_4iol_sdas_readwrite_isdu_uint8_as_uint(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -1008,16 +1010,16 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    # register 61.2 Switchpoint mode (134 = Cylinder Switch)
+    # register 61.2 Switchpoint mode (UIntT8) (134 = Cylinder Switch)
     e4iol.write_isdu(134, sdas_channel, 0x003D, 2)
-    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="int")
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="uint")
 
     # Assert
     assert ret == 134
 
     # Act again
     e4iol.write_isdu(0, sdas_channel, 0x003D, 2)
-    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="int")
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="uint")
 
     # Assert
     assert ret == 0
@@ -1040,6 +1042,7 @@ def test_4iol_emcs_read_isdu_str(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
+    # 16 = Vendor Name = String 64 Byte
     assert e4iol.read_isdu(emcs_channel, 16, data_type="str") == "Festo"
 
 
@@ -1060,6 +1063,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
+    # 259 = Reference = BooleanT (1 Byte) = False = Left
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
@@ -1080,6 +1084,7 @@ def test_4iol_emcs_write_isdu_bool(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # Act & Assert
+    # 259 = Reference = BooleanT (1 Byte)
     e4iol.write_isdu(True, emcs_channel, 259)
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is True
 

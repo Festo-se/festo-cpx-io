@@ -591,23 +591,24 @@ class CpxE4Iol(CpxModule):
             chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
             inverted_chunks = reversed(chunks)
             ret_inverted_registers = b"".join(inverted_chunks)
-            return int.from_bytes(ret_inverted_registers, byteorder="little")
+            return int.from_bytes(
+                ret_inverted_registers[:actual_length], byteorder="big"
+            )
         if data_type in ["sint", "int"]:
             chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
             inverted_chunks = reversed(chunks)
             ret_inverted_registers = b"".join(inverted_chunks)
             return int.from_bytes(
-                ret_inverted_registers, byteorder="little", signed=True
+                ret_inverted_registers[:actual_length], byteorder="big", signed=True
             )
         if data_type == "bool":
             chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
             inverted_chunks = reversed(chunks)
             ret_inverted_registers = b"".join(inverted_chunks)
-            return bool.from_bytes(ret_inverted_registers, byteorder="little")
+            return bool.from_bytes(
+                ret_inverted_registers[:actual_length], byteorder="big"
+            )
         if data_type == "float":
-            # chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
-            # inverted_chunks = reversed(chunks)
-            # ret_inverted_registers = b"".join(inverted_chunks)
             return struct.unpack("!f", ret[:actual_length])[0]
 
         # this is unnecessary but required for consistent return statements
@@ -660,11 +661,9 @@ class CpxE4Iol(CpxModule):
 
             # negative data needs to be filled with 0xff on uneven bytes
             if data < 0 and length_int % 2:
-                data = data.to_bytes(
-                    length_int + 1, byteorder="little", signed=data < 0
-                )
+                data = data.to_bytes(length_int + 1, byteorder="big", signed=data < 0)
             else:
-                data = data.to_bytes(length_int, byteorder="little", signed=data < 0)
+                data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
 
         elif isinstance(data, float):
             data = struct.pack("!f", data)

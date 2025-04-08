@@ -69,57 +69,59 @@ class TestCpxE4Iol:
         assert status == [False, True] * 8
 
     def test_read_2byte_channel_0_to_3(self):
-        """Test read channels"""
+        """Test read channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=b"\xa0\xa1\xb0\xb1\xc0\xc1\xd0\xd1")
-        )
+        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\xa0\xa1"))
+        cpxe4iol.system_entry_registers.inputs = 0
+        channel_size = 1  # in registers
 
         # Act
         channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
 
         # Assert
-        assert channel_values == [b"\xa0\xa1", b"\xb0\xb1", b"\xc0\xc1", b"\xd0\xd1"]
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.system_entry_registers.inputs, length=4
+        assert channel_values == [b"\xa0\xa1"] * 4
+        cpxe4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(channel_size * 0, length=1),
+                call(channel_size * 1, length=1),
+                call(channel_size * 2, length=1),
+                call(channel_size * 3, length=1),
+            ]
         )
 
     def test_read_8byte_channel_0_to_3(self):
-        """Test read channels"""
+        """Test read channel"""
         # Arrange
         cpxe4iol = CpxE4Iol(8)
         cpxe4iol.base = Mock(
-            read_reg_data=Mock(
-                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14\xb1\x10\xb1\x11\xb1\x13\xb1\x14"
-                b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14\xd1\x10\xd1\x11\xd1\x13\xd1\x14"
-            )
+            read_reg_data=Mock(return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14")
         )
+        cpxe4iol.system_entry_registers.inputs = 0
+        channel_size = 4  # in registers
 
         # Act
         channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
 
         # Assert
-        assert channel_values == [
-            b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14",
-            b"\xb1\x10\xb1\x11\xb1\x13\xb1\x14",
-            b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14",
-            b"\xd1\x10\xd1\x11\xd1\x13\xd1\x14",
-        ]
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.system_entry_registers.inputs, length=16
+        assert channel_values == [b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14"] * 4
+        cpxe4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(channel_size * 0, length=4),
+                call(channel_size * 1, length=4),
+                call(channel_size * 2, length=4),
+                call(channel_size * 3, length=4),
+            ]
         )
 
     def test_read_2bytes_from_8byte_channel(self):
-        """Test read channels"""
+        """Test read channel"""
         # Arrange
         cpxe4iol = CpxE4Iol(8)
         cpxe4iol.base = Mock(
-            read_reg_data=Mock(
-                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14\xb1\x10\xb1\x11\xb1\x13\xb1\x14"
-                b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14\xd1\x10\xd1\x11\xd1\x13\xd1\x14"
-            )
+            read_reg_data=Mock(return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14")
         )
+        cpxe4iol.system_entry_registers.inputs = 0
 
         # Act
         channel_value = cpxe4iol.read_channel(0, bytelength=2)
@@ -127,9 +129,7 @@ class TestCpxE4Iol:
         # Assert
         assert channel_value == b"\xa1\x10"
 
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.system_entry_registers.inputs, length=16
-        )
+        cpxe4iol.base.read_reg_data.assert_called_with(0, length=4)
 
     def test_read_2bytes_from_8byte_channels(self):
         """Test read channels"""
@@ -137,16 +137,19 @@ class TestCpxE4Iol:
         cpxe4iol = CpxE4Iol(8)
         cpxe4iol.base = Mock(
             read_reg_data=Mock(
-                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14\xb1\x10\xb1\x11\xb1\x13\xb1\x14"
-                b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14\xd1\x10\xd1\x11\xd1\x13\xd1\x14"
+                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14"
+                b"\xa2\x10\xa1\x11\xa1\x13\xa1\x14"
+                b"\xa3\x10\xa1\x11\xa1\x13\xa1\x14"
+                b"\xa4\x10\xa1\x11\xa1\x13\xa1\x14"
             )
         )
+        cpxe4iol.system_entry_registers.inputs = 0
 
         # Act
         channel_values = cpxe4iol.read_channels(bytelength=2)
 
         # Assert
-        assert channel_values == [b"\xa1\x10", b"\xb1\x10", b"\xc1\x10", b"\xd1\x10"]
+        assert channel_values == [b"\xa1\x10", b"\xa2\x10", b"\xa3\x10", b"\xa4\x10"]
 
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.system_entry_registers.inputs, length=16
@@ -156,17 +159,23 @@ class TestCpxE4Iol:
         """Test get item"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=b"\x00\xab\x00\xcd\x00\xef\x00\x12")
-        )
+        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\x00\xab"))
+        cpxe4iol.system_entry_registers.inputs = 0
+        channel_size = 1  # size in registers
 
         # Act
         channel_values = [cpxe4iol[idx] for idx in range(4)]
 
         # Assert
-        assert channel_values == [b"\x00\xab", b"\x00\xcd", b"\x00\xef", b"\x00\x12"]
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.system_entry_registers.inputs, length=4
+        assert channel_values == [b"\x00\xab"] * 4
+
+        cpxe4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(channel_size * 0, length=1),
+                call(channel_size * 1, length=1),
+                call(channel_size * 2, length=1),
+                call(channel_size * 3, length=1),
+            ]
         )
 
     @pytest.mark.parametrize(
@@ -860,12 +869,12 @@ class TestCpxE4Iol:
         "input_value, length, expected_output",
         [
             ("str", 3, b"str"),  # string
-            (1, 2, b"\x00\x01"),  # uint8
+            (1, 1, b"\x01"),  # uint8
             (0xCAFE, 2, b"\xca\xfe"),  # uint16
             (0xBEBAFECA, 4, b"\xbe\xba\xfe\xca"),  # uint32
-            (-1, 2, b"\xff\xff"),  # sint8
+            (-1, 1, b"\xff\xff"),  # sint8
             (-1925, 2, b"\xf8\x7b"),  # sint16
-            (-999999, 4, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
+            (-999999, 3, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
             (-99999999, 4, b"\xfa\x0a\x1f\x01"),  # sint32
             (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
             (True, 1, b"\x01"),  # bool true
