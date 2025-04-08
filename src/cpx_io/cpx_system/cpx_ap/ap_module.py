@@ -1049,9 +1049,9 @@ class ApModule(CpxModule):
             return ret[:actual_length]
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
-        if data_type in ["int", "uint"]:
+        if data_type == "uint":
             return int.from_bytes(ret[:actual_length], byteorder="big")
-        if data_type == "sint":
+        if data_type in ["sint", "int"]:
             return int.from_bytes(ret[:actual_length], byteorder="big", signed=True)
         if data_type == "bool":
             return bool.from_bytes(ret[:actual_length], byteorder="big")

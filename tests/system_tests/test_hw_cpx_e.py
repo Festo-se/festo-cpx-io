@@ -1317,6 +1317,67 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
+def test_4iol_emcs_write_int64_with_move(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    # set out position to 5 mm (uses float32 value * 0.01 mm)
+    e4iol.write_isdu(500.0, emcs_channel, 262)
+
+    # ProcessDataOutput (from master view)
+    # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
+    # |     -    | Move intermediate | - | Quit Error | Move Out | Move In |
+
+    # ProcessDataInput (from master view)
+    # | 15 ... 5 |        4           |        3     |      2     |     1     |    0     |
+    # |     -    | State intermediate | State Device | State Move | State Out | State In |
+
+    # Act & Assert
+    e4iol.write_channel(emcs_channel, b"\x00\x04\x00\x00\x00\x00\x00\x00")  # Move Out
+    # wait for move to finish
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x02
+    ):
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        e4iol.read_channel(emcs_channel)
+
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") > 2
+
+    e4iol.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
+    # wait for move to finish
+    while (
+        not int.from_bytes(
+            e4iol.read_channel(emcs_channel, bytelength=2), byteorder="big"
+        )
+        & 0x01
+    ):
+        time.sleep(0.01)
+
+    for _ in range(10):  # wait some more
+        time.sleep(0.05)
+        e4iol.read_channel(emcs_channel)
+
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 1
+
+
 def test_4iol_emcs_read_write_isdu_float(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
