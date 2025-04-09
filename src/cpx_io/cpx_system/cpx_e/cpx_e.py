@@ -8,6 +8,9 @@ from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DIC
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.utils.boollist import bytes_to_boollist
 
+# pylint: disable=duplicate-code
+# intended: cpx_e and cpx_ap have similar, but not same functions
+
 
 class CpxE(CpxBase):
     """CPX-E base class"""
