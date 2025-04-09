@@ -77,22 +77,27 @@ def test_module_notconfigured(test_cpxe):
 
 def test_default_timeout(test_cpxe):
     "test timeout"
-    reg = test_cpxe.read_reg_data(46100, 2)
+    reg = test_cpxe.read_reg_data(46100, 1)
     value = int.from_bytes(reg, byteorder="little", signed=False)
     assert value == 100
 
 
 def test_set_timeout():
     "test timeout"
-    with CpxE(ip_address="172.16.1.40", timeout=0.5) as cpxap:
-        reg = cpxap.read_reg_data(46100, 2)
+    with CpxE(ip_address=SYSTEM_IP_ADDRESS, timeout=0.5) as cpxap:
+        reg = cpxap.read_reg_data(46100, 1)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
+
+    # reset it
+    with CpxE(ip_address=SYSTEM_IP_ADDRESS, timeout=0.1) as cpxap:
+        reg = cpxap.read_reg_data(46100, 1)
+        assert int.from_bytes(reg, byteorder="little", signed=False) == 100
 
 
 def test_set_timeout_below_100ms():
     "test timeout"
-    with CpxE(ip_address="172.16.1.40", timeout=0.05) as cpxap:
-        reg = cpxap.read_reg_data(46100, 2)
+    with CpxE(ip_address=SYSTEM_IP_ADDRESS, timeout=0.05) as cpxap:
+        reg = cpxap.read_reg_data(46100, 1)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 100
 
 
