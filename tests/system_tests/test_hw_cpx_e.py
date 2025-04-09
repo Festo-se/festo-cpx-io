@@ -837,7 +837,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu("FESTO", sdas_channel, 0x0018, 0)
+    e4iol.write_isdu("FESTO", sdas_channel, 0x0018, 0, data_type="str")
     ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
@@ -846,7 +846,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxe):
     # Act more
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
-    e4iol.write_isdu("del", sdas_channel, 0x0018, 0)
+    e4iol.write_isdu("del", sdas_channel, 0x0018, 0, data_type="str")
     ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
@@ -870,7 +870,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxe):
         state = e4iol.read_line_state()[sdas_channel]
 
     # Act
-    e4iol.write_isdu("FESTO", sdas_channel, 0x0018, 0)
+    e4iol.write_isdu("FESTO", sdas_channel, 0x0018, 0, data_type="str")
     ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
@@ -879,7 +879,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxe):
     # Act more
     # This should test if there are characters remaining in the isdu
     # from the "FESTO" and if they are returned with it incorrectly
-    e4iol.write_isdu("del", sdas_channel, 0x0018, 0)
+    e4iol.write_isdu("del", sdas_channel, 0x0018, 0, data_type="str")
     ret = e4iol.read_isdu(sdas_channel, 0x0018, 0, data_type="str")
 
     # Assert
@@ -940,17 +940,18 @@ def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxe):
 
     # Act
     # register 60.1 Setpoint 1  (IntT16) (value must be in range 216 ... 3784)
-    e4iol.write_isdu(0x0123, sdas_channel, 0x003C, 1)
-    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int")
-    ret_raw = e4iol.read_isdu(sdas_channel, 0x003C, 1)
+    e4iol.write_isdu(0x0123, sdas_channel, 0x003C, 1, data_type="int16")
+    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int16")
+    ret_raw = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="raw")
 
     # Assert
     assert ret == 0x0123
     assert ret_raw == b"\x01\x23"
+
     # Act again
-    e4iol.write_isdu(0x0100, sdas_channel, 0x003C, 1)
-    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int")
-    ret_raw = e4iol.read_isdu(sdas_channel, 0x003C, 1)
+    e4iol.write_isdu(0x0100, sdas_channel, 0x003C, 1, data_type="int16")
+    ret = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="int16")
+    ret_raw = e4iol.read_isdu(sdas_channel, 0x003C, 1, data_type="raw")
 
     # Assert
     assert ret == 0x0100
@@ -975,8 +976,8 @@ def test_4iol_sdas_readwrite_isdu_uint8_as_raw(test_cpxe):
 
     # Act
     # register 61.2 Switchpoint mode (UIntT8) (0x86 = Cylinder Switch)
-    e4iol.write_isdu(b"\x86", sdas_channel, 0x003D, 2)
-    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2)
+    e4iol.write_isdu(b"\x86", sdas_channel, 0x003D, 2, data_type="raw")
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="raw")
 
     ret_value = int.from_bytes(ret, byteorder="big")
 
@@ -984,8 +985,8 @@ def test_4iol_sdas_readwrite_isdu_uint8_as_raw(test_cpxe):
     assert ret_value == 0x86
 
     # Act again
-    e4iol.write_isdu(b"\x00", sdas_channel, 0x003D, 2)
-    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2)
+    e4iol.write_isdu(b"\x00", sdas_channel, 0x003D, 2, data_type="raw")
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="raw")
 
     ret_value = int.from_bytes(ret, byteorder="big")
 
@@ -1011,15 +1012,15 @@ def test_4iol_sdas_readwrite_isdu_uint8_as_uint(test_cpxe):
 
     # Act
     # register 61.2 Switchpoint mode (UIntT8) (134 = Cylinder Switch)
-    e4iol.write_isdu(134, sdas_channel, 0x003D, 2)
-    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="uint")
+    e4iol.write_isdu(134, sdas_channel, 0x003D, 2, data_type="uint8")
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="uint8")
 
     # Assert
     assert ret == 134
 
     # Act again
-    e4iol.write_isdu(0, sdas_channel, 0x003D, 2)
-    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="uint")
+    e4iol.write_isdu(0, sdas_channel, 0x003D, 2, data_type="uint8")
+    ret = e4iol.read_isdu(sdas_channel, 0x003D, 2, data_type="uint8")
 
     # Assert
     assert ret == 0
@@ -1067,7 +1068,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
-def test_4iol_emcs_write_isdu_bool(test_cpxe):
+def test_4iol_emcs_readwrite_isdu_bool(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
     e4ai = test_cpxe.add_module(CpxE4AiUI())
@@ -1085,12 +1086,64 @@ def test_4iol_emcs_write_isdu_bool(test_cpxe):
 
     # Act & Assert
     # 259 = Reference = BooleanT (1 Byte)
-    e4iol.write_isdu(True, emcs_channel, 259)
+    e4iol.write_isdu(True, emcs_channel, 259, data_type="bool")
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is True
 
     # Reset
-    e4iol.write_isdu(False, emcs_channel, 259)
+    e4iol.write_isdu(False, emcs_channel, 259, data_type="bool")
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
+
+
+def test_4iol_emcs_readwrite_isdu_uint8(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    # Act & Assert
+    # 256 = Speed In = UInteger8 = 1 ... 10 = 10%...100% / 1 = default
+    e4iol.write_isdu(10, emcs_channel, 256, data_type="uint8")
+    assert e4iol.read_isdu(emcs_channel, 256, data_type="uint8") == 10
+
+    # Reset
+    e4iol.write_isdu(1, emcs_channel, 256, data_type="uint8")
+    assert e4iol.read_isdu(emcs_channel, 256, data_type="uint8") == 1
+
+
+def test_4iol_emcs_readwrite_isdu_uint16(test_cpxe):
+    e16di = test_cpxe.add_module(CpxE16Di())
+    e8do = test_cpxe.add_module(CpxE8Do())
+    e4ai = test_cpxe.add_module(CpxE4AiUI())
+    e4ao = test_cpxe.add_module(CpxE4AoUI())
+    e4iol = test_cpxe.add_module(CpxE4Iol(8))
+    emcs_channel = 1
+
+    assert isinstance(e4iol, CpxE4Iol)
+
+    e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=emcs_channel)
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[emcs_channel]
+
+    # Act & Assert
+    # 12288 = Enable File Handling = 0 (default) or 8782
+    e4iol.write_isdu(8782, emcs_channel, 12288, data_type="uint16")
+    assert e4iol.read_isdu(emcs_channel, 12288, data_type="uint16") == 8782
+
+    # Reset
+    e4iol.write_isdu(0, emcs_channel, 12288, data_type="uint16")
+    assert e4iol.read_isdu(emcs_channel, 12288, data_type="uint16") == 0
 
 
 def test_4iol_emcs_read_write_isdu_float(test_cpxe):
@@ -1110,18 +1163,18 @@ def test_4iol_emcs_read_write_isdu_float(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # write intermediate position
-    e4iol.write_isdu(125.0, emcs_channel, 264)
+    e4iol.write_isdu(125.0, emcs_channel, 264, data_type="float32")
 
     # read intermediate position
-    ret = e4iol.read_isdu(emcs_channel, 264, data_type="float") * 0.01
+    ret = e4iol.read_isdu(emcs_channel, 264, data_type="float32") * 0.01
     assert isinstance(ret, float)
     assert 1.2 < ret < 1.3
 
     # reset
-    e4iol.write_isdu(1013.0, emcs_channel, 264)
+    e4iol.write_isdu(1013.0, emcs_channel, 264, data_type="float32")
 
     # read intermediate position
-    ret = e4iol.read_isdu(emcs_channel, 264, data_type="float") * 0.01
+    ret = e4iol.read_isdu(emcs_channel, 264, data_type="float32") * 0.01
     assert isinstance(ret, float)
     assert 10.1 < ret < 10.2
 
@@ -1143,11 +1196,11 @@ def test_4iol_emcs_read_int32_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 261)
+    e4iol.write_isdu(1013.0, emcs_channel, 261, data_type="float32")
     # set out position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 262)
+    e4iol.write_isdu(1013.0, emcs_channel, 262, data_type="float32")
     # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 264)
+    e4iol.write_isdu(1013.0, emcs_channel, 264, data_type="float32")
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1173,7 +1226,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxe):
         time.sleep(0.01)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") > 20
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") > 20
 
     e4iol.write_channel(emcs_channel, b"\x00\x05")  # Move In and quit Error
     # wait for move to finish
@@ -1190,7 +1243,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxe):
         time.sleep(0.01)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 1
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
 def test_4iol_emcs_write_int8_with_move(test_cpxe):
@@ -1210,11 +1263,11 @@ def test_4iol_emcs_write_int8_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 261)
+    e4iol.write_isdu(1013.0, emcs_channel, 261, data_type="float32")
     # set out position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 262)
+    e4iol.write_isdu(1013.0, emcs_channel, 262, data_type="float32")
     # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 264)
+    e4iol.write_isdu(1013.0, emcs_channel, 264, data_type="float32")
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1240,7 +1293,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") > 20
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") > 20
 
     e4iol.write_channel(emcs_channel, b"\x05")  # Move In
     # wait for move to finish
@@ -1256,7 +1309,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 1
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
 def test_4iol_emcs_write_int16_with_move(test_cpxe):
@@ -1276,11 +1329,11 @@ def test_4iol_emcs_write_int16_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 261)
+    e4iol.write_isdu(1013.0, emcs_channel, 261, data_type="float32")
     # set out position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 262)
+    e4iol.write_isdu(1013.0, emcs_channel, 262, data_type="float32")
     # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 264)
+    e4iol.write_isdu(1013.0, emcs_channel, 264, data_type="float32")
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1306,7 +1359,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") > 20
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") > 20
 
     e4iol.write_channel(emcs_channel, b"\x00\x05")  # Move In
     # wait for move to finish
@@ -1323,7 +1376,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 1
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
 def test_4iol_emcs_write_int32_with_move(test_cpxe):
@@ -1343,11 +1396,11 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 261)
+    e4iol.write_isdu(1013.0, emcs_channel, 261, data_type="float32")
     # set out position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 262)
+    e4iol.write_isdu(1013.0, emcs_channel, 262, data_type="float32")
     # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 264)
+    e4iol.write_isdu(1013.0, emcs_channel, 264, data_type="float32")
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1373,7 +1426,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") > 20
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") > 20
 
     e4iol.write_channel(emcs_channel, b"\x00\x05\x00\x00")  # Move In
     # wait for move to finish
@@ -1390,7 +1443,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel, bytelength=2)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 1
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
 def test_4iol_emcs_write_int64_with_move(test_cpxe):
@@ -1410,11 +1463,11 @@ def test_4iol_emcs_write_int64_with_move(test_cpxe):
         state = e4iol.read_line_state()[emcs_channel]
 
     # set "start press" position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 261)
+    e4iol.write_isdu(1013.0, emcs_channel, 261, data_type="float32")
     # set out position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 262)
+    e4iol.write_isdu(1013.0, emcs_channel, 262, data_type="float32")
     # set intermediate position to 10.13 mm (uses float32 value * 0.01 mm)
-    e4iol.write_isdu(1013.0, emcs_channel, 264)
+    e4iol.write_isdu(1013.0, emcs_channel, 264, data_type="float32")
 
     # ProcessDataOutput (from master view)
     # | 15 ... 5 |        4          | 3 |      2     |     1    |    0    |
@@ -1443,7 +1496,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") > 20
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") > 20
 
     e4iol.write_channel(emcs_channel, b"\x00\x05\x00\x00\x00\x00\x00\x00")  # Move In
 
@@ -1463,7 +1516,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxe):
         time.sleep(0.05)
         e4iol.read_channel(emcs_channel)
 
-    assert e4iol.read_isdu(emcs_channel, 288, data_type="int") < 1
+    assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
 @pytest.mark.skip(reason="HW removed from test system")

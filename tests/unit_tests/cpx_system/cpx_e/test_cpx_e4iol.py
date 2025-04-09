@@ -836,27 +836,30 @@ class TestCpxE4Iol:
         )
 
     @pytest.mark.parametrize(
-        "input_value, expected_output",
+        "input_value, length, expected_output",
         [
-            ("str", ""),
-            ("int", 0),
-            ("uint", 0),
-            ("sint", 0),
-            ("raw", b"\x00\x00\x00\x00"),
-            ("bool", False),
-            ("float", 0.0),
+            ("str", 0, ""),
+            ("int8", 1, 0),
+            ("int16", 2, 0),
+            ("int32", 4, 0),
+            ("uint8", 1, 0),
+            ("uint16", 2, 0),
+            ("uint32", 4, 0),
+            ("raw", 4, b"\x00\x00\x00\x00"),
+            ("bool", 1, False),
+            ("float32", 4, 0.0),
         ],
     )
-    def test_read_isdu_different_datatypes(self, input_value, expected_output):
+    def test_read_isdu_different_datatypes(self, input_value, length, expected_output):
         """Test read_isdu"""
         # Arrange
         module = CpxE4Iol()
         module.position = 1
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        # need to specify actual_length from register to 4 for float conversion
+        length_bytes = length.to_bytes(2, "little")
         module.base.read_reg_data = Mock(
-            side_effect=[b"\x00\x00", b"\x04\x00", b"\x00\x00\x00\x00"]
+            side_effect=[b"\x00\x00", length_bytes, b"\x00\x00\x00\x00"]
         )
 
         # Act
@@ -866,24 +869,26 @@ class TestCpxE4Iol:
         assert ret == expected_output
 
     @pytest.mark.parametrize(
-        "input_value, length, expected_output",
+        "input_value, length, data_type, expected_output",
         [
-            ("str", 3, b"str"),  # string
-            (1, 1, b"\x01"),  # uint8
-            (0xCAFE, 2, b"\xca\xfe"),  # uint16
-            (0xBEBAFECA, 4, b"\xbe\xba\xfe\xca"),  # uint32
-            (-1, 1, b"\xff\xff"),  # sint8
-            (-1925, 2, b"\xf8\x7b"),  # sint16
-            (-999999, 3, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
-            (-99999999, 4, b"\xfa\x0a\x1f\x01"),  # sint32
-            (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
-            (True, 1, b"\x01"),  # bool true
-            (False, 1, b"\x00"),  # bool false
-            (0.0, 4, b"\x00\x00\x00\x00"),  # float 0
-            (-1.23456, 4, b"\xbf\x9e\x06\x10"),  # negative float
+            ("abc", 3, "str", b"abc"),  # string
+            (1, 1, "uint8", b"\x01"),  # uint8
+            (0xCAFE, 2, "uint16", b"\xca\xfe"),  # uint16
+            (0xBEBAFECA, 4, "uint32", b"\xbe\xba\xfe\xca"),  # uint32
+            (-1, 1, "int8", b"\xff"),  # sint8
+            (-1925, 2, "int16", b"\xf8\x7b"),  # sint16
+            (-999999, 4, "int32", b"\xff\xf0\xbd\xc1"),  # 3byte sint32
+            (-99999999, 4, "int32", b"\xfa\x0a\x1f\x01"),  # sint32
+            (b"\xca\xfe", 2, "raw", b"\xca\xfe"),  # bytes = raw
+            (True, 1, "bool", b"\x01"),  # bool true
+            (False, 1, "bool", b"\x00"),  # bool false
+            (0.0, 4, "float32", b"\x00\x00\x00\x00"),  # float 0
+            (-1.23456, 4, "float32", b"\xbf\x9e\x06\x10"),  # negative float
         ],
     )
-    def test_write_isdu_different_datatypes(self, input_value, length, expected_output):
+    def test_write_isdu_different_datatypes(
+        self, input_value, length, data_type, expected_output
+    ):
         """Test read_isdu"""
         # Arrange
         module = CpxE4Iol()
@@ -893,7 +898,7 @@ class TestCpxE4Iol:
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        module.write_isdu(input_value, 0, 0)
+        module.write_isdu(input_value, 0, 0, data_type=data_type)
 
         # Assert
         module.base.write_reg_data.assert_has_calls(

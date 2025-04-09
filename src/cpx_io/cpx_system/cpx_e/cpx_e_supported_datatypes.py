@@ -2,10 +2,13 @@
 
 SUPPORTED_ISDU_DATATYPES = [
     "str",
-    "int",
-    "uint",
-    "sint",
     "raw",
     "bool",
-    "float",
+    "uint8",
+    "uint16",
+    "uint32",
+    "int8",
+    "int16",
+    "int32",
+    "float32",
 ]

@@ -587,14 +587,14 @@ class CpxE4Iol(CpxModule):
             return ret[:actual_length]
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
-        if data_type == "uint":
+        if data_type.startswith("uint"):
             chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
             inverted_chunks = reversed(chunks)
             ret_inverted_registers = b"".join(inverted_chunks)
             return int.from_bytes(
                 ret_inverted_registers[:actual_length], byteorder="big"
             )
-        if data_type in ["sint", "int"]:
+        if data_type.startswith("int"):
             chunks = [ret[i : i + 2] for i in range(0, actual_length, 2)]
             inverted_chunks = reversed(chunks)
             ret_inverted_registers = b"".join(inverted_chunks)
@@ -608,7 +608,7 @@ class CpxE4Iol(CpxModule):
             return bool.from_bytes(
                 ret_inverted_registers[:actual_length], byteorder="big"
             )
-        if data_type == "float":
+        if data_type == "float32":
             return struct.unpack("!f", ret[:actual_length])[0]
 
         # this is unnecessary but required for consistent return statements
@@ -617,10 +617,11 @@ class CpxE4Iol(CpxModule):
     @CpxBase.require_base
     def write_isdu(
         self,
-        data: Union[bytes, str, int, bool],
+        data: Union[bytes, str, int, bool, float],
         channel: int,
         index: int,
         subindex: int = 0,
+        data_type: str = "raw",
     ) -> None:
         """Write isdu (device parameter) to defined channel.
         Raises CpxRequestError when write failed.
@@ -633,6 +634,8 @@ class CpxE4Iol(CpxModule):
         :type index: int
         :param subindex: io-link parameter subindex
         :type subindex: int
+        :param data_type: io-link parameter datatype
+        :type data_type: str
         """
 
         module_index = (self.position).to_bytes(2, "little")  # starts with 0 on CPX-E
@@ -641,36 +644,54 @@ class CpxE4Iol(CpxModule):
         subindex = (subindex).to_bytes(2, "little")
         command = (51).to_bytes(2, "little")  # 51: write
 
-        if isinstance(data, bytes):
+        # unfortunately cpx-e is picky about the length of the data and we cannot
+        # detect it automatically for all of the datatypes. This is why the user
+        # needs to provide the data_type to specify the length correctly.
+
+        if data_type == "raw" and isinstance(data, bytes):
             length = (len(data)).to_bytes(2, "little")
 
-        elif isinstance(data, str):
+        elif data_type == "str" and isinstance(data, str):
             length = (len(data)).to_bytes(2, "little")
             data = data.encode(encoding="ascii")
 
-        elif isinstance(data, bool):
+        elif data_type == "bool" and isinstance(data, bool):
             length = (1).to_bytes(2, "little")
             data = data.to_bytes(1, byteorder="big")
 
-        elif isinstance(data, int):
-            # calculate bytelength of integer
-            length_int = (data.bit_length() + 7) // 8
-            if length_int == 0:
-                length_int = 1
-            length = length_int.to_bytes(2, "little")
+        elif data_type == "uint8" and isinstance(data, int):
+            length = (1).to_bytes(2, "little")
+            data = data.to_bytes(1, byteorder="big")
 
-            # negative data needs to be filled with 0xff on uneven bytes
-            if data < 0 and length_int % 2:
-                data = data.to_bytes(length_int + 1, byteorder="big", signed=data < 0)
-            else:
-                data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+        elif data_type == "uint16" and isinstance(data, int):
+            length = (2).to_bytes(2, "little")
+            data = data.to_bytes(2, byteorder="big")
 
-        elif isinstance(data, float):
+        elif data_type == "uint32" and isinstance(data, int):
+            length = (4).to_bytes(2, "little")
+            data = data.to_bytes(4, byteorder="big")
+
+        elif data_type == "int8" and isinstance(data, int):
+            length = (1).to_bytes(2, "little")
+            data = data.to_bytes(1, byteorder="big", signed=True)
+
+        elif data_type == "int16" and isinstance(data, int):
+            length = (2).to_bytes(2, "little")
+            data = data.to_bytes(2, byteorder="big", signed=True)
+
+        elif data_type == "int32" and isinstance(data, int):
+            length = (4).to_bytes(2, "little")
+            data = data.to_bytes(4, byteorder="big", signed=True)
+
+        elif data_type == "float32" and isinstance(data, float):
             data = struct.pack("!f", data)
             length = len(data).to_bytes(2, "little")
 
         else:
-            raise TypeError(f"Datatype '{type(data)}' is not supported by write_isdu()")
+            raise TypeError(
+                f"{type(data)} is not supported by write_isdu() "
+                f"with data_type set to '{data_type}'"
+            )
 
         # select module, starts with 0
         self.base.write_reg_data(
