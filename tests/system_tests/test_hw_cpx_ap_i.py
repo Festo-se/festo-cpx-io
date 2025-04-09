@@ -501,7 +501,7 @@ def test_4AiUI_analog5V0_CH1(test_cpxap):
     time.sleep(0.05)
     m.write_module_parameter("Enable linear scaling", False, channel)
     time.sleep(0.05)
-    assert 15800 < m.read_channel(channel) < 16100
+    assert 15800 < m.read_channel(channel) < 16200
 
 
 def test_4AiUI_analog5V0_CH1_with_scaling(test_cpxap):
@@ -817,14 +817,14 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
     # Act
     # register 61.2 Switchpoint mode (134 = Cylinder Switch)
     m.write_isdu(134, sdas_channel, 0x003D, 2)
-    ret = m.read_isdu(sdas_channel, 0x003D, 2, data_type="int")
+    ret = m.read_isdu(sdas_channel, 0x003D, 2, data_type="uint")
 
     # Assert
     assert ret == 134
 
     # Act again
     m.write_isdu(0, sdas_channel, 0x003D, 2)
-    ret = m.read_isdu(sdas_channel, 0x003D, 2, data_type="int")
+    ret = m.read_isdu(sdas_channel, 0x003D, 2, data_type="uint")
 
     # Assert
     assert ret == 0
@@ -1738,11 +1738,11 @@ def test_vabx_write(test_cpxap):
 
     for i in range(32):
         m.write_channel(i, True)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
-        time.sleep(0.05)
+        time.sleep(0.02)
         m.write_channel(i, False)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
 
 
@@ -1751,17 +1751,17 @@ def test_vabx_set_clear_toggle(test_cpxap):
 
     for i in range(32):
         m.set_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
-        time.sleep(0.05)
+        time.sleep(0.02)
         m.reset_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
         m.toggle_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
 
 

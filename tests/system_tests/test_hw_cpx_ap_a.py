@@ -1050,17 +1050,17 @@ def test_vabx_set_clear_toggle(test_cpxap):
 
     for i in range(32):
         m.set_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
-        time.sleep(0.05)
+        time.sleep(0.02)
         m.reset_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
         m.toggle_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
 
 

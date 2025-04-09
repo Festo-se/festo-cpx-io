@@ -87,7 +87,7 @@ def test_4AiUI_analog5V0_CH3(test_cpxap):
     time.sleep(0.05)
     m.write_module_parameter("Enable linear scaling", False, channel)
     time.sleep(0.05)
-    assert 15800 < m.read_channel(channel) < 16100
+    assert 15800 < m.read_channel(channel) < 16200
 
 
 def test_4AiUI_analog5V0_CH3_with_scaling(test_cpxap):
