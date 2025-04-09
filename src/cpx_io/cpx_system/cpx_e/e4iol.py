@@ -117,7 +117,9 @@ class CpxE4Iol(CpxModule):
         register_index = (
             self.system_entry_registers.inputs + channel_size * channel // 2
         )
-        return self.base.read_reg_data(register_index, length=channel_size)[:bytelength]
+        return self.base.read_reg_data(register_index, length=channel_size // 2)[
+            :bytelength
+        ]
 
     @CpxBase.require_base
     def write_channel(self, channel: int, data: bytes) -> None:
@@ -513,7 +515,7 @@ class CpxE4Iol(CpxModule):
 
     @CpxBase.require_base
     def read_isdu(
-        self, channel: int, index: int, subindex: int = 0, data_type: str = "raw"
+        self, channel: int, index: int, subindex: int = 0, *, data_type: str = "raw"
     ) -> any:
         """Read isdu (device parameter) from defined channel.
         Raises CpxRequestError when read failed.
@@ -623,6 +625,7 @@ class CpxE4Iol(CpxModule):
         channel: int,
         index: int,
         subindex: int = 0,
+        *,
         data_type: str = "raw",
     ) -> None:
         """Write isdu (device parameter) to defined channel.
