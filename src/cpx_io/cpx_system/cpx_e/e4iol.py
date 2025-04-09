@@ -522,10 +522,10 @@ class CpxE4Iol(CpxModule):
         :type channel: int
         :param index: io-link parameter index
         :type index: int
-        :param subindex: (optional) io-link parameter subindex, defaults to 0
+        :param subindex: (optional) io-link parameter subindex
         :type subindex: int
         :param data_type: (optional) datatype for correct interptetation.
-            Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
+            Check `ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES` for a list of
             supported datatypes
         :type data_type: str
         :return : Value depending on the datatype
@@ -568,8 +568,8 @@ class CpxE4Iol(CpxModule):
                     byteorder="little",
                 )
             # CPX-E responds with an error that needs to be caught
-            except ConnectionAbortedError as e:
-                pass  # TODO: this is not good
+            except ConnectionAbortedError:
+                continue
             cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
@@ -634,11 +634,16 @@ class CpxE4Iol(CpxModule):
         :type channel: int
         :param index: io-link parameter index
         :type index: int
-        :param subindex: io-link parameter subindex
+        :param subindex: (optional) io-link parameter subindex
         :type subindex: int
-        :param data_type: io-link parameter datatype
+        :param data_type: (optional) datatype for correct interptetation.
+            Check `ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES` for a list of
+            supported datatypes.
         :type data_type: str
         """
+
+        # pylint: disable=too-many-arguments
+        # Keep structure of CPX-AP but with additional requirements for CPX-E
 
         module_index = (self.position).to_bytes(2, "little")  # starts with 0 on CPX-E
         channel = (channel).to_bytes(2, "little")
