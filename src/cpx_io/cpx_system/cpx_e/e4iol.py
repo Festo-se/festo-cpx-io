@@ -111,10 +111,12 @@ class CpxE4Iol(CpxModule):
         :return: Channel value
         :rtype: bytes (byteorder big endian)
         """
-        channel_size = self.module_input_size
+        channel_size = self.module_input_size * 2
         if bytelength is None:
-            bytelength = channel_size * 2
-        register_index = self.system_entry_registers.inputs + channel_size * channel
+            bytelength = channel_size
+        register_index = (
+            self.system_entry_registers.inputs + channel_size * channel // 2
+        )
         return self.base.read_reg_data(register_index, length=channel_size)[:bytelength]
 
     @CpxBase.require_base

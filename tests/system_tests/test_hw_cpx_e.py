@@ -18,10 +18,12 @@ from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
 from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange, OperatingMode
 
+SYSTEM_IP_ADDRESS = "172.16.1.40"
+
 
 @pytest.fixture(scope="function")
 def test_cpxe():
-    with CpxE(ip_address="172.16.1.40") as cpxe:
+    with CpxE(ip_address=SYSTEM_IP_ADDRESS) as cpxe:
         yield cpxe
 
 

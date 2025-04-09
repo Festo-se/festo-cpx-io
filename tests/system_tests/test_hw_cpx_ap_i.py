@@ -7,11 +7,13 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
+SYSTEM_IP_ADDRESS = "172.16.1.41"
+
 
 @pytest.fixture(scope="function")
 def test_cpxap():
     """test fixture"""
-    with CpxAp(ip_address="172.16.1.41") as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS) as cpxap:
         yield cpxap
 
 
@@ -34,7 +36,7 @@ def test_default_timeout(test_cpxap):
 
 def test_set_timeout():
     "test timeout"
-    with CpxAp(ip_address="172.16.1.41", timeout=0.5) as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS, timeout=0.5) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
         time.sleep(0.05)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
@@ -42,7 +44,7 @@ def test_set_timeout():
 
 def test_set_timeout_below_100ms():
     "test timeout"
-    with CpxAp(ip_address="172.16.1.41", timeout=0.05) as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS, timeout=0.05) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
         time.sleep(0.05)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 100
