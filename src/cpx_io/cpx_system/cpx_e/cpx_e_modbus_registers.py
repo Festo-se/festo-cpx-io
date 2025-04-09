@@ -15,6 +15,8 @@ MODULE_CONFIGURATION = ModbusRegister(45367, 3)
 FAULT_DETECTION = ModbusRegister(45383, 3)
 STATUS_REGISTER = ModbusRegister(45391, 1)
 
+TIMEOUT = ModbusRegister(46100, 1)
+
 # IO-Link ISDU access
 ## input registers
 ISDU_STATUS = ModbusRegister(60, 1)
