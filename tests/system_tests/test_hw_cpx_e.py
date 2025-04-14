@@ -1581,15 +1581,15 @@ def test_4iol_ehps(test_cpxe):
 
     e4iol.configure_operating_mode(OperatingMode.IO_LINK, channel=ehps_channel)
 
-    # state = ""
-    # # wait for state to change
-    # while state != "OPERATE":
-    #     state = e4iol.read_line_state()[ehps_channel]
+    state = ""
+    # wait for state to change
+    while state != "OPERATE":
+        state = e4iol.read_line_state()[ehps_channel]
 
     # wait for ready
-    # ready = False
-    # while not ready:
-    #     ready = read_process_data_in(e4iol, ehps_channel)["Ready"]
+    ready = False
+    while not ready:
+        ready = read_process_data_in(e4iol, ehps_channel)["Ready"]
 
     # demo of process data out, also sent to initialize
     control_word = 0x0001  # latch

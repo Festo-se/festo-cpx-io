@@ -527,7 +527,7 @@ class CpxE4Iol(CpxModule):
         :param subindex: (optional) io-link parameter subindex
         :type subindex: int
         :param data_type: (optional) datatype for correct interptetation.
-            Check `ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES` for a list of
+            Check `cpx_e_supported_datatypes.SUPPORTED_ISDU_DATATYPES` for a list of
             supported datatypes
         :type data_type: str
         :return : Value depending on the datatype
@@ -640,7 +640,7 @@ class CpxE4Iol(CpxModule):
         :param subindex: (optional) io-link parameter subindex
         :type subindex: int
         :param data_type: (optional) datatype for correct interptetation.
-            Check `ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES` for a list of
+            Check `cpx_e_supported_datatypes.SUPPORTED_ISDU_DATATYPES` for a list of
             supported datatypes.
         :type data_type: str
         """
