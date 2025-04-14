@@ -6,16 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- CPX-E: ISDU access for CPX-E-4IOL.
+- CPX-E: Optional parameter `bytelength` for CPX-E-4IOL `read/write_channel(s)` functions to specify io-link device length
+- CPX-AP: Float interpretation for ISDU write
 - Modbus connection error which is raised if connection to the target device could not be established 
 - Unit tests for (un)successful modbus connection
-- `-mt, --modbus-timeout` command for cli to set explicitly a timeout
+- CPX-AP: `-mt, --modbus-timeout` command for cli to set explicitly a timeout
 
 ### Changed
+- CPX-AP: ISDU type `"int"` now refers to signed integers (follows naming convention of IO-Link datatypes). Use `"uint"` instead for unsigned integers
 - Logging levels for better usability of Logging functionality
-- removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
+- CPX-AP: removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
 
 ### Fixed
-- make the initialization more robust against a slow apdd loading
+- CPX-AP: Issues with IO-Link read/write ISDU
+- CPX-AP: make the initialization more robust against a slow apdd loading
 
 ## v0.8.1 - 14.02.25
 ### Added

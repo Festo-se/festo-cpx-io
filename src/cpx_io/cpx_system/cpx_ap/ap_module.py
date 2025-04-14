@@ -993,16 +993,12 @@ class ApModule(CpxModule):
         length = (0).to_bytes(2, "little")  # always zero when reading
 
         # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        # it's easiest if we stay on 100 and byteorder "big"
+        command = (100).to_bytes(2, "little")
+
         # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
         # keeps the two files synchronized during development
-        if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
-            command = (100).to_bytes(2, "little")
-        elif (
-            data_type in ["int", "bool", "float"]
-            and data_type in SUPPORTED_ISDU_DATATYPES
-        ):
-            command = (50).to_bytes(2, "little")
-        else:
+        if data_type not in SUPPORTED_ISDU_DATATYPES:
             raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
 
         # select module, starts with 1
@@ -1053,12 +1049,15 @@ class ApModule(CpxModule):
             return ret[:actual_length]
         if data_type == "str":
             return ret.decode("ascii").split("\x00", 1)[0]
-        if data_type == "int":
-            return int.from_bytes(ret, byteorder="little")
+        if data_type == "uint":
+            return int.from_bytes(ret[:actual_length], byteorder="big")
+        if data_type in ["sint", "int"]:
+            return int.from_bytes(ret[:actual_length], byteorder="big", signed=True)
         if data_type == "bool":
-            return bool.from_bytes(ret, byteorder="little")
+            return bool.from_bytes(ret[:actual_length], byteorder="big")
         if data_type == "float":
-            return struct.unpack("f", ret[:actual_length])[0]
+            ret = ret[:actual_length]
+            return struct.unpack("!f", ret)[0]
 
         # this is unnecessary but required for consistent return statements
         raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
@@ -1101,15 +1100,27 @@ class ApModule(CpxModule):
 
         elif isinstance(data, bool):
             length = (1).to_bytes(2, "little")
-            command = (51).to_bytes(2, "little")  # write with byteswap
-            data = data.to_bytes(1, byteorder="little")
+            command = (101).to_bytes(2, "little")  # write without byteswap
+            data = data.to_bytes(1, byteorder="big")
 
         elif isinstance(data, int):
             # calculate bytelength of integer
             length_int = (data.bit_length() + 7) // 8
+            if length_int == 0:
+                length_int = 1
             length = length_int.to_bytes(2, "little")
-            command = (51).to_bytes(2, "little")  # write with byteswap
-            data = data.to_bytes(length_int, byteorder="little", signed=data < 0)
+            command = (101).to_bytes(2, "little")  # write without byteswap
+
+            # negative data needs to be filled with 0xff on uneven bytes
+            if data < 0 and length_int % 2:
+                data = data.to_bytes(length_int + 1, byteorder="big", signed=data < 0)
+            else:
+                data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+
+        elif isinstance(data, float):
+            data = struct.pack("!f", data)
+            command = (101).to_bytes(2, "little")  # write without byteswap
+            length = len(data).to_bytes(2, "little")
 
         else:
             raise TypeError(f"Datatype '{type(data)}' is not supported by write_isdu()")
@@ -1147,7 +1158,10 @@ class ApModule(CpxModule):
             )
             cnt += 1
         if cnt >= 1000:
-            raise CpxRequestError("ISDU data write failed")
+            raise CpxRequestError(
+                "ISDU data write failed\nThis can happen if the device denies "
+                "access to the requested isdu parameter with the given data"
+            )
 
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"

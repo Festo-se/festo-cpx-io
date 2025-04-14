@@ -3,7 +3,7 @@
 from unittest.mock import Mock, call
 import pytest
 
-from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol
+from cpx_io.cpx_system.cpx_e.e4iol import CpxE4Iol, CpxRequestError
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import OperatingMode, AddressSpace
 from cpx_io.cpx_system.cpx_dataclasses import SystemEntryRegisters
 
@@ -69,43 +69,88 @@ class TestCpxE4Iol:
         assert status == [False, True] * 8
 
     def test_read_2byte_channel_0_to_3(self):
-        """Test read channels"""
+        """Test read channel"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=b"\xa0\xa1\xb0\xb1\xc0\xc1\xd0\xd1")
-        )
+        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\xa0\xa1"))
+        cpxe4iol.system_entry_registers.inputs = 0
+        channel_size = 1  # in registers
 
         # Act
         channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
 
         # Assert
-        assert channel_values == [b"\xa0\xa1", b"\xb0\xb1", b"\xc0\xc1", b"\xd0\xd1"]
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.system_entry_registers.inputs, length=4
+        assert channel_values == [b"\xa0\xa1"] * 4
+        cpxe4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(channel_size * 0, length=1),
+                call(channel_size * 1, length=1),
+                call(channel_size * 2, length=1),
+                call(channel_size * 3, length=1),
+            ]
         )
 
     def test_read_8byte_channel_0_to_3(self):
+        """Test read channel"""
+        # Arrange
+        cpxe4iol = CpxE4Iol(8)
+        cpxe4iol.base = Mock(
+            read_reg_data=Mock(return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14")
+        )
+        cpxe4iol.system_entry_registers.inputs = 0
+        channel_size = 4  # in registers
+
+        # Act
+        channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
+
+        # Assert
+        assert channel_values == [b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14"] * 4
+        cpxe4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(channel_size * 0, length=4),
+                call(channel_size * 1, length=4),
+                call(channel_size * 2, length=4),
+                call(channel_size * 3, length=4),
+            ]
+        )
+
+    def test_read_2bytes_from_8byte_channel(self):
+        """Test read channel"""
+        # Arrange
+        cpxe4iol = CpxE4Iol(8)
+        cpxe4iol.base = Mock(
+            read_reg_data=Mock(return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14")
+        )
+        cpxe4iol.system_entry_registers.inputs = 0
+
+        # Act
+        channel_value = cpxe4iol.read_channel(0, bytelength=2)
+
+        # Assert
+        assert channel_value == b"\xa1\x10"
+
+        cpxe4iol.base.read_reg_data.assert_called_with(0, length=4)
+
+    def test_read_2bytes_from_8byte_channels(self):
         """Test read channels"""
         # Arrange
         cpxe4iol = CpxE4Iol(8)
         cpxe4iol.base = Mock(
             read_reg_data=Mock(
-                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14\xb1\x10\xb1\x11\xb1\x13\xb1\x14"
-                b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14\xd1\x10\xd1\x11\xd1\x13\xd1\x14"
+                return_value=b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14"
+                b"\xa2\x10\xa1\x11\xa1\x13\xa1\x14"
+                b"\xa3\x10\xa1\x11\xa1\x13\xa1\x14"
+                b"\xa4\x10\xa1\x11\xa1\x13\xa1\x14"
             )
         )
+        cpxe4iol.system_entry_registers.inputs = 0
 
         # Act
-        channel_values = [cpxe4iol.read_channel(idx) for idx in range(4)]
+        channel_values = cpxe4iol.read_channels(bytelength=2)
 
         # Assert
-        assert channel_values == [
-            b"\xa1\x10\xa1\x11\xa1\x13\xa1\x14",
-            b"\xb1\x10\xb1\x11\xb1\x13\xb1\x14",
-            b"\xc1\x10\xc1\x11\xc1\x13\xc1\x14",
-            b"\xd1\x10\xd1\x11\xd1\x13\xd1\x14",
-        ]
+        assert channel_values == [b"\xa1\x10", b"\xa2\x10", b"\xa3\x10", b"\xa4\x10"]
+
         cpxe4iol.base.read_reg_data.assert_called_with(
             cpxe4iol.system_entry_registers.inputs, length=16
         )
@@ -114,17 +159,23 @@ class TestCpxE4Iol:
         """Test get item"""
         # Arrange
         cpxe4iol = CpxE4Iol()
-        cpxe4iol.base = Mock(
-            read_reg_data=Mock(return_value=b"\x00\xab\x00\xcd\x00\xef\x00\x12")
-        )
+        cpxe4iol.base = Mock(read_reg_data=Mock(return_value=b"\x00\xab"))
+        cpxe4iol.system_entry_registers.inputs = 0
+        channel_size = 1  # size in registers
 
         # Act
         channel_values = [cpxe4iol[idx] for idx in range(4)]
 
         # Assert
-        assert channel_values == [b"\x00\xab", b"\x00\xcd", b"\x00\xef", b"\x00\x12"]
-        cpxe4iol.base.read_reg_data.assert_called_with(
-            cpxe4iol.system_entry_registers.inputs, length=4
+        assert channel_values == [b"\x00\xab"] * 4
+
+        cpxe4iol.base.read_reg_data.assert_has_calls(
+            [
+                call(channel_size * 0, length=1),
+                call(channel_size * 1, length=1),
+                call(channel_size * 2, length=1),
+                call(channel_size * 3, length=1),
+            ]
         )
 
     @pytest.mark.parametrize(
@@ -655,3 +706,209 @@ class TestCpxE4Iol:
         # Act & Assert
         with pytest.raises(ValueError):
             cpxe4iol.read_device_error(input_value)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_read_isdu_different_channels(self, input_value):
+        """Test read_isdu"""
+        # Arrange
+        module = CpxE4Iol()
+        module.position = 1
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        channel = input_value
+        index = 4
+        subindex = 5
+
+        result = module.read_isdu(channel, index, subindex)
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 61),  # MODULE_NO
+                call((channel).to_bytes(2, "little"), 62),  # CHANNEL
+                call(b"\x04\x00", 63),  # INDEX
+                call(b"\x05\x00", 64),  # SUBINDEX
+                call(b"\x00\x00", 65),  # LENGTH zero when reading
+                call(b"\x32\x00", 60),  # COMMAND (read 50)
+            ]
+        )
+        module.base.read_reg_data.assert_has_calls(
+            [
+                call(60, 1),
+                call(65),
+                call(66, 0),
+            ]
+        )
+
+        assert (
+            result == b""
+        )  # will cut to the actual_length which is returned with 0 in this test
+
+    def test_read_isdu_no_response(self):
+        """Test read_isdu"""
+        # Arrange
+        module = CpxE4Iol()
+        module.position = 1
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x01\x00")
+
+        # Act & Assert
+        channel = 0
+        index = 4
+        subindex = 5
+
+        with pytest.raises(CpxRequestError):
+            module.read_isdu(channel, index, subindex)
+
+    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
+    def test_write_isdu_different_channels(self, input_value):
+        """Test write_isdu"""
+        # Arrange
+        module = CpxE4Iol()
+        module.position = 1
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        data = b"\xca\xfe"
+        channel = input_value
+        index = 4  # random
+        subindex = 5  # random
+
+        module.write_isdu(data, channel, index, subindex)
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 61),  # MODULE_NO
+                call((channel).to_bytes(2, "little"), 62),  # CHANNEL
+                call(b"\x04\x00", 63),  # INDEX
+                call(b"\x05\x00", 64),  # SUBINDEX
+                call(b"\x02\x00", 65),  # LENGTH (bytes)
+                call(data, 66),  # DATA
+                call(b"\x33\x00", 60),  # COMMAND 51
+            ]
+        )
+
+    @pytest.mark.parametrize(
+        "input_value",
+        [
+            b"\x01",
+            b"\x01\x02",
+            b"\x01\x02\x03",
+            b"\x01\x02\x03\x04",
+        ],
+    )
+    def test_write_isdu_different_lengths(self, input_value):
+        """Test write_isdu"""
+        # Arrange
+        module = CpxE4Iol()
+        module.position = 1
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        data = input_value
+        channel = 0  # random
+        index = 4  # random
+        subindex = 5  # random
+
+        module.write_isdu(data, channel, index, subindex)
+        length = len(data)
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 61),  # MODULE_NO
+                call((channel).to_bytes(2, "little"), 62),  # CHANNEL
+                call(b"\x04\x00", 63),  # INDEX
+                call(b"\x05\x00", 64),  # SUBINDEX
+                call(length.to_bytes(2, "little"), 65),  # LENGTH
+                call(data, 66),  # DATA
+                call(b"\x33\x00", 60),  # COMMAND 51
+            ]
+        )
+
+    @pytest.mark.parametrize(
+        "input_value, length, expected_output",
+        [
+            ("str", 0, ""),
+            ("int8", 1, 0),
+            ("int16", 2, 0),
+            ("int32", 4, 0),
+            ("uint8", 1, 0),
+            ("uint16", 2, 0),
+            ("uint32", 4, 0),
+            ("raw", 4, b"\x00\x00\x00\x00"),
+            ("bool", 1, False),
+            ("float32", 4, 0.0),
+        ],
+    )
+    def test_read_isdu_different_datatypes(self, input_value, length, expected_output):
+        """Test read_isdu"""
+        # Arrange
+        module = CpxE4Iol()
+        module.position = 1
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        length_bytes = length.to_bytes(2, "little")
+        module.base.read_reg_data = Mock(
+            side_effect=[b"\x00\x00", length_bytes, b"\x00\x00\x00\x00"]
+        )
+
+        # Act
+        ret = module.read_isdu(0, 0, data_type=input_value)
+
+        # Assert
+        assert ret == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value, length, data_type, expected_output",
+        [
+            ("abc", 3, "str", b"abc"),  # string
+            (1, 1, "uint8", b"\x01"),  # uint8
+            (0xCAFE, 2, "uint16", b"\xca\xfe"),  # uint16
+            (0xBEBAFECA, 4, "uint32", b"\xbe\xba\xfe\xca"),  # uint32
+            (-1, 1, "int8", b"\xff"),  # sint8
+            (-1925, 2, "int16", b"\xf8\x7b"),  # sint16
+            (-999999, 4, "int32", b"\xff\xf0\xbd\xc1"),  # 3byte sint32
+            (-99999999, 4, "int32", b"\xfa\x0a\x1f\x01"),  # sint32
+            (b"\xca\xfe", 2, "raw", b"\xca\xfe"),  # bytes = raw
+            (True, 1, "bool", b"\x01"),  # bool true
+            (False, 1, "bool", b"\x00"),  # bool false
+            (0.0, 4, "float32", b"\x00\x00\x00\x00"),  # float 0
+            (-1.23456, 4, "float32", b"\xbf\x9e\x06\x10"),  # negative float
+        ],
+    )
+    def test_write_isdu_different_datatypes(
+        self, input_value, length, data_type, expected_output
+    ):
+        """Test read_isdu"""
+        # Arrange
+        module = CpxE4Iol()
+        module.position = 1
+        module.base = Mock()
+        module.base.write_reg_data = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x00\x00")
+
+        # Act
+        module.write_isdu(input_value, 0, 0, data_type=data_type)
+
+        # Assert
+        module.base.write_reg_data.assert_has_calls(
+            [
+                call(b"\x01\x00", 61),  # MODULE_NO
+                call(b"\x00\x00", 62),  # CHANNEL
+                call(b"\x00\x00", 63),  # INDEX
+                call(b"\x00\x00", 64),  # SUBINDEX
+                call(length.to_bytes(2, "little"), 65),  # LENGTH
+                call(expected_output, 66),  # DATA
+                call(b"\x33\x00", 60),  # COMMAND
+            ]
+        )
