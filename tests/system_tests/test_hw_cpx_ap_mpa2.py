@@ -6,11 +6,13 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
 
+SYSTEM_IP_ADDRESS = "172.16.1.44"
+
 
 @pytest.fixture(scope="function")
 def test_cpxap():
     """test fixture"""
-    with CpxAp(ip_address="172.16.1.44") as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS) as cpxap:
         yield cpxap
 
 

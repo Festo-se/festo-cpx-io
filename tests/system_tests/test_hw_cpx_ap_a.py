@@ -9,11 +9,13 @@ from unittest import mock
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import CpxModule
 
+SYSTEM_IP_ADDRESS = "172.16.1.42"
+
 
 @pytest.fixture(scope="function")
 def test_cpxap():
     """test fixture"""
-    with CpxAp(ip_address="172.16.1.42") as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS) as cpxap:
         yield cpxap
 
 
@@ -51,14 +53,14 @@ def test_default_timeout(test_cpxap):
 
 def test_set_timeout():
     "test timeout"
-    with CpxAp(ip_address="172.16.1.41", timeout=0.5) as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS, timeout=0.5) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 500
 
 
 def test_set_timeout_below_100ms():
     "test timeout"
-    with CpxAp(ip_address="172.16.1.41", timeout=0.05) as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS, timeout=0.05) as cpxap:
         reg = cpxap.read_reg_data(14000, 2)
         assert int.from_bytes(reg, byteorder="little", signed=False) == 100
 
@@ -1048,17 +1050,17 @@ def test_vabx_set_clear_toggle(test_cpxap):
 
     for i in range(32):
         m.set_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
-        time.sleep(0.05)
+        time.sleep(0.02)
         m.reset_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
         m.toggle_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is True
         m.toggle_channel(i)
-        time.sleep(0.05)
+        time.sleep(0.02)
         assert m.read_channel(i) is False
 
 
