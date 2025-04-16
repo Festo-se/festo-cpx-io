@@ -550,17 +550,25 @@ class CpxE4Iol(CpxModule):
             module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
         )
         # select channel, starts with 0
-        self.base.write_reg_data_with_single_cmds(channel, cpx_e_registers.ISDU_CHANNEL.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            channel, cpx_e_registers.ISDU_CHANNEL.register_address
+        )
         # select index
-        self.base.write_reg_data_with_single_cmds(index, cpx_e_registers.ISDU_INDEX.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            index, cpx_e_registers.ISDU_INDEX.register_address
+        )
         # select subindex
         self.base.write_reg_data_with_single_cmds(
             subindex, cpx_e_registers.ISDU_SUBINDEX.register_address
         )
         # select length of data in bytes
-        self.base.write_reg_data_with_single_cmds(length, cpx_e_registers.ISDU_LENGTH.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            length, cpx_e_registers.ISDU_LENGTH.register_address
+        )
         # command
-        self.base.write_reg_data_with_single_cmds(command, cpx_e_registers.ISDU_COMMAND.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            command, cpx_e_registers.ISDU_COMMAND.register_address
+        )
 
         stat, cnt = 1, 0
         while stat > 0 and cnt < 1000:
@@ -708,19 +716,29 @@ class CpxE4Iol(CpxModule):
             module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
         )
         # select channel, starts with 0
-        self.base.write_reg_data_with_single_cmds(channel, cpx_e_registers.ISDU_CHANNEL.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            channel, cpx_e_registers.ISDU_CHANNEL.register_address
+        )
         # select index
-        self.base.write_reg_data_with_single_cmds(index, cpx_e_registers.ISDU_INDEX.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            index, cpx_e_registers.ISDU_INDEX.register_address
+        )
         # select subindex
         self.base.write_reg_data_with_single_cmds(
             subindex, cpx_e_registers.ISDU_SUBINDEX.register_address
         )
         # select length of data in bytes
-        self.base.write_reg_data_with_single_cmds(length, cpx_e_registers.ISDU_LENGTH.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            length, cpx_e_registers.ISDU_LENGTH.register_address
+        )
         # write data to data register
-        self.base.write_reg_data_with_single_cmds(data, cpx_e_registers.ISDU_DATA.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            data, cpx_e_registers.ISDU_DATA.register_address
+        )
         # command
-        self.base.write_reg_data_with_single_cmds(command, cpx_e_registers.ISDU_COMMAND.register_address)
+        self.base.write_reg_data_with_single_cmds(
+            command, cpx_e_registers.ISDU_COMMAND.register_address
+        )
 
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
