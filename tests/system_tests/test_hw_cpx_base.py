@@ -32,7 +32,7 @@ def test_write_reg_data_wrong_type(test_cpx_base):
 
 def test_read_device_info(test_cpx_base):
     info = test_cpx_base.read_device_info()
-    assert info["vendor_name"] == "Festo SE & Co. KG"
+    assert info["vendor_name"] == "Festo AG & Co. KG"
     assert info["product_code"] == "CPX-E-EP"
     assert info["revision"] == "1.2"
     assert info["vendor_url"] == "http://www.festo.com"
@@ -45,7 +45,7 @@ def test_read_device_info_cpx_ap_i():
     info = cpx_base.read_device_info()
     assert info["vendor_name"] == "Festo SE & Co. KG"
     assert info["product_code"] == "CPX-AP-EP"
-    assert info["revision"] == "1.5.43"
+    assert info["revision"] == "1.6.3"
     assert info["vendor_url"] == "http://www.festo.com"
     assert info["product_name"] == "CPX-AP-EtherNet/IP (Modbus mode)"
     assert info["model_name"] == "CPX-AP Node"
@@ -56,7 +56,7 @@ def test_read_device_info_cpx_ap_a():
     info = cpx_base.read_device_info()
     assert info["vendor_name"] == "Festo SE & Co. KG"
     assert info["product_code"] == "CPX-AP-EP"
-    assert info["revision"] == "1.5.43"
+    assert info["revision"] == "1.6.3"
     assert info["vendor_url"] == "http://www.festo.com"
     assert info["product_name"] == "CPX-AP-EtherNet/IP (Modbus mode)"
     assert info["model_name"] == "CPX-AP Node"
@@ -67,7 +67,7 @@ def test_read_device_info_cpx_ap_mpa():
     info = cpx_base.read_device_info()
     assert info["vendor_name"] == "Festo SE & Co. KG"
     assert info["product_code"] == "CPX-AP-EP"
-    assert info["revision"] == "1.5.43"
+    assert info["revision"] == "1.6.3"
     assert info["vendor_url"] == "http://www.festo.com"
     assert info["product_name"] == "CPX-AP-EtherNet/IP (Modbus mode)"
     assert info["model_name"] == "CPX-AP Node"
