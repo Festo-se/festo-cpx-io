@@ -203,6 +203,25 @@ class CpxBase:
         # Write data
         self.client.write_registers(register, reg)
 
+    def write_reg_data_with_single_cmds(self, data: bytes, register: int) -> None:
+        """Write bytes object data to register(s), with only single register writes.
+        This is necessary for some firmware on particular addresses, where multiple
+        register writes are not supported.
+
+        :param data: data to write to the register(s)
+        :type data: bytes
+        :param register: adress of the first register to write
+        :type register: int
+        """
+        # if odd number of bytes, add one zero byte
+        if len(data) % 2 != 0:
+            data += b"\x00"
+        # Convert to list of words
+        reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
+        # Write data
+        for offset, data in enumerate(reg):
+            self.client.write_register(register + offset, data)
+
     @staticmethod
     def require_base(func):
         """For most module functions, a base is required that handles the registers,
