@@ -26,7 +26,7 @@ def test_init(test_cpxap):
 
 def test_module_count(test_cpxap):
     "test module_count"
-    assert test_cpxap.read_module_count() == 7
+    assert test_cpxap.read_module_count() == 8
 
 
 def test_default_timeout(test_cpxap):
@@ -105,59 +105,65 @@ def test_modules(test_cpxap):
         assert test_cpxap.modules[i].position == i
 
     assert test_cpxap.modules[0].system_entry_registers.outputs == 0  # EP
-    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 8DI
-    assert test_cpxap.modules[2].system_entry_registers.outputs == 0  # 4DI4DO, adds 1
-    assert test_cpxap.modules[3].system_entry_registers.outputs == 1  # 4AIUI
-    assert test_cpxap.modules[4].system_entry_registers.outputs == 1  # 4IOL, adds 16
-    assert test_cpxap.modules[5].system_entry_registers.outputs == 17  # VABX, adds 2
-    assert test_cpxap.modules[6].system_entry_registers.outputs == 19  # 4Di
+    assert test_cpxap.modules[1].system_entry_registers.outputs == 0  # 8DO, adds 1
+    assert test_cpxap.modules[2].system_entry_registers.outputs == 1  # 8DI
+    assert test_cpxap.modules[3].system_entry_registers.outputs == 1  # 4DI4DO, adds 1
+    assert test_cpxap.modules[4].system_entry_registers.outputs == 2  # 4AIUI
+    assert test_cpxap.modules[5].system_entry_registers.outputs == 2  # 4IOL, adds 16
+    assert test_cpxap.modules[6].system_entry_registers.outputs == 18  # VABX, adds 2
+    assert test_cpxap.modules[7].system_entry_registers.outputs == 20  # 4Di
 
     assert test_cpxap.modules[0].system_entry_registers.inputs == 5000  # EP
-    assert test_cpxap.modules[1].system_entry_registers.inputs == 5000  # 8DI, adds 1
-    assert test_cpxap.modules[2].system_entry_registers.inputs == 5001  # 4DI4DO, adds 1
-    assert test_cpxap.modules[3].system_entry_registers.inputs == 5002  # 4AIUI, adds 4
-    assert test_cpxap.modules[4].system_entry_registers.inputs == 5006  # 4IOL, adds 18
-    assert test_cpxap.modules[5].system_entry_registers.inputs == 5024  # VABX
-    assert test_cpxap.modules[6].system_entry_registers.inputs == 5024  # 4Di
+    assert test_cpxap.modules[1].system_entry_registers.inputs == 5000  # 8DO
+    assert test_cpxap.modules[2].system_entry_registers.inputs == 5000  # 8DI, adds 1
+    assert test_cpxap.modules[3].system_entry_registers.inputs == 5001  # 4DI4DO, adds 1
+    assert test_cpxap.modules[4].system_entry_registers.inputs == 5002  # 4AIUI, adds 4
+    assert test_cpxap.modules[5].system_entry_registers.inputs == 5006  # 4IOL, adds 18
+    assert test_cpxap.modules[6].system_entry_registers.inputs == 5024  # VABX
+    assert test_cpxap.modules[7].system_entry_registers.inputs == 5024  # 4Di
 
     assert test_cpxap.global_diagnosis_register == 11000  # cpx system global diagnosis
     assert test_cpxap.modules[0].system_entry_registers.diagnosis == 11006  # EP
-    assert test_cpxap.modules[1].system_entry_registers.diagnosis == 11012  # 8DI
-    assert test_cpxap.modules[2].system_entry_registers.diagnosis == 11018  # 4Di4Do
-    assert test_cpxap.modules[3].system_entry_registers.diagnosis == 11024  # 4AIUI
-    assert test_cpxap.modules[4].system_entry_registers.diagnosis == 11030  # 4IOL
-    assert test_cpxap.modules[5].system_entry_registers.diagnosis == 11036  # VABX
-    assert test_cpxap.modules[6].system_entry_registers.diagnosis == 11042  # 4Di
+    assert test_cpxap.modules[1].system_entry_registers.diagnosis == 11012  # 8DO
+    assert test_cpxap.modules[2].system_entry_registers.diagnosis == 11018  # 8DI
+    assert test_cpxap.modules[3].system_entry_registers.diagnosis == 11024  # 4Di4Do
+    assert test_cpxap.modules[4].system_entry_registers.diagnosis == 11030  # 4AIUI
+    assert test_cpxap.modules[5].system_entry_registers.diagnosis == 11036  # 4IOL
+    assert test_cpxap.modules[6].system_entry_registers.diagnosis == 11042  # VABX
+    assert test_cpxap.modules[7].system_entry_registers.diagnosis == 11048  # 4Di
 
 
 def test_modules_channel_length(test_cpxap):
 
     assert len(test_cpxap.modules[0].channels.inputs) == 0  # EP
-    assert len(test_cpxap.modules[1].channels.inputs) == 8  # 8DI
-    assert len(test_cpxap.modules[2].channels.inputs) == 4  # 4DI4DO
-    assert len(test_cpxap.modules[3].channels.inputs) == 4  # 4AIUI
-    assert len(test_cpxap.modules[4].channels.inputs) == 8  # 4IOL
-    assert len(test_cpxap.modules[5].channels.inputs) == 0  # VABX
-    assert len(test_cpxap.modules[6].channels.inputs) == 4  # 4Di
+    assert len(test_cpxap.modules[1].channels.inputs) == 0  # 8DO
+    assert len(test_cpxap.modules[2].channels.inputs) == 8  # 8DI
+    assert len(test_cpxap.modules[3].channels.inputs) == 4  # 4DI4DO
+    assert len(test_cpxap.modules[4].channels.inputs) == 4  # 4AIUI
+    assert len(test_cpxap.modules[5].channels.inputs) == 8  # 4IOL
+    assert len(test_cpxap.modules[6].channels.inputs) == 0  # VABX
+    assert len(test_cpxap.modules[7].channels.inputs) == 4  # 4Di
 
     assert len(test_cpxap.modules[0].channels.outputs) == 0  # EP
-    assert len(test_cpxap.modules[1].channels.outputs) == 0  # 8DI
-    assert len(test_cpxap.modules[2].channels.outputs) == 4  # 4DI4DO
-    assert len(test_cpxap.modules[3].channels.outputs) == 0  # 4AIUI
-    assert len(test_cpxap.modules[4].channels.outputs) == 4  # 4IOL
-    assert len(test_cpxap.modules[5].channels.outputs) == 32  # VABX
-    assert len(test_cpxap.modules[6].channels.outputs) == 0  # 4Di
+    assert len(test_cpxap.modules[1].channels.outputs) == 8  # 8DO
+    assert len(test_cpxap.modules[2].channels.outputs) == 0  # 8DI
+    assert len(test_cpxap.modules[3].channels.outputs) == 4  # 4DI4DO
+    assert len(test_cpxap.modules[4].channels.outputs) == 0  # 4AIUI
+    assert len(test_cpxap.modules[5].channels.outputs) == 4  # 4IOL
+    assert len(test_cpxap.modules[6].channels.outputs) == 32  # VABX
+    assert len(test_cpxap.modules[7].channels.outputs) == 0  # 4Di
 
     assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
-    assert len(test_cpxap.modules[1].channels.inouts) == 0  # 8DI
-    assert len(test_cpxap.modules[2].channels.inouts) == 0  # 4DI4DO
-    assert len(test_cpxap.modules[3].channels.inouts) == 0  # 4AIUI
-    assert len(test_cpxap.modules[4].channels.inouts) == 4  # 4IOL
-    assert len(test_cpxap.modules[5].channels.inouts) == 0  # VABX
-    assert len(test_cpxap.modules[6].channels.inouts) == 0  # 4Di
+    assert len(test_cpxap.modules[1].channels.inouts) == 0  # 8DO
+    assert len(test_cpxap.modules[2].channels.inouts) == 0  # 8DI
+    assert len(test_cpxap.modules[3].channels.inouts) == 0  # 4DI4DO
+    assert len(test_cpxap.modules[4].channels.inouts) == 0  # 4AIUI
+    assert len(test_cpxap.modules[5].channels.inouts) == 4  # 4IOL
+    assert len(test_cpxap.modules[6].channels.inouts) == 0  # VABX
+    assert len(test_cpxap.modules[7].channels.inouts) == 0  # 4Di
 
 
-@pytest.mark.parametrize("input_value", list(range(7)))
+@pytest.mark.parametrize("input_value", list(range(8)))
 def test_read_diagnosis_code(test_cpxap, input_value):
     assert test_cpxap.modules[input_value].read_diagnosis_code() == 0
     assert test_cpxap.modules[input_value].read_diagnosis_information() is None
@@ -184,9 +190,9 @@ def test_read_diagnosis_code_active_iolink(test_cpxap):
 
 
 def test_getter(test_cpxap):
-    i8di = test_cpxap.modules[1]
-    i4di4do = test_cpxap.modules[2]
-    i4di = test_cpxap.modules[6]
+    i8di = test_cpxap.modules[2]
+    i4di4do = test_cpxap.modules[3]
+    i4di = test_cpxap.modules[7]
 
     assert i8di[0] == i8di.read_channel(0)
     assert i4di4do[0] == i4di4do.read_channel(0)
@@ -194,7 +200,7 @@ def test_getter(test_cpxap):
 
 
 def test_setter(test_cpxap):
-    i4di4do = test_cpxap.modules[2]
+    i4di4do = test_cpxap.modules[3]
 
     i4di4do[0] = True
     time.sleep(0.05)
@@ -285,18 +291,18 @@ def test_ep_parameter_rw_strings(test_cpxap):
 
 
 def test_8Di_read_channels(test_cpxap):
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[2]
     assert m.read_channels() == [False] * 8
 
 
 def test_8Di_read_channel(test_cpxap):
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[2]
     for i in range(8):
         assert m.read_channel(i) is False
 
 
 def test_8Di_parameter_write(test_cpxap):
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[2]
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
@@ -316,7 +322,7 @@ def test_8Di_parameter_write(test_cpxap):
 
 
 def test_8Di_parameter_rw_strings(test_cpxap):
-    m = test_cpxap.modules[1]
+    m = test_cpxap.modules[2]
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
@@ -340,7 +346,7 @@ def test_8Di_parameter_rw_strings(test_cpxap):
 
 
 def test_4Di4Do(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
     assert m.read_channels() == [False] * 8
 
     data = [True, False, True, False]
@@ -376,7 +382,7 @@ def test_4Di4Do(test_cpxap):
 
 
 def test_4Di4Do_parameter_write_debounce(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
 
     m.write_module_parameter(20014, 0)
     time.sleep(0.05)
@@ -396,7 +402,7 @@ def test_4Di4Do_parameter_write_debounce(test_cpxap):
 
 
 def test_4Di4Do_parameter_rw_strings_debounce(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
 
     m.write_module_parameter("Input Debounce Time", "0.1ms")
     time.sleep(0.05)
@@ -420,7 +426,7 @@ def test_4Di4Do_parameter_rw_strings_debounce(test_cpxap):
 
 
 def test_4Di4Do_parameter_write_load(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
@@ -436,7 +442,7 @@ def test_4Di4Do_parameter_write_load(test_cpxap):
 
 
 def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
@@ -465,7 +471,7 @@ def test_4Di4Do_parameter_rw_strings_load(test_cpxap):
 
 
 def test_4Di4Do_parameter_write_failstate(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
 
     m.write_module_parameter(20052, 0)
     time.sleep(0.05)
@@ -477,7 +483,7 @@ def test_4Di4Do_parameter_write_failstate(test_cpxap):
 
 
 def test_4Di4Do_parameter_rw_strings_failstate(test_cpxap):
-    m = test_cpxap.modules[2]
+    m = test_cpxap.modules[3]
 
     m.write_module_parameter("Behaviour in fail state", "Reset Outputs")
     time.sleep(0.05)
@@ -491,13 +497,13 @@ def test_4Di4Do_parameter_rw_strings_failstate(test_cpxap):
 
 
 def test_4AiUI_None(test_cpxap):
-    m = test_cpxap.modules[3]
+    m = test_cpxap.modules[4]
     assert len(m.read_channels()) == 4
 
 
 def test_4AiUI_analog5V0_CH1(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
-    m = test_cpxap.modules[3]
+    m = test_cpxap.modules[4]
     channel = 1
     m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
@@ -508,7 +514,7 @@ def test_4AiUI_analog5V0_CH1(test_cpxap):
 
 def test_4AiUI_analog5V0_CH1_with_scaling(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
-    m = test_cpxap.modules[3]
+    m = test_cpxap.modules[4]
     channel = 1
     m.write_module_parameter("Signalrange", "0 .. 10 V", channel)
     time.sleep(0.05)
@@ -526,7 +532,7 @@ def test_4AiUI_analog5V0_CH1_with_scaling(test_cpxap):
 
 
 def test_4AiUI_parameters(test_cpxap):
-    m = test_cpxap.modules[3]
+    m = test_cpxap.modules[4]
     assert m.read_module_parameter("Temperature unit") == m.read_module_parameter(20032)
     assert m.read_module_parameter("Signalrange") == m.read_module_parameter(20043)
     assert m.read_module_parameter("Upper threshold value") == m.read_module_parameter(
@@ -545,7 +551,7 @@ def test_4AiUI_parameters(test_cpxap):
 
 
 def test_4iol_sdas(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     m.write_module_parameter("Port Mode", "IOL_AUTOSTART", sdas_channel)
@@ -581,7 +587,7 @@ def test_4iol_sdas(test_cpxap):
 
 
 def test_4iol_sdas_read_isdu_string_as_raw(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -604,7 +610,7 @@ def test_4iol_sdas_read_isdu_string_as_raw(test_cpxap):
 
 
 def test_4iol_sdas_read_isdu_string_as_str(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -625,7 +631,7 @@ def test_4iol_sdas_read_isdu_string_as_str(test_cpxap):
 
 
 def test_4iol_sdas_write_isdu_string_as_raw(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -659,7 +665,7 @@ def test_4iol_sdas_write_isdu_string_as_raw(test_cpxap):
 
 
 def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -687,7 +693,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
 
 
 def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -715,7 +721,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
 
 
 def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -746,7 +752,7 @@ def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxap):
 
 
 def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -775,7 +781,7 @@ def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxap):
 
 
 def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -806,7 +812,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxap):
 
 
 def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     sdas_channel = 0
 
     # Setup
@@ -834,7 +840,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_isdu_str(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -850,7 +856,7 @@ def test_4iol_emcs_read_isdu_str(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_isdu_bool(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -866,7 +872,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_isdu_bool(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -887,7 +893,7 @@ def test_4iol_emcs_write_isdu_bool(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_write_isdu_float(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -916,7 +922,7 @@ def test_4iol_emcs_read_write_isdu_float(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_int32_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -967,7 +973,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int8_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -1018,7 +1024,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int16_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -1069,7 +1075,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int32_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -1120,7 +1126,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int64_with_move(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     emcs_channel = 3
 
     # Setup
@@ -1170,7 +1176,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_write_channels_with_emcs(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     assert m.apdd_information.module_type == "CPX-AP-I-4IOL-M12 Variant 8"
     emcs_channel = 3
 
@@ -1228,7 +1234,7 @@ def test_4iol_write_channels_with_emcs(test_cpxap):
 
 @pytest.mark.skipif(EHPS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_ehps(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     time.sleep(0.05)
 
@@ -1324,7 +1330,7 @@ def test_4iol_ehps(test_cpxap):
 
 @pytest.mark.skipif(EHPS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_ehps_write_channels(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     time.sleep(0.05)
 
@@ -1434,7 +1440,7 @@ def test_4iol_ehps_write_channels(test_cpxap):
 
 
 def test_4iol_ethrottle(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     def read_process_data_in(module, channel):
         data = module.read_channel(channel)
@@ -1486,7 +1492,7 @@ def test_4iol_ethrottle(test_cpxap):
 
 
 def test_4iol_ethrottle_isdu_read(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     ethrottle_channel = 2
 
     m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ethrottle_channel)
@@ -1508,7 +1514,7 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
 
 
 def test_4iol_ethrottle_isdu_write_1byte(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     ethrottle_channel = 2
 
     m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ethrottle_channel)
@@ -1540,7 +1546,7 @@ def test_4iol_ethrottle_isdu_write_1byte(test_cpxap):
 
 
 def test_4iol_ethrottle_isdu_write_2byte(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     ethrottle_channel = 2
 
     m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ethrottle_channel)
@@ -1565,7 +1571,7 @@ def test_4iol_ethrottle_isdu_write_2byte(test_cpxap):
 
 
 def test_4iol_ethrottle_isdu_write_4byte(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
     ethrottle_channel = 2
 
     m.write_module_parameter("Port Mode", "IOL_AUTOSTART", ethrottle_channel)
@@ -1592,7 +1598,7 @@ def test_4iol_ethrottle_isdu_write_4byte(test_cpxap):
 
 
 def test_read_pqi(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     m.write_module_parameter("Port Mode", "IOL_AUTOSTART", 0)
     m.write_module_parameter("Port Mode", "DEACTIVATED", 1)
@@ -1616,7 +1622,7 @@ def test_read_pqi(test_cpxap):
 
 
 def test_4iol_parameter_write_load(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     m.write_module_parameter(20022, 0)
     time.sleep(0.05)
@@ -1632,7 +1638,7 @@ def test_4iol_parameter_write_load(test_cpxap):
 
 
 def test_4iol_parameter_rw_strings_load(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
@@ -1661,7 +1667,7 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
 
 
 def test_4iol_parameter_write_lost(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     m.write_module_parameter(20050, False)
     time.sleep(0.05)
@@ -1673,7 +1679,7 @@ def test_4iol_parameter_write_lost(test_cpxap):
 
 
 def test_4iol_parameter_rw_strings_lost(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     m.write_module_parameter("Enable diagnosis of IO-Link device lost", False)
     time.sleep(0.05)
@@ -1705,7 +1711,7 @@ def test_4iol_parameter_rw_strings_lost(test_cpxap):
 
 
 def test_4iol_other_parameters_rw(test_cpxap):
-    m = test_cpxap.modules[4]
+    m = test_cpxap.modules[5]
 
     assert m.read_module_parameter("Nominal Cycle Time") == m.read_module_parameter(
         20049
@@ -1735,20 +1741,20 @@ def test_4iol_other_parameters_rw(test_cpxap):
 
 
 def test_vabx_read_channels(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[6]
 
     assert m.read_channels() == [False] * 32
 
 
 def test_vabx_read_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[6]
 
     for i in range(32):
         assert m.read_channel(i) is False
 
 
 def test_vabx_write(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[6]
 
     for i in range(32):
         m.write_channel(i, True)
@@ -1761,7 +1767,7 @@ def test_vabx_write(test_cpxap):
 
 
 def test_vabx_set_clear_toggle(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[6]
 
     for i in range(32):
         m.set_channel(i)
@@ -1780,7 +1786,7 @@ def test_vabx_set_clear_toggle(test_cpxap):
 
 
 def test_vabx_parameters(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[6]
     assert m.read_module_parameter(
         "Enable diagnosis for defect valve"
     ) == m.read_module_parameter(20021)
