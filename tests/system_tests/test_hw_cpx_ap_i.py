@@ -8,6 +8,8 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
 SYSTEM_IP_ADDRESS = "172.16.1.41"
+EMCS_DISCONNECTED = True
+EHPS_DISCONNECTED = False
 
 
 @pytest.fixture(scope="function")
@@ -830,6 +832,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
     assert ret == 0
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_isdu_str(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -845,6 +848,7 @@ def test_4iol_emcs_read_isdu_str(test_cpxap):
     assert m.read_isdu(emcs_channel, 16, data_type="str") == "Festo"
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_isdu_bool(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -860,6 +864,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxap):
     assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_isdu_bool(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -880,6 +885,7 @@ def test_4iol_emcs_write_isdu_bool(test_cpxap):
     assert m.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_write_isdu_float(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -908,6 +914,7 @@ def test_4iol_emcs_read_write_isdu_float(test_cpxap):
     assert 10.1 < ret < 10.2
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_int32_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -958,6 +965,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") * 0.01 < 0.1
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int8_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -1008,6 +1016,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") * 0.01 < 1
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int16_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -1058,6 +1067,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") * 0.01 < 1
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int32_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -1108,6 +1118,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int64_with_move(test_cpxap):
     m = test_cpxap.modules[4]
     emcs_channel = 3
@@ -1157,6 +1168,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 1
 
 
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_write_channels_with_emcs(test_cpxap):
     m = test_cpxap.modules[4]
     assert m.apdd_information.module_type == "CPX-AP-I-4IOL-M12 Variant 8"
@@ -1214,6 +1226,7 @@ def test_4iol_write_channels_with_emcs(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") < 10
 
 
+@pytest.mark.skipif(EHPS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_ehps(test_cpxap):
     m = test_cpxap.modules[4]
 
@@ -1309,6 +1322,7 @@ def test_4iol_ehps(test_cpxap):
         param = m.read_fieldbus_parameters()
 
 
+@pytest.mark.skipif(EHPS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_ehps_write_channels(test_cpxap):
     m = test_cpxap.modules[4]
 
