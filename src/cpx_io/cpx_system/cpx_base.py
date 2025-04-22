@@ -5,6 +5,7 @@ from dataclasses import dataclass, fields
 from functools import wraps
 
 from pymodbus.client import ModbusTcpClient
+from pymodbus.exceptions import ModbusIOException
 from pymodbus.pdu.mei_message import ReadDeviceInformationRequest
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
@@ -201,7 +202,13 @@ class CpxBase:
         # Convert to list of words
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
-        self.client.write_registers(register, reg)
+        return_value = self.client.write_registers(register, reg)
+        retries = 3
+        while return_value.isError():
+            return_value = self.client.write_registers(register, reg)
+            if retries < 0:
+                break
+            retries -= 1
 
     def write_reg_data_with_single_cmds(self, data: bytes, register: int) -> None:
         """Write bytes object data to register(s), with only single register writes.
@@ -220,7 +227,13 @@ class CpxBase:
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
         for offset, data in enumerate(reg):
-            self.client.write_register(register + offset, data)
+            return_value = self.client.write_register(register + offset, data)
+            retries = 3
+            while return_value.isError():
+                return_value = self.client.write_register(register + offset, data)
+                if retries < 0:
+                    break
+                retries -= 1
 
     @staticmethod
     def require_base(func):
