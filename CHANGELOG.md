@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: ISDU type `"int"` now refers to signed integers (follows naming convention of IO-Link datatypes). Use `"uint"` instead for unsigned integers
 - Logging levels for better usability of Logging functionality
 - CPX-AP: removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
+- CPX-E: increase robustness of write register commands
 
 ### Fixed
 - CPX-AP: Issues with IO-Link read/write ISDU
