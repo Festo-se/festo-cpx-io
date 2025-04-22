@@ -7,7 +7,7 @@ import struct
 from typing import Union
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
-from cpx_io.cpx_system.cpx_e import cpx_e_registers
+from cpx_io.cpx_system.cpx_e import cpx_e_modbus_registers
 from cpx_io.cpx_system.cpx_e.cpx_e_supported_datatypes import SUPPORTED_ISDU_DATATYPES
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.helpers import value_range_check
@@ -547,34 +547,34 @@ class CpxE4Iol(CpxModule):
 
         # select module, starts with 0
         self.base.write_reg_data_with_single_cmds(
-            module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
+            module_index, cpx_e_modbus_registers.ISDU_MODULE_NO.register_address
         )
         # select channel, starts with 0
         self.base.write_reg_data_with_single_cmds(
-            channel, cpx_e_registers.ISDU_CHANNEL.register_address
+            channel, cpx_e_modbus_registers.ISDU_CHANNEL.register_address
         )
         # select index
         self.base.write_reg_data_with_single_cmds(
-            index, cpx_e_registers.ISDU_INDEX.register_address
+            index, cpx_e_modbus_registers.ISDU_INDEX.register_address
         )
         # select subindex
         self.base.write_reg_data_with_single_cmds(
-            subindex, cpx_e_registers.ISDU_SUBINDEX.register_address
+            subindex, cpx_e_modbus_registers.ISDU_SUBINDEX.register_address
         )
         # select length of data in bytes
         self.base.write_reg_data_with_single_cmds(
-            length, cpx_e_registers.ISDU_LENGTH.register_address
+            length, cpx_e_modbus_registers.ISDU_LENGTH.register_address
         )
         # command
         self.base.write_reg_data_with_single_cmds(
-            command, cpx_e_registers.ISDU_COMMAND.register_address
+            command, cpx_e_modbus_registers.ISDU_COMMAND.register_address
         )
 
         stat, cnt = 1, 0
         while stat > 0 and cnt < 1000:
             try:
                 stat = int.from_bytes(
-                    self.base.read_reg_data(*cpx_e_registers.ISDU_STATUS),
+                    self.base.read_reg_data(*cpx_e_modbus_registers.ISDU_STATUS),
                     byteorder="little",
                 )
             # CPX-E responds with an error that needs to be caught
@@ -586,12 +586,14 @@ class CpxE4Iol(CpxModule):
 
         # read back the actual length from the length register (this is in bytes)
         actual_length = int.from_bytes(
-            self.base.read_reg_data(cpx_e_registers.ISDU_LENGTH.register_address),
+            self.base.read_reg_data(
+                cpx_e_modbus_registers.ISDU_LENGTH.register_address
+            ),
             byteorder="little",
         )
 
         ret = self.base.read_reg_data(
-            cpx_e_registers.ISDU_DATA.register_address, actual_length
+            cpx_e_modbus_registers.ISDU_DATA.register_address, actual_length
         )
         Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
 
@@ -713,31 +715,31 @@ class CpxE4Iol(CpxModule):
 
         # select module, starts with 0
         self.base.write_reg_data_with_single_cmds(
-            module_index, cpx_e_registers.ISDU_MODULE_NO.register_address
+            module_index, cpx_e_modbus_registers.ISDU_MODULE_NO.register_address
         )
         # select channel, starts with 0
         self.base.write_reg_data_with_single_cmds(
-            channel, cpx_e_registers.ISDU_CHANNEL.register_address
+            channel, cpx_e_modbus_registers.ISDU_CHANNEL.register_address
         )
         # select index
         self.base.write_reg_data_with_single_cmds(
-            index, cpx_e_registers.ISDU_INDEX.register_address
+            index, cpx_e_modbus_registers.ISDU_INDEX.register_address
         )
         # select subindex
         self.base.write_reg_data_with_single_cmds(
-            subindex, cpx_e_registers.ISDU_SUBINDEX.register_address
+            subindex, cpx_e_modbus_registers.ISDU_SUBINDEX.register_address
         )
         # select length of data in bytes
         self.base.write_reg_data_with_single_cmds(
-            length, cpx_e_registers.ISDU_LENGTH.register_address
+            length, cpx_e_modbus_registers.ISDU_LENGTH.register_address
         )
         # write data to data register
         self.base.write_reg_data_with_single_cmds(
-            data, cpx_e_registers.ISDU_DATA.register_address
+            data, cpx_e_modbus_registers.ISDU_DATA.register_address
         )
         # command
         self.base.write_reg_data_with_single_cmds(
-            command, cpx_e_registers.ISDU_COMMAND.register_address
+            command, cpx_e_modbus_registers.ISDU_COMMAND.register_address
         )
 
         Logging.logger.info(
