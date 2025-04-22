@@ -120,7 +120,7 @@ class CpxE(CpxBase):
         value_to_write = timeout_ms.to_bytes(
             length=cpx_e_modbus_registers.TIMEOUT.length * 2, byteorder="little"
         )
-        self.write_reg_data(
+        self.write_reg_data_with_single_cmds(
             value_to_write, cpx_e_modbus_registers.TIMEOUT.register_address
         )
         # Check if it actually succeeded
