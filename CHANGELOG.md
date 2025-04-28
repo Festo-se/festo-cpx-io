@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CPX-E: ISDU access for CPX-E-4IOL.
 - CPX-E: Optional parameter `bytelength` for CPX-E-4IOL `read/write_channel(s)` functions to specify io-link device length
+- CPX-E: Modbus timeout
 - CPX-AP: Float interpretation for ISDU write
 - Modbus connection error which is raised if connection to the target device could not be established 
 - Unit tests for (un)successful modbus connection
