@@ -714,7 +714,7 @@ class TestCpxE4Iol:
         module = CpxE4Iol()
         module.position = 1
         module.base = Mock()
-        module.base.write_reg_data = Mock()
+        module.base.write_reg_data_with_single_cmds = Mock()
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
@@ -725,7 +725,7 @@ class TestCpxE4Iol:
         result = module.read_isdu(channel, index, subindex)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
+        module.base.write_reg_data_with_single_cmds.assert_has_calls(
             [
                 call(b"\x01\x00", 61),  # MODULE_NO
                 call((channel).to_bytes(2, "little"), 62),  # CHANNEL
@@ -771,7 +771,7 @@ class TestCpxE4Iol:
         module = CpxE4Iol()
         module.position = 1
         module.base = Mock()
-        module.base.write_reg_data = Mock()
+        module.base.write_reg_data_with_single_cmds = Mock()
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
@@ -783,7 +783,7 @@ class TestCpxE4Iol:
         module.write_isdu(data, channel, index, subindex)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
+        module.base.write_reg_data_with_single_cmds.assert_has_calls(
             [
                 call(b"\x01\x00", 61),  # MODULE_NO
                 call((channel).to_bytes(2, "little"), 62),  # CHANNEL
@@ -810,7 +810,7 @@ class TestCpxE4Iol:
         module = CpxE4Iol()
         module.position = 1
         module.base = Mock()
-        module.base.write_reg_data = Mock()
+        module.base.write_reg_data_with_single_cmds = Mock()
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
@@ -823,7 +823,7 @@ class TestCpxE4Iol:
         length = len(data)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
+        module.base.write_reg_data_with_single_cmds.assert_has_calls(
             [
                 call(b"\x01\x00", 61),  # MODULE_NO
                 call((channel).to_bytes(2, "little"), 62),  # CHANNEL
@@ -894,14 +894,14 @@ class TestCpxE4Iol:
         module = CpxE4Iol()
         module.position = 1
         module.base = Mock()
-        module.base.write_reg_data = Mock()
+        module.base.write_reg_data_with_single_cmds = Mock()
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
         module.write_isdu(input_value, 0, 0, data_type=data_type)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
+        module.base.write_reg_data_with_single_cmds.assert_has_calls(
             [
                 call(b"\x01\x00", 61),  # MODULE_NO
                 call(b"\x00\x00", 62),  # CHANNEL

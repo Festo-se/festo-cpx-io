@@ -19,6 +19,8 @@ from cpx_io.cpx_system.cpx_e.e1ci import CpxE1Ci
 from cpx_io.cpx_system.cpx_e.cpx_e_enums import ChannelRange, OperatingMode
 
 SYSTEM_IP_ADDRESS = "172.16.1.40"
+EMCS_DISCONNECTED = False
+EHPS_DISCONNECTED = True
 
 
 @pytest.fixture(scope="function")
@@ -1028,7 +1030,7 @@ def test_4iol_sdas_readwrite_isdu_uint8_as_uint(test_cpxe):
     assert ret == 0
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_isdu_str(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1050,7 +1052,7 @@ def test_4iol_emcs_read_isdu_str(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 16, data_type="str") == "Festo"
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_isdu_bool(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1072,7 +1074,7 @@ def test_4iol_emcs_read_isdu_bool(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_readwrite_isdu_bool(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1099,7 +1101,7 @@ def test_4iol_emcs_readwrite_isdu_bool(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 259, data_type="bool") is False
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_readwrite_isdu_uint8(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1126,7 +1128,7 @@ def test_4iol_emcs_readwrite_isdu_uint8(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 256, data_type="uint8") == 1
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_readwrite_isdu_uint16(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1153,7 +1155,7 @@ def test_4iol_emcs_readwrite_isdu_uint16(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 12288, data_type="uint16") == 0
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_write_isdu_float(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1187,7 +1189,7 @@ def test_4iol_emcs_read_write_isdu_float(test_cpxe):
     assert 10.1 < ret < 10.2
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_read_int32_with_move(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1255,7 +1257,7 @@ def test_4iol_emcs_read_int32_with_move(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int8_with_move(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1322,7 +1324,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int16_with_move(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1390,7 +1392,7 @@ def test_4iol_emcs_write_int16_with_move(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int32_with_move(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1458,7 +1460,7 @@ def test_4iol_emcs_write_int32_with_move(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_emcs_write_int64_with_move(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
@@ -1532,7 +1534,7 @@ def test_4iol_emcs_write_int64_with_move(test_cpxe):
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") < 1
 
 
-@pytest.mark.skip(reason="HW removed from test system")
+@pytest.mark.skipif(EHPS_DISCONNECTED, reason="HW removed from test system")
 def test_4iol_ehps(test_cpxe):
     e16di = test_cpxe.add_module(CpxE16Di())
     e8do = test_cpxe.add_module(CpxE8Do())
