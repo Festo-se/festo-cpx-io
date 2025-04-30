@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add hardware verification tests for output module
 - Small composition example to show a possible abstraction for complexer CPX systems
 - Small composition example to illustrate a possible abstraction for more complex CPX systems
+- Add renovate bot
 
 ### Changed
 - CPX-AP: ISDU type `"int"` now refers to signed integers (follows naming convention of IO-Link datatypes). Use `"uint"` instead for unsigned integers
