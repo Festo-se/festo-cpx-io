@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modbus connection error which is raised if connection to the target device could not be established 
 - Unit tests for (un)successful modbus connection
 - CPX-AP: `-mt, --modbus-timeout` command for cli to set explicitly a timeout
+- Security policy and describe the way to responsibly submit security issues
 
 ### Changed
 - CPX-AP: ISDU type `"int"` now refers to signed integers (follows naming convention of IO-Link datatypes). Use `"uint"` instead for unsigned integers
