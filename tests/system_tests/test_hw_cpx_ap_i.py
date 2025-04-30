@@ -295,6 +295,111 @@ def test_ep_parameter_rw_strings(test_cpxap):
     )
 
 
+def test_8Do_test_output_channels(test_cpxap):
+    m = test_cpxap.modules[1]
+    assert m.read_channels() == [False] * 8
+
+    data = [True, False, True, False, True, False, False, True]
+    m.write_channels(data)
+    time.sleep(0.05)
+    assert m.read_channels() == data
+
+    data = [False, True, False, True, False, True, True, False]
+    m.write_channels(data)
+    time.sleep(0.05)
+    assert m.read_channels() == data
+
+    m.write_channels([False] * 8)
+
+    m.set_channel(5)
+    time.sleep(0.05)
+    assert m.read_output_channel(5) is True
+    assert m.read_channel(5) is True
+
+    m.reset_channel(5)
+    time.sleep(0.05)
+    assert m.read_output_channel(5) is False
+    assert m.read_channel(5) is False
+
+    m.toggle_channel(5)
+    time.sleep(0.05)
+    assert m.read_output_channel(5) is True
+    assert m.read_channel(5) is True
+
+    m.reset_channel(5)
+
+
+def test_8Do_parameter_write_failstate(test_cpxap):
+    m = test_cpxap.modules[1]
+
+    m.write_module_parameter(20052, 0)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 0
+
+    m.write_module_parameter(20052, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 1
+
+
+def test_8Do_parameter_rw_strings_failstate(test_cpxap):
+    m = test_cpxap.modules[1]
+
+    m.write_module_parameter("Behavior in fail state", "Reset outputs")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 0
+    assert m.read_module_parameter_enum_str(20052) == "Reset outputs"
+
+    m.write_module_parameter("Behavior in fail state", "Hold last state")
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20052]) == 1
+    assert m.read_module_parameter_enum_str(20052) == "Hold last state"
+
+
+def test_8Do_parameter_write_load(test_cpxap):
+    m = test_cpxap.modules[1]
+
+    m.write_module_parameter(20022, 0)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
+
+    m.write_module_parameter(20022, 2)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
+
+    m.write_module_parameter(20022, 1)
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
+
+
+def test_8Do_parameter_rw_strings_load(test_cpxap):
+    m = test_cpxap.modules[1]
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring inactive"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 0
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring inactive"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC", "Load supply monitoring active"
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 2
+    assert m.read_module_parameter_enum_str(20022) == "Load supply monitoring active"
+
+    m.write_module_parameter(
+        "Setup monitoring load supply (PL) 24 V DC",
+        "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
+    )
+    time.sleep(0.05)
+    assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
+    assert (
+        m.read_module_parameter_enum_str(20022)
+        == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
+    )
+
+
 def test_8Di_read_channels(test_cpxap):
     m = test_cpxap.modules[2]
     assert m.read_channels() == [False] * 8
