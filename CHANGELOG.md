@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - group all non major changes into a single merge request
+- bump platformdirs version
 
 ## v0.9.0 - 05.05.25
 ### Added
