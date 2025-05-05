@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels; calling these functions on INT channels will raise a clear error.
 - Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).
 - Refactored documentation generator for improved code structure and maintainability.
+- group all non major changes into a single merge request
+- bump setuptools version
+- bump rich version
+- bump pymodbus version
+- catch newly created ConnectionExceptions from the pymodbus library to allow retries
+- bump platformdirs version
 
 ### Fixed
 - Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
