@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+- bump pymodbus version
+- catch newly created ConnectionExceptions from the pymodbus library to allow retries
+
 ## v0.9.0 - 05.05.25
 ### Added
 - CPX-AP: Float interpretation for ISDU write
