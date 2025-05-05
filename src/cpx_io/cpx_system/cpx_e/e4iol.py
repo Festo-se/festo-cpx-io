@@ -579,7 +579,7 @@ class CpxE4Iol(CpxModule):
                 )
             # CPX-E responds with an error that needs to be caught
             except ConnectionAbortedError:
-                continue
+                pass
             cnt += 1
         if cnt >= 1000:
             raise CpxRequestError("ISDU data read failed")
