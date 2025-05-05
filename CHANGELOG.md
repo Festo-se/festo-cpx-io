@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modbus connection error which is raised if connection to the target device could not be established
 - Security policy and describe the way to responsibly submit security issues
 - Small composition example to illustrate a possible abstraction for more complex CPX systems
+- Add renovate bot
 
 ### Changed
 - CPX-AP: ISDU type `"int"` now refers to signed integers (follows naming convention of IO-Link datatypes). Use `"uint"` instead for unsigned integers
