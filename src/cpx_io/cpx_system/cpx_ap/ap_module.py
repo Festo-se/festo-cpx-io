@@ -964,6 +964,24 @@ class ApModule(CpxModule):
         self.fieldbus_parameters = channel_params
         return channel_params
 
+    def get_command_for_data_type(self, data_type: str) -> bytes:
+        """Returns the command for the used data_type.
+        If data_type is not supported, a TypeError is raised.
+        """
+        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+        # it's easiest if we stay on 100 and byteorder "big"
+        # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
+        # keeps the two files synchronized during development
+        if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
+            return (100).to_bytes(2, "little")
+        if (
+            data_type in ["int", "bool", "float", "uint", "sint"]
+            and data_type in SUPPORTED_ISDU_DATATYPES
+        ):
+            return (50).to_bytes(2, "little")
+
+        raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
+
     @CpxBase.require_base
     def read_isdu(
         self, channels: list[int], index: int, subindex: int = 0, data_type: str = "raw"
@@ -996,22 +1014,7 @@ class ApModule(CpxModule):
             channel = (channel + 1).to_bytes(2, "little")
             length = (0).to_bytes(2, "little")  # always zero when reading
 
-            # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-            # it's easiest if we stay on 100 and byteorder "big"
-            command = (100).to_bytes(2, "little")
-            # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
-            # keeps the two files synchronized during development
-            if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
-                command = (100).to_bytes(2, "little")
-            elif (
-                data_type in ["int", "bool", "float", "uint", "sint"]
-                and data_type in SUPPORTED_ISDU_DATATYPES
-            ):
-                command = (50).to_bytes(2, "little")
-            else:
-                raise TypeError(
-                    f"Datatype '{data_type}' is not supported by read_isdu()"
-                )
+            command = self.get_command_for_data_type(data_type)
 
             # select module, starts with 1
             self.base.write_reg_data(
@@ -1197,6 +1200,6 @@ class ApModule(CpxModule):
                 "access to the requested isdu parameter with the given data"
             )
 
-            Logging.logger.info(
-                f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
-            )
+        Logging.logger.info(
+            f"{self.name}: Write ISDU {data} to channels {channels} ({index},{subindex})"
+        )
