@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Logging levels for better usability of Logging functionality
 - removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)
+- datatype of argument channel in read_isda() and write_isda() from int to list[int] to pass a list of channels which should be r/w
+- return value of read_isda() from any to list[any]
 
 ### Fixed
 - make the initialization more robust against a slow apdd loading

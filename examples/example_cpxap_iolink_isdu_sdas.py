@@ -21,9 +21,10 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
 
     # Read raw isdu value
     ret = io_link_master.read_isdu([SDAS_CHANNEL], 0x0010)  # subindex is optional
-    # without specifying the data_type, this returns a bytes object. Since in io-Link
-    # strings are encoded "msb first", no change is required in decoding. For example:
-    print(ret.decode("ascii"))
+    # without specifying the data_type, this returns a list with a bytes object. Since in
+    # io-Link strings are encoded "msb first", no change is required in decoding.
+    # For example:
+    print(ret[0].decode("ascii"))
 
     # Read isdu with data_type defined
     ret = io_link_master.read_isdu([SDAS_CHANNEL], 0x0010, data_type="str")
@@ -35,7 +36,7 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     io_link_master.write_isdu(b"FESTO", [SDAS_CHANNEL], 0x0018)
     # this will write b"FESTO" to the isdu, can be read back with:
     ret = io_link_master.read_isdu([SDAS_CHANNEL], 0x0018)
-    print(ret.decode("ascii"))
+    print(ret[0].decode("ascii"))
 
     # Write isdu with datatype defined
     io_link_master.write_isdu("FESTO", [SDAS_CHANNEL], 0x0018)
