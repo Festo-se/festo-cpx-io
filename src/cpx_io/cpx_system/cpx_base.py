@@ -201,7 +201,38 @@ class CpxBase:
         # Convert to list of words
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
-        self.client.write_registers(register, reg)
+        return_value = self.client.write_registers(register, reg)
+        retries = 3
+        while return_value.isError():
+            return_value = self.client.write_registers(register, reg)
+            if retries < 0:
+                break
+            retries -= 1
+
+    def write_reg_data_with_single_cmds(self, data: bytes, register: int) -> None:
+        """Write bytes object data to register(s), with only single register writes.
+        This is necessary for some firmware on particular addresses, where multiple
+        register writes are not supported.
+
+        :param data: data to write to the register(s)
+        :type data: bytes
+        :param register: adress of the first register to write
+        :type register: int
+        """
+        # if odd number of bytes, add one zero byte
+        if len(data) % 2 != 0:
+            data += b"\x00"
+        # Convert to list of words
+        reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
+        # Write data
+        for offset, d in enumerate(reg):
+            return_value = self.client.write_register(register + offset, d)
+            retries = 3
+            while return_value.isError():
+                return_value = self.client.write_register(register + offset, d)
+                if retries < 0:
+                    break
+                retries -= 1
 
     @staticmethod
     def require_base(func):

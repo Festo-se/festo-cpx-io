@@ -11,7 +11,7 @@ from cpx_io.cpx_system.cpx_e.e4aiui import CpxE4AiUI
 from cpx_io.cpx_system.cpx_e.e4aoui import CpxE4AoUI
 
 from cpx_io.cpx_system.cpx_e.cpx_e import CpxInitError
-import cpx_io.cpx_system.cpx_e.cpx_e_registers as cpx_e_registers
+import cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers as cpx_e_modbus_registers
 
 from cpx_io.utils.logging import Logging
 
@@ -310,7 +310,9 @@ class TestCpxE:
 
         # Assert
         assert module_count == bin(0xAAAAAA)[2:].count("1")
-        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.MODULE_CONFIGURATION)
+        cpx_e.read_reg_data.assert_called_with(
+            *cpx_e_modbus_registers.MODULE_CONFIGURATION
+        )
 
     def test_read_fault_detection(self):
         """Test read fault detection"""
@@ -323,7 +325,7 @@ class TestCpxE:
 
         # Assert
         assert fault_detection == [x == "1" for x in bin(0xCCBBAA)[2:]][::-1]
-        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.FAULT_DETECTION)
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_modbus_registers.FAULT_DETECTION)
 
     @pytest.mark.parametrize(
         "input_value, expected_value",
@@ -346,7 +348,7 @@ class TestCpxE:
         # Assert
         # tuple of bit (11, 15)
         assert status == expected_value
-        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.STATUS_REGISTER)
+        cpx_e.read_reg_data.assert_called_with(*cpx_e_modbus_registers.STATUS_REGISTER)
 
     def test_read_device_identification(self):
         """Test read_device_identification"""
@@ -375,19 +377,21 @@ class TestCpxE:
             [
                 call(
                     input_value.to_bytes(2, "little"),
-                    cpx_e_registers.DATA_SYSTEM_TABLE_WRITE.register_address,
+                    cpx_e_modbus_registers.DATA_SYSTEM_TABLE_WRITE.register_address,
                 ),
                 call(
                     b"\x00\x00",
-                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                    cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address,
                 ),
                 call(
                     b"\x00\xa0",
-                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                    cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address,
                 ),
             ]
         )
-        cpx_e.read_reg_data.assert_called_with(*cpx_e_registers.PROCESS_DATA_INPUTS)
+        cpx_e.read_reg_data.assert_called_with(
+            *cpx_e_modbus_registers.PROCESS_DATA_INPUTS
+        )
 
     def test_read_function_number(self):
         """Test read_function_number"""
@@ -404,17 +408,17 @@ class TestCpxE:
             [
                 call(
                     b"\x00\x00",
-                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                    cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address,
                 ),
                 call(
                     b"\x01\x80",  # function number | control bit 15
-                    cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+                    cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address,
                 ),
             ]
         )
         cpx_e.read_reg_data.assert_has_calls(
             [
-                call(*cpx_e_registers.PROCESS_DATA_INPUTS),
-                call(*cpx_e_registers.DATA_SYSTEM_TABLE_READ),
+                call(*cpx_e_modbus_registers.PROCESS_DATA_INPUTS),
+                call(*cpx_e_modbus_registers.DATA_SYSTEM_TABLE_READ),
             ]
         )

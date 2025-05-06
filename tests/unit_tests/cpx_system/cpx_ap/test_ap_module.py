@@ -2364,17 +2364,28 @@ class TestApModule:
         [
             ("str", 3, b"str"),  # string
             (1, 1, b"\x01"),  # int8
-            (0xCAFE, 2, b"\xfe\xca"),  # int16
-            (0xBEBAFECA, 4, b"\xca\xfe\xba\xbe"),  # int32
+            (0xCAFE, 2, b"\xca\xfe"),  # int16
+            (0xCAFEBABE, 4, b"\xca\xfe\xba\xbe"),  # int32
+            (-1, 1, b"\xff\xff"),  # sint8
+            (-1925, 2, b"\xf8\x7b"),  # sint16
+            (-999999, 3, b"\xff\xf0\xbd\xc1"),  # 3byte sint32
+            (-99999999, 4, b"\xfa\x0a\x1f\x01"),  # sint32
             (b"\xca\xfe", 2, b"\xca\xfe"),  # bytes = raw
             (True, 1, b"\x01"),  # bool true
             (False, 1, b"\x00"),  # bool false
+            (0.0, 4, b"\x00\x00\x00\x00"),  # float 0
+            (-1.23456, 4, b"\xbf\x9e\x06\x10"),  # negative float
         ],
     )
     def test_write_isdu_different_datatypes(
         self, module_fixture, input_value, length, expected_output
     ):
         """Test read_isdu"""
+        # Remark
+        # This test is has different byteorders from CPX-AP write_isdu because
+        # there are no dedicated "write with byteswap" commands for CPX-E. We
+        # need to send different byteorders for different types
+
         # Arrange
         module = module_fixture
         module.position = 0
@@ -2389,7 +2400,7 @@ class TestApModule:
         # Act
         module.write_isdu(input_value, channels, index)
 
-        command = 51 if isinstance(input_value, (bool, int)) else 101
+        command = 101
 
         # Assert
         for channel in channels:

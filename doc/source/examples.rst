@@ -56,6 +56,15 @@ io-link manual connection and diagnosis
     
 :download:`Download Example <../../examples/example_cpxap_diagnosis.py>`
 
+Simple composition example to illustrate a possible abstraction of a more complex CPX system
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_composition.py
+    
+:download:`Download Example <../../examples/example_cpxap_composition.py>`
+
+
+
+
 CPX-E
 ------
 

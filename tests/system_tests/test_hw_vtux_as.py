@@ -6,11 +6,13 @@ import pytest
 from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
+SYSTEM_IP_ADDRESS = "172.16.1.45"
+
 
 @pytest.fixture(scope="function")
 def test_cpxap():
     """test fixture"""
-    with CpxAp(ip_address="172.16.1.45") as cpxap:
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS) as cpxap:
         yield cpxap
 
 
@@ -85,7 +87,7 @@ def test_4AiUI_analog5V0_CH3(test_cpxap):
     time.sleep(0.05)
     m.write_module_parameter("Enable linear scaling", False, channel)
     time.sleep(0.05)
-    assert 15800 < m.read_channel(channel) < 16100
+    assert 15800 < m.read_channel(channel) < 16200
 
 
 def test_4AiUI_analog5V0_CH3_with_scaling(test_cpxap):

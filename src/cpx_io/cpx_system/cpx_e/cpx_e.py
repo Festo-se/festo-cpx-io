@@ -3,16 +3,19 @@
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.helpers import module_list_from_typecode
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxInitError
-from cpx_io.cpx_system.cpx_e import cpx_e_registers
+from cpx_io.cpx_system.cpx_e import cpx_e_modbus_registers
 from cpx_io.cpx_system.cpx_e.cpx_e_module_definitions import CPX_E_MODULE_ID_DICT
 from cpx_io.cpx_system.cpx_e.eep import CpxEEp
 from cpx_io.utils.boollist import bytes_to_boollist
+
+# pylint: disable=duplicate-code
+# intended: cpx_e and cpx_ap have similar, but not same functions
 
 
 class CpxE(CpxBase):
     """CPX-E base class"""
 
-    def __init__(self, modules=None, **kwargs):
+    def __init__(self, modules: list = None, timeout: float = None, **kwargs):
         """Constructor of the CpxE class.
 
         :param modules: List of module instances e.g. [CpxEEp(), CpxE8Do(), CpxE16Di()]
@@ -26,6 +29,13 @@ class CpxE(CpxBase):
         self.next_input_register = None
 
         self.modules = modules
+
+        if timeout is not None:
+            self.set_timeout(int(timeout * 1000))
+        else:
+            Logging.logger.info(
+                "Timeout is not specified. Not setting the timeout on target device."
+            )
 
         Logging.logger.debug(f"Created {self}")
 
@@ -92,6 +102,36 @@ class CpxE(CpxBase):
             "Busmodule to be compatible with this software"
         )
 
+    def set_timeout(self, timeout_ms: int) -> None:
+        """Sets the modbus timeout to the provided value
+
+        :param timeout_ms: Modbus timeout in ms (milli-seconds)
+        :type timeout_ms: int
+        """
+
+        if 0 < timeout_ms < 100:
+            timeout_ms = 100
+            Logging.logger.warning(
+                f"Setting the timeout below 100 ms can lead to "
+                f"exclusion from the system. To prevent this, "
+                f"the timeout is limited to a minimum of {timeout_ms} ms"
+            )
+        Logging.logger.info(f"Setting modbus timeout to {timeout_ms} ms")
+        value_to_write = timeout_ms.to_bytes(
+            length=cpx_e_modbus_registers.TIMEOUT.length * 2, byteorder="little"
+        )
+        self.write_reg_data_with_single_cmds(
+            value_to_write, cpx_e_modbus_registers.TIMEOUT.register_address
+        )
+        # Check if it actually succeeded
+        indata = int.from_bytes(
+            self.read_reg_data(*cpx_e_modbus_registers.TIMEOUT),
+            byteorder="little",
+            signed=False,
+        )
+        if indata != timeout_ms:
+            Logging.logger.error("Setting of modbus timeout was not successful")
+
     def write_function_number(self, function_number: int, value: int) -> None:
         """Write parameters via function number
 
@@ -102,12 +142,12 @@ class CpxE(CpxBase):
         """
         value_bytes = value.to_bytes(2, byteorder="little")
         self.write_reg_data(
-            value_bytes, cpx_e_registers.DATA_SYSTEM_TABLE_WRITE.register_address
+            value_bytes, cpx_e_modbus_registers.DATA_SYSTEM_TABLE_WRITE.register_address
         )
         # need to write 0 first because there might be an
         # old unknown configuration in the register
         self.write_reg_data(
-            b"\x00\x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+            b"\x00\x00", cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address
         )
 
         write_data = (
@@ -116,14 +156,14 @@ class CpxE(CpxBase):
 
         self.write_reg_data(
             write_data,
-            cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+            cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
             data = int.from_bytes(
-                self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS),
+                self.read_reg_data(*cpx_e_modbus_registers.PROCESS_DATA_INPUTS),
                 byteorder="little",
             )
             its += 1
@@ -146,7 +186,7 @@ class CpxE(CpxBase):
         # need to write 0 first because there might be an
         # old unknown configuration in the register
         self.write_reg_data(
-            b"\x00\x00", cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address
+            b"\x00\x00", cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address
         )
 
         write_data = (self._control_bit_value | function_number).to_bytes(
@@ -155,14 +195,14 @@ class CpxE(CpxBase):
 
         self.write_reg_data(
             write_data,
-            cpx_e_registers.PROCESS_DATA_OUTPUTS.register_address,
+            cpx_e_modbus_registers.PROCESS_DATA_OUTPUTS.register_address,
         )
 
         data = 0
         its = 0
         while (data & self._control_bit_value) == 0 and its < 1000:
             data = int.from_bytes(
-                self.read_reg_data(*cpx_e_registers.PROCESS_DATA_INPUTS),
+                self.read_reg_data(*cpx_e_modbus_registers.PROCESS_DATA_INPUTS),
                 byteorder="little",
             )
             its += 1
@@ -172,7 +212,7 @@ class CpxE(CpxBase):
 
         data &= ~self._control_bit_value
         value = int.from_bytes(
-            self.read_reg_data(*cpx_e_registers.DATA_SYSTEM_TABLE_READ),
+            self.read_reg_data(*cpx_e_modbus_registers.DATA_SYSTEM_TABLE_READ),
             byteorder="little",
         )
 
@@ -188,7 +228,7 @@ class CpxE(CpxBase):
         :rtype: int
         """
         data = int.from_bytes(
-            self.read_reg_data(*cpx_e_registers.MODULE_CONFIGURATION),
+            self.read_reg_data(*cpx_e_modbus_registers.MODULE_CONFIGURATION),
             byteorder="little",
         )
         Logging.logger.debug(f"Read {data} from MODULE_CONFIGURATION register")
@@ -199,7 +239,7 @@ class CpxE(CpxBase):
 
         :returns: list of bools with Errors (True = Error)
         :rtype: list[bool]"""
-        data = self.read_reg_data(*cpx_e_registers.FAULT_DETECTION)
+        data = self.read_reg_data(*cpx_e_modbus_registers.FAULT_DETECTION)
 
         Logging.logger.debug(f"Read {data} from FAULT_DETECTION register")
         return bytes_to_boollist(data[:6], 3)
@@ -212,7 +252,7 @@ class CpxE(CpxBase):
         """
         write_protect_bit = 11
         force_active_bit = 15
-        data = self.read_reg_data(*cpx_e_registers.STATUS_REGISTER)
+        data = self.read_reg_data(*cpx_e_modbus_registers.STATUS_REGISTER)
         Logging.logger.debug(f"Read {data} from STATUS_REGISTER register")
         data = bytes_to_boollist(data)
         return (data[write_protect_bit], data[force_active_bit])
