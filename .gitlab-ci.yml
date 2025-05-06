@@ -6,3 +6,6 @@ include:
   - project: 'festo-research/electric-automation/festo-templates'
     ref: 'main'
     file: '/gitlab-ci-python.yml'
+  - project: 'renovate-bot/renovate-runner'
+    file: '/templates/renovate.gitlab-ci.yml'
+
