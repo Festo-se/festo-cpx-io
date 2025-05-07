@@ -964,7 +964,9 @@ class ApModule(CpxModule):
         self.fieldbus_parameters = channel_params
         return channel_params
 
-    def cast_channel_argument_to_list(self, channels: list[int] | int) -> list[int]:
+    def cast_channel_argument_to_list(
+        self, channels: Union[list[int], int]
+    ) -> list[int]:
         """Checks if the given channel argument is a list and casts it to a list if not.
         Else the list stays as it is.
         Returns a list containing the channels.
@@ -981,7 +983,7 @@ class ApModule(CpxModule):
     @CpxBase.require_base
     def read_isdu(
         self,
-        channels: list[int] | int,
+        channels: Union[list[int], int],
         index: int,
         subindex: int = 0,
         data_type: str = "raw",
@@ -1109,7 +1111,7 @@ class ApModule(CpxModule):
     def write_isdu(
         self,
         data: Union[bytes, str, int, bool],
-        channels: list[int] | int,
+        channels: Union[list[int], int],
         index: int,
         subindex: int = 0,
     ) -> None:
