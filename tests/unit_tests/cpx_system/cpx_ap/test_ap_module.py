@@ -2190,7 +2190,6 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        # channel = input_value
         channels = [0, 1]
         index = 4
         subindex = 5
@@ -2339,7 +2338,7 @@ class TestApModule:
 
     @pytest.mark.parametrize(
         "input_value, expected_output",
-        [("str", [""]), ("int", [0]), ("raw", [b""]), ("bool", [False])],
+        [("str", ""), ("int", 0), ("raw", b""), ("bool", False)],
     )
     def test_read_isdu_different_datatypes(
         self, module_fixture, input_value, expected_output
@@ -2354,7 +2353,7 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        ret = module.read_isdu([0], 0, data_type=input_value)
+        ret = module.read_isdu(0, 0, data_type=input_value)
 
         # Assert
         assert ret == expected_output

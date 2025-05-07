@@ -8,7 +8,7 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
 SYSTEM_IP_ADDRESS = "172.16.1.41"
-EMCS_DISCONNECTED = True
+EMCS_DISCONNECTED = False
 EHPS_DISCONNECTED = False
 
 
@@ -713,7 +713,7 @@ def test_4iol_sdas_read_isdu_string_as_raw(test_cpxap):
     # It actually returns "Festo AG & Co. KG" on my device, which could be a
     # different hardware version.
     # in io-link, strings are encoded byteorder "msb first", so no change required
-    ret_value = ret[0].decode("ascii")
+    ret_value = ret.decode("ascii")
 
     # Assert
     assert ret_value == "Festo AG & Co. KG"
@@ -737,7 +737,7 @@ def test_4iol_sdas_read_isdu_string_as_str(test_cpxap):
     # different hardware version.
 
     # Assert
-    assert ret[0] == "Festo AG & Co. KG"
+    assert ret == "Festo AG & Co. KG"
 
 
 def test_4iol_sdas_write_isdu_string_as_raw(test_cpxap):
@@ -756,7 +756,7 @@ def test_4iol_sdas_write_isdu_string_as_raw(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x0018, 0)
 
     # This splits at the first b"\x00" and only uses the left side.
-    ret_value = ret[0].decode("ascii").split("\x00", 1)[0]
+    ret_value = ret.decode("ascii").split("\x00", 1)[0]
 
     # Assert
     assert ret_value == "FESTO"
@@ -768,7 +768,7 @@ def test_4iol_sdas_write_isdu_string_as_raw(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x0018, 0)
 
     # This splits at the first b"\x00" and only uses the left side.
-    ret_value = ret[0].decode("ascii").split("\x00", 1)[0]
+    ret_value = ret.decode("ascii").split("\x00", 1)[0]
 
     # Assert
     assert ret_value == "del"
@@ -790,7 +790,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x0018, 0, data_type="str")
 
     # Assert
-    assert ret[0] == "FESTO"
+    assert ret == "FESTO"
 
     # Act more
     # This should test if there are characters remaining in the isdu
@@ -799,7 +799,7 @@ def test_4iol_sdas_write_isdu_string_as_str(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x0018, 0, data_type="str")
 
     # Assert
-    assert ret[0] == "del"
+    assert ret == "del"
 
 
 def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
@@ -818,7 +818,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x0018, 0, data_type="str")
 
     # Assert
-    assert ret[0] == "FESTO"
+    assert ret == "FESTO"
 
     # Act more
     # This should test if there are characters remaining in the isdu
@@ -827,7 +827,7 @@ def test_4iol_sdas_write_isdu_string_1byte(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x0018, 0, data_type="str")
 
     # Assert
-    assert ret[0] == "del"
+    assert ret == "del"
 
 
 def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxap):
@@ -846,7 +846,7 @@ def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxap):
     m.write_isdu(b"\x01\x23", [sdas_channel], 0x003C, 1)
     ret = m.read_isdu([sdas_channel], 0x003C, 1)
 
-    ret_value = int.from_bytes(ret[0], byteorder="big")
+    ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x0123
@@ -855,7 +855,7 @@ def test_4iol_sdas_readwrite_isdu_int16_as_raw(test_cpxap):
     m.write_isdu(b"\x01\x00", [sdas_channel], 0x003C, 1)
     ret = m.read_isdu([sdas_channel], 0x003C, 1)
 
-    ret_value = int.from_bytes(ret[0], byteorder="big")
+    ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x0100
@@ -878,13 +878,13 @@ def test_4iol_sdas_readwrite_isdu_int16_as_int(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x003C, 1, data_type="int")
 
     # Assert
-    assert ret[0] == 0x2301  # big endianess here
+    assert ret == 0x0123
 
     # Act again
     m.write_isdu(0x0100, [sdas_channel], 0x003C, 1)
     ret = m.read_isdu([sdas_channel], 0x003C, 1)
 
-    ret_value = int.from_bytes(ret[0], byteorder="big")
+    ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x0100
@@ -906,7 +906,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxap):
     m.write_isdu(b"\x86", [sdas_channel], 0x003D, 2)
     ret = m.read_isdu([sdas_channel], 0x003D, 2)
 
-    ret_value = int.from_bytes(ret[0], byteorder="big")
+    ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x86
@@ -915,7 +915,7 @@ def test_4iol_sdas_readwrite_isdu_int8_as_raw(test_cpxap):
     m.write_isdu(b"\x00", [sdas_channel], 0x003D, 2)
     ret = m.read_isdu([sdas_channel], 0x003D, 2)
 
-    ret_value = int.from_bytes(ret[0], byteorder="big")
+    ret_value = int.from_bytes(ret, byteorder="big")
 
     # Assert
     assert ret_value == 0x00
@@ -938,14 +938,14 @@ def test_4iol_sdas_readwrite_isdu_int8_as_int(test_cpxap):
     ret = m.read_isdu([sdas_channel], 0x003D, 2, data_type="uint")
 
     # Assert
-    assert ret[0] == 134
+    assert ret == 134
 
     # Act again
     m.write_isdu(0, [sdas_channel], 0x003D, 2)
     ret = m.read_isdu([sdas_channel], 0x003D, 2, data_type="uint")
 
     # Assert
-    assert ret[0] == 0
+    assert ret == 0
 
 
 @pytest.mark.skipif(EMCS_DISCONNECTED, reason="HW removed from test system")
@@ -1614,7 +1614,7 @@ def test_4iol_ethrottle_isdu_read(test_cpxap):
     while param[ethrottle_channel]["Port status information"] != "OPERATE":
         param = m.read_fieldbus_parameters()
 
-    assert (m.read_isdu([ethrottle_channel], 16, 0, data_type="str")[0]) == "Festo"
+    assert (m.read_isdu([ethrottle_channel], 16, 0, data_type="str")) == "Festo"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive
@@ -1645,11 +1645,10 @@ def test_4iol_ethrottle_isdu_write_1byte(test_cpxap):
     m.write_isdu(b"\xca", [ethrottle_channel], function_tag_idx, 0)
 
     assert (
-        m.read_isdu([ethrottle_channel], function_tag_idx, 0)[0]
-        == b"\xca" + b"\x00" * 31
+        m.read_isdu([ethrottle_channel], function_tag_idx, 0) == b"\xca" + b"\x00" * 31
     )
     # we can also cut the rest off in this case
-    assert m.read_isdu([ethrottle_channel], function_tag_idx, 0)[0][:1] == b"\xca"
+    assert m.read_isdu([ethrottle_channel], function_tag_idx, 0)[:1] == b"\xca"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive
@@ -1674,7 +1673,7 @@ def test_4iol_ethrottle_isdu_write_2byte(test_cpxap):
     function_tag_idx = 25
     m.write_isdu(b"\x06\x07", [ethrottle_channel], function_tag_idx, 0)
 
-    assert m.read_isdu([ethrottle_channel], function_tag_idx, 0)[0][:2] == b"\x06\x07"
+    assert m.read_isdu([ethrottle_channel], function_tag_idx, 0)[:2] == b"\x06\x07"
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)
     # wait for inactive
@@ -1700,8 +1699,7 @@ def test_4iol_ethrottle_isdu_write_4byte(test_cpxap):
     m.write_isdu(b"\x01\x02\x03\x04", [ethrottle_channel], function_tag_idx, 0)
 
     assert (
-        m.read_isdu([ethrottle_channel], function_tag_idx, 0)[0][:4]
-        == b"\x01\x02\x03\x04"
+        m.read_isdu([ethrottle_channel], function_tag_idx, 0)[:4] == b"\x01\x02\x03\x04"
     )
 
     m.write_module_parameter("Port Mode", "DEACTIVATED", ethrottle_channel)

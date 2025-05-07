@@ -964,33 +964,34 @@ class ApModule(CpxModule):
         self.fieldbus_parameters = channel_params
         return channel_params
 
-    def get_command_for_data_type(self, data_type: str) -> bytes:
-        """Returns the command for the used data_type.
-        If data_type is not supported, a TypeError is raised.
-        """
-        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        # it's easiest if we stay on 100 and byteorder "big"
-        # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
-        # keeps the two files synchronized during development
-        if data_type in ["raw", "str"] and data_type in SUPPORTED_ISDU_DATATYPES:
-            return (100).to_bytes(2, "little")
-        if (
-            data_type in ["int", "bool", "float", "uint", "sint"]
-            and data_type in SUPPORTED_ISDU_DATATYPES
-        ):
-            return (50).to_bytes(2, "little")
+    def cast_channel_argument_to_list(self, channels: list[int] | int) -> list[int]:
+        """Checks if the given channel argument is a list and casts it to a list if not.
+        Else the list stays as it is.
+        Returns a list containing the channels.
 
-        raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
+        :param channels: list of channels or single channel number
+        : type channels
+        """
+
+        if not isinstance(channels, list):
+            channels = [channels]
+
+        return channels
 
     @CpxBase.require_base
     def read_isdu(
-        self, channels: list[int], index: int, subindex: int = 0, data_type: str = "raw"
+        self,
+        channels: list[int] | int,
+        index: int,
+        subindex: int = 0,
+        data_type: str = "raw",
     ) -> any:
         """Read isdu (device parameter) from defined channel.
         Raises CpxRequestError when read failed.
 
-        :param channel: list of channel numbers which should be readed, starting with 0
-        :type channel: int
+        :param channels: list of channels or single channel number(s)
+                         which should be read, starting with 0
+        :type channels: list[int] | int
         :param index: io-link parameter index
         :type index: int
         :param subindex: (optional) io-link parameter subindex, defaults to 0
@@ -999,8 +1000,8 @@ class ApModule(CpxModule):
             Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
             supported datatypes
         :type data_type: str
-        :return : list of values depending on the datatype for each channel
-        :rtype : list[any]
+        :return : list of values or single value depending on the datatype for each channel
+        :rtype : list[any] | any
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
@@ -1009,12 +1010,23 @@ class ApModule(CpxModule):
         index = index.to_bytes(2, "little")
         subindex = subindex.to_bytes(2, "little")
 
+        channels = self.cast_channel_argument_to_list(channels=channels)
+
         for channel in channels:
             module_index = (self.position + 1).to_bytes(2, "little")
             channel = (channel + 1).to_bytes(2, "little")
             length = (0).to_bytes(2, "little")  # always zero when reading
 
-            command = self.get_command_for_data_type(data_type)
+            # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+            # it's easiest if we stay on 100 and byteorder "big"
+            command = (100).to_bytes(2, "little")
+
+            # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
+            # keeps the two files synchronized during development
+            if data_type not in SUPPORTED_ISDU_DATATYPES:
+                raise TypeError(
+                    f"Datatype '{data_type}' is not supported by read_isdu()"
+                )
 
             # select module, starts with 1
             self.base.write_reg_data(
@@ -1087,13 +1099,17 @@ class ApModule(CpxModule):
                 raise TypeError(
                     f"Datatype '{data_type}' is not supported by read_isdu()"
                 )
+
+        if len(results) == 1:
+            return results[0]
+
         return results
 
     @CpxBase.require_base
     def write_isdu(
         self,
         data: Union[bytes, str, int, bool],
-        channels: list[int],
+        channels: list[int] | int,
         index: int,
         subindex: int = 0,
     ) -> None:
@@ -1102,8 +1118,9 @@ class ApModule(CpxModule):
 
         :param data: Data to write.
         :type data: bytes|str|int|bool
-        :param channels: list of channel numbers which should be written, starting with 0
-        :type channels: list[int]
+        :param channels: list of channel numbers or single channel number
+                         which should be written, starting with 0
+        :type channels: list[int] | int
         :param index: io-link parameter index
         :type index: int
         :param subindex: io-link parameter subindex
@@ -1113,6 +1130,8 @@ class ApModule(CpxModule):
 
         index = (index).to_bytes(2, "little")
         subindex = (subindex).to_bytes(2, "little")
+
+        channels = self.cast_channel_argument_to_list(channels=channels)
 
         for channel in channels:
             module_index = (self.position + 1).to_bytes(2, "little")
