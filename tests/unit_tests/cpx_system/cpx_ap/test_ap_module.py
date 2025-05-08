@@ -2179,8 +2179,7 @@ class TestApModule:
             },
         ]
 
-    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
-    def test_read_isdu_different_channels(self, module_fixture, input_value):
+    def test_read_isdu_different_channels(self, module_fixture):
         """Test read_isdu"""
         # Arrange
         module = module_fixture
@@ -2191,23 +2190,25 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
         # Act
-        channel = input_value
+        channels = [0, 1]
         index = 4
         subindex = 5
 
-        result = module.read_isdu(channel, index, subindex)
+        result = module.read_isdu(channels, index, subindex)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
-            [
-                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
-                call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
-                call(b"\x04\x00", 34004),  # INDEX
-                call(b"\x05\x00", 34005),  # SUBINDEX
-                call(b"\x00\x00", 34006),  # LENGTH zero when reading
-                call(b"\x64\x00", 34001),  # COMMAND (read 100)
-            ]
-        )
+        for channel in channels:
+            module.base.write_reg_data.assert_has_calls(
+                [
+                    call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                    call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                    call(b"\x04\x00", 34004),  # INDEX
+                    call(b"\x05\x00", 34005),  # SUBINDEX
+                    call(b"\x00\x00", 34006),  # LENGTH zero when reading
+                    call(b"\x64\x00", 34001),  # COMMAND (read 100)
+                ]
+            )
+
         module.base.read_reg_data.assert_has_calls(
             [
                 call(34000, 1),
@@ -2216,9 +2217,10 @@ class TestApModule:
             ]
         )
 
-        assert (
-            result == b""
-        )  # will cut to the actual_length which is returned with 0 in this test
+        assert result == [
+            b"",
+            b"",
+        ]  # will cut to the actual_length which is returned with 0 in this test
 
     def test_read_isdu_no_response(self, module_fixture):
         """Test read_isdu"""
@@ -2231,15 +2233,14 @@ class TestApModule:
         module.base.read_reg_data = Mock(return_value=b"\x01\x00")
 
         # Act & Assert
-        channel = 0
+        channels = [0]
         index = 4
         subindex = 5
 
         with pytest.raises(CpxRequestError):
-            module.read_isdu(channel, index, subindex)
+            module.read_isdu(channels, index, subindex)
 
-    @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
-    def test_write_isdu_different_channels(self, module_fixture, input_value):
+    def test_write_isdu_different_channels(self, module_fixture):
         """Test write_isdu"""
         # Arrange
         module = module_fixture
@@ -2251,24 +2252,26 @@ class TestApModule:
 
         # Act
         data = b"\xca\xfe"
-        channel = input_value
+        channels = [0, 1, 2, 3]
         index = 4  # random
         subindex = 5  # random
 
-        module.write_isdu(data, channel, index, subindex)
+        module.write_isdu(data, channels, index, subindex)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
-            [
-                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
-                call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
-                call(b"\x04\x00", 34004),  # INDEX
-                call(b"\x05\x00", 34005),  # SUBINDEX
-                call(b"\x02\x00", 34006),  # LENGTH (bytes)
-                call(data, 34007),  # DATA
-                call(b"\x65\x00", 34001),  # COMMAND (read 101)
-            ]
-        )
+        for channel in channels:
+            module.base.write_reg_data.assert_has_calls(
+                [
+                    call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                    call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                    call(b"\x04\x00", 34004),  # INDEX
+                    call(b"\x05\x00", 34005),  # SUBINDEX
+                    call(b"\x02\x00", 34006),  # LENGTH (bytes)
+                    call(data, 34007),  # DATA
+                    call(b"\x65\x00", 34001),  # COMMAND (read 101)
+                ]
+            )
+
         module.base.read_reg_data.assert_has_calls([call(34000, 1)])
 
     @pytest.mark.parametrize(
@@ -2292,25 +2295,26 @@ class TestApModule:
 
         # Act
         data = input_value
-        channel = 0  # random
+        channels = [0]  # random
         index = 4  # random
         subindex = 5  # random
 
-        module.write_isdu(data, channel, index, subindex)
+        module.write_isdu(data, channels, index, subindex)
         length = len(data)
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
-            [
-                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
-                call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
-                call(b"\x04\x00", 34004),  # INDEX
-                call(b"\x05\x00", 34005),  # SUBINDEX
-                call(length.to_bytes(2, "little"), 34006),  # LENGTH
-                call(data, 34007),  # DATA
-                call(b"\x65\x00", 34001),  # COMMAND (read 101)
-            ]
-        )
+        for channel in channels:
+            module.base.write_reg_data.assert_has_calls(
+                [
+                    call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                    call((channel + 1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                    call(b"\x04\x00", 34004),  # INDEX
+                    call(b"\x05\x00", 34005),  # SUBINDEX
+                    call(length.to_bytes(2, "little"), 34006),  # LENGTH
+                    call(data, 34007),  # DATA
+                    call(b"\x65\x00", 34001),  # COMMAND (read 101)
+                ]
+            )
         module.base.read_reg_data.assert_has_calls([call(34000, 1)])
 
     def test_write_isdu_no_response(self, module_fixture):
@@ -2325,12 +2329,12 @@ class TestApModule:
 
         # Act & Assert
         data = b"\xca\xfe"
-        channel = 0
+        channels = [0]
         index = 4
         subindex = 5
 
         with pytest.raises(CpxRequestError):
-            module.write_isdu(data, channel, index, subindex)
+            module.write_isdu(data, channels, index, subindex)
 
     @pytest.mark.parametrize(
         "input_value, expected_output",
@@ -2389,21 +2393,25 @@ class TestApModule:
         module.base.write_reg_data = Mock()
         module.base.read_reg_data = Mock(return_value=b"\x00\x00")
 
+        channels = [0]
+        index = 0
+
         # Act
-        module.write_isdu(input_value, 0, 0)
+        module.write_isdu(input_value, channels, index)
 
         command = 101
 
         # Assert
-        module.base.write_reg_data.assert_has_calls(
-            [
-                call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
-                call((1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
-                call(b"\x00\x00", 34004),  # INDEX
-                call(b"\x00\x00", 34005),  # SUBINDEX
-                call(length.to_bytes(2, "little"), 34006),  # LENGTH
-                call(expected_output, 34007),  # DATA
-                call(command.to_bytes(2, "little"), 34001),  # COMMAND
-            ]
-        )
+        for channel in channels:
+            module.base.write_reg_data.assert_has_calls(
+                [
+                    call(b"\x01\x00", 34002),  # MODULE_NO (position add 1)
+                    call((1).to_bytes(2, "little"), 34003),  # CHANNEL (add 1)
+                    call(b"\x00\x00", 34004),  # INDEX
+                    call(b"\x00\x00", 34005),  # SUBINDEX
+                    call(length.to_bytes(2, "little"), 34006),  # LENGTH
+                    call(expected_output, 34007),  # DATA
+                    call(command.to_bytes(2, "little"), 34001),  # COMMAND
+                ]
+            )
         module.base.read_reg_data.assert_has_calls([call(34000, 1)])

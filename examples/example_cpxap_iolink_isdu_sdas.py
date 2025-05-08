@@ -19,27 +19,28 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
     while param[SDAS_CHANNEL]["Port status information"] != "OPERATE":
         param = io_link_master.read_fieldbus_parameters()
 
-    # Read raw isdu value
+    # Read raw isdu value into a single channel as parameter
     ret = io_link_master.read_isdu(SDAS_CHANNEL, 0x0010)  # subindex is optional
-    # without specifying the data_type, this returns a bytes object. Since in io-Link
-    # strings are encoded "msb first", no change is required in decoding. For example:
+    # without specifying the data_type, this returns a list with a bytes object. Since in
+    # io-Link strings are encoded "msb first", no change is required in decoding.
+    # For example:
     print(ret.decode("ascii"))
 
-    # Read isdu with data_type defined
-    ret = io_link_master.read_isdu(SDAS_CHANNEL, 0x0010, data_type="str")
+    # Read isdu with data_type defined with channel in a list
+    ret = io_link_master.read_isdu([SDAS_CHANNEL], 0x0010, data_type="str")
     # If you know the expected datatype, you can specify it and get the isdu data
     # interpreted correctly. ret will now be a python str type.
     print(ret)
 
-    # Write isdu raw (bytes)
+    # Write isdu raw (bytes) into a single channel as parameter
     io_link_master.write_isdu(b"FESTO", SDAS_CHANNEL, 0x0018)
     # this will write b"FESTO" to the isdu, can be read back with:
     ret = io_link_master.read_isdu(SDAS_CHANNEL, 0x0018)
     print(ret.decode("ascii"))
 
-    # Write isdu with datatype defined
-    io_link_master.write_isdu("FESTO", SDAS_CHANNEL, 0x0018)
+    # Write isdu with datatype defined with channel in a list
+    io_link_master.write_isdu("FESTO", [SDAS_CHANNEL], 0x0018)
     # this will write a string "FESTO" to the isdu with correct interpretation of the
     # datatype. This can be read back with:
-    ret = io_link_master.read_isdu(SDAS_CHANNEL, 0x0018, data_type="str")
+    ret = io_link_master.read_isdu([SDAS_CHANNEL], 0x0018, data_type="str")
     print(ret)
