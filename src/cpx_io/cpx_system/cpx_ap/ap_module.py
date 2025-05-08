@@ -964,15 +964,36 @@ class ApModule(CpxModule):
         self.fieldbus_parameters = channel_params
         return channel_params
 
+    def cast_channel_argument_to_list(
+        self, channels: Union[list[int], int]
+    ) -> list[int]:
+        """Checks if the given channel argument is a list and casts it to a list if not.
+        Else the list stays as it is.
+        Returns a list containing the channels.
+
+        :param channels: list of channels or single channel number
+        : type channels
+        """
+
+        if not isinstance(channels, list):
+            channels = [channels]
+
+        return channels
+
     @CpxBase.require_base
     def read_isdu(
-        self, channel: int, index: int, subindex: int = 0, data_type: str = "raw"
+        self,
+        channels: Union[list[int], int],
+        index: int,
+        subindex: int = 0,
+        data_type: str = "raw",
     ) -> any:
         """Read isdu (device parameter) from defined channel.
         Raises CpxRequestError when read failed.
 
-        :param channel: Channel number, starting with 0
-        :type channel: int
+        :param channels: list of channels or single channel number(s)
+                         which should be read, starting with 0
+        :type channels: list[int] | int
         :param index: io-link parameter index
         :type index: int
         :param subindex: (optional) io-link parameter subindex, defaults to 0
@@ -981,92 +1002,116 @@ class ApModule(CpxModule):
             Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
             supported datatypes
         :type data_type: str
-        :return : Value depending on the datatype
-        :rtype : any
+        :return : list of values or single value depending on the datatype for each channel
+        :rtype : list[any] | any
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        module_index = (self.position + 1).to_bytes(2, "little")
-        channel = (channel + 1).to_bytes(2, "little")
+        results = []
+
         index = index.to_bytes(2, "little")
         subindex = subindex.to_bytes(2, "little")
-        length = (0).to_bytes(2, "little")  # always zero when reading
 
-        # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
-        # it's easiest if we stay on 100 and byteorder "big"
-        command = (100).to_bytes(2, "little")
+        channels = self.cast_channel_argument_to_list(channels=channels)
 
-        # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
-        # keeps the two files synchronized during development
-        if data_type not in SUPPORTED_ISDU_DATATYPES:
-            raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
+        for channel in channels:
+            module_index = (self.position + 1).to_bytes(2, "little")
+            channel = (channel + 1).to_bytes(2, "little")
+            length = (0).to_bytes(2, "little")  # always zero when reading
 
-        # select module, starts with 1
-        self.base.write_reg_data(
-            module_index, ap_modbus_registers.ISDU_MODULE_NO.register_address
-        )
-        # select channel, starts with 1
-        self.base.write_reg_data(
-            channel, ap_modbus_registers.ISDU_CHANNEL.register_address
-        )
-        # select index
-        self.base.write_reg_data(index, ap_modbus_registers.ISDU_INDEX.register_address)
-        # select subindex
-        self.base.write_reg_data(
-            subindex, ap_modbus_registers.ISDU_SUBINDEX.register_address
-        )
-        # select length of data in bytes
-        self.base.write_reg_data(
-            length, ap_modbus_registers.ISDU_LENGTH.register_address
-        )
-        # command
-        self.base.write_reg_data(
-            command, ap_modbus_registers.ISDU_COMMAND.register_address
-        )
+            # command: 50 Read(with byte swap), 51 write(with byte swap), 100 read, 101 write
+            # it's easiest if we stay on 100 and byteorder "big"
+            command = (100).to_bytes(2, "little")
 
-        stat, cnt = 1, 0
-        while stat > 0 and cnt < 1000:
-            stat = int.from_bytes(
-                self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),
+            # checking the availability in the SUPPORTED_ISDU_DATATYPES is not required but
+            # keeps the two files synchronized during development
+            if data_type not in SUPPORTED_ISDU_DATATYPES:
+                raise TypeError(
+                    f"Datatype '{data_type}' is not supported by read_isdu()"
+                )
+
+            # select module, starts with 1
+            self.base.write_reg_data(
+                module_index, ap_modbus_registers.ISDU_MODULE_NO.register_address
+            )
+            # select channel, starts with 1
+            self.base.write_reg_data(
+                channel, ap_modbus_registers.ISDU_CHANNEL.register_address
+            )
+            # select index
+            self.base.write_reg_data(
+                index, ap_modbus_registers.ISDU_INDEX.register_address
+            )
+            # select subindex
+            self.base.write_reg_data(
+                subindex, ap_modbus_registers.ISDU_SUBINDEX.register_address
+            )
+            # select length of data in bytes
+            self.base.write_reg_data(
+                length, ap_modbus_registers.ISDU_LENGTH.register_address
+            )
+            # command
+            self.base.write_reg_data(
+                command, ap_modbus_registers.ISDU_COMMAND.register_address
+            )
+
+            stat, cnt = 1, 0
+            while stat > 0 and cnt < 1000:
+                stat = int.from_bytes(
+                    self.base.read_reg_data(*ap_modbus_registers.ISDU_STATUS),
+                    byteorder="little",
+                )
+                cnt += 1
+            if cnt >= 1000:
+                raise CpxRequestError("ISDU data read failed")
+
+            # read back the actual length from the length register
+            actual_length = int.from_bytes(
+                self.base.read_reg_data(
+                    ap_modbus_registers.ISDU_LENGTH.register_address
+                ),
                 byteorder="little",
             )
-            cnt += 1
-        if cnt >= 1000:
-            raise CpxRequestError("ISDU data read failed")
 
-        # read back the actual length from the length register
-        actual_length = int.from_bytes(
-            self.base.read_reg_data(ap_modbus_registers.ISDU_LENGTH.register_address),
-            byteorder="little",
-        )
+            ret = self.base.read_reg_data(
+                ap_modbus_registers.ISDU_DATA.register_address, actual_length
+            )
+            Logging.logger.info(
+                f"{self.name}: Reading ISDU for channel {channel}: {ret}"
+            )
 
-        ret = self.base.read_reg_data(
-            ap_modbus_registers.ISDU_DATA.register_address, actual_length
-        )
-        Logging.logger.info(f"{self.name}: Reading ISDU for channel {channel}: {ret}")
+            if data_type == "raw":
+                results.append(ret[:actual_length])
+            elif data_type == "str":
+                results.append(ret.decode("ascii").split("\x00", 1)[0])
+            elif data_type == "uint":
+                ret = ret[:actual_length]
+                results.append(int.from_bytes(ret, byteorder="big"))
+            elif data_type in ["sint", "int"]:
+                ret = ret[:actual_length]
+                results.append(int.from_bytes(ret, byteorder="big", signed=True))
+            elif data_type == "bool":
+                ret = ret[:actual_length]
+                results.append(bool.from_bytes(ret, byteorder="big"))
+            elif data_type == "float":
+                ret = ret[:actual_length]
+                results.append(struct.unpack("!f", ret)[0])
+            else:
+                # this is unnecessary but required for consistent return statements
+                raise TypeError(
+                    f"Datatype '{data_type}' is not supported by read_isdu()"
+                )
 
-        if data_type == "raw":
-            return ret[:actual_length]
-        if data_type == "str":
-            return ret.decode("ascii").split("\x00", 1)[0]
-        if data_type == "uint":
-            return int.from_bytes(ret[:actual_length], byteorder="big")
-        if data_type in ["sint", "int"]:
-            return int.from_bytes(ret[:actual_length], byteorder="big", signed=True)
-        if data_type == "bool":
-            return bool.from_bytes(ret[:actual_length], byteorder="big")
-        if data_type == "float":
-            ret = ret[:actual_length]
-            return struct.unpack("!f", ret)[0]
+        if len(results) == 1:
+            return results[0]
 
-        # this is unnecessary but required for consistent return statements
-        raise TypeError(f"Datatype '{data_type}' is not supported by read_isdu()")
+        return results
 
     @CpxBase.require_base
     def write_isdu(
         self,
         data: Union[bytes, str, int, bool],
-        channel: int,
+        channels: Union[list[int], int],
         index: int,
         subindex: int = 0,
     ) -> None:
@@ -1075,8 +1120,9 @@ class ApModule(CpxModule):
 
         :param data: Data to write.
         :type data: bytes|str|int|bool
-        :param channel: Channel number, starting with 0
-        :type channel: int
+        :param channels: list of channel numbers or single channel number
+                         which should be written, starting with 0
+        :type channels: list[int] | int
         :param index: io-link parameter index
         :type index: int
         :param subindex: io-link parameter subindex
@@ -1084,71 +1130,83 @@ class ApModule(CpxModule):
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
-        module_index = (self.position + 1).to_bytes(2, "little")
-        channel = (channel + 1).to_bytes(2, "little")
         index = (index).to_bytes(2, "little")
         subindex = (subindex).to_bytes(2, "little")
 
-        if isinstance(data, bytes):
-            length = (len(data)).to_bytes(2, "little")
-            command = (101).to_bytes(2, "little")  # write without byteswap
+        channels = self.cast_channel_argument_to_list(channels=channels)
 
-        elif isinstance(data, str):
-            length = (len(data)).to_bytes(2, "little")
-            command = (101).to_bytes(2, "little")  # write without byteswap
-            data = data.encode(encoding="ascii")
+        for channel in channels:
+            module_index = (self.position + 1).to_bytes(2, "little")
+            channel = (channel + 1).to_bytes(2, "little")
 
-        elif isinstance(data, bool):
-            length = (1).to_bytes(2, "little")
-            command = (101).to_bytes(2, "little")  # write without byteswap
-            data = data.to_bytes(1, byteorder="big")
+            if isinstance(data, bytes):
+                length = (len(data)).to_bytes(2, "little")
+                command = (101).to_bytes(2, "little")  # write without byteswap
 
-        elif isinstance(data, int):
-            # calculate bytelength of integer
-            length_int = (data.bit_length() + 7) // 8
-            if length_int == 0:
-                length_int = 1
-            length = length_int.to_bytes(2, "little")
-            command = (101).to_bytes(2, "little")  # write without byteswap
+            elif isinstance(data, str):
+                length = (len(data)).to_bytes(2, "little")
+                command = (101).to_bytes(2, "little")  # write without byteswap
+                data = data.encode(encoding="ascii")
 
-            # negative data needs to be filled with 0xff on uneven bytes
-            if data < 0 and length_int % 2:
-                data = data.to_bytes(length_int + 1, byteorder="big", signed=data < 0)
+            elif isinstance(data, bool):
+                length = (1).to_bytes(2, "little")
+                command = (101).to_bytes(2, "little")  # write without byteswap
+                data = data.to_bytes(1, byteorder="big")
+
+            elif isinstance(data, int):
+                # calculate bytelength of integer
+                length_int = (data.bit_length() + 7) // 8
+                if length_int == 0:
+                    length_int = 1
+                length = length_int.to_bytes(2, "little")
+                command = (101).to_bytes(2, "little")  # write without byteswap
+
+                # negative data needs to be filled with 0xff on uneven bytes
+                if data < 0 and length_int % 2:
+                    data = data.to_bytes(
+                        length_int + 1, byteorder="big", signed=data < 0
+                    )
+                else:
+                    data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+
+            elif isinstance(data, float):
+                data = struct.pack("!f", data)
+                command = (101).to_bytes(2, "little")  # write without byteswap
+                length = len(data).to_bytes(2, "little")
+
             else:
-                data = data.to_bytes(length_int, byteorder="big", signed=data < 0)
+                raise TypeError(
+                    f"Datatype '{type(data)}' is not supported by write_isdu()"
+                )
 
-        elif isinstance(data, float):
-            data = struct.pack("!f", data)
-            command = (101).to_bytes(2, "little")  # write without byteswap
-            length = len(data).to_bytes(2, "little")
-
-        else:
-            raise TypeError(f"Datatype '{type(data)}' is not supported by write_isdu()")
-
-        # select module, starts with 1
-        self.base.write_reg_data(
-            module_index, ap_modbus_registers.ISDU_MODULE_NO.register_address
-        )
-        # select channel, starts with 1
-        self.base.write_reg_data(
-            channel, ap_modbus_registers.ISDU_CHANNEL.register_address
-        )
-        # select index
-        self.base.write_reg_data(index, ap_modbus_registers.ISDU_INDEX.register_address)
-        # select subindex
-        self.base.write_reg_data(
-            subindex, ap_modbus_registers.ISDU_SUBINDEX.register_address
-        )
-        # select length of data in bytes
-        self.base.write_reg_data(
-            length, ap_modbus_registers.ISDU_LENGTH.register_address
-        )
-        # write data to data register
-        self.base.write_reg_data(data, ap_modbus_registers.ISDU_DATA.register_address)
-        # command
-        self.base.write_reg_data(
-            command, ap_modbus_registers.ISDU_COMMAND.register_address
-        )
+            # select module, starts with 1
+            self.base.write_reg_data(
+                module_index, ap_modbus_registers.ISDU_MODULE_NO.register_address
+            )
+            # select channel, starts with 1
+            self.base.write_reg_data(
+                channel, ap_modbus_registers.ISDU_CHANNEL.register_address
+            )
+            # select index
+            self.base.write_reg_data(
+                index, ap_modbus_registers.ISDU_INDEX.register_address
+            )
+            # select subindex
+            self.base.write_reg_data(
+                subindex, ap_modbus_registers.ISDU_SUBINDEX.register_address
+            )
+            # select length of data in bytes
+            self.base.write_reg_data(
+                length, ap_modbus_registers.ISDU_LENGTH.register_address
+            )
+            # write data to data register
+            self.base.write_reg_data(
+                data, ap_modbus_registers.ISDU_DATA.register_address
+            )
+            # command
+            self.base.write_reg_data(
+                command, ap_modbus_registers.ISDU_COMMAND.register_address
+            )
 
         stat, cnt = 1, 0
         while stat > 0 and cnt < 1000:
@@ -1164,5 +1222,5 @@ class ApModule(CpxModule):
             )
 
         Logging.logger.info(
-            f"{self.name}: Write ISDU {data} to channel {channel} ({index},{subindex})"
+            f"{self.name}: Write ISDU {data} to channels {channels} ({index},{subindex})"
         )
