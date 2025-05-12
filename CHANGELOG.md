@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: datatype of argument channel in read_isda() and write_isda() from int to (list[int] and int) to pass a list of channels or a single channel which should be r/w
 - CPX-AP: return value of read_isda() from any to list[any] and any
 - group all non major changes into a single merge request
+- bump setuptools version
 
 ## v0.9.0 - 05.05.25
 ### Added
