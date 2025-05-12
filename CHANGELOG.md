@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: return value of read_isda() from any to list[any] and any
 - group all non major changes into a single merge request
 - bump setuptools version
+- bump rich version
 
 ## v0.9.0 - 05.05.25
 ### Added
