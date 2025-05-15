@@ -160,11 +160,9 @@ class ApModule(CpxModule):
 
     @staticmethod
     def _generate_decode_string_list(channels: list) -> list[str]:
-        """Generate a struct decode string from the channel information"""
+        """Generate a struct decode string list from the channel information"""
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        # if byte_swap_needed is different for the individual channels we need a more
-        # complicated handling here.
         # TODO: byteswap might be incorrect because bytes per uint8 must not be switched but array of 2*uint8 need to be byteorder little
         decode_string = []
 
@@ -211,9 +209,11 @@ class ApModule(CpxModule):
             )
 
             # values_list = []
+
             start_index = 0
             for i, c in enumerate(self.channels.outputs):
-                size = c.bits // 8
+                multiplier = c.array_size if c.array_size else 1
+                size = (c.bits // 8) * multiplier
                 assert size > 0
 
                 # values_list.append(data[start_index : start_index + size])
@@ -231,7 +231,13 @@ class ApModule(CpxModule):
                 #         struct.unpack(decode_string_list[i], data)[:-1]
                 #     )  # dismiss the additional byte
                 # else:
+
                 values.append(struct.unpack(decode_string_list[i], value))
+
+            for i, v in enumerate(values):
+                # if it's not an array, exctract the one value
+                if len(v) == 1:
+                    values[i] = v[0]
 
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
         return values
