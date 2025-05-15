@@ -1,18 +1,10 @@
 """Contains tests for ApModule class"""
 
-from unittest.mock import Mock, call, patch
-from collections import namedtuple
 import pytest
 
-from cpx_io.cpx_system.cpx_base import CpxRequestError
-from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information import ApddInformation
-from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
-from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
-from cpx_io.cpx_system.cpx_ap.ap_parameter import Parameter
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
-from cpx_io.cpx_system.cpx_dataclasses import SystemEntryRegisters
 
 
 class TestApModule:

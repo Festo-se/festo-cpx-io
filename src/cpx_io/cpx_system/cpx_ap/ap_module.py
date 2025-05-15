@@ -208,35 +208,37 @@ class ApModule(CpxModule):
                 self.channels.outputs
             )
 
-            # values_list = []
+            # TODO: maybe add one additional byte to decodestring? due to 16 bit modbus reg
 
-            start_index = 0
-            for i, c in enumerate(self.channels.outputs):
+            bool_count = decode_string_list.count(">?")
+            if bool_count % 8:
+                raise NotImplementedError(
+                    "Bools are only supported if they fill a whole byte"
+                )
+            value_index = 0
+            decode_index = 0
+            while value_index < len(self.channels.outputs):
+                c = self.channels.outputs[value_index]
                 multiplier = c.array_size if c.array_size else 1
-                size = (c.bits // 8) * multiplier
-                assert size > 0
+                size = div_ceil(c.bits, 8) * multiplier
 
-                # values_list.append(data[start_index : start_index + size])
-                value = data[start_index : start_index + size]
-                start_index += size
+                if c.data_type == "BOOL":
+                    value = bytes_to_boollist(data[value_index : value_index + 8])
+                    values.extend(value)
+                    decode_index += 7
 
-                # TODO: Take care about BOOLs and maybe about one additional byte due to 16 bit modbus reg
+                else:
+                    value = data[value_index : value_index + size]
+                    values.append(
+                        struct.unpack(decode_string_list[decode_index], value)
+                    )
+                    decode_index += 1
 
-                # if all(char == "?" for char in decode_string_list[i][1:]):  # all channels BOOL
-                #     values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
-                # elif decode_string_list[i].lower().count("b") % 2:
-                #     # if there is an odd number of 8bit values, append one byte
-                #     decode_string_list[i] += "b"  # don't care if signed or unsigned
-                #     values.extend(
-                #         struct.unpack(decode_string_list[i], data)[:-1]
-                #     )  # dismiss the additional byte
-                # else:
+                value_index += size
 
-                values.append(struct.unpack(decode_string_list[i], value))
-
+            # if it's not an array, exctract the one value
             for i, v in enumerate(values):
-                # if it's not an array, exctract the one value
-                if len(v) == 1:
+                if not isinstance(v, bool) and len(v) == 1:
                     values[i] = v[0]
 
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
