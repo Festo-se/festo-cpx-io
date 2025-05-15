@@ -159,26 +159,29 @@ class ApModule(CpxModule):
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @staticmethod
-    def _generate_decode_string(channels: list) -> str:
+    def _generate_decode_string_list(channels: list) -> list[str]:
         """Generate a struct decode string from the channel information"""
 
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         # if byte_swap_needed is different for the individual channels we need a more
         # complicated handling here.
-
-        decode_string = "<" if any(c.byte_swap_needed for c in channels) else ">"
+        # TODO: byteswap might be incorrect because bytes per uint8 must not be switched but array of 2*uint8 need to be byteorder little
+        decode_string = []
 
         for c in channels:
+            byteswap = "<" if any(c.byte_swap_needed for c in channels) else ">"
+            multiplier = c.array_size if c.array_size else 1
+
             if c.data_type == "BOOL":
-                decode_string += "?"
+                decode_string.append(byteswap + "?" * multiplier)
             elif c.data_type == "INT8":
-                decode_string += "b"
+                decode_string.append(byteswap + "b" * multiplier)
             elif c.data_type == "UINT8":
-                decode_string += "B"
+                decode_string.append(byteswap + "B" * multiplier)
             elif c.data_type == "INT16":
-                decode_string += "h"
+                decode_string.append(byteswap + "h" * multiplier)
             elif c.data_type == "UINT16":
-                decode_string += "H"
+                decode_string.append(byteswap + "H" * multiplier)
             else:
                 raise TypeError(f"Data type {c.data_type} is not supported")
 
@@ -203,18 +206,32 @@ class ApModule(CpxModule):
                 self.system_entry_registers.outputs, byte_output_size
             )
 
-            decode_string = self._generate_decode_string(self.channels.outputs)
+            decode_string_list = self._generate_decode_string_list(
+                self.channels.outputs
+            )
 
-            if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
-            elif decode_string.lower().count("b") % 2:
-                # if there is an odd number of 8bit values, append one byte
-                decode_string += "b"  # don't care if signed or unsigned
-                values.extend(
-                    struct.unpack(decode_string, data)[:-1]
-                )  # dismiss the additional byte
-            else:
-                values.extend(struct.unpack(decode_string, data))
+            # values_list = []
+            start_index = 0
+            for i, c in enumerate(self.channels.outputs):
+                size = c.bits // 8
+                assert size > 0
+
+                # values_list.append(data[start_index : start_index + size])
+                value = data[start_index : start_index + size]
+                start_index += size
+
+                # TODO: Take care about BOOLs and maybe about one additional byte due to 16 bit modbus reg
+
+                # if all(char == "?" for char in decode_string_list[i][1:]):  # all channels BOOL
+                #     values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
+                # elif decode_string_list[i].lower().count("b") % 2:
+                #     # if there is an odd number of 8bit values, append one byte
+                #     decode_string_list[i] += "b"  # don't care if signed or unsigned
+                #     values.extend(
+                #         struct.unpack(decode_string_list[i], data)[:-1]
+                #     )  # dismiss the additional byte
+                # else:
+                values.append(struct.unpack(decode_string_list[i], value))
 
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
         return values
