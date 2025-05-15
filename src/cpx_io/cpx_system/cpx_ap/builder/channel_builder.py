@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from typing import List
+import copy
 
 
 @dataclass
@@ -21,6 +22,7 @@ class Channel:
     # pylint: disable=too-many-instance-attributes
     array_size: int
     bits: int
+    bit_offset: int
     byte_swap_needed: bool
     channel_id: int
     data_type: str
@@ -46,6 +48,7 @@ def build_channel(channel_dict):
     return Channel(
         channel_dict.get("ArraySize"),
         channel_dict.get("Bits"),
+        channel_dict.get("BitsOffset", 0),
         channel_dict.get("ByteSwapNeeded"),
         channel_dict.get("ChannelId"),
         channel_dict.get("DataType"),
@@ -79,7 +82,17 @@ def build_channel_list(apdd, variant, direction=None):
     for channel_type in channel_type_list:
         if channel_type.channel_id in channel_group_dict:
             num_channels = channel_group_dict[channel_type.channel_id]["Count"]
-            channel_list += [channel_type] * num_channels
+            if "BitOffset" in channel_group_dict[channel_type.channel_id]:
+                channel_type.bit_offset = channel_group_dict[channel_type.channel_id][
+                    "BitOffset"
+                ]
+            assert channel_type.bit_offset % 8 == 0
+            for i in range(0, num_channels):
+                new_channel = copy.deepcopy(channel_type)
+                new_channel.bit_offset = channel_type.bit_offset + (
+                    i * channel_type.bits
+                )
+                channel_list.append(new_channel)
 
     # split them in input and output channels
     if direction is not None:

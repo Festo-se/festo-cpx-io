@@ -210,13 +210,13 @@ def test_vabx_a_s_ve_vbh_read_channels(test_cpxap):
     # this value can change
     assert isinstance(channels[1], int)
     assert channels[2] == 0
-    assert channels[3] == 0
+    assert channels[3] == [0, 0]
 
 
 def test_vabx_a_s_ve_vbh_read_output_channels(test_cpxap):
     m = test_cpxap.modules[3]
 
-    assert m.read_output_channels() == [0]
+    assert m.read_output_channels() == [[0, 0]]
 
 
 def test_vabx_a_s_ve_vbh_read_channel(test_cpxap):
@@ -226,42 +226,42 @@ def test_vabx_a_s_ve_vbh_read_channel(test_cpxap):
     # this value can change
     assert isinstance(m.read_channel(1), int)
     assert m.read_channel(2) == 0
-    assert m.read_channel(3) == 0
+    assert m.read_channel(3) == [0, 0]
 
 
 def test_vabx_a_s_ve_vbh_read_output_channel(test_cpxap):
     m = test_cpxap.modules[3]
 
-    assert m.read_output_channel(0) == 0
+    assert m.read_output_channel(0) == [0, 0]
 
 
 def test_vabx_a_s_ve_vbh_write(test_cpxap):
     m = test_cpxap.modules[3]
 
     for i in range(0, 255, 32):
-        m.write_channel(0, i)
+        m.write_channel(0, [i, i + 1])
         time.sleep(0.05)
-        assert m.read_output_channel(0) == i
+        assert m.read_output_channel(0) == [i, i + 1]
         time.sleep(0.05)
-        m.write_channel(0, 0)
+        m.write_channel(0, [0, 0])
         time.sleep(0.05)
-        assert m.read_output_channel(0) == 0
+        assert m.read_output_channel(0) == [0, 0]
 
-    m.write_channel(0, 0)
+    m.write_channel(0, [0, 0])
 
 
 def test_vabx_a_s_ve_vbh_write_channels(test_cpxap):
     m = test_cpxap.modules[3]
 
-    m.write_channels([1])
+    m.write_channels([[1, 0]])
     time.sleep(0.05)
-    assert m.read_output_channel(0) == 1
-    assert m.read_output_channels() == [1]
+    assert m.read_output_channel(0) == [1, 0]
+    assert m.read_output_channels()[0] == [1, 0]
     time.sleep(0.05)
-    m.write_channels([0])
+    m.write_channels([[0, 0]])
     time.sleep(0.05)
-    assert m.read_output_channel(0) == 0
-    assert m.read_output_channels() == [0]
+    assert m.read_output_channel(0) == [0, 0]
+    assert m.read_output_channels()[0] == [0, 0]
 
 
 def test_vabx_a_s_ve_vbh_parameters(test_cpxap):
@@ -349,13 +349,13 @@ def test_vabx_a_s_ve_vbl_read_channels(test_cpxap):
     # this value can change
     assert isinstance(channels[1], int)
     assert channels[2] == 0
-    assert channels[3] == 0
+    assert channels[3] == [0, 0]
 
 
 def test_vabx_a_s_ve_vbl_read_output_channels(test_cpxap):
     m = test_cpxap.modules[4]
 
-    assert m.read_output_channels() == [0]
+    assert m.read_output_channels() == [[0, 0]]
 
 
 def test_vabx_a_s_ve_vbl_read_channel(test_cpxap):
@@ -365,40 +365,40 @@ def test_vabx_a_s_ve_vbl_read_channel(test_cpxap):
     # this value can change
     assert isinstance(m.read_channel(1), int)
     assert m.read_channel(2) == 0
-    assert m.read_channel(3) == 0
+    assert m.read_channel(3) == [0, 0]
 
 
 def test_vabx_a_s_ve_vbl_read_output_channel(test_cpxap):
     m = test_cpxap.modules[4]
 
-    assert m.read_output_channel(0) == 0
+    assert m.read_output_channel(0) == [0, 0]
 
 
 def test_vabx_a_s_ve_vbl_write(test_cpxap):
     m = test_cpxap.modules[4]
 
     for i in range(0, 255, 32):
-        m.write_channel(0, i)
+        m.write_channel(0, [i, i + 1])
         time.sleep(0.05)
-        assert m.read_output_channel(0) == i
+        assert m.read_output_channel(0) == [i, i + 1]
         time.sleep(0.05)
-        m.write_channel(0, 0)
+        m.write_channel(0, [0, 0])
         time.sleep(0.05)
-        assert m.read_output_channel(0) == 0
+        assert m.read_output_channel(0) == [0, 0]
 
 
 def test_vabx_a_s_ve_vbl_write_channels(test_cpxap):
     m = test_cpxap.modules[4]
 
-    m.write_channels([1])
+    m.write_channels([[1, 0]])
     time.sleep(0.05)
-    assert m.read_output_channel(0) == 1
-    assert m.read_output_channels() == [1]
+    assert m.read_output_channel(0) == [1, 0]
+    assert m.read_output_channels() == [[1, 0]]
     time.sleep(0.05)
-    m.write_channels([0])
+    m.write_channels([[0, 0]])
     time.sleep(0.05)
-    assert m.read_output_channel(0) == 0
-    assert m.read_output_channels() == [0]
+    assert m.read_output_channel(0) == [0, 0]
+    assert m.read_output_channels() == [[0, 0]]
 
 
 def test_vabx_a_s_ve_vbl_parameters(test_cpxap):
