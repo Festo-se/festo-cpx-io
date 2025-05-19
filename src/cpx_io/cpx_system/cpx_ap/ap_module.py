@@ -210,6 +210,7 @@ class ApModule(CpxModule):
 
             # TODO: maybe add one additional byte to decodestring? due to 16 bit modbus reg
 
+            # TODO: this does not work for 4 bools
             bool_count = decode_string_list.count(">?")
             if bool_count % 8:
                 raise NotImplementedError(
@@ -237,7 +238,7 @@ class ApModule(CpxModule):
 
                 data_index += size
 
-            # if it's not an array, exctract the one value
+            # if it's not an array, extract the one value
             for i, v in enumerate(values):
                 if not isinstance(v, bool) and len(v) == 1:
                     values[i] = v[0]

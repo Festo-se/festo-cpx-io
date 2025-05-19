@@ -342,7 +342,7 @@ class TestApModule:
             ),
         ],
     )
-    def test_read_output_channels_interpretation_mixed_types(
+    def test_read_output_channels_interpretation_mixed_types_8bytes(
         self, module_fixture, input_value, expected_output
     ):
         """test read_output_channels interpretation"""
@@ -358,6 +358,49 @@ class TestApModule:
         module.base.read_reg_data = Mock(
             return_value=b"\x01\x02\x03\x04\x05\x06\x07\x08"
         )
+
+        # Act
+        result = module.read_output_channels()
+
+        # Assert
+        assert result == expected_output
+
+    @pytest.mark.parametrize(
+        "input_value, expected_output",
+        [
+            (
+                (
+                    [
+                        channel_fixture_bool(),
+                        channel_fixture_bool(),
+                        channel_fixture_bool(),
+                        channel_fixture_bool(),
+                    ],
+                    [
+                        ">b",
+                        ">b",
+                        ">b",
+                        ">b",
+                    ],
+                ),
+                [True, False, False, False],
+            ),
+        ],
+    )
+    def test_read_output_channels_interpretation_mixed_types_2byte(
+        self, module_fixture, input_value, expected_output
+    ):
+        """test read_output_channels interpretation"""
+        # Arrange
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.VTUX.value
+        module.information = CpxAp.ApInformation(input_size=0, output_size=8)
+
+        module.channels.outputs = input_value[0]
+        module._generate_decode_string_list = Mock(return_value=input_value[1])
+
+        module.base = Mock()
+        module.base.read_reg_data = Mock(return_value=b"\x01\x02")
 
         # Act
         result = module.read_output_channels()
