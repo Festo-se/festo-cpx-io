@@ -215,26 +215,27 @@ class ApModule(CpxModule):
                 raise NotImplementedError(
                     "Bools are only supported if they fill a whole byte"
                 )
-            value_index = 0
+            data_index = 0
             decode_index = 0
-            while value_index < len(self.channels.outputs):
-                c = self.channels.outputs[value_index]
-                multiplier = c.array_size if c.array_size else 1
-                size = div_ceil(c.bits, 8) * multiplier
+            # this loop goes on until all values for all channels are filled in
+            while len(values) < len(self.channels.outputs):
+                c = self.channels.outputs[decode_index]
+                array_size_int = c.array_size if c.array_size else 1
+                size = div_ceil(c.bits, 8) * array_size_int
 
                 if c.data_type == "BOOL":
-                    value = bytes_to_boollist(data[value_index : value_index + 8])
+                    value = bytes_to_boollist(data[data_index : data_index + size])
                     values.extend(value)
-                    decode_index += 7
+                    decode_index += 8
 
                 else:
-                    value = data[value_index : value_index + size]
+                    value = data[data_index : data_index + size]
                     values.append(
                         struct.unpack(decode_string_list[decode_index], value)
                     )
                     decode_index += 1
 
-                value_index += size
+                data_index += size
 
             # if it's not an array, exctract the one value
             for i, v in enumerate(values):
