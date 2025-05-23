@@ -687,6 +687,7 @@ class TestApModule:
                     Channel(
                         array_size=None,
                         bits=1,
+                        bit_offset=i,
                         byte_swap_needed=None,
                         channel_id=0,
                         data_type="BOOL",
@@ -696,8 +697,8 @@ class TestApModule:
                         parameter_group_ids=None,
                         profile_list=[3],
                     )
-                ]
-                * 4,
+                    for i in range(4)
+                ],
                 [
                     False,
                     True,
@@ -710,6 +711,7 @@ class TestApModule:
                     Channel(
                         array_size=None,
                         bits=1,
+                        bit_offset=i,
                         byte_swap_needed=None,
                         channel_id=0,
                         data_type="BOOL",
@@ -719,8 +721,8 @@ class TestApModule:
                         parameter_group_ids=None,
                         profile_list=[3],
                     )
-                ]
-                * 8,
+                    for i in range(8)
+                ],
                 [
                     False,
                     True,
@@ -766,6 +768,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=8,
+                bit_offset=i * 64,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="",
@@ -775,7 +778,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
@@ -833,6 +837,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -864,6 +869,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT8",
@@ -894,6 +900,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -924,6 +931,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -956,6 +964,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT16",
@@ -986,6 +995,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT16",
@@ -1017,6 +1027,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT16",
@@ -1049,6 +1060,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type=input_value,
@@ -1081,6 +1093,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1136,6 +1149,7 @@ class TestApModule:
             Channel(
                 array_size=2,
                 bits=8,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1172,6 +1186,7 @@ class TestApModule:
             Channel(
                 array_size=4,
                 bits=16,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1222,6 +1237,7 @@ class TestApModule:
             Channel(
                 array_size=8,
                 bits=32,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1259,6 +1275,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1291,6 +1308,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT16",
@@ -1323,6 +1341,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT16",
@@ -1356,6 +1375,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type=input_value,
@@ -1413,6 +1433,7 @@ class TestApModule:
             Channel(
                 array_size=2,
                 bits=16,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1462,6 +1483,7 @@ class TestApModule:
             Channel(
                 array_size=4,
                 bits=32,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1528,6 +1550,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1557,6 +1580,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1587,6 +1611,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1617,6 +1642,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1644,6 +1670,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT",
@@ -1669,6 +1696,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT",
@@ -1696,6 +1724,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT",

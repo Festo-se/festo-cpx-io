@@ -1,6 +1,7 @@
 """Generic AP module implementation from APDD"""
 
 import struct
+import copy
 import inspect
 from typing import Any, Union
 from collections import namedtuple
@@ -19,6 +20,7 @@ from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     PARAMETER_FUNCTIONS,
     SUPPORTED_PRODUCT_FUNCTIONS_DICT,
 )
+from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
 from cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis import ModuleDiagnosis
 from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
 from cpx_io.cpx_system.cpx_ap.dataclasses.channels import Channels
@@ -159,31 +161,72 @@ class ApModule(CpxModule):
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @staticmethod
-    def _generate_decode_string_list(channels: list) -> list[str]:
-        """Generate a struct decode string list from the channel information"""
+    def _interpret_single_channel(channel: Channel, reg_data: bytes):
+        if channel.data_type == "BOOL":
+            return (reg_data >> (channel.bit_offset % 8)) & 1 == 1
+        byteswap = "<" if channel.byte_swap_needed else ">"
+        if channel.data_type == "INT8":
+            decode_string = byteswap + "b"
+        elif channel.data_type == "UINT8":
+            decode_string = byteswap + "B"
+        elif channel.data_type == "INT16":
+            decode_string = byteswap + "h"
+        elif channel.data_type == "UINT16":
+            decode_string = byteswap + "H"
+        else:
+            raise TypeError(f"Data type {channel.data_type} is not supported")
+        return struct.unpack(decode_string, reg_data)[0]
 
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        # TODO: byteswap might be incorrect because bytes per uint8 must not be switched but array of 2*uint8 need to be byteorder little
-        decode_string = []
-
-        for c in channels:
-            byteswap = "<" if any(c.byte_swap_needed for c in channels) else ">"
-            multiplier = c.array_size if c.array_size else 1
-
-            if c.data_type == "BOOL":
-                decode_string.append(byteswap + "?" * multiplier)
-            elif c.data_type == "INT8":
-                decode_string.append(byteswap + "b" * multiplier)
-            elif c.data_type == "UINT8":
-                decode_string.append(byteswap + "B" * multiplier)
-            elif c.data_type == "INT16":
-                decode_string.append(byteswap + "h" * multiplier)
-            elif c.data_type == "UINT16":
-                decode_string.append(byteswap + "H" * multiplier)
+    @staticmethod
+    def _interpret_channel_data(
+        channel_description: list[Channel], reg_data: bytes
+    ) -> list:
+        result = []
+        for channel in channel_description:
+            pos = channel.bit_offset // 8
+            if channel.data_type == "BOOL":
+                if channel.array_size:
+                    array = []
+                    for i in range(0, channel.array_size):
+                        cloned_channel = copy.deepcopy(channel)
+                        # in an array the channel offset stays constant
+                        cloned_channel.bit_offset += i
+                        pos = cloned_channel.bit_offset // 8
+                        array.append(
+                            ApModule._interpret_single_channel(
+                                cloned_channel, reg_data[pos]
+                            )
+                        )
+                    result.append(array)
+                else:
+                    result.append(
+                        ApModule._interpret_single_channel(channel, reg_data[pos])
+                    )
             else:
-                raise TypeError(f"Data type {c.data_type} is not supported")
-
-        return decode_string
+                if channel.data_type == "UINT8" or channel.data_type == "INT8":
+                    entry_size = 1
+                else:
+                    assert channel.data_type == "UINT16" or channel.data_type == "INT16"
+                    entry_size = 2
+                if channel.array_size:
+                    array = []
+                    for i in range(0, channel.array_size):
+                        array.append(
+                            ApModule._interpret_single_channel(
+                                channel,
+                                reg_data[
+                                    pos + i * entry_size : pos + (i + 1) * entry_size
+                                ],
+                            )
+                        )
+                    result.append(array)
+                else:
+                    result.append(
+                        ApModule._interpret_single_channel(
+                            channel, reg_data[pos : pos + entry_size]
+                        )
+                    )
+        return result
 
     @CpxBase.require_base
     def read_output_channels(self) -> list:
@@ -204,44 +247,7 @@ class ApModule(CpxModule):
                 self.system_entry_registers.outputs, byte_output_size
             )
 
-            decode_string_list = self._generate_decode_string_list(
-                self.channels.outputs
-            )
-
-            # TODO: maybe add one additional byte to decodestring? due to 16 bit modbus reg
-
-            # TODO: this does not work for 4 bools
-            bool_count = decode_string_list.count(">?")
-            if bool_count % 8:
-                raise NotImplementedError(
-                    "Bools are only supported if they fill a whole byte"
-                )
-            data_index = 0
-            decode_index = 0
-            # this loop goes on until all values for all channels are filled in
-            while len(values) < len(self.channels.outputs):
-                c = self.channels.outputs[decode_index]
-                array_size_int = c.array_size if c.array_size else 1
-                size = div_ceil(c.bits, 8) * array_size_int
-
-                if c.data_type == "BOOL":
-                    value = bytes_to_boollist(data[data_index : data_index + size])
-                    values.extend(value)
-                    decode_index += 8
-
-                else:
-                    value = data[data_index : data_index + size]
-                    values.append(
-                        struct.unpack(decode_string_list[decode_index], value)
-                    )
-                    decode_index += 1
-
-                data_index += size
-
-            # if it's not an array, extract the one value
-            for i, v in enumerate(values):
-                if not isinstance(v, bool) and len(v) == 1:
-                    values[i] = v[0]
+            values = ApModule._interpret_channel_data(self.channels.outputs, data)
 
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
         return values
@@ -288,20 +294,7 @@ class ApModule(CpxModule):
                 )
                 return channel_data
 
-            decode_string = self._generate_decode_string(self.channels.inputs)
-
-            if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
-
-            elif decode_string.lower().count("b") % 2:
-                # if there is an odd number of 8bit values, append one byte
-                decode_string += "b"  # don't care if signed or unsigned
-                values.extend(
-                    struct.unpack(decode_string, data)[:-1]
-                )  # dismiss the additional byte
-
-            else:
-                values.extend(struct.unpack(decode_string, data))
+            values = ApModule._interpret_channel_data(self.channels.inputs, data)
 
         Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
