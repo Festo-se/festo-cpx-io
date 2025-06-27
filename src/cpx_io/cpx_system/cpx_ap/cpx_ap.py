@@ -153,6 +153,15 @@ class CpxAp(CpxBase):
         if generate_docu:
             generate_system_information_file(self)
 
+        self.diagnosis_status = []
+
+    def perform_io(self) -> None:
+        """
+        This function is called periodically by the IOThread.
+        It reads the current diagnosis status.
+        """
+        self.diagnosis_status = self.read_diagnostic_status()
+
     def delete_apdds(self) -> None:
         """Delete all downloaded apdds in the apdds path.
         This forces a refresh when a new CPX-AP System is instantiated

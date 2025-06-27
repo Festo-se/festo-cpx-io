@@ -6,6 +6,7 @@ from functools import wraps
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.pdu.mei_message import ReadDeviceInformationRequest
+from cpx_io.cpx_system.io_thread import IOThread
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
 
@@ -46,7 +47,7 @@ class CpxConnectionError(Exception):
 class CpxBase:
     """A class to connect to the Festo CPX system and read data from IO modules"""
 
-    def __init__(self, ip_address: str = None):
+    def __init__(self, ip_address: str = None, cycle_time: float = None):
         """Constructor of CpxBase class.
 
         :param ip_address: Required IP address as string e.g. ('192.168.1.1')
@@ -72,6 +73,11 @@ class CpxBase:
             )
             raise CpxConnectionError(message)
 
+        self.io_thread = None
+        if cycle_time is not None:
+            self.io_thread = IOThread(self.perform_io, cycle_time=cycle_time)
+            self.io_thread.start()
+
     def __enter__(self):
         return self
 
@@ -87,8 +93,14 @@ class CpxBase:
         for name, module in zip(self._module_names, self._modules):
             setattr(self, name, module)
 
+    def perform_io(self) -> None:
+        """Perform I/O operations, e.g., reading data from modules."""
+
     def shutdown(self):
         """Shutdown function"""
+        if hasattr(self, "io_thread"):
+            if self.io_thread is not None:
+                self.io_thread.stop()
         if hasattr(self, "client"):
             self.client.close()
             Logging.logger.info("Connection closed")
