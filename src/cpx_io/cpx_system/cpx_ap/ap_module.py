@@ -1,6 +1,7 @@
 """Generic AP module implementation from APDD"""
 
 import struct
+import copy
 import inspect
 from typing import Any, Union
 from collections import namedtuple
@@ -8,7 +9,6 @@ from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
 from cpx_io.cpx_system.cpx_module import CpxModule
 from cpx_io.cpx_system.cpx_ap.ap_product_categories import ProductCategory
 from cpx_io.cpx_system.cpx_ap.ap_supported_datatypes import (
-    SUPPORTED_DATATYPES,
     SUPPORTED_IOL_DATATYPES,
     SUPPORTED_ISDU_DATATYPES,
 )
@@ -19,11 +19,11 @@ from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
     PARAMETER_FUNCTIONS,
     SUPPORTED_PRODUCT_FUNCTIONS_DICT,
 )
+from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
 from cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis import ModuleDiagnosis
 from cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters import SystemParameters
 from cpx_io.cpx_system.cpx_ap.dataclasses.channels import Channels
 from cpx_io.cpx_system.cpx_ap import ap_modbus_registers
-from cpx_io.utils.boollist import bytes_to_boollist, boollist_to_bytes
 from cpx_io.utils.helpers import (
     div_ceil,
     channel_range_check,
@@ -62,6 +62,17 @@ class ApModule(CpxModule):
             outputs=channels[1] + channels[2],
             inouts=channels[2],
         )
+        if len(self.channels.outputs) > 0:
+            biggest_byte_offset_channel = max(
+                self.channels.outputs, key=lambda x: x.bit_offset
+            )
+            self.output_byte_size = div_ceil(
+                biggest_byte_offset_channel.bit_offset
+                + biggest_byte_offset_channel.bits,
+                8,
+            )
+            if self.output_byte_size % 2 == 1:
+                self.output_byte_size += 1
         ModuleDicts = namedtuple("ModuleDicts", ["parameters", "diagnosis"])
         self.module_dicts = ModuleDicts(
             parameters={p.parameter_id: p for p in parameter_list},
@@ -159,30 +170,133 @@ class ApModule(CpxModule):
             self.fieldbus_parameters = self.read_fieldbus_parameters()
 
     @staticmethod
-    def _generate_decode_string(channels: list) -> str:
-        """Generate a struct decode string from the channel information"""
+    def _convert_datum_to_bytes(channel: Channel, datum) -> bytes:
+        """Convert a datum of a single channel (e.g. in a case of an array) into bytes"""
+        if channel.byte_swap_needed:
+            byteorder = "little"
+        else:
+            byteorder = "big"
+        if channel.data_type == "BOOL":
+            return (int(datum) << (channel.bit_offset % 8)).to_bytes(
+                1, byteorder=byteorder
+            )
+        if channel.data_type == "INT8":
+            return datum.to_bytes(1, byteorder=byteorder, signed=True)
+        if channel.data_type == "UINT8":
+            return datum.to_bytes(1, byteorder=byteorder)
+        if channel.data_type == "INT16":
+            return datum.to_bytes(2, byteorder=byteorder, signed=True)
+        if channel.data_type == "UINT16":
+            return datum.to_bytes(2, byteorder=byteorder)
+        raise NotImplementedError(
+            f"Output data type {channel.data_type} is not implemented"
+        )
 
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
-        # if byte_swap_needed is different for the individual channels we need a more
-        # complicated handling here.
-
-        decode_string = "<" if any(c.byte_swap_needed for c in channels) else ">"
-
-        for c in channels:
-            if c.data_type == "BOOL":
-                decode_string += "?"
-            elif c.data_type == "INT8":
-                decode_string += "b"
-            elif c.data_type == "UINT8":
-                decode_string += "B"
-            elif c.data_type == "INT16":
-                decode_string += "h"
-            elif c.data_type == "UINT16":
-                decode_string += "H"
+    @staticmethod
+    def _convert_channel_data_to_bytes(channel: Channel, new_data, prev_data) -> None:
+        """Convert the new_data with the given channel information to a byte(s)
+        and insert them into the prev_data at the given channel bit_offset position
+        """
+        current_offset = channel.bit_offset
+        start_index = current_offset // 8
+        if channel.array_size:
+            current_channel = copy.deepcopy(channel)
+            for i in range(channel.array_size):
+                start_index = (
+                    current_offset + i * (channel.bits // channel.array_size)
+                ) // 8
+                current_channel.bit_offset = channel.bit_offset + i * (
+                    channel.bits // channel.array_size
+                )
+                values = ApModule._convert_datum_to_bytes(current_channel, new_data[i])
+                if channel.data_type == "BOOL":
+                    # mask out bit for bools only
+                    prev_data[start_index] = values[0] | (
+                        prev_data[start_index] & ~(1 << current_channel.bit_offset)
+                    )
+                else:
+                    for offset, val in enumerate(values):
+                        prev_data[start_index + offset] = val
+        else:
+            if isinstance(new_data, (list, tuple, dict)):
+                raise TypeError(
+                    f"Type {type(new_data)} is not supported for channel type {channel.data_type}"
+                )
+            values = ApModule._convert_datum_to_bytes(channel, new_data)
+            if channel.data_type == "BOOL":
+                # mask out bit for bools only
+                prev_data[start_index] = values[0] | (
+                    prev_data[start_index] & ~(1 << (channel.bit_offset % 8))
+                )
             else:
-                raise TypeError(f"Data type {c.data_type} is not supported")
+                for offset, val in enumerate(values):
+                    prev_data[start_index + offset] = val
 
-        return decode_string
+    @staticmethod
+    def _extract_channel_datum_from_bytes(channel: Channel, reg_data: bytes) -> Any:
+        """Interpret a single value for a given channel in the given bytes"""
+        if channel.data_type == "BOOL":
+            return (reg_data[0] >> (channel.bit_offset % 8)) & 1 == 1
+        byteorder = "<" if channel.byte_swap_needed else ">"
+        if channel.data_type == "INT8":
+            decode_string = byteorder + "b"
+        elif channel.data_type == "UINT8":
+            decode_string = byteorder + "B"
+        elif channel.data_type == "INT16":
+            decode_string = byteorder + "h"
+        elif channel.data_type == "UINT16":
+            decode_string = byteorder + "H"
+        else:
+            raise NotImplementedError(f"Data type {channel.data_type} is not supported")
+        return struct.unpack(decode_string, reg_data)[0]
+
+    @staticmethod
+    def _extract_channel_list_data_from_bytes(
+        channel_description: list[Channel], reg_data: bytes
+    ) -> list:
+        """Interpret the bytes as the channels in the channel_description"""
+        result = []
+        for channel in channel_description:
+            if channel.data_type not in ("BOOL", "UINT8", "INT8", "UINT16", "INT16"):
+                raise NotImplementedError(
+                    f"Data type {channel.data_type} is not implemented"
+                )
+            pos = channel.bit_offset // 8
+            if channel.data_type in ("UINT8", "INT8", "BOOL"):
+                entry_size = 1
+            else:
+                assert channel.data_type in ("UINT16", "INT16")
+                entry_size = 2
+            if channel.array_size:
+                array = []
+                cloned_channel = copy.deepcopy(channel)
+                for i in range(0, channel.array_size):
+                    if channel.data_type == "BOOL":
+                        # in an array the channel bit offset stays constant
+                        cloned_channel.bit_offset = channel.bit_offset + i
+                        pos = cloned_channel.bit_offset // 8
+                        array.append(
+                            ApModule._extract_channel_datum_from_bytes(
+                                cloned_channel, reg_data[pos : pos + entry_size]
+                            )
+                        )
+                    else:
+                        array.append(
+                            ApModule._extract_channel_datum_from_bytes(
+                                channel,
+                                reg_data[
+                                    pos + i * entry_size : pos + (i + 1) * entry_size
+                                ],
+                            )
+                        )
+                result.append(array)
+            else:
+                result.append(
+                    ApModule._extract_channel_datum_from_bytes(
+                        channel, reg_data[pos : pos + entry_size]
+                    )
+                )
+        return result
 
     @CpxBase.require_base
     def read_output_channels(self) -> list:
@@ -203,18 +317,9 @@ class ApModule(CpxModule):
                 self.system_entry_registers.outputs, byte_output_size
             )
 
-            decode_string = self._generate_decode_string(self.channels.outputs)
-
-            if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.channels.outputs)])
-            elif decode_string.lower().count("b") % 2:
-                # if there is an odd number of 8bit values, append one byte
-                decode_string += "b"  # don't care if signed or unsigned
-                values.extend(
-                    struct.unpack(decode_string, data)[:-1]
-                )  # dismiss the additional byte
-            else:
-                values.extend(struct.unpack(decode_string, data))
+            values = ApModule._extract_channel_list_data_from_bytes(
+                self.channels.outputs, data
+            )
 
         Logging.logger.info(f"{self.name}: Reading output channels: {values}")
         return values
@@ -261,20 +366,9 @@ class ApModule(CpxModule):
                 )
                 return channel_data
 
-            decode_string = self._generate_decode_string(self.channels.inputs)
-
-            if all(char == "?" for char in decode_string[1:]):  # all channels are BOOL
-                values.extend(bytes_to_boollist(data)[: len(self.channels.inputs)])
-
-            elif decode_string.lower().count("b") % 2:
-                # if there is an odd number of 8bit values, append one byte
-                decode_string += "b"  # don't care if signed or unsigned
-                values.extend(
-                    struct.unpack(decode_string, data)[:-1]
-                )  # dismiss the additional byte
-
-            else:
-                values.extend(struct.unpack(decode_string, data))
+            values = ApModule._extract_channel_list_data_from_bytes(
+                self.channels.inputs, data
+            )
 
         Logging.logger.info(f"{self.name}: Reading input channels: {values}")
 
@@ -338,28 +432,11 @@ class ApModule(CpxModule):
         # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         if self.apdd_information.product_category == ProductCategory.IO_LINK.value:
             self.__handle_io_link_on_write_channels(data)
-        elif all(c.data_type == "BOOL" for c in self.channels.outputs) and all(
-            isinstance(d, bool) for d in data
-        ):
-            self.__handle_bool_on_write_channels(data)
-        elif all(c.data_type == "INT8" for c in self.channels.outputs) and all(
-            isinstance(d, int) for d in data
-        ):
-            self.__handle_int8_on_write_channels(data)
-        elif all(c.data_type == "UINT8" for c in self.channels.outputs) and all(
-            isinstance(d, int) for d in data
-        ):
-            self.__handle_uint8_on_write_channels(data)
-        elif all(c.data_type == "INT16" for c in self.channels.outputs) and all(
-            isinstance(d, int) for d in data
-        ):
-            self.__handle_int16_on_write_channels(data)
-        elif all(c.data_type == "UINT16" for c in self.channels.outputs) and all(
-            isinstance(d, int) for d in data
-        ):
-            self.__handle_uint16_on_write_channels(data)
         else:
-            self.__handle_mixed_datatypes_on_write_channels(data)
+            prev_data = bytearray(self.output_byte_size)
+            for idx, channel in enumerate(self.channels.outputs):
+                ApModule._convert_channel_data_to_bytes(channel, data[idx], prev_data)
+            self.base.write_reg_data(prev_data, self.system_entry_registers.outputs)
 
     def __handle_io_link_on_write_channels(self, data):
         """Handles a write_channels of a list with bytes"""
@@ -377,56 +454,6 @@ class ApModule(CpxModule):
         all_register_data = b"".join(data)
         self.base.write_reg_data(all_register_data, self.system_entry_registers.outputs)
         Logging.logger.info(f"{self.name}: Setting IO-LINK channels to {data}")
-
-    def __handle_bool_on_write_channels(self, data):
-        """Handles a write_channels of a list with bool values"""
-
-        reg = boollist_to_bytes(data)
-        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-        Logging.logger.info(f"{self.name}: Setting BOOL channels to {data}")
-
-    def __handle_int8_on_write_channels(self, data):
-        """Handles a write_channels of a list with int8 values"""
-
-        reg = b""
-        for value in data:
-            reg += value.to_bytes(1, byteorder="little", signed=True)
-        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
-
-    def __handle_uint8_on_write_channels(self, data):
-        """Handles a write_channels of a list with uint8 values"""
-
-        reg = bytes(data)
-        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
-
-    def __handle_int16_on_write_channels(self, data):
-        """Handles a write_channels of a list with int16 values"""
-
-        reg = b""
-        for value in data:
-            reg += value.to_bytes(2, byteorder="little", signed=True)
-        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
-
-    def __handle_uint16_on_write_channels(self, data):
-        """Handles a write_channels of a list with uint16 values"""
-        reg = b""
-        for value in data:
-            reg += value.to_bytes(2, byteorder="little", signed=False)
-        self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-        Logging.logger.info(f"{self.name}: Setting INTEGER channels to {data}")
-
-    def __handle_mixed_datatypes_on_write_channels(self, data):
-        """Handles a write_channels of a list with mixed datatype values"""
-
-        for i, c in enumerate(self.channels.outputs):
-            if c.data_type in SUPPORTED_DATATYPES:
-                self.write_channel(i, data[i])
-            else:
-                raise TypeError(f"Output data type {c.data_type} is not supported")
-        Logging.logger.info(f"{self.name}: Setting channels to {data}")
 
     @CpxBase.require_base
     def write_channel(self, channel: int, value: Any) -> None:
@@ -476,73 +503,30 @@ class ApModule(CpxModule):
             Logging.logger.info(
                 f"{self.name}: Setting IO-Link channel {channel} to {value}"
             )
-
-        elif all(c.data_type == "BOOL" for c in self.channels.outputs) and isinstance(
-            value, bool
-        ):
-            data = self.read_output_channels()
-            data[channel] = value
-            reg_content = boollist_to_bytes(data)
-            self.base.write_reg_data(reg_content, self.system_entry_registers.outputs)
-            Logging.logger.info(
-                f"{self.name}: Setting bool channel {channel} to {value}"
-            )
-
-        elif self.channels.outputs[channel].data_type == "INT8" and isinstance(
-            value, int
-        ):
-            # Two channels share one modbus register, so read it first to write it back later
-            reg = self.base.read_reg_data(self.system_entry_registers.outputs)
-            # if channel number is odd, value needs to be stored in the MSByte
-            if channel % 2:
-                reg = struct.pack("<b", value) + reg[:1]
-            else:
-                reg = reg[1:] + struct.pack("<b", value)
-
-            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-            Logging.logger.info(
-                f"{self.name}: Setting int8 channel {channel} to {value}"
-            )
-
-        elif self.channels.outputs[channel].data_type == "UINT8" and isinstance(
-            value, int
-        ):
-            # Two channels share one modbus register, so read it first to write it back later
-            reg = self.base.read_reg_data(self.system_entry_registers.outputs)
-            # if channel number is odd, value needs to be stored in the MSByte
-            if channel % 2:
-                reg = reg[1:] + struct.pack("<B", value)
-            else:
-                reg = struct.pack("<B", value) + reg[:1]
-
-            self.base.write_reg_data(reg, self.system_entry_registers.outputs)
-            Logging.logger.info(
-                f"{self.name}: Setting uint8 channel {channel} to {value}"
-            )
-
-        elif self.channels.outputs[channel].data_type == "INT16" and isinstance(
-            value, int
-        ):
-            reg = struct.pack("<h", value)
-            self.base.write_reg_data(reg, self.system_entry_registers.outputs + channel)
-            Logging.logger.info(
-                f"{self.name}: Setting int16 channel {channel} to {value}"
-            )
-
-        elif self.channels.outputs[channel].data_type == "UINT16" and isinstance(
-            value, int
-        ):
-            reg = struct.pack("<H", value)
-            self.base.write_reg_data(reg, self.system_entry_registers.outputs + channel)
-            Logging.logger.info(
-                f"{self.name}: Setting uint16 channel {channel} to {value}"
-            )
-
-        # Remember to update the SUPPORTED_DATATYPES list when you add more types here
         else:
-            raise TypeError(
-                f"{self.channels.outputs[0].data_type} is not supported or type(value) "
-                f"is not compatible"
+            output_index = self.channels.outputs[channel].bit_offset // 16
+            # add one to the size if the output_index was rounded down
+            size = (
+                div_ceil(
+                    self.channels.outputs[channel].bit_offset
+                    + self.channels.outputs[channel].bits,
+                    16,
+                )
+                * 2
+            ) - output_index * 2
+            prev_data = bytearray(self.output_byte_size)
+            old_data = self.base.read_reg_data(
+                self.system_entry_registers.outputs + output_index, size
+            )
+            for i in range(size):
+                prev_data[i + output_index] = old_data[i]
+            ApModule._convert_channel_data_to_bytes(
+                self.channels.outputs[channel], value, prev_data
+            )
+            # only write necessary register
+            self.base.write_reg_data(
+                prev_data[output_index * 2 : output_index * 2 + size],
+                self.system_entry_registers.outputs + output_index,
             )
 
     # Special functions for digital channels

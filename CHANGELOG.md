@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - bump setuptools version
 - bump rich version
 
+### Fixed
+- CPX-AP: De/Encode array channels and bool channels correctly
+
 ## v0.9.0 - 05.05.25
 ### Added
 - CPX-AP: Float interpretation for ISDU write

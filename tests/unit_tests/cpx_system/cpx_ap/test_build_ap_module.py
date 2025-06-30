@@ -5,6 +5,7 @@ from unittest.mock import patch
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import Variant
+from cpx_io.cpx_system.cpx_ap.builder.channel_builder import Channel
 
 
 class TestBuildApModule:
@@ -42,8 +43,88 @@ class TestBuildApModule:
         ApddInformation = namedtuple("ApddInformation", "uid name")
         apdd_information = ApddInformation(uid="ApddModuleId", name="ApddModuleName")
         inputs = [1, 2, 3]
-        outputs = [4, 5, 6]
-        inouts = [7, 8, 9]
+        outputs = [
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=0,
+                byte_swap_needed=False,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            ),
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=1,
+                byte_swap_needed=False,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            ),
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=2,
+                byte_swap_needed=False,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            ),
+        ]
+        inouts = [
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=3,
+                byte_swap_needed=False,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            ),
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=4,
+                byte_swap_needed=False,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            ),
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=5,
+                byte_swap_needed=False,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Output %d",
+                parameter_group_ids=None,
+                profile_list=[3],
+            ),
+        ]
         Parameter = namedtuple("Parameter", "parameter_id name")
         parameter_list = [Parameter(i, f"Parameter{i}") for i in range(5)]
         ModuleDiagnosis = namedtuple("Diagnosis", "diagnosis_id name")

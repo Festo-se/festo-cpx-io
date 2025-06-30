@@ -34,7 +34,7 @@ def build_ap_module(apdd: dict, module_code: int) -> ApModule:
     inout_channel_list = build_channel_list(
         apdd=apdd, variant=variant, direction="inout"
     )
-    Logging.logger.debug(f"Output Channels: {output_channel_list}")
+    Logging.logger.debug(f"InOutput Channels: {inout_channel_list}")
 
     parameter_list = build_parameter_list(apdd=apdd)
     Logging.logger.debug(f"Parameters: {parameter_list}")

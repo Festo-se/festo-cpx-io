@@ -225,6 +225,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -234,7 +235,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * input_value
+            for i in range(input_value)
+        ]
 
         expected_value = [
             False,
@@ -277,6 +279,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -286,7 +289,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * input_value
+            for i in range(input_value)
+        ]
 
         expected_value = [
             False,
@@ -328,6 +332,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=1,
                 data_type="INT8",
@@ -337,11 +342,13 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=2,
                 data_type="INT8",
@@ -351,7 +358,8 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         expected_value = [
             -128,
@@ -383,6 +391,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=1,
                 data_type="UINT8",
@@ -392,11 +401,13 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=2,
                 data_type="UINT8",
@@ -406,7 +417,8 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         expected_value = [
             0xCA,
@@ -437,6 +449,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=16,
+                bit_offset=i * 16,
                 byte_swap_needed=True,
                 channel_id=0,
                 data_type="INT16",
@@ -446,11 +459,13 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=16,
+                bit_offset=i * 16,
                 byte_swap_needed=True,
                 channel_id=0,
                 data_type="INT16",
@@ -460,7 +475,8 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         expected_value = [
             -17494,
@@ -490,6 +506,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=16,
+                bit_offset=i * 16,
                 byte_swap_needed=True,
                 channel_id=0,
                 data_type="UINT16",
@@ -499,11 +516,13 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=16,
+                bit_offset=i * 16,
                 byte_swap_needed=True,
                 channel_id=0,
                 data_type="UINT16",
@@ -513,7 +532,8 @@ class TestApModule:
                 parameter_group_ids=[1],
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         expected_value = [
             0xBBAA,
@@ -544,6 +564,7 @@ class TestApModule:
             Channel(
                 array_size=2,
                 bits=16,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -553,7 +574,8 @@ class TestApModule:
                 parameter_group_ids=[1, 2],
                 profile_list=[50],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
@@ -586,6 +608,7 @@ class TestApModule:
             Channel(
                 array_size=4,
                 bits=32,
+                bit_offset=i * 32,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -595,7 +618,8 @@ class TestApModule:
                 parameter_group_ids=[1, 2],
                 profile_list=[50],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         module.channels.inputs = module.channels.inouts
         module.channels.outputs = module.channels.inouts
@@ -627,6 +651,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UNKNOWN",
@@ -636,14 +661,15 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         ret_data = b"\xfa\xfa"
 
         module.base = Mock(read_reg_data=Mock(return_value=ret_data))
 
         # Act & Assert
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             module.read_channels()
 
     @pytest.mark.parametrize("input_value", [4, 8])
@@ -658,6 +684,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -667,7 +694,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * input_value
+            for i in range(input_value)
+        ]
 
         module.read_channel = Mock()
 
@@ -687,6 +715,7 @@ class TestApModule:
                     Channel(
                         array_size=None,
                         bits=1,
+                        bit_offset=i,
                         byte_swap_needed=None,
                         channel_id=0,
                         data_type="BOOL",
@@ -696,8 +725,8 @@ class TestApModule:
                         parameter_group_ids=None,
                         profile_list=[3],
                     )
-                ]
-                * 4,
+                    for i in range(4)
+                ],
                 [
                     False,
                     True,
@@ -710,6 +739,7 @@ class TestApModule:
                     Channel(
                         array_size=None,
                         bits=1,
+                        bit_offset=i,
                         byte_swap_needed=None,
                         channel_id=0,
                         data_type="BOOL",
@@ -719,8 +749,8 @@ class TestApModule:
                         parameter_group_ids=None,
                         profile_list=[3],
                     )
-                ]
-                * 8,
+                    for i in range(8)
+                ],
                 [
                     False,
                     True,
@@ -766,6 +796,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=8,
+                bit_offset=i * 64,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="",
@@ -775,7 +806,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         module.base = Mock()
         module.fieldbus_parameters = [{"Input data length": 4}] * 4
@@ -828,11 +860,12 @@ class TestApModule:
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.base.write_reg_data = Mock()
-
+        module.output_byte_size = 1
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -842,7 +875,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 8
+            for i in range(8)
+        ]
 
         # Act
         module.write_channels([True] * 8)
@@ -859,11 +893,12 @@ class TestApModule:
         module.system_entry_registers.outputs = 0
         module.base = Mock()
         module.write_channel = Mock()
-
+        module.output_byte_size = 2
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
+                bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT8",
@@ -873,7 +908,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         # Act
         module.write_channels([1, -2])
@@ -889,11 +925,12 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers.outputs = 0
         module.base = Mock()
-
+        module.output_byte_size = 2
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
+                bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -903,7 +940,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         # Act
         module.write_channels([1, 2])
@@ -919,11 +957,12 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-
+        module.output_byte_size = 2
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
+                bits=8,
+                bit_offset=i * 8,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -933,14 +972,15 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         # Act and assert
-        with pytest.raises(ValueError):
+        with pytest.raises(OverflowError):
             module.write_channels([-1, 2])
 
         # Act with mixed valid and invalid values
-        with pytest.raises(ValueError):
+        with pytest.raises(OverflowError):
             module.write_channels([300, -2])
 
     def test_write_channels_int16(self, module_fixture):
@@ -951,12 +991,13 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-
+        module.output_byte_size = 4
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
-                byte_swap_needed=None,
+                bits=16,
+                bit_offset=i * 16,
+                byte_swap_needed=True,
                 channel_id=0,
                 data_type="INT16",
                 description="",
@@ -965,7 +1006,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         # Act
         module.write_channels([1, -2])
@@ -981,12 +1023,13 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=2)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-
+        module.output_byte_size = 4
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
-                byte_swap_needed=None,
+                bits=16,
+                bit_offset=i * 16,
+                byte_swap_needed=True,
                 channel_id=0,
                 data_type="UINT16",
                 description="",
@@ -995,7 +1038,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         # Act
         module.write_channels([1, 2])
@@ -1012,11 +1056,12 @@ class TestApModule:
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
         module.write_channel = Mock()
-
+        module.output_byte_size = 4
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
+                bits=16,
+                bit_offset=16 * i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT16",
@@ -1026,7 +1071,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 2
+            for i in range(2)
+        ]
 
         # Act and assert
         with pytest.raises(OverflowError):
@@ -1044,11 +1090,12 @@ class TestApModule:
         module.information = CpxAp.ApInformation(output_size=8)
         module.system_entry_registers = SystemEntryRegisters(outputs=0)
         module.base = Mock()
-
+        module.output_byte_size = 4
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type=input_value,
@@ -1061,7 +1108,7 @@ class TestApModule:
         ] * 8
 
         # Act & Assert
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             module.write_channels([True] * 8)
 
     @pytest.mark.parametrize(
@@ -1081,6 +1128,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1136,6 +1184,7 @@ class TestApModule:
             Channel(
                 array_size=2,
                 bits=8,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1172,6 +1221,7 @@ class TestApModule:
             Channel(
                 array_size=4,
                 bits=16,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1222,6 +1272,7 @@ class TestApModule:
             Channel(
                 array_size=8,
                 bits=32,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1254,11 +1305,13 @@ class TestApModule:
         module.base = Mock()
         module.base.write_reg_data = Mock()
         module.read_output_channels = Mock(return_value=[False] * 4)
-
+        module.output_byte_size = 2
+        module.base.read_reg_data = Mock(return_value=bytes(2))
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=i,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1268,13 +1321,14 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         # Act
         module.write_channel(1, True)
 
         # Assert
-        module.base.write_reg_data.assert_called_with(b"\x02", 0)
+        module.base.write_reg_data.assert_called_with(b"\x02\x00", 0)
 
     def test_write_channel_int16(self, module_fixture):
         """Test write_channel"""
@@ -1285,12 +1339,13 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        module.read_channels = Mock(return_value=[False] * 4)
-
+        module.base.read_reg_data = Mock(return_value=bytes(8))
+        module.output_byte_size = 8
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
+                bits=16,
+                bit_offset=i * 16,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT16",
@@ -1300,7 +1355,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         # Act
         module.write_channel(1, -1)
@@ -1317,13 +1373,14 @@ class TestApModule:
         module.apdd_information.product_category = ProductCategory.ANALOG.value
         module.base = Mock()
         module.base.write_reg_data = Mock()
-        module.read_channels = Mock(return_value=[False] * 4)
-
+        module.base.read_reg_data = Mock(return_value=bytes(8))
+        module.output_byte_size = 8
         module.channels.outputs = [
             Channel(
                 array_size=None,
-                bits=1,
-                byte_swap_needed=None,
+                bits=16,
+                bit_offset=i * 16,
+                byte_swap_needed=True,
                 channel_id=0,
                 data_type="UINT16",
                 description="",
@@ -1332,7 +1389,8 @@ class TestApModule:
                 parameter_group_ids=None,
                 profile_list=[3],
             )
-        ] * 4
+            for i in range(4)
+        ]
 
         # Act
         module.write_channel(1, 1)
@@ -1351,11 +1409,12 @@ class TestApModule:
         module.base = Mock()
         module.base.write_reg_data = Mock()
         module.read_channels = Mock(return_value=[False] * 4)
-
+        module.output_byte_size = 1
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type=input_value,
@@ -1413,6 +1472,7 @@ class TestApModule:
             Channel(
                 array_size=2,
                 bits=16,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1462,6 +1522,7 @@ class TestApModule:
             Channel(
                 array_size=4,
                 bits=32,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="UINT8",
@@ -1528,6 +1589,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1557,6 +1619,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1587,6 +1650,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1617,6 +1681,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="BOOL",
@@ -1640,10 +1705,12 @@ class TestApModule:
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.output_byte_size = 4
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT",
@@ -1665,10 +1732,12 @@ class TestApModule:
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
+        module.output_byte_size = 4
         module.channels.outputs = [
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT",
@@ -1696,6 +1765,7 @@ class TestApModule:
             Channel(
                 array_size=None,
                 bits=1,
+                bit_offset=0,
                 byte_swap_needed=None,
                 channel_id=0,
                 data_type="INT",
@@ -1708,7 +1778,7 @@ class TestApModule:
         ] * 4
 
         # Act & Assert
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             module.toggle_channel(input_value)
 
     def test_write_module_parameter_int(self, module_fixture):
