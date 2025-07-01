@@ -20,7 +20,6 @@ class IOThread(threading.Thread):
         self.perform_io = perform_io
         self.cycle_time = cycle_time
         self.active = False
-        self.exe_event = threading.Event()
         threading.Thread.__init__(self, daemon=True)
 
     def run(self):
@@ -28,8 +27,6 @@ class IOThread(threading.Thread):
         while self.active:
             try:
                 self.perform_io()
-                self.exe_event.set()
-                self.exe_event.clear()
 
             # pylint: disable=bare-except
             except:
