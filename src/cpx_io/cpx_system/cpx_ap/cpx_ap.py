@@ -26,12 +26,15 @@ from cpx_io.utils.helpers import (
     convert_uint32_to_octett,
     convert_to_mac_string,
 )
+from cpx_io.cpx_system.io_thread import IOThread
 from cpx_io.utils.boollist import bytes_to_boollist
 from cpx_io.utils.logging import Logging
 
 
 class CpxAp(CpxBase):
     """CPX-AP base class"""
+
+    # pylint: disable=too-many-instance-attributes
 
     @dataclass
     class ApInformation:
@@ -65,12 +68,14 @@ class CpxAp(CpxBase):
         module_present: bool
         _7: None  # spacer for not-used bit
 
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(
         self,
         timeout: float = None,
         apdd_path: str = None,
         docu_path: str = None,
         generate_docu: bool = True,
+        cycle_time: float = None,
         **kwargs,
     ):
         """Constructor of the CpxAp class.
@@ -154,6 +159,18 @@ class CpxAp(CpxBase):
             generate_system_information_file(self)
 
         self.diagnosis_status = []
+        self.io_thread = None
+        if cycle_time is not None:
+            self.io_thread = IOThread(self.perform_io, cycle_time=cycle_time)
+            self.io_thread.start()
+
+    def shutdown(self):
+        """Shutdown function"""
+        if hasattr(self, "io_thread"):
+            if self.io_thread is not None:
+                self.io_thread.stop()
+        super().shutdown()
+        return False
 
     def perform_io(self) -> None:
         """

@@ -43,3 +43,4 @@ class IOThread(threading.Thread):
     def stop(self):
         """Stops the thread."""
         self.active = False
+        self.join()
