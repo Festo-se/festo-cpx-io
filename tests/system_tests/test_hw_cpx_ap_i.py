@@ -35,6 +35,13 @@ def test_default_timeout(test_cpxap):
     value = int.from_bytes(reg, byteorder="little", signed=False)
     assert value == 100
 
+def test_cycle_time():
+    "test the cycle time feature"
+    with CpxAp(ip_address=SYSTEM_IP_ADDRESS, timeout=0.1, cycle_time=0.05) as cpxap:
+        time.sleep(0.5)
+        reg = cpxap.read_reg_data(14000, 2)
+        assert int.from_bytes(reg, byteorder="little", signed=False) == 100
+
 
 def test_set_timeout():
     "test timeout"
