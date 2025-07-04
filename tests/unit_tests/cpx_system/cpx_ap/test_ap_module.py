@@ -1723,12 +1723,12 @@ class TestApModule:
         ] * 4
 
         # Act & Assert
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             module.set_channel(input_value)
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])
     def test_clear_channel_wrong_output_type(self, module_fixture, input_value):
-        """Test set channel"""
+        """Test reset channel"""
         module = module_fixture
         module.base = Mock()
         module.apdd_information.product_category = ProductCategory.DIGITAL.value
@@ -1750,7 +1750,7 @@ class TestApModule:
         ] * 4
 
         # Act & Assert
-        with pytest.raises(TypeError):
+        with pytest.raises(NotImplementedError):
             module.reset_channel(input_value)
 
     @pytest.mark.parametrize("input_value", [0, 1, 2, 3])

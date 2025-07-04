@@ -10,12 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: datatype of argument channel in read_isda() and write_isda() from int to (list[int] and int) to pass a list of channels or a single channel which should be r/w
 - CPX-AP: return value of read_isda() from any to list[any] and any
 - CPX-AP: add optional `cycle_time` arg to spawn thread reading diagnostics 
+- CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels; calling these functions on INT channels will raise a clear error.
+- Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).
+- Refactored documentation generator for improved code structure and maintainability.
 - group all non major changes into a single merge request
 - bump setuptools version
 - bump rich version
 
 ### Fixed
 - CPX-AP: De/Encode array channels and bool channels correctly
+- Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
 
 ## v0.9.0 - 05.05.25
 ### Added

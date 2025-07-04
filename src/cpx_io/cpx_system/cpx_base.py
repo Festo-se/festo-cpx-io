@@ -185,7 +185,9 @@ class CpxBase:
         :rtype: bytes
         """
         with self.io_lock:
-            response = self.client.read_holding_registers(register, length)
+            response = self.client.read_holding_registers(
+                address=register, count=length
+            )
 
         if response.isError():
             raise ConnectionAbortedError(response.message)
