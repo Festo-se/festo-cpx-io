@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-E: Optional parameter `bytelength` for CPX-E-4IOL `read/write_channel(s)` functions to specify io-link device length
 - CPX-E: Support modbus timeout
 - Modbus connection error which is raised if connection to the target device could not be established
+- Documentation: Channel documentation now uses Name if Description is empty, substitutes %d with ChannelId, and includes array length.
 - Security policy and describe the way to responsibly submit security issues
 - Small composition example to illustrate a possible abstraction for more complex CPX systems
 - Add renovate bot

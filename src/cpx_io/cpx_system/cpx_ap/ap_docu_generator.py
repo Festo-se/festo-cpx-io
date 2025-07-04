@@ -15,12 +15,26 @@ def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> d
     for k, v in channels.items():
         channel_list = []
         for i, c in enumerate(v):
+            # Use Description if available, else fallback to Name
+            description = c.description if c.description else c.name
+            # Replace %d in Name/Description with ChannelId if present
+            if "%d" in description and hasattr(c, "channel_id"):
+                description = description.replace("%d", str(c.channel_id))
+            # Try to get array length if available (array_size or bits)
+            array_length = getattr(c, "array_size", None)
+            if array_length is None:
+                # Fallback: if bits and datatype size are available, estimate array length
+                bits = getattr(c, "bits", None)
+                if bits and hasattr(c, "data_type") and c.data_type.startswith("UINT"):
+                    dtype_bits = _get_dtype_bits(c.data_type)
+                    if dtype_bits > 0:
+                        array_length = bits // dtype_bits
             channel_list.append(
                 {
                     "Index": i,
-                    "Description": c.description,
-                    # change datatype to bytes for io-link modules
+                    "Description": description,
                     "Datatype": "Bytes" if module_is_io_link else c.data_type,
+                    "ArrayLength": array_length if array_length else "",
                 }
             )
         channel_dict[k] = channel_list
@@ -28,6 +42,14 @@ def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> d
     if module_is_io_link:
         return {"Inout Channels": channel_dict["Inout Channels"]}
     return channel_dict
+
+
+def _get_dtype_bits(data_type: str) -> int:
+    """Extracts the bit width from a UINT data type string like 'UINT8', 'UINT16', etc."""
+    try:
+        return int(data_type[4:])
+    except (ValueError, IndexError):
+        return 0
 
 
 def _generate_module_data(modules: list) -> dict:
@@ -129,10 +151,15 @@ def _write_module_channels(f, m):
     for k, v in m["Channels"].items():
         if len(v) > 0:
             f.write(f"### {k}\n")
-            header = "| Index | Description | Type |\n| ----- | ----------- | ---- |\n"
+            header = (
+                "| Index | Description | Type | Array Length |\n"
+                "| ----- | ----------- | ---- | ------------ |\n"
+            )
             f.write(header)
             for c in v:
-                f.write(f"|{c['Index']}|{c['Description']}|{c['Datatype']}|\n")
+                f.write(
+                    f"|{c['Index']}|{c['Description']}|{c['Datatype']}|{c['ArrayLength']}|\n"
+                )
 
 
 def _write_module_parameters(f, m):
