@@ -3,6 +3,7 @@
 import struct
 from dataclasses import dataclass, fields
 from functools import wraps
+from threading import Lock
 
 from pymodbus.client import ModbusTcpClient
 from pymodbus.pdu.mei_message import ReadDeviceInformationRequest
@@ -56,6 +57,7 @@ class CpxBase:
         self._module_names = []
         self.base = None
         self.ip_address = ip_address
+        self.io_lock = Lock()
 
         if ip_address is None:
             Logging.logger.info("Not connected since no IP address was provided")
@@ -90,7 +92,8 @@ class CpxBase:
     def shutdown(self):
         """Shutdown function"""
         if hasattr(self, "client"):
-            self.client.close()
+            with self.io_lock:
+                self.client.close()
             Logging.logger.info("Connection closed")
         else:
             Logging.logger.info("No connection to close")
@@ -105,7 +108,8 @@ class CpxBase:
         # the modbus library does not implicitly reconnect with read/write register command,
         # although reconnection is implicitly configured. The read_device_informaiton() will
         # automatically reconnect. This is a workaround for implicitly reconnecting!
-        self.client.read_device_information()
+        with self.io_lock:
+            self.client.read_device_information()
 
     def read_device_info(self) -> dict:
         """Reads device info from the CPX system and returns dict with containing values
@@ -117,13 +121,15 @@ class CpxBase:
 
         # Read device information
         rreq = ReadDeviceInformationRequest(0x1, 0)
-        rres = self.client.execute(False, rreq)
+        with self.io_lock:
+            rres = self.client.execute(False, rreq)
         dev_info["vendor_name"] = rres.information[0].decode("ascii")
         dev_info["product_code"] = rres.information[1].decode("ascii")
         dev_info["revision"] = rres.information[2].decode("ascii")
 
         rreq = ReadDeviceInformationRequest(0x2, 0)
-        rres = self.client.execute(False, rreq)
+        with self.io_lock:
+            rres = self.client.execute(False, rreq)
         dev_info["vendor_url"] = rres.information[3].decode("ascii")
         dev_info["product_name"] = rres.information[4].decode("ascii")
         dev_info["model_name"] = rres.information[5].decode("ascii")
@@ -178,8 +184,8 @@ class CpxBase:
         :return: Register(s) content
         :rtype: bytes
         """
-
-        response = self.client.read_holding_registers(register, length)
+        with self.io_lock:
+            response = self.client.read_holding_registers(register, length)
 
         if response.isError():
             raise ConnectionAbortedError(response.message)
@@ -201,10 +207,12 @@ class CpxBase:
         # Convert to list of words
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
-        return_value = self.client.write_registers(register, reg)
+        with self.io_lock:
+            return_value = self.client.write_registers(register, reg)
         retries = 3
         while return_value.isError():
-            return_value = self.client.write_registers(register, reg)
+            with self.io_lock:
+                return_value = self.client.write_registers(register, reg)
             if retries < 0:
                 break
             retries -= 1
@@ -226,10 +234,12 @@ class CpxBase:
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
         for offset, d in enumerate(reg):
-            return_value = self.client.write_register(register + offset, d)
+            with self.io_lock:
+                return_value = self.client.write_register(register + offset, d)
             retries = 3
             while return_value.isError():
-                return_value = self.client.write_register(register + offset, d)
+                with self.io_lock:
+                    return_value = self.client.write_register(register + offset, d)
                 if retries < 0:
                     break
                 retries -= 1
