@@ -538,6 +538,12 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
+        ch = self.channels.outputs[channel]
+        if getattr(ch, "data_type", None) != "BOOL":
+            raise NotImplementedError(
+                f"set_channel is only supported for BOOL channels, but channel {channel} is "
+                f"{ch.data_type}"
+            )
         self.write_channel(channel, True)
 
     @CpxBase.require_base
@@ -548,6 +554,12 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
+        ch = self.channels.outputs[channel]
+        if getattr(ch, "data_type", None) != "BOOL":
+            raise NotImplementedError(
+                f"reset_channel is only supported for BOOL channels, but channel {channel} is "
+                f"{ch.data_type}"
+            )
         self.write_channel(channel, False)
 
     @CpxBase.require_base
@@ -558,6 +570,12 @@ class ApModule(CpxModule):
         :type channel: int
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
+        ch = self.channels.outputs[channel]
+        if getattr(ch, "data_type", None) != "BOOL":
+            raise NotImplementedError(
+                f"toggle_channel is only supported for BOOL channels, but channel {channel} is "
+                f"{ch.data_type}"
+            )
         value = self.read_output_channel(channel)
         self.write_channel(channel, not value)
 

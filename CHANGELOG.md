@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - CPX-AP: Update documentation and add examples for `cycle_time` feature
-
-
-### Added
 - CPX-AP: example for EHPS gripper
+
+### Changed
+- CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels; calling these functions on INT channels will raise a clear error.
+- Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).
+- Refactored documentation generator for improved code structure and maintainability.
 
 ## v0.10.0 - 15.07.25
 ### Added
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - CPX-AP: De/Encode array channels and bool channels correctly
+- Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
 
 ## v0.9.0 - 05.05.25
 ### Added

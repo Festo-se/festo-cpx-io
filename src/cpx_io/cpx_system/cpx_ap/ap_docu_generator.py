@@ -101,6 +101,69 @@ def _generate_module_data(modules: list) -> dict:
     return module_data
 
 
+def _write_module_markdown(f, m):
+    f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
+    if len(m["Description"]) > 1:
+        f.write(f"{m['Description']}\n")
+    f.write(f"* Type: {m['Type']}\n")
+    f.write(f"* Modul Code: {m['Code']}\n")
+    f.write(f"* AP Slot: {m['AP Slot']}\n")
+    f.write(f"* FWVersion: {m['FWVersion']}\n")
+    f.write(f"* Default Name: {m['Default Name']}\n")
+
+    if m["Module Functions"]:
+        f.write("### Module Functions\n")
+        for name, doc in m["Module Functions"].items():
+            func_header = name + doc["Signature"]
+            docstring = doc["Description"].replace("\n:", "<br>:")
+            if name in ("set_channel", "reset_channel", "toggle_channel"):
+                bool_indices = [
+                    str(idx)
+                    for idx, c in enumerate(m["Channels"]["Output Channels"])
+                    if c["Datatype"] == "BOOL"
+                ]
+                if bool_indices:
+                    docstring += (
+                        "\n<br>**Available for BOOL output channels:** "
+                        f"{', '.join(bool_indices)}"
+                    )
+                else:
+                    docstring += (
+                        "\n<br>**No BOOL output channels available in this module.**"
+                    )
+            f.write(f"### {func_header} \n{docstring}\n")
+
+    for k, v in m["Channels"].items():
+        if len(v) > 0:
+            f.write(f"### {k}\n")
+            f.write(
+                "| Index | Description | Type |\n"
+                "| ----- | ----------- | ---- |\n"
+            )
+            for c in v:
+                f.write(f"|{c['Index']}|{c['Description']}|{c['Datatype']}|\n")
+
+    if m["Parameters"]:
+        f.write("### Parameter Table\n")
+        f.write(
+            "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
+            "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
+        )
+        for p in m["Parameters"]:
+            enums_str = "<ul>"
+            if p.get("Enums"):
+                for k, v in p["Enums"].items():
+                    enums_str += f"<li>{v}: {k}</li>"
+            enums_str += "</ul>"
+            description_corrected_newline = p["Description"].replace(
+                "\n", "<br>"
+            )
+            f.write(
+                f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|"
+                f"{p['Type']}|{p['Size']}|{p['Instances']}|{enums_str}|\n"
+            )
+
+
 def generate_system_information_file(ap_system) -> None:
     """Saves a readable document that includes the system information in the apdd path"""
 
@@ -145,49 +208,4 @@ def generate_system_information_file(ap_system) -> None:
         f.write(f"* APDD Path: {system_data['APDD Path']}\n")
         f.write("\n# Modules\n")
         for m in system_data["Modules"]:
-            f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
-            # it can happen that there is no description which leads to a "-" in the md file
-            if len(m["Description"]) > 1:
-                f.write(f"{m['Description']}\n")
-            f.write(f"* Type: {m['Type']}\n")
-            f.write(f"* Modul Code: {m['Code']}\n")
-            f.write(f"* AP Slot: {m['AP Slot']}\n")
-            f.write(f"* FWVersion: {m['FWVersion']}\n")
-            f.write(f"* Default Name: {m['Default Name']}\n")
-
-            if m["Module Functions"]:
-                f.write("### Module Functions\n")
-                for name, doc in m["Module Functions"].items():
-                    func_header = name + doc["Signature"]
-                    docstring = doc["Description"].replace("\n:", "<br>:")
-                    f.write(f"### {func_header} \n{docstring}\n")
-
-            for k, v in m["Channels"].items():
-                if len(v) > 0:
-                    f.write(f"### {k}\n")
-                    f.write(
-                        "| Index | Description | Type |\n"
-                        "| ----- | ----------- | ---- |\n"
-                    )
-                    for c in v:
-                        f.write(f"|{c['Index']}|{c['Description']}|{c['Datatype']}|\n")
-
-            if m["Parameters"]:
-                f.write("### Parameter Table\n")
-                f.write(
-                    "| Id | Name | Description | R/W | Type | Size | Instances | Enums |\n"
-                    "| -- | ---- | ----------- | --- | ---- | ---- | --------- | ----- |\n"
-                )
-                for p in m["Parameters"]:
-                    enums_str = "<ul>"
-                    if p.get("Enums"):
-                        for k, v in p["Enums"].items():
-                            enums_str += f"<li>{v}: {k}</li>"
-                    enums_str += "</ul>"
-                    description_corrected_newline = p["Description"].replace(
-                        "\n", "<br>"
-                    )
-                    f.write(
-                        f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|"
-                        f"{p['Type']}|{p['Size']}|{p['Instances']}|{enums_str}|\n"
-                    )
+            _write_module_markdown(f, m)
