@@ -101,16 +101,7 @@ def _generate_module_data(modules: list) -> dict:
     return module_data
 
 
-def _write_module_markdown(f, m):
-    f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
-    if len(m["Description"]) > 1:
-        f.write(f"{m['Description']}\n")
-    f.write(f"* Type: {m['Type']}\n")
-    f.write(f"* Modul Code: {m['Code']}\n")
-    f.write(f"* AP Slot: {m['AP Slot']}\n")
-    f.write(f"* FWVersion: {m['FWVersion']}\n")
-    f.write(f"* Default Name: {m['Default Name']}\n")
-
+def _write_module_functions(f, m):
     if m["Module Functions"]:
         f.write("### Module Functions\n")
         for name, doc in m["Module Functions"].items():
@@ -133,16 +124,18 @@ def _write_module_markdown(f, m):
                     )
             f.write(f"### {func_header} \n{docstring}\n")
 
+
+def _write_module_channels(f, m):
     for k, v in m["Channels"].items():
         if len(v) > 0:
             f.write(f"### {k}\n")
-            f.write(
-                "| Index | Description | Type |\n"
-                "| ----- | ----------- | ---- |\n"
-            )
+            header = "| Index | Description | Type |\n| ----- | ----------- | ---- |\n"
+            f.write(header)
             for c in v:
                 f.write(f"|{c['Index']}|{c['Description']}|{c['Datatype']}|\n")
 
+
+def _write_module_parameters(f, m):
     if m["Parameters"]:
         f.write("### Parameter Table\n")
         f.write(
@@ -155,13 +148,25 @@ def _write_module_markdown(f, m):
                 for k, v in p["Enums"].items():
                     enums_str += f"<li>{v}: {k}</li>"
             enums_str += "</ul>"
-            description_corrected_newline = p["Description"].replace(
-                "\n", "<br>"
-            )
+            description_corrected_newline = p["Description"].replace("\n", "<br>")
             f.write(
                 f"|{p['Id']}|{p['Name']}|{description_corrected_newline}|{p['R/W']}|"
                 f"{p['Type']}|{p['Size']}|{p['Instances']}|{enums_str}|\n"
             )
+
+
+def _write_module_markdown(f, m):
+    f.write(f"\n## Index {m['Index']}: {m['Type']}\n")
+    if len(m["Description"]) > 1:
+        f.write(f"{m['Description']}\n")
+    f.write(f"* Type: {m['Type']}\n")
+    f.write(f"* Modul Code: {m['Code']}\n")
+    f.write(f"* AP Slot: {m['AP Slot']}\n")
+    f.write(f"* FWVersion: {m['FWVersion']}\n")
+    f.write(f"* Default Name: {m['Default Name']}\n")
+    _write_module_functions(f, m)
+    _write_module_channels(f, m)
+    _write_module_parameters(f, m)
 
 
 def generate_system_information_file(ap_system) -> None:
