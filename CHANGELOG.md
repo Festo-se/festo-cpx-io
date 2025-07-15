@@ -6,13 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v0.10.0 - 15.07.25
+### Added
+- CPX-AP: add optional `cycle_time` arg to spawn thread reading diagnostics 
+
 ### Changed
 - CPX-AP: datatype of argument channel in read_isda() and write_isda() from int to (list[int] and int) to pass a list of channels or a single channel which should be r/w
 - CPX-AP: return value of read_isda() from any to list[any] and any
-- CPX-AP: add optional `cycle_time` arg to spawn thread reading diagnostics 
-- group all non major changes into a single merge request
-- bump setuptools version
-- bump rich version
+- update dependencies rich and setuptools to new version
 
 ### Fixed
 - CPX-AP: De/Encode array channels and bool channels correctly
