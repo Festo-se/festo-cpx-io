@@ -36,7 +36,7 @@ def read_process_data_in(data):
 # list of some connected modules. IO-Link module is specified with 8 bytes per port:
 # Datasheet: Per port: 8 E / 8 A  Module: 32 E / 32 A. This has to be set up with the
 # switch on the module.
-with CpxAp(ip_address="172.16.1.41") as myCPX:
+with CpxAp(ip_address="192.168.1.1") as myCPX:
     # example EHPS-20-A-LK on port 1
     EHPS_CHANNEL = 1
 
@@ -75,7 +75,6 @@ with CpxAp(ip_address="172.16.1.41") as myCPX:
         gripping_force,
         gripping_tolerance,
     ]
-
 
     # init
     process_data_out = struct.pack(">HBBHBB", *pd_list)
