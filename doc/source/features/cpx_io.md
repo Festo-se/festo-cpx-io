@@ -82,7 +82,7 @@ with CpxE(ip_address="192.168.1.1", modules = [CpxEEp(), CpxE16Di()]) as myCPX:
 ```
 
 #### Use the modules functions
-The modules offer different functions, but most of them have `read_channel()` and depending on the kind of module, `write_channel()`, as well as very individual configure functions. Read the [doc](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/) and have a look at the [examples](./examples) for more information.
+The modules offer different functions, but most of them have `read_channel()` and depending on the kind of module, `write_channel()`, as well as very individual configure functions. Read the [doc](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/) and have a look at the [examples](../examples) for more information.
 
 ### CPX-AP
 CPX-AP is a modular and lightweight IO system with IP65/IP67 protection.
@@ -151,4 +151,4 @@ with CpxAp(ip_address="192.168.1.1") as myCPX:
 ```
 
 #### Use the modules functions
-The modules offer different functions but most of them have read and write channel functions as well as parameter read and write. Read your individual system documentation in CpxAp.docu_path to get to know what functions your modules offer and have a look at the [doc](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/) and the [examples](./examples) for more information.
+The modules offer different functions but most of them have read and write channel functions as well as parameter read and write. Read your individual system documentation in CpxAp.docu_path to get to know what functions your modules offer and have a look at the [doc](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/) and the [examples](../examples) for more information.
