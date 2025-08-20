@@ -956,7 +956,7 @@ class ApModule(CpxModule):
         Returns a list containing the channels.
 
         :param channels: list of channels or single channel number
-        : type channels
+        :type: channels
         """
 
         if not isinstance(channels, list):
@@ -976,18 +976,18 @@ class ApModule(CpxModule):
         Raises CpxRequestError when read failed.
 
         :param channels: list of channels or single channel number(s)
-                         which should be read, starting with 0
+            which should be read, starting with 0
         :type channels: list[int] | int
         :param index: io-link parameter index
         :type index: int
         :param subindex: (optional) io-link parameter subindex, defaults to 0
         :type subindex: int
-        :param data_type: (optional) datatype for correct interptetation.
+        :param data_type: (optional) datatype for correct interpretation.
             Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
             supported datatypes
         :type data_type: str
-        :return : list of values or single value depending on the datatype for each channel
-        :rtype : list[any] | any
+        :return: list of values or single value depending on the datatype for each channel
+        :rtype: list[any] | any
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
