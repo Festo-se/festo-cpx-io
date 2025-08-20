@@ -35,7 +35,10 @@ class ThreadedCpx(CpxAp):
                 module_status = self.read_diagnostic_status()
 
             if any(status.degree_of_severity_error for status in module_status):
-                print(f"Status Error in module(s): " f"{[i for i, s in enumerate(module_status) if s.degree_of_severity_error]}")
+                print(
+                    f"Status Error in module(s): "
+                    f"{[i for i, s in enumerate(module_status) if s.degree_of_severity_error]}"
+                )
                 self.status_error.set()
 
             time.sleep(0.05)
@@ -61,7 +64,10 @@ class ErrorEventCpx(CpxAp):
         the modbus timeout, e.g. read_diagnostic_status()"""
         module_status = self.read_diagnostic_status()
         if any(status.degree_of_severity_error for status in module_status):
-            print(f"Status Error in module(s): " f"{[i for i, s in enumerate(module_status) if s.degree_of_severity_error]}")
+            print(
+                f"Status Error in module(s): "
+                f"{[i for i, s in enumerate(module_status) if s.degree_of_severity_error]}"
+            )
             self.status_error.set()
         print(self.counter)
         self.counter += 1
