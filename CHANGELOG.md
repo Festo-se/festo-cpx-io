@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- CPX-AP: example for EHPS gripper
+
 ## v0.10.0 - 15.07.25
 ### Added
-- CPX-AP: add optional `cycle_time` arg to spawn thread reading diagnostics 
+- CPX-AP: add optional `cycle_time` arg to spawn thread reading diagnostics
 
 ### Changed
 - CPX-AP: datatype of argument channel in read_isda() and write_isda() from int to (list[int] and int) to pass a list of channels or a single channel which should be r/w
@@ -114,11 +117,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Length calculation in IO-Link function `write_isdu()`
 - Amount of tries and check in isdu functions are now consistent
-- Fixed some Docstrings 
+- Fixed some Docstrings
 
 ### Changed
 - CPX-AP ISDU access now returns only relevant and valid data. Optional parameter `data_type`
- defines the expected return value of `read_isdu()`. While `write_isdu()` checks for the data_type 
+ defines the expected return value of `read_isdu()`. While `write_isdu()` checks for the data_type
  of parameter `data` and behaves accordingly
 - Made `CpxAp.add_module()` a private function as it should not be accessed by the user
 - Some minor code improvements
@@ -181,7 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CPX-AP: Added diagnosis example
 
 ### Fixed
-- ApModule: write_channel bug causing other channels to be resetted for some module types. 
+- ApModule: write_channel bug causing other channels to be resetted for some module types.
 ### Removed
 - Removed `chardet` dependency
 
@@ -225,7 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - IndexError output on digital functions `set_channel()`/`clear_channel()`/`toggle_channel()` now show correct string
 
 ## v0.3.0 - 02.04.24
-### Added 
+### Added
 - Added VABA (electric interface for VTSA valve terminal)
 - CLI command `parameter` (options `--list` and `--meta`) showing parameter meta data
 - channel_range_check in helpers, now raises IndexError instead of ValueError
