@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath("../../src/"))
 
 project = "festo-cpx-io"
 copyright = "2023, Festo SE & Co. KG"
-author = "Martin Wiesner, Elias Rosch"
+author = "Martin Wiesner, Elias Rosch, Valentin Schüle, Jan Hildenbrand"
 
 
 # -- General configuration ---------------------------------------------------
