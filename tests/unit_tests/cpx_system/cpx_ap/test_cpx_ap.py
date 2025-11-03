@@ -97,7 +97,7 @@ class TestCpxAp:
         mock_create_docu_path.return_value = "docu_path"
         mock_read_module_count.return_value = 1
         mock_read_apdd_information.return_value = CpxAp.ApInformation(
-            order_text="test", fw_version="0.0.1"
+            order_text="CPX-AP-I-EP-M12", fw_version="0.0.1"
         )
         mock__grab_apdd.return_value = {}
         mock_add_module.return_value = ["Dummy"]
@@ -189,6 +189,10 @@ class TestCpxAp:
         ]:
             print(f"{mock} is callable: {callable(mock)}")
         # Arrange
+        mock_read_module_count.return_value = 1
+        mock_read_apdd_information.return_value = CpxAp.ApInformation(
+            order_text="CPX-AP-I-EP-M12", fw_version="0.0.1"
+        )
         mock_set_timeout.return_value = None
         mock_connected.return_value = True
         mock_modbus_tcp_client.return_value = Mock()
@@ -266,7 +270,7 @@ class TestCpxAp:
         mock_create_docu_path.return_value = "docu_path"
         mock_read_module_count.return_value = 1
         mock_read_apdd_information.return_value = CpxAp.ApInformation(
-            order_text="test", fw_version="0.0.1"
+            order_text="CPX-AP-I-EP-M12", fw_version="0.0.1"
         )
         mock__grab_apdd.return_value = {}
         mock_add_module.return_value = ["Dummy"]
@@ -328,7 +332,9 @@ class TestCpxAp:
         mock_read_apdd_information = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information",
             spec=CpxAp.read_apdd_information,
-            return_value=CpxAp.ApInformation(order_text="test", fw_version="0.0.1"),
+            return_value=CpxAp.ApInformation(
+                order_text="CPX-AP-I-EP-M12", fw_version="0.0.1"
+            ),
         )
         mock_read_module_count = mocker.patch(
             "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count",
@@ -523,7 +529,7 @@ class TestCpxAp:
 
         apdd_information = ApddInformation(
             description="description",
-            name="name",
+            name="CPX-AP-I-EP-M12",
             module_type="module_type",
             configurator_code="configurator_code",
             part_number="part_number",
@@ -544,7 +550,7 @@ class TestCpxAp:
 
         # Assert
         assert ret == module
-        assert module.name == "name"
+        assert module.name == "CPX-AP-I-EP-M12"
 
     def test_add_module_bus_module(self, ap_fixture, mocker):
         # Arrange
