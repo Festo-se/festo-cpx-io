@@ -120,7 +120,7 @@ def _write_module_functions(f, m):
                 ]
                 if bool_indices:
                     docstring += (
-                        "\n<br>**Available for BOOL output channels:** "
+                        "\n<br>Available for BOOL output channels: "
                         f"{', '.join(bool_indices)}"
                     )
                 else:
