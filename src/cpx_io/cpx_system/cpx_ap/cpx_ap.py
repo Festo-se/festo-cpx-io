@@ -70,7 +70,7 @@ class CpxAp(CpxBase):
         module_present: bool
         _7: None  # spacer for not-used bit
 
-    # pylint: disable=too-many-arguments, too-many-positional-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-branches
     def __init__(
         self,
         timeout: float = None,
