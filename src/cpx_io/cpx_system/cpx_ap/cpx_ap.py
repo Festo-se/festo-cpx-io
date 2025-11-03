@@ -110,6 +110,7 @@ class CpxAp(CpxBase):
 
         self.global_diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
         self.next_diagnosis_register = self.global_diagnosis_register + 6
+        self.interface_lock = Lock()
 
         if timeout is not None:
             self.set_timeout(int(timeout * 1000))
@@ -165,7 +166,6 @@ class CpxAp(CpxBase):
 
         self.diagnosis_status = []
         self.io_thread = None
-        self.interface_lock = Lock()
         if cycle_time is not None:
             self.io_thread = IOThread(self.perform_io, cycle_time=cycle_time)
             self.io_thread.start()
@@ -678,8 +678,11 @@ class CpxAp(CpxBase):
             # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
             exe_code = 0
             while exe_code != 16:
-                exe_code = int.from_bytes(
-                    self.read_reg_data(param_reg + 3), byteorder="little"
+                exe_code = (
+                    int.from_bytes(
+                        self.read_reg_data(param_reg + 3), byteorder="little"
+                    )
+                    & 0xFF
                 )
                 if exe_code == 4:
                     raise CpxRequestError
