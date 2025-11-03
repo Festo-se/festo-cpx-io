@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).
 - Refactored documentation generator for improved code structure and maintainability.
 
+### Fixed
+- Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
+
 ## v0.10.0 - 15.07.25
 ### Added
 - CPX-AP: add optional `cycle_time` arg to spawn thread reading diagnostics
@@ -25,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - CPX-AP: De/Encode array channels and bool channels correctly
-- Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
 
 ## v0.9.0 - 05.05.25
 ### Added
