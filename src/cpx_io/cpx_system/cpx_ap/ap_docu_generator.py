@@ -15,12 +15,17 @@ def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> d
     for k, v in channels.items():
         channel_list = []
         for i, c in enumerate(v):
+            data_type = c.data_type
+            if module_is_io_link:
+                # change datatype to bytes for io-link modules
+                data_type = "Bytes"
+            elif c.array_size is not None and c.array_size > 1:
+                data_type += f"[{c.array_size}]"
             channel_list.append(
                 {
                     "Index": i,
                     "Description": c.description,
-                    # change datatype to bytes for io-link modules
-                    "Datatype": "Bytes" if module_is_io_link else c.data_type,
+                    "Datatype": data_type,
                 }
             )
         channel_dict[k] = channel_list
