@@ -9,7 +9,7 @@ from threading import Lock
 import os
 import platformdirs
 import requests
-from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError, CpxInitError
 from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
@@ -131,6 +131,7 @@ class CpxAp(CpxBase):
 
         apdds = os.listdir(self._apdd_path)
 
+        self.gateway_module_id = None
         for i in range(self.read_module_count()):
             info = self.read_apdd_information(i)
             apdd_name = (
@@ -160,6 +161,10 @@ class CpxAp(CpxBase):
 
             module = build_ap_module(module_apdd, info.module_code)
             self._add_module(module, info)
+            if "-EP-" in info.order_text and self.gateway_module_id is None:
+                self.gateway_module_id = i
+        if self.gateway_module_id is None:
+            raise CpxInitError(message="Gateway not Found")
 
         if generate_docu:
             generate_system_information_file(self)
@@ -488,7 +493,7 @@ class CpxAp(CpxBase):
             name="AP diagnosis status",
         )
 
-        reg = self.read_parameter(0, ap_diagnosis_parameter)
+        reg = self.read_parameter(self.gateway_module_id, ap_diagnosis_parameter)
         return [self.Diagnostics.from_int(r) for r in reg]
 
     def read_global_diagnosis_state(self) -> dict:
