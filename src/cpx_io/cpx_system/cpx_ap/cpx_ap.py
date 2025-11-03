@@ -75,7 +75,7 @@ class CpxAp(CpxBase):
         apdd_path: str = None,
         docu_path: str = None,
         generate_docu: bool = True,
-        cycle_time: float = None,
+        cycle_time: float = 0.01,
         **kwargs,
     ):
         """Constructor of the CpxAp class.
@@ -95,6 +95,9 @@ class CpxAp(CpxBase):
         :param generate_docu: (optional) parameter to disable the generation of the documentation
             this is useful for big systems when the generation takes too long
         :type generate_docu: bool
+        :param cycle_time: (optional) Cycle time (in s) for refreshing the connection automatically
+            to avoid timeouts. If None, no automatic refresh is done.
+        :type cycle_time: float
         """
         super().__init__(**kwargs)
         if not self.connected():

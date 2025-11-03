@@ -58,8 +58,10 @@ class TestCpxAp:
         "cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.connected",
         spec=CpxAp.connected,
     )
+    @patch("cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.perform_io", spec=True)
     def test_default_constructor(
         self,
+        mock_perform_io,
         mock_connected,
         mock_os_listdir,
         mock_generate_system_information_file,
@@ -86,6 +88,7 @@ class TestCpxAp:
             mock_generate_system_information_file,
             mock_os_listdir,
             mock_connected,
+            mock_perform_io,
         ]:
             print(f"{mock} is callable: {callable(mock)}")
         # Arrange
@@ -103,7 +106,7 @@ class TestCpxAp:
         mock_os_listdir.return_value = [""]
         mock_connected.return_value = True
         mock_modbus_tcp_client.return_value = Mock()
-
+        mock_perform_io.return_value = Mock()
         # Act
         cpx_ap = CpxAp(ip_address="0.0.0.0")
 
@@ -191,7 +194,7 @@ class TestCpxAp:
         mock_modbus_tcp_client.return_value = Mock()
 
         # Act
-        cpx_ap = CpxAp(ip_address="0.0.0.0", timeout=0.1)
+        cpx_ap = CpxAp(ip_address="0.0.0.0", timeout=0.1, cycle_time=None)
 
         # Assert
         mock_set_timeout.assert_called_once
@@ -275,7 +278,10 @@ class TestCpxAp:
 
         # Act
         cpx_ap = CpxAp(
-            apdd_path="myApddPath", docu_path="myDocuPath", ip_address="0.0.0.0"
+            apdd_path="myApddPath",
+            docu_path="myDocuPath",
+            ip_address="0.0.0.0",
+            cycle_time=None,
         )
 
         # Assert
@@ -345,7 +351,7 @@ class TestCpxAp:
         mock_modbus_tcp_client = mocker.patch(
             "pymodbus.client.ModbusTcpClient.__new__", spec=True, return_value=Mock()
         )
-        yield CpxAp(ip_address="0.0.0.0")
+        yield CpxAp(ip_address="0.0.0.0", cycle_time=None)
 
     def test_connected(self, ap_fixture):
         # Arrange
