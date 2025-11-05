@@ -10,7 +10,7 @@ OUTPUTS = ModbusRegister(0, 4096)
 INPUTS = ModbusRegister(5000, 4096)
 PARAMETERS = ModbusRegister(10000, 1000)
 
-DIAGNOSIS = ModbusRegister(11000, 100)
+DIAGNOSIS = ModbusRegister(11000, 1000)
 MODULE_COUNT = ModbusRegister(12000, 1)
 TIMEOUT = ModbusRegister(14000, 2)
 

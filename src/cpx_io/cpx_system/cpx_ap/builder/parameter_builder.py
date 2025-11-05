@@ -24,6 +24,8 @@ def build_parameter_enum(enum_dict):
 
 def build_parameter(parameter_dict, enum_dict, units=None):
     """Builds one Parameter"""
+    if parameter_dict is None:
+        return None
     valid_unit = (
         units.get(parameter_dict.get("DataDefinition").get("PhysicalUnitId"))
         if units
