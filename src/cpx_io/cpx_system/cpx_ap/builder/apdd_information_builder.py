@@ -30,9 +30,23 @@ def build_variant(variant_dict):
     )
 
 
-def build_actual_variant(apdd, module_code):
+def build_variant_list(apdd):
+    """Builds list of Variants from apdd"""
+    return [build_variant(d) for d in apdd["Variants"]["VariantList"]]
+
+
+def get_variant_switch_parameter(apdd):
+    """Get the variant switch parameter name from the apdd"""
+    if "ParameterIdVariantSwitch" in apdd["Variants"]:
+        param_id = apdd["Variants"]["ParameterIdVariantSwitch"].get("ParameterId", None)
+        for param in apdd["Parameters"]["ParameterList"]:
+            if param["ParameterId"] == param_id:
+                return param
+    return None
+
+
+def build_actual_variant(variant_list, module_code):
     """Build variant and return the correct one according to module_code"""
-    variant_list = [build_variant(d) for d in apdd["Variants"]["VariantList"]]
     Logging.logger.debug(f"Variants: {variant_list}")
     variant = next(
         (

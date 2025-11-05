@@ -100,6 +100,19 @@ class CpxBase:
             Logging.logger.info("No connection to close")
         return False
 
+    def reconnect(self):
+        """Shutdown modbus connection and reconnect"""
+        with self.io_lock:
+            self.client.close()
+            self.client = ModbusTcpClient(host=self.ip_address)
+            if self.client.connect():
+                Logging.logger.info(f"Reconnected to {self.ip_address}:502")
+            else:
+                Logging.logger.warning(
+                    f"Failed to reconnect to {self.ip_address}:502 via modbus"
+                )
+                raise CpxConnectionError("reconnection failed")
+
     def connected(self) -> bool:
         """Returns information about connection status"""
         return self.client.connected
