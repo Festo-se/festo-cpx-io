@@ -1267,8 +1267,7 @@ class ApModule(CpxModule):
         if variant_id is None or variant_id not in variant_ids:
             raise ValueError(
                 f"Variant {variant_id} is not supported. Supported variants are: "
-                f"{[(v.name, v.variant_identification["ModuleCode"])
-                        for v in self.variant_list]}"
+                f"{[(v.name, v.variant_identification['ModuleCode']) for v in self.variant_list]}"
             )
 
         self.base.write_parameter(
