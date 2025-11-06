@@ -1,7 +1,7 @@
-pymodbus==3.7.4
-rich==14.0.0
-platformdirs==4.3.6
-requests==2.32.3
-setuptools==80.4.0
-pytest==8.3.5
-pytest-mock==3.14.0
+pymodbus==3.11.3
+rich==14.2.0
+platformdirs==4.5.0
+requests==2.32.5
+setuptools==80.9.0
+pytest==8.4.2
+pytest-mock==3.15.1

@@ -6,6 +6,7 @@ from functools import wraps
 from threading import Lock
 
 from pymodbus.client import ModbusTcpClient
+from pymodbus.exceptions import ConnectionException
 from pymodbus.pdu.mei_message import ReadDeviceInformationRequest
 from cpx_io.utils.logging import Logging
 from cpx_io.utils.boollist import boollist_to_bytes, bytes_to_boollist
@@ -106,10 +107,13 @@ class CpxBase:
     def check_connection_and_try_reconnect(self):
         """checks the modbus connection and tries to reconnect if the connection is timedout"""
         # the modbus library does not implicitly reconnect with read/write register command,
-        # although reconnection is implicitly configured. The read_device_informaiton() will
+        # although reconnection is implicitly configured. The read_device_information() will
         # automatically reconnect. This is a workaround for implicitly reconnecting!
-        with self.io_lock:
-            self.client.read_device_information()
+        try:
+            with self.io_lock:
+                self.client.read_device_information()
+        except ConnectionException:
+            pass
 
     def read_device_info(self) -> dict:
         """Reads device info from the CPX system and returns dict with containing values
@@ -184,11 +188,13 @@ class CpxBase:
         :return: Register(s) content
         :rtype: bytes
         """
-        with self.io_lock:
-            response = self.client.read_holding_registers(
-                address=register, count=length
-            )
-
+        try:
+            with self.io_lock:
+                response = self.client.read_holding_registers(
+                    address=register, count=length
+                )
+        except ConnectionException as e:
+            raise ConnectionAbortedError(str(e)) from e
         if response.isError():
             raise ConnectionAbortedError(response.message)
 
@@ -209,12 +215,14 @@ class CpxBase:
         # Convert to list of words
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
-        with self.io_lock:
-            return_value = self.client.write_registers(register, reg)
+        return_value = None
         retries = 3
-        while return_value.isError():
-            with self.io_lock:
-                return_value = self.client.write_registers(register, reg)
+        while return_value is None or return_value.isError():
+            try:
+                with self.io_lock:
+                    return_value = self.client.write_registers(register, reg)
+            except ConnectionException:
+                pass
             if retries < 0:
                 break
             retries -= 1
@@ -236,12 +244,14 @@ class CpxBase:
         reg = list(struct.unpack("<" + "H" * (len(data) // 2), data))
         # Write data
         for offset, d in enumerate(reg):
-            with self.io_lock:
-                return_value = self.client.write_register(register + offset, d)
+            return_value = None
             retries = 3
-            while return_value.isError():
-                with self.io_lock:
-                    return_value = self.client.write_register(register + offset, d)
+            while return_value is None or return_value.isError():
+                try:
+                    with self.io_lock:
+                        return_value = self.client.write_register(register + offset, d)
+                except ConnectionException:
+                    pass
                 if retries < 0:
                     break
                 retries -= 1
