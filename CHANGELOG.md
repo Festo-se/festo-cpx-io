@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CPX-AP: Update documentation and add examples for `cycle_time` feature
 - CPX-AP: example for EHPS gripper
+- CPX-AP: Support the switch of variants of modules
+- CPX-AP: example for IO-Link Master variant switching
 - Documentation: Channel documentation now uses Name if Description is empty, substitutes %d with ChannelId, and includes array length.
 
 ### Changed

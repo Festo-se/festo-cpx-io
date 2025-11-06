@@ -1244,11 +1244,11 @@ class ApModule(CpxModule):
         )
 
     @CpxBase.require_base
-    def change_variant(self, variant: int) -> None:
+    def change_variant(self, variant: int | str) -> None:
         """Change the module variant if supported.
 
-        :param variant: Variant number to change to
-        :type variant: int
+        :param variant: Variant number or name to change to
+        :type variant: int | str
         """
         if len(self.variant_list) <= 1 or self.variant_switch_parameter is None:
             raise NotImplementedError(f"{self} has no variants to change")
@@ -1256,21 +1256,30 @@ class ApModule(CpxModule):
         variant_ids = [
             v.variant_identification["ModuleCode"] for v in self.variant_list
         ]
-        if variant not in variant_ids:
+        variant_id = None
+        if isinstance(variant, str):
+            for v in self.variant_list:
+                if v.name == variant:
+                    variant_id = v.variant_identification["ModuleCode"]
+                    break
+        else:
+            variant_id = variant
+        if variant_id is None or variant_id not in variant_ids:
             raise ValueError(
-                f"Variant {variant} is not supported. Supported variants are: "
+                f"Variant {variant_id} is not supported. Supported variants are: "
                 f"{[(v.name, v.variant_identification["ModuleCode"])
-                    for v in self.variant_list]}"
+                        for v in self.variant_list]}"
             )
 
         self.base.write_parameter(
             self.position,
             self.variant_switch_parameter,
-            variant,
+            variant_id,
             0,
         )
+
         # if the module code changed, wait for lost device
-        if variant != self.apdd_information.module_code:
+        if variant_id != self.apdd_information.module_code:
             is_present = self.read_present_state()
             timeout = time.time() + 30
             while is_present and time.time() < timeout:
@@ -1281,6 +1290,7 @@ class ApModule(CpxModule):
             is_present = self.read_present_state()
             timeout = time.time() + 30
             while not is_present and time.time() < timeout:
+                self.base.reconnect()
                 is_present = self.read_present_state()
                 time.sleep(0.1)
-        Logging.logger.info(f"{self.name}: Changing variant to {variant}")
+        Logging.logger.info(f"{self.name}: Changing variant to {variant_id}")
