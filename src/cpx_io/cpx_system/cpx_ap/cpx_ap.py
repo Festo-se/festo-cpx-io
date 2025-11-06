@@ -4,10 +4,12 @@ import json
 import struct
 from typing import Any, List, Union
 from dataclasses import dataclass
+from threading import Lock
+
 import os
 import platformdirs
 import requests
-from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
+from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError, CpxInitError
 from cpx_io.cpx_system.cpx_ap.builder.ap_module_builder import build_ap_module
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 from cpx_io.cpx_system.cpx_ap.ap_supported_functions import (
@@ -68,14 +70,14 @@ class CpxAp(CpxBase):
         module_present: bool
         _7: None  # spacer for not-used bit
 
-    # pylint: disable=too-many-arguments, too-many-positional-arguments
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-branches
     def __init__(
         self,
         timeout: float = None,
         apdd_path: str = None,
         docu_path: str = None,
         generate_docu: bool = True,
-        cycle_time: float = None,
+        cycle_time: float = 0.01,
         **kwargs,
     ):
         """Constructor of the CpxAp class.
@@ -95,6 +97,9 @@ class CpxAp(CpxBase):
         :param generate_docu: (optional) parameter to disable the generation of the documentation
             this is useful for big systems when the generation takes too long
         :type generate_docu: bool
+        :param cycle_time: (optional) Cycle time (in s) for refreshing the connection automatically
+            to avoid timeouts. If None, no automatic refresh is done.
+        :type cycle_time: float
         """
         super().__init__(**kwargs)
         if not self.connected():
@@ -105,6 +110,7 @@ class CpxAp(CpxBase):
 
         self.global_diagnosis_register = ap_modbus_registers.DIAGNOSIS.register_address
         self.next_diagnosis_register = self.global_diagnosis_register + 6
+        self.interface_lock = Lock()
 
         if timeout is not None:
             self.set_timeout(int(timeout * 1000))
@@ -125,6 +131,7 @@ class CpxAp(CpxBase):
 
         apdds = os.listdir(self._apdd_path)
 
+        self.gateway_module_id = None
         for i in range(self.read_module_count()):
             info = self.read_apdd_information(i)
             apdd_name = (
@@ -154,6 +161,10 @@ class CpxAp(CpxBase):
 
             module = build_ap_module(module_apdd, info.module_code)
             self._add_module(module, info)
+            if "-EP-" in info.order_text and self.gateway_module_id is None:
+                self.gateway_module_id = i
+        if self.gateway_module_id is None:
+            raise CpxInitError(message="Gateway not Found")
 
         if generate_docu:
             generate_system_information_file(self)
@@ -249,16 +260,17 @@ class CpxAp(CpxBase):
         value_to_write = timeout_ms.to_bytes(
             length=ap_modbus_registers.TIMEOUT.length * 2, byteorder="little"
         )
-        self.write_reg_data(
-            value_to_write, ap_modbus_registers.TIMEOUT.register_address
-        )
+        with self.interface_lock:
+            self.write_reg_data(
+                value_to_write, ap_modbus_registers.TIMEOUT.register_address
+            )
 
-        # Check if it actually succeeded
-        indata = int.from_bytes(
-            self.read_reg_data(*ap_modbus_registers.TIMEOUT),
-            byteorder="little",
-            signed=False,
-        )
+            # Check if it actually succeeded
+            indata = int.from_bytes(
+                self.read_reg_data(*ap_modbus_registers.TIMEOUT),
+                byteorder="little",
+                signed=False,
+            )
         if indata != timeout_ms:
             Logging.logger.error("Setting of modbus timeout was not successful")
 
@@ -292,7 +304,8 @@ class CpxAp(CpxBase):
         :return: Number of the total amount of connected modules
         :rtype: int
         """
-        reg = self.read_reg_data(*ap_modbus_registers.MODULE_COUNT)
+        with self.interface_lock:
+            reg = self.read_reg_data(*ap_modbus_registers.MODULE_COUNT)
         value = int.from_bytes(reg, byteorder="little")
         Logging.logger.debug(f"Total module count: {value}")
         return value
@@ -358,101 +371,107 @@ class CpxAp(CpxBase):
         :return: ApInformation object containing all the module information from the module
         :rtype: ApInformation
         """
-
-        info = self.ApInformation(
-            module_code=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.MODULE_CODE, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            module_class=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.MODULE_CLASS, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            communication_profiles=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(
-                        ap_modbus_registers.COMMUNICATION_PROFILE, position
-                    )
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            input_size=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.INPUT_SIZE, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            output_channels=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.INPUT_CHANNELS, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            output_size=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.OUTPUT_SIZE, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            input_channels=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.OUTPUT_CHANNELS, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            hw_version=int.from_bytes(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.HW_VERSION, position)
-                ),
-                byteorder="little",
-                signed=False,
-            ),
-            fw_version=".".join(
-                str(x)
-                for x in struct.unpack(
-                    "<HHH",
+        with self.interface_lock:
+            info = self.ApInformation(
+                module_code=int.from_bytes(
                     self.read_reg_data(
-                        *self._module_offset(ap_modbus_registers.FW_VERSION, position)
+                        *self._module_offset(ap_modbus_registers.MODULE_CODE, position)
                     ),
-                )
-            ),
-            serial_number=hex(
-                int.from_bytes(
+                    byteorder="little",
+                    signed=False,
+                ),
+                module_class=int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(ap_modbus_registers.MODULE_CLASS, position)
+                    ),
+                    byteorder="little",
+                    signed=False,
+                ),
+                communication_profiles=int.from_bytes(
                     self.read_reg_data(
                         *self._module_offset(
-                            ap_modbus_registers.SERIAL_NUMBER, position
+                            ap_modbus_registers.COMMUNICATION_PROFILE, position
                         )
                     ),
                     byteorder="little",
                     signed=False,
-                )
-            ),
-            product_key=(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.PRODUCT_KEY, position)
-                )
-                .decode("ascii")
-                .strip("\x00")
-            ),
-            order_text=(
-                self.read_reg_data(
-                    *self._module_offset(ap_modbus_registers.ORDER_TEXT, position)
-                )
-                .decode("ascii")
-                .strip("\x00")
-            ),
-        )
+                ),
+                input_size=int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(ap_modbus_registers.INPUT_SIZE, position)
+                    ),
+                    byteorder="little",
+                    signed=False,
+                ),
+                output_channels=int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(
+                            ap_modbus_registers.INPUT_CHANNELS, position
+                        )
+                    ),
+                    byteorder="little",
+                    signed=False,
+                ),
+                output_size=int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(ap_modbus_registers.OUTPUT_SIZE, position)
+                    ),
+                    byteorder="little",
+                    signed=False,
+                ),
+                input_channels=int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(
+                            ap_modbus_registers.OUTPUT_CHANNELS, position
+                        )
+                    ),
+                    byteorder="little",
+                    signed=False,
+                ),
+                hw_version=int.from_bytes(
+                    self.read_reg_data(
+                        *self._module_offset(ap_modbus_registers.HW_VERSION, position)
+                    ),
+                    byteorder="little",
+                    signed=False,
+                ),
+                fw_version=".".join(
+                    str(x)
+                    for x in struct.unpack(
+                        "<HHH",
+                        self.read_reg_data(
+                            *self._module_offset(
+                                ap_modbus_registers.FW_VERSION, position
+                            )
+                        ),
+                    )
+                ),
+                serial_number=hex(
+                    int.from_bytes(
+                        self.read_reg_data(
+                            *self._module_offset(
+                                ap_modbus_registers.SERIAL_NUMBER, position
+                            )
+                        ),
+                        byteorder="little",
+                        signed=False,
+                    )
+                ),
+                product_key=(
+                    self.read_reg_data(
+                        *self._module_offset(ap_modbus_registers.PRODUCT_KEY, position)
+                    )
+                    .decode("ascii")
+                    .strip("\x00")
+                ),
+                order_text=(
+                    self.read_reg_data(
+                        *self._module_offset(ap_modbus_registers.ORDER_TEXT, position)
+                    )
+                    .decode("ascii")
+                    .strip("\x00")
+                ),
+            )
         Logging.logger.debug(f"Reading ApInformation: {info}")
         return info
 
@@ -474,7 +493,7 @@ class CpxAp(CpxBase):
             name="AP diagnosis status",
         )
 
-        reg = self.read_parameter(0, ap_diagnosis_parameter)
+        reg = self.read_parameter(self.gateway_module_id, ap_diagnosis_parameter)
         return [self.Diagnostics.from_int(r) for r in reg]
 
     def read_global_diagnosis_state(self) -> dict:
@@ -484,7 +503,8 @@ class CpxAp(CpxBase):
 
         :ret value: Diagnosis state
         :rtype: dict"""
-        reg = self.read_reg_data(self.global_diagnosis_register, length=2)
+        with self.interface_lock:
+            reg = self.read_reg_data(self.global_diagnosis_register, length=2)
         diagnosis_keys = [
             "Device available",
             "Current",
@@ -518,7 +538,8 @@ class CpxAp(CpxBase):
 
         :ret value: Amount of active diagnosis
         :rtype: int"""
-        reg = self.read_reg_data(self.global_diagnosis_register + 2)
+        with self.interface_lock:
+            reg = self.read_reg_data(self.global_diagnosis_register + 2)
         return int.from_bytes(reg, byteorder="little")
 
     def read_latest_diagnosis_index(self) -> int:
@@ -527,7 +548,8 @@ class CpxAp(CpxBase):
 
         :ret value: Modul index
         :rtype: int or None"""
-        reg = self.read_reg_data(self.global_diagnosis_register + 3)
+        with self.interface_lock:
+            reg = self.read_reg_data(self.global_diagnosis_register + 3)
         # subtract one because AP starts with module index 1
         module_index = int.from_bytes(reg, byteorder="little") - 1
         if module_index < 0:
@@ -539,7 +561,8 @@ class CpxAp(CpxBase):
 
         :ret value: Diagnosis code
         :rtype: int"""
-        reg = self.read_reg_data(self.global_diagnosis_register + 4, length=2)
+        with self.interface_lock:
+            reg = self.read_reg_data(self.global_diagnosis_register + 4, length=2)
         return int.from_bytes(reg, byteorder="little")
 
     def write_parameter(
@@ -611,23 +634,24 @@ class CpxAp(CpxBase):
         length_bytes = len(data).to_bytes(2, byteorder="little")
         command = (2).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
-        # prepare the command
-        self.write_reg_data(module_index + param_id + instance, param_reg)
-        # write length in bytes
-        self.write_reg_data(length_bytes, param_reg + 4)
-        # write data to register
-        self.write_reg_data(data, param_reg + 10)
-        # execute the command
-        self.write_reg_data(command, param_reg + 3)
+        with self.interface_lock:
+            # prepare the command
+            self.write_reg_data(module_index + param_id + instance, param_reg)
+            # write length in bytes
+            self.write_reg_data(length_bytes, param_reg + 4)
+            # write data to register
+            self.write_reg_data(data, param_reg + 10)
+            # execute the command
+            self.write_reg_data(command, param_reg + 3)
 
-        exe_code = 0
-        while exe_code != 16:
-            exe_code = int.from_bytes(
-                self.read_reg_data(param_reg + 3), byteorder="little"
-            )
-            # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-            if exe_code == 4:
-                raise CpxRequestError
+            exe_code = 0
+            while exe_code != 16:
+                exe_code = int.from_bytes(
+                    self.read_reg_data(param_reg + 3), byteorder="little"
+                )
+                # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+                if exe_code == 4:
+                    raise CpxRequestError
 
         Logging.logger.debug(f"Wrote data {data} to module position: {position - 1}")
 
@@ -652,25 +676,29 @@ class CpxAp(CpxBase):
         instance = instance.to_bytes(2, byteorder="little")
         command = (1).to_bytes(2, byteorder="little")  # 1=read, 2=write
 
-        # prepare and execute the read command
-        self.write_reg_data(module_index + param_id + instance + command, param_reg)
+        with self.interface_lock:
+            # prepare and execute the read command
+            self.write_reg_data(module_index + param_id + instance + command, param_reg)
 
-        # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
-        exe_code = 0
-        while exe_code != 16:
-            exe_code = int.from_bytes(
-                self.read_reg_data(param_reg + 3), byteorder="little"
+            # 1=read, 2=write, 3=busy, 4=error(request failed), 16=completed(request successful)
+            exe_code = 0
+            while exe_code != 16:
+                exe_code = (
+                    int.from_bytes(
+                        self.read_reg_data(param_reg + 3), byteorder="little"
+                    )
+                    & 0xFF
+                )
+                if exe_code == 4:
+                    raise CpxRequestError
+
+            # get datalength in bytes from register 10004
+            length_bytes = int.from_bytes(
+                self.read_reg_data(param_reg + 4), byteorder="little"
             )
-            if exe_code == 4:
-                raise CpxRequestError
-
-        # get datalength in bytes from register 10004
-        length_bytes = int.from_bytes(
-            self.read_reg_data(param_reg + 4), byteorder="little"
-        )
-        # read 16 bit registers
-        length_registers = div_ceil(length_bytes, 2)
-        data = self.read_reg_data(param_reg + 10, length_registers)
+            # read 16 bit registers
+            length_registers = div_ceil(length_bytes, 2)
+            data = self.read_reg_data(param_reg + 10, length_registers)
 
         Logging.logger.debug(
             f"Read parameter {param_id}: {data} from module position: {position - 1}"

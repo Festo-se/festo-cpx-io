@@ -26,6 +26,14 @@ def test_module_count(test_cpxap):
     assert test_cpxap.read_module_count() == 5
 
 
+def test_diagnostic_status(test_cpxap):
+    "test diagnostic status"
+    diagnostics = test_cpxap.read_diagnostic_status()
+    assert len(diagnostics) == test_cpxap.read_module_count() + 1
+    assert all(isinstance(d, CpxAp.Diagnostics) for d in diagnostics)
+
+
+
 def test_modules(test_cpxap):
     assert all(isinstance(m, ApModule) for m in test_cpxap.modules)
 
