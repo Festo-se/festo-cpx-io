@@ -21,10 +21,15 @@ def _generage_channel_data(channels: list, module_is_io_link: bool = False) -> d
                 data_type = "Bytes"
             elif c.array_size is not None and c.array_size > 1:
                 data_type += f"[{c.array_size}]"
+            # Use Description if available, else fallback to Name
+            description = c.description if c.description else c.name
+            # Replace %d in Name/Description with ChannelId if present
+            if "%d" in description and hasattr(c, "channel_id"):
+                description = description.replace("%d", str(c.channel_id))
             channel_list.append(
                 {
                     "Index": i,
-                    "Description": c.description,
+                    "Description": description,
                     "Datatype": data_type,
                 }
             )

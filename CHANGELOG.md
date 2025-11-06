@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CPX-AP: Update documentation and add examples for `cycle_time` feature
 - CPX-AP: example for EHPS gripper
+- Documentation: Channel documentation now uses Name if Description is empty, substitutes %d with ChannelId, and includes array length.
 
 ### Changed
 - CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels; calling these functions on INT channels will raise a clear error.
