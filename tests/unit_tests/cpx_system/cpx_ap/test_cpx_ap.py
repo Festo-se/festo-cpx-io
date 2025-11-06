@@ -462,6 +462,8 @@ class TestCpxAp:
                 ([], [], []),
                 [],
                 [],
+                [],
+                None,
             )
         ]
 
@@ -540,7 +542,7 @@ class TestCpxAp:
             product_family="product_family",
         )
 
-        module = ApModule(apdd_information, [(), (), ()], [], [])
+        module = ApModule(apdd_information, [(), (), ()], [], [], [], None)
         module._configure = Mock()
 
         ap_fixture.update_module_names = Mock()
@@ -570,7 +572,7 @@ class TestCpxAp:
             product_family="product_family",
         )
 
-        module = ApModule(apdd_information, [(), (), ()], [], [])
+        module = ApModule(apdd_information, [(), (), ()], [], [], [], None)
         module._configure = Mock()
 
         ap_fixture.update_module_names = Mock()
@@ -811,6 +813,8 @@ class TestCpxAp:
                 ([], [], []),
                 [],
                 [],
+                [],
+                None,
             ),
             ApModule(
                 ApddInformation(
@@ -828,6 +832,8 @@ class TestCpxAp:
                 ([], [], []),
                 [],
                 [],
+                [],
+                None,
             ),
             ApModule(
                 ApddInformation(
@@ -845,6 +851,8 @@ class TestCpxAp:
                 ([], [], []),
                 [],
                 [],
+                [],
+                None,
             ),
         ]
 

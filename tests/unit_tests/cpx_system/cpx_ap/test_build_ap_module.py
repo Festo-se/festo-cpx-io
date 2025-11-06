@@ -31,8 +31,23 @@ class TestBuildApModule:
         "cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.build_actual_variant",
         spec=True,
     )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.build_variant_list",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.build_parameter",
+        spec=True,
+    )
+    @patch(
+        "cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.get_variant_switch_parameter",
+        spec=True,
+    )
     def test_build_ap_module(
         self,
+        mock_get_variant_switch_parameter,
+        mock_build_parameter,
+        mock_build_variant_list,
         mock_build_actual_variant,
         mock_build_apdd_information,
         mock_build_channel_list,
@@ -137,7 +152,9 @@ class TestBuildApModule:
             profile=[0],
             variant_identification={},
         )
-
+        mock_get_variant_switch_parameter.return_value = None
+        mock_build_parameter.return_value = None
+        mock_build_variant_list.return_value = [actual_variant]
         mock_build_actual_variant.return_value = actual_variant
         mock_build_apdd_information.return_value = apdd_information
         mock_build_channel_list.side_effect = [
