@@ -491,7 +491,7 @@ class ApModule(CpxModule):
 
             # add missing bytes for full modbus register
             if len(value) % 2:
-                value = b"\x00" + value
+                value += b"\x00"
             # add missing bytes for full master length
             if len(value) < byte_channel_size:
                 value += b"\x00" * (byte_channel_size - len(value))

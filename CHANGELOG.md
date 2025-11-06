@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels; calling these functions on INT channels will raise a clear error.
 - CPX-AP: Use 10ms as default `cycle_time`
+- CPX-AP: allow usage of `read_output_channel(s)` for IO-Link modules
 - Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).
 - Refactored documentation generator for improved code structure and maintainability.
 - group all non major changes into a single merge request
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
 - CPX-AP: fix parallism of high level function with multiple read/write commands
+- CPX-AP: IO-Link padding for uneven bytes
 
 ## v0.10.0 - 15.07.25
 ### Added

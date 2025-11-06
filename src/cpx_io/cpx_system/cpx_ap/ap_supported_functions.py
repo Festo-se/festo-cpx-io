@@ -28,6 +28,7 @@ SUPPORTED_PRODUCT_FUNCTIONS_DICT = {
     "read_output_channels": [
         ProductCategory.ANALOG,
         ProductCategory.DIGITAL,
+        ProductCategory.IO_LINK,
         ProductCategory.VTOM,
         ProductCategory.VTSA,
         ProductCategory.VTUG,
@@ -38,6 +39,7 @@ SUPPORTED_PRODUCT_FUNCTIONS_DICT = {
     "read_output_channel": [
         ProductCategory.ANALOG,
         ProductCategory.DIGITAL,
+        ProductCategory.IO_LINK,
         ProductCategory.VTOM,
         ProductCategory.VTSA,
         ProductCategory.VTUG,
