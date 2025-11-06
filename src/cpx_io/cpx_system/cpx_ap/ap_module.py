@@ -1277,19 +1277,20 @@ class ApModule(CpxModule):
             0,
         )
 
-        # if the module code changed, wait for lost device
-        if variant_id != self.apdd_information.module_code:
-            is_present = self.read_present_state()
-            timeout = time.time() + 30
-            while is_present and time.time() < timeout:
+        with self.base.interface_lock:
+            # if the module code changed, wait for lost device
+            if variant_id != self.apdd_information.module_code:
                 is_present = self.read_present_state()
-                time.sleep(0.1)
-            # reset connection
-            self.base.reconnect()
-            is_present = self.read_present_state()
-            timeout = time.time() + 30
-            while not is_present and time.time() < timeout:
+                timeout = time.time() + 30
+                while is_present and time.time() < timeout:
+                    is_present = self.read_present_state()
+                    time.sleep(0.1)
+                # reset connection
                 self.base.reconnect()
                 is_present = self.read_present_state()
-                time.sleep(0.1)
+                timeout = time.time() + 30
+                while not is_present and time.time() < timeout:
+                    self.base.reconnect()
+                    is_present = self.read_present_state()
+                    time.sleep(0.1)
         Logging.logger.info(f"{self.name}: Changing variant to {variant_id}")
