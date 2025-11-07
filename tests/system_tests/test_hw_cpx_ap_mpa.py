@@ -23,7 +23,7 @@ def test_init(test_cpxap):
 
 def test_module_count(test_cpxap):
     "test module_count"
-    assert test_cpxap.read_module_count() == 6
+    assert test_cpxap.read_module_count() == 5
 
 
 def test_modules(test_cpxap):
@@ -45,10 +45,7 @@ def test_modules(test_cpxap):
     )  # 4 VMPA1-FB-EMS-D2-8
     assert (
         test_cpxap.modules[4].system_entry_registers.outputs == 2
-    )  # 5 VMPA14-FB-EMS-D2-8
-    assert (
-        test_cpxap.modules[5].system_entry_registers.outputs == 3
-    )  # 6 VMPA2-FB-EMS-D2-4
+    )  # 5 VMPA2-FB-EMS-D2-4
 
     assert (
         test_cpxap.modules[0].system_entry_registers.inputs == 5000
@@ -64,10 +61,7 @@ def test_modules(test_cpxap):
     )  # 4 VMPA1-FB-EMS-D2-8
     assert (
         test_cpxap.modules[4].system_entry_registers.inputs == 5001
-    )  # 5 VMPA14-FB-EMS-D2-8
-    assert (
-        test_cpxap.modules[5].system_entry_registers.inputs == 5001
-    )  # 6 VMPA2-FB-EMS-D2-4
+    )  # 5 VMPA2-FB-EMS-D2-4
 
 
 def test_modules_channel_length(test_cpxap):
@@ -76,25 +70,22 @@ def test_modules_channel_length(test_cpxap):
     assert len(test_cpxap.modules[1].channels.inputs) == 0  # VMPA-AP-EPL-G
     assert len(test_cpxap.modules[2].channels.inputs) == 8  # VMPA14-FB-EMG-D2-8-S
     assert len(test_cpxap.modules[3].channels.inputs) == 0  # VMPA1-FB-EMS-D2-8
-    assert len(test_cpxap.modules[4].channels.inputs) == 0  # VMPA14-FB-EMS-D2-8
-    assert len(test_cpxap.modules[5].channels.inputs) == 0  # VMPA2-FB-EMS-D2-4
+    assert len(test_cpxap.modules[4].channels.inputs) == 0  # VMPA2-FB-EMS-D2-4
 
     assert len(test_cpxap.modules[0].channels.outputs) == 0  # CPX-AP-A-EP-M12
     assert len(test_cpxap.modules[1].channels.outputs) == 0  # VMPA-AP-EPL-G
     assert len(test_cpxap.modules[2].channels.outputs) == 8  # VMPA14-FB-EMG-D2-8-S
     assert len(test_cpxap.modules[3].channels.outputs) == 8  # VMPA1-FB-EMS-D2-8
-    assert len(test_cpxap.modules[4].channels.outputs) == 8  # VMPA14-FB-EMS-D2-8
-    assert len(test_cpxap.modules[5].channels.outputs) == 4  # VMPA2-FB-EMS-D2-4
+    assert len(test_cpxap.modules[4].channels.outputs) == 4  # VMPA2-FB-EMS-D2-4
 
     assert len(test_cpxap.modules[0].channels.inouts) == 0  # EP
     assert len(test_cpxap.modules[1].channels.inouts) == 0  # VMPA-AP-EPL-G
     assert len(test_cpxap.modules[2].channels.inouts) == 0  # VMPA14-FB-EMG-D2-8-S
     assert len(test_cpxap.modules[3].channels.inouts) == 0  # VMPA1-FB-EMS-D2-8
-    assert len(test_cpxap.modules[4].channels.inouts) == 0  # VMPA14-FB-EMS-D2-8
-    assert len(test_cpxap.modules[5].channels.inouts) == 0  # VMPA2-FB-EMS-D2-4
+    assert len(test_cpxap.modules[4].channels.inouts) == 0  # VMPA2-FB-EMS-D2-4
 
 
-@pytest.mark.parametrize("input_value", list(range(6)))
+@pytest.mark.parametrize("input_value", list(range(5)))
 def test_read_diagnosis_code(test_cpxap, input_value):
     assert test_cpxap.modules[input_value].read_diagnosis_code() == 0
     assert test_cpxap.modules[input_value].read_diagnosis_information() is None
@@ -353,7 +344,7 @@ def test_vmpa1_fb_ems_d2_8_read_module_parameters(test_cpxap):
         "Condition counter actual value"
     )
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_read_channels(test_cpxap):
     m = test_cpxap.modules[4]
 
@@ -368,14 +359,14 @@ def test_vmpa14_fb_ems_d2_8_read_channels(test_cpxap):
         False,
     ]
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_read_channel(test_cpxap):
     m = test_cpxap.modules[4]
 
     for i in range(8):
         assert m.read_channel(i) is False
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_write_channels(test_cpxap):
     m = test_cpxap.modules[3]
 
@@ -389,7 +380,7 @@ def test_vmpa14_fb_ems_d2_8_write_channels(test_cpxap):
 
     assert m.read_channels() == [False] * 8
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_write_channel(test_cpxap):
     m = test_cpxap.modules[4]
 
@@ -404,7 +395,7 @@ def test_vmpa14_fb_ems_d2_8_write_channel(test_cpxap):
 
         assert m.read_channel(i) is False
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_set_clear_channel(test_cpxap):
     m = test_cpxap.modules[4]
 
@@ -419,7 +410,7 @@ def test_vmpa14_fb_ems_d2_8_set_clear_channel(test_cpxap):
 
         assert m.read_channel(i) is False
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_toggle_channel(test_cpxap):
     m = test_cpxap.modules[4]
 
@@ -436,7 +427,7 @@ def test_vmpa14_fb_ems_d2_8_toggle_channel(test_cpxap):
 
         assert m.read_channel(i) is False
 
-
+@pytest.mark.skipif(True, reason="HW removed from test system")
 def test_vmpa14_fb_ems_d2_8_read_module_parameters(test_cpxap):
     m = test_cpxap.modules[4]
     # wait for longer without disconnect
@@ -465,7 +456,7 @@ def test_vmpa14_fb_ems_d2_8_read_module_parameters(test_cpxap):
 
 
 def test_vmpa2_fb_ems_d2_4_read_channels(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
 
     assert m.read_channels() == [
         False,
@@ -476,14 +467,14 @@ def test_vmpa2_fb_ems_d2_4_read_channels(test_cpxap):
 
 
 def test_vmpa2_fb_ems_d2_4_read_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
 
     for i in range(4):
         assert m.read_channel(i) is False
 
 
 def test_vmpa2_fb_ems_d2_4_write_channels(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
 
     m.write_channels([True] * 4)
     time.sleep(0.05)
@@ -497,7 +488,7 @@ def test_vmpa2_fb_ems_d2_4_write_channels(test_cpxap):
 
 
 def test_vmpa2_fb_ems_d2_4_write_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
 
     for i in range(4):
         m.write_channel(i, True)
@@ -512,7 +503,7 @@ def test_vmpa2_fb_ems_d2_4_write_channel(test_cpxap):
 
 
 def test_vmpa2_fb_ems_d2_4_set_clear_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
 
     for i in range(4):
         m.set_channel(i)
@@ -527,7 +518,7 @@ def test_vmpa2_fb_ems_d2_4_set_clear_channel(test_cpxap):
 
 
 def test_vmpa2_fb_ems_d2_4_toggle_channel(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
 
     m.write_channels([False] * 4)
 
@@ -544,7 +535,7 @@ def test_vmpa2_fb_ems_d2_4_toggle_channel(test_cpxap):
 
 
 def test_vmpa2_fb_ems_d2_4_read_module_parameters(test_cpxap):
-    m = test_cpxap.modules[5]
+    m = test_cpxap.modules[4]
     # wait for longer without disconnect
     for _ in range(10):
         time.sleep(0.05)

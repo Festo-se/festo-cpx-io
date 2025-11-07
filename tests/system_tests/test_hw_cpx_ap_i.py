@@ -10,7 +10,7 @@ from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 SYSTEM_IP_ADDRESS = "172.16.1.41"
 EMCS_DISCONNECTED = False
 EHPS_DISCONNECTED = False
-
+ANALOG5V0_SUPPLIED = False
 
 @pytest.fixture(scope="function")
 def test_cpxap():
@@ -618,6 +618,7 @@ def test_4AiUI_None(test_cpxap):
     assert len(m.read_channels()) == 4
 
 
+@pytest.mark.skipif(not ANALOG5V0_SUPPLIED, reason="HW removed from test system")
 def test_4AiUI_analog5V0_CH1(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[4]
@@ -628,7 +629,7 @@ def test_4AiUI_analog5V0_CH1(test_cpxap):
     time.sleep(0.05)
     assert 15800 < m.read_channel(channel) < 16200
 
-
+@pytest.mark.skipif(not ANALOG5V0_SUPPLIED, reason="HW removed from test system")
 def test_4AiUI_analog5V0_CH1_with_scaling(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[4]
@@ -1116,9 +1117,10 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
     # |     -    | State intermediate | State Device | State Move | State Out | State In |
 
     # Act & Assert
-    m.write_channel(emcs_channel, b"\x02")  # Move Out
+    m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1127,9 +1129,10 @@ def test_4iol_emcs_write_int8_with_move(test_cpxap):
 
     assert m.read_isdu(emcs_channel, 288, data_type="int") * 0.01 > 2
 
-    m.write_channel(emcs_channel, b"\x01")  # Move In
+    m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1168,8 +1171,9 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
 
     # Act & Assert
     m.write_channel(emcs_channel, b"\x00\x02")  # Move Out
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1179,8 +1183,9 @@ def test_4iol_emcs_write_int16_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") * 0.01 > 2
 
     m.write_channel(emcs_channel, b"\x00\x01")  # Move In
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1219,8 +1224,9 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
 
     # Act & Assert
     m.write_channel(emcs_channel, b"\x00\x02\x00\x00")  # Move Out
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1230,8 +1236,9 @@ def test_4iol_emcs_write_int32_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01\x00\x00")  # Move In
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1270,8 +1277,9 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
 
     # Act & Assert
     m.write_channel(emcs_channel, b"\x00\x02\x00\x00\x00\x00\x00\x00")  # Move Out
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x02) and (time.time() < timeout):
         time.sleep(0.01)
     for _ in range(10):  # wait some more
         time.sleep(0.05)
@@ -1280,8 +1288,9 @@ def test_4iol_emcs_write_int64_with_move(test_cpxap):
     assert m.read_isdu(emcs_channel, 288, data_type="int") > 10
 
     m.write_channel(emcs_channel, b"\x00\x01\x00\x00\x00\x00\x00\x00")  # Move In
+    timeout = time.time() + 30
     # wait for move to finish
-    while not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01:
+    while (not int.from_bytes(m.read_channel(emcs_channel), byteorder="big") & 0x01) and (time.time() < timeout):
         time.sleep(0.01)
 
     for _ in range(10):  # wait some more
@@ -1775,13 +1784,13 @@ def test_4iol_parameter_rw_strings_load(test_cpxap):
 
     m.write_module_parameter(
         "Setup monitoring load supply (PL) 24 V DC",
-        "Load supply monitoring active, diagnosis suppressed in case of switch-off",
+        "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off",
     )
     time.sleep(0.05)
     assert m.base.read_parameter(m.position, m.module_dicts.parameters[20022]) == 1
     assert (
         m.read_module_parameter_enum_str(20022)
-        == "Load supply monitoring active, diagnosis suppressed in case of switch-off"
+        == "Load supply monitoring active, undervoltage diagnosis suppressed in case of switch-off"
     )
 
 
