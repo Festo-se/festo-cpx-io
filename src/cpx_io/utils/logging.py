@@ -1,7 +1,14 @@
 """Contains class which contains logging methods."""
 
 import logging
-from rich.logging import RichHandler
+import sys
+
+try:
+    from rich.logging import RichHandler
+except ModuleNotFoundError as error:
+    print(f"Error: Missing logging dependencies - {error}")
+    print("Please install cli dependencies with: pip install festo-cpx-io[cli]")
+    sys.exit(1)
 
 
 class Logging:

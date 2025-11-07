@@ -5,11 +5,20 @@ Documentation can be found [here](https://festo-research.gitlab.io/electric-auto
 
 ## Installation
 ### Release
-The latest release is available in the public PyPi repo. 
+The latest release is available in the public PyPi repo.
 Install via pip:
 ```
 pip install festo-cpx-io
 ```
+If you want to use the cli or the logging feature you have to install the optional dependencies via:
+```
+pip install festo-cpx-io[cli]
+```
+For development dependencies use:
+```
+pip install festo-cpx-io[dev]
+```
+
 ### From git repo
 You can also install directly from the git repo.
 
@@ -29,6 +38,10 @@ cd <destination>
 pip install .
 ```
 
+4. Install optional dependencies
+```
+pip install '.[dev,cli]'
+```
 
 ## Usage
 ### [CLI](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cli.html) - [`cli`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cli.html#module-cpx_io.cli.cli)
@@ -87,7 +100,7 @@ For example reading channel 2 from module 3 on a CPX-AP device with ip address 1
 
 ### [CPX-SYSTEM](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/features/cpx_io.html) - [`cpx_system`](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cpx_system.html#)
 #### [CPX-E](https://festo-research.gitlab.io/electric-automation/festo-cpx-io/cpx_io.cpx_system.cpx_e.html)
-Import the library with `from cpx_io.cpx_system.cpx_e.cpx_e import CpxE`. 
+Import the library with `from cpx_io.cpx_system.cpx_e.cpx_e import CpxE`.
 
 Setup your system with a python context manager and print the attached modules. You can use the typecode of your system to setup all the modules, hand over a list of pre-instantiated modules in the CpxE constructor or instantiate an empty CpxE and add the modules later. In every case, the order of the modules must be consistent with the actually used hardware setup.
 

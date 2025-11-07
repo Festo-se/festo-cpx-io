@@ -16,8 +16,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dynamic = ["version", "dependencies"]
+dynamic = ["version", "dependencies", "optional-dependencies"]
 requires-python = ">=3.10"
+
+[project.scripts]
+festo-cpx-io = "cpx_io.cli.cli:main"
 
 [project.urls]
 Homepage = "https://gitlab.com/festo-research/electric-automation/festo-cpx-io"
@@ -25,11 +28,6 @@ Documentation = "https://festo-research.gitlab.io/electric-automation/festo-cpx-
 Repository = "https://gitlab.com/festo-research/electric-automation/festo-cpx-io"
 Changelog = "https://gitlab.com/festo-research/electric-automation/festo-cpx-io/-/blob/main/CHANGELOG.md"
 
-[project.scripts]
-festo-cpx-io = "cpx_io.cli.cli:main"
-
-[tool.setuptools.package-data]
-parameter_map = ["cpx_io/cpx_system/data/parameter_map.csv"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -39,3 +37,5 @@ exclude = ["tests"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
+optional-dependencies.dev = {file = ["requirements-dev.txt"]}
+optional-dependencies.cli = {file = ["requirements-cli.txt"]}

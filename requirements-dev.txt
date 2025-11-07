@@ -1,0 +1,4 @@
+setuptools
+pytest
+pytest-mock
+pytest-cov
