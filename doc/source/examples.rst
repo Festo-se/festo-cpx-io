@@ -44,6 +44,18 @@ io link isdu read/write with sdas
 
 :download:`Download Example <../../examples/example_cpxap_iolink_isdu_sdas.py>`
 
+io link with ehps
+^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_iolink_ehps.py
+
+:download:`Download Example <../../examples/example_cpxap_iolink_ehps.py>`
+
+io link switch variant
+^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: ../../examples/example_cpxap_iolink_switch_variant.py
+
+:download:`Download Example <../../examples/example_cpxap_iolink_switch_variant.py>`
+
 fault detection and threading
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: ../../examples/example_cpxap_fault_detection.py
