@@ -2,11 +2,9 @@ variables:
   COVERAGE_DIRECTORY: "cpxio"
   TEST_DIRECTORY: "tests/unit_tests"
 
-image: "python:3.14-trixie"
-
 include:
   - project: 'festo-research/electric-automation/festo-templates'
-    ref: 'main'
+    ref: 'v1.1.0'
     file: '/gitlab-ci-python.yml'
   - project: 'renovate-bot/renovate-runner'
     file: '/templates/renovate.gitlab-ci.yml'
