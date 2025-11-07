@@ -140,7 +140,7 @@ class CpxE4Iol(CpxModule):
 
         # add missing bytes for full modbus register
         if len(data) % 2:
-            data = b"\x00" + data
+            data += b"\x00"
         # add missing bytes for full master length
         if len(data) != byte_channel_size:
             data += b"\x00" * (byte_channel_size - len(data))

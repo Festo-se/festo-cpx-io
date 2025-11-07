@@ -1316,7 +1316,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxe):
     # |     -    | State intermediate | State Device | State Move | State Out | State In |
 
     # Act & Assert
-    e4iol.write_channel(emcs_channel, b"\x06")  # Move Out
+    e4iol.write_channel(emcs_channel, b"\x00\x06")  # Move Out
     # wait for move to finish
     while (
         not int.from_bytes(
@@ -1333,7 +1333,7 @@ def test_4iol_emcs_write_int8_with_move(test_cpxe):
 
     assert e4iol.read_isdu(emcs_channel, 288, data_type="int32") > 20
 
-    e4iol.write_channel(emcs_channel, b"\x05")  # Move In
+    e4iol.write_channel(emcs_channel, b"\x00\x05")  # Move In
     # wait for move to finish
     while (
         not int.from_bytes(

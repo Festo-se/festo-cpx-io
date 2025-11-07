@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
 - CPX-AP: fix parallism of high level function with multiple read/write commands
-- CPX-AP: IO-Link padding for uneven bytes
+- CPX-AP/E: IO-Link padding for uneven bytes
 
 ## v0.10.0 - 15.07.25
 ### Added
