@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - bump pymodbus version
 - catch newly created ConnectionExceptions from the pymodbus library to allow retries
 - bump platformdirs version
+- bump gitlab-ci build image
 
 ### Fixed
 - Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
