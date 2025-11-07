@@ -7,6 +7,7 @@ from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (
     build_variant,
     build_actual_variant,
     build_apdd_information,
+    build_variant_list,
 )
 
 
@@ -85,7 +86,7 @@ class TestBuildApddInformation:
             },
         }
         # Act
-        actual_variant = build_actual_variant(apdd=apdd, module_code=3)
+        actual_variant = build_actual_variant(build_variant_list(apdd), module_code=3)
 
         # Assert
         assert actual_variant.description == "VariantDescription"
@@ -108,7 +109,7 @@ class TestBuildApddInformation:
         }
         variant = build_variant(variant_list[3])
         # Act
-        apdd_information = build_apdd_information(apdd=apdd, variant=variant)
+        apdd_information = build_apdd_information(apdd, variant=variant)
         # Assert
         assert isinstance(apdd_information, ApddInformation)
         assert apdd_information.name == "testvariant3"
@@ -136,4 +137,4 @@ class TestBuildApddInformation:
         }
         # Act & Assert
         with pytest.raises(IndexError):
-            build_actual_variant(apdd=apdd, module_code=6)
+            build_actual_variant(build_variant_list(apdd), module_code=6)

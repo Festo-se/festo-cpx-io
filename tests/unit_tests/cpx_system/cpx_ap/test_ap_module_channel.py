@@ -124,6 +124,8 @@ class TestApModule:
             channels,
             parameters,
             module_diagnosis,
+            variant_list=[],
+            variant_switch_parameter=None,
         )
 
     @pytest.mark.parametrize(

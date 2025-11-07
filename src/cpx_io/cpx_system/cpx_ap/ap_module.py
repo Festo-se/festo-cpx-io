@@ -3,6 +3,7 @@
 import struct
 import copy
 import inspect
+import time
 from typing import Any, Union
 from collections import namedtuple
 from cpx_io.cpx_system.cpx_base import CpxBase, CpxRequestError
@@ -41,8 +42,8 @@ class ApModule(CpxModule):
     functions of the individual modules, see the system documentation of the
     CpxAp object"""
 
-    # pylint: disable=too-many-public-methods
-    # pylint: disable=too-many-lines
+    # pylint: disable=too-many-public-methods, too-many-lines, too-many-instance-attributes
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     # intended. Module offers many functions for user comfort
 
     def __init__(
@@ -51,11 +52,15 @@ class ApModule(CpxModule):
         channels: tuple,
         parameter_list: list,
         diagnosis_list: list,
+        variant_list: list,
+        variant_switch_parameter: int | None,
     ):
         super().__init__(name=apdd_information.name)
         self.information = None
         self.name = apdd_information.name
         self.apdd_information = apdd_information
+        self.variant_list = variant_list
+        self.variant_switch_parameter = variant_switch_parameter
 
         self.channels = Channels(
             inputs=channels[0] + channels[2],
@@ -757,6 +762,17 @@ class ApModule(CpxModule):
         return int.from_bytes(reg, byteorder="little")
 
     @CpxBase.require_base
+    def read_present_state(self) -> bool:
+        """Read the present state from the module
+
+        :ret value: Present state
+        :rtype: bool"""
+        reg = self.base.read_reg_data(
+            self.system_entry_registers.diagnosis + 1, length=1
+        )
+        return bool(int.from_bytes(reg, byteorder="little") >> 8)
+
+    @CpxBase.require_base
     def read_diagnosis_information(self) -> ModuleDiagnosis:
         """Read the diagnosis information from the module. Contains:
          * diagnosis_id
@@ -1226,3 +1242,55 @@ class ApModule(CpxModule):
         Logging.logger.info(
             f"{self.name}: Write ISDU {data} to channels {channels} ({index},{subindex})"
         )
+
+    @CpxBase.require_base
+    def change_variant(self, variant: int | str) -> None:
+        """Change the module variant if supported.
+
+        :param variant: Variant number or name to change to
+        :type variant: int | str
+        """
+        if len(self.variant_list) <= 1 or self.variant_switch_parameter is None:
+            raise NotImplementedError(f"{self} has no variants to change")
+
+        variant_ids = [
+            v.variant_identification["ModuleCode"] for v in self.variant_list
+        ]
+        variant_id = None
+        if isinstance(variant, str):
+            for v in self.variant_list:
+                if v.name == variant:
+                    variant_id = v.variant_identification["ModuleCode"]
+                    break
+        else:
+            variant_id = variant
+        if variant_id is None or variant_id not in variant_ids:
+            raise ValueError(
+                f"Variant {variant_id} is not supported. Supported variants are: "
+                f"{[(v.name, v.variant_identification['ModuleCode']) for v in self.variant_list]}"
+            )
+
+        self.base.write_parameter(
+            self.position,
+            self.variant_switch_parameter,
+            variant_id,
+            0,
+        )
+
+        with self.base.interface_lock:
+            # if the module code changed, wait for lost device
+            if variant_id != self.apdd_information.module_code:
+                is_present = self.read_present_state()
+                timeout = time.time() + 30
+                while is_present and time.time() < timeout:
+                    is_present = self.read_present_state()
+                    time.sleep(0.1)
+                # reset connection
+                self.base.reconnect()
+                is_present = self.read_present_state()
+                timeout = time.time() + 30
+                while not is_present and time.time() < timeout:
+                    self.base.reconnect()
+                    is_present = self.read_present_state()
+                    time.sleep(0.1)
+        Logging.logger.info(f"{self.name}: Changing variant to {variant_id}")
