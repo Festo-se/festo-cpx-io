@@ -10,6 +10,18 @@ include:
     file: '/templates/renovate.gitlab-ci.yml'
 
 # adjust before_script for unit tests to install cli and dev dependencies
-unit-tests:
+unit-test:
+  before_script:
+    - python -m pip install '.[cli,dev]'
+
+pylint:
+  before_script:
+    - python -m pip install '.[cli,dev]'
+
+black:
+  before_script:
+    - python -m pip install '.[cli,dev]' black
+
+sphinx-docs:
   before_script:
     - python -m pip install '.[cli,dev]'

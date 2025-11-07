@@ -1,4 +1,9 @@
-setuptools
+black
+myst-parser
+pylint
 pytest
-pytest-mock
 pytest-cov
+pytest-mock
+setuptools
+sphinx
+sphinx-rtd-theme
