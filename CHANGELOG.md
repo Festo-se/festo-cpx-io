@@ -5,32 +5,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## v0.11.0 - 07.11.25
 ### Added
 - CPX-AP: Update documentation and add examples for `cycle_time` feature
-- CPX-AP: example for EHPS gripper
+- CPX-AP: Example for EHPS gripper
 - CPX-AP: Support the switch of variants of modules
-- CPX-AP: example for IO-Link Master variant switching
-- Documentation: Channel documentation now uses Name if Description is empty, substitutes %d with ChannelId, and includes array length.
+- CPX-AP: Example for IO-Link Master variant switching
+- Documentation: Make the channel description more comprehensive
 
 ### Changed
-- CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels; calling these functions on INT channels will raise a clear error.
+- CPX-AP: `set_channel`, `reset_channel`, and `toggle_channel` are now only available for BOOL output channels
 - CPX-AP: Use 10ms as default `cycle_time`
 - CPX-AP: allow usage of `read_output_channel(s)` for IO-Link modules
 - Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).
-- Refactored documentation generator for improved code structure and maintainability.
-- group all non major changes into a single merge request
-- bump setuptools version
-- bump rich version
-- bump pymodbus version
-- catch newly created ConnectionExceptions from the pymodbus library to allow retries
-- bump platformdirs version
-- bump gitlab-ci build template version
-- introduce `[cli]` and `[dev]` install options
+- Update minimum required python version to 3.10 - version 3.9 is end-of-life
+- Update dependencies to new version
+- Introduce `[cli]` and `[dev]` install options
 
 ### Fixed
 - Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.
 - CPX-AP: fix parallism of high level function with multiple read/write commands
-- CPX-AP: IO-Link padding for uneven bytes
+- CPX-AP/E: IO-Link padding for uneven bytes
 
 ## v0.10.0 - 15.07.25
 ### Added

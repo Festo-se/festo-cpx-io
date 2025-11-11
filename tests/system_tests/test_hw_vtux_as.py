@@ -7,6 +7,7 @@ from cpx_io.cpx_system.cpx_ap.cpx_ap import CpxAp
 from cpx_io.cpx_system.cpx_ap.ap_module import ApModule
 
 SYSTEM_IP_ADDRESS = "172.16.1.45"
+ANALOG5V0_SUPPLIED = False
 
 
 @pytest.fixture(scope="function")
@@ -86,7 +87,7 @@ def test_4AiUI_None(test_cpxap):
     m = test_cpxap.modules[0]
     assert len(m.read_channels()) == 4
 
-
+@pytest.mark.skipif(not ANALOG5V0_SUPPLIED, reason="HW removed from test system")
 def test_4AiUI_analog5V0_CH3(test_cpxap):
     # this depends on external 5.0 Volts at input channel 3
     m = test_cpxap.modules[0]
@@ -97,7 +98,7 @@ def test_4AiUI_analog5V0_CH3(test_cpxap):
     time.sleep(0.05)
     assert 15800 < m.read_channel(channel) < 16200
 
-
+@pytest.mark.skipif(not ANALOG5V0_SUPPLIED, reason="HW removed from test system")
 def test_4AiUI_analog5V0_CH3_with_scaling(test_cpxap):
     # this depends on external 5.0 Volts at input channel 1
     m = test_cpxap.modules[0]
