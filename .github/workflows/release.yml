@@ -1,0 +1,27 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies for development
+        run: pip install '.[cli,dev]' twine kac-tools
+      - name: Build package
+        run: |
+          mkdir -p public
+          kac-tools >> public/RELEASENOTES.md
+          python -m pip wheel --no-deps .
+          twine check *.whl
+          twine upload *.whl
