@@ -150,7 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added further explanation to `example_cpxap_digital_output.py` regarding timeout
 - Several backend changes in ap_module to clear lately ignored pylint issues
 
-## Added
+### Added
 - Unittests for CpxAp
 
 ## v0.6.1 - 22.08.24
