@@ -7,6 +7,7 @@ name = "festo-cpx-io"
 description = "Library to control and access festo CPX modules"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
+    {name = "Jan Hildenbrand", email = "jan.hildenbrand@festo.com"},
     {name = "Martin Wiesner", email = "martin.wiesner@festo.com"},
     {name = "Elias Rosch", email = "elias.rosch@festo.com"},
 ]
@@ -23,10 +24,10 @@ requires-python = ">=3.10"
 festo-cpx-io = "cpx_io.cli.cli:main"
 
 [project.urls]
-Homepage = "https://gitlab.com/festo-research/electric-automation/festo-cpx-io"
-Documentation = "https://festo-research.gitlab.io/electric-automation/festo-cpx-io/"
-Repository = "https://gitlab.com/festo-research/electric-automation/festo-cpx-io"
-Changelog = "https://gitlab.com/festo-research/electric-automation/festo-cpx-io/-/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Festo-se/festo-cpx-io"
+Documentation = "https://festo-se.github.io/festo-cpx-io/"
+Repository = "https://github.com/Festo-se/festo-cpx-io"
+Changelog = "https://github.com/Festo-se/festo-cpx-io/blob/main/CHANGELOG.md"
 
 
 [tool.setuptools.packages.find]
