@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install dependencies for development
-        run: pip install '.[cli,dev]' twine kac-tools
+        run: pip install twine kac-tools
       - name: Build package
         run: |
           mkdir -p public
@@ -25,3 +25,43 @@ jobs:
           python -m pip wheel --no-deps .
           twine check *.whl
           twine upload *.whl
+        env:
+          TWINE_USERNAME: ${{ vars.TWINE_USERNAME }}
+          TWINE_REPOSITORY_URL: ${{ vars.TWINE_REPOSITORY_URL }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      - name: Archive release notes
+        uses: actions/upload-artifact@v5
+        with:
+          name: release-notes
+          path: public/RELEASENOTES.md
+  depoly-pages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -U pip sphinx sphinx-rtd-theme myst-parser '.[cli,dev]'
+      - name: Build documentation
+        run: |
+            mkdir -p public
+            sphinx-apidoc -f -o doc/source src
+            make -C doc html || exit_code=$?
+            if [[ $exit_code -ne 0 ]]; then
+              echo "Sphinx-build failure"
+              exit 1
+            else
+              echo "Sphinx-build success"
+              mv doc/build/html/* public
+            fi
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: public/
+          force_orphan: true
