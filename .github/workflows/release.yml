@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   deploy:
@@ -34,10 +34,13 @@ jobs:
         with:
           name: release-notes
           path: public/RELEASENOTES.md
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: public/RELEASENOTES.md
+
   depoly-pages:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v5
       - name: Set up Python
