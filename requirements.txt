@@ -1,3 +1,0 @@
-pymodbus==3.11.3
-platformdirs==4.5.0
-requests==2.32.5
