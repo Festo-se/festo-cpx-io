@@ -1,9 +1,0 @@
-black
-myst-parser
-pylint
-pytest
-pytest-cov
-pytest-mock
-setuptools
-sphinx
-sphinx-rtd-theme
