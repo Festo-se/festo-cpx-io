@@ -3,13 +3,6 @@
 import logging
 import sys
 
-try:
-    from rich.logging import RichHandler
-except ModuleNotFoundError as error:
-    print(f"Error: Missing logging dependencies - {error}")
-    print("Please install cli dependencies with: pip install festo-cpx-io[cli]")
-    sys.exit(1)
-
 
 class Logging:
     """Class that contains common functions for logging."""
@@ -17,20 +10,31 @@ class Logging:
     logger = logging.getLogger("cpx-io")
 
     def __init__(self, logging_level=logging.INFO, filename=None):
-        logging.basicConfig(
-            format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
-        )
+        try:
+            # pylint: disable=import-outside-toplevel
+            from rich.logging import RichHandler
 
-        Logging.logger.setLevel(logging_level)
-        Logging.logger.propagate = False
+            logging.basicConfig(
+                format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
+            )
 
-        if filename:
-            self.enable_file_logging(filename, logging_level)
-        else:
-            self.enable_stream_logging(logging_level)
+            Logging.logger.setLevel(logging_level)
+            Logging.logger.propagate = False
+
+            if filename:
+                self.enable_file_logging(filename, logging_level)
+            else:
+                self.enable_stream_logging(logging_level)
+        except ModuleNotFoundError as error:
+            print(f"Error: Missing logging dependencies - {error}")
+            print("Please install cli dependencies with: pip install festo-cpx-io[cli]")
+            sys.exit(1)
 
     def enable_stream_logging(self, logging_level):
         """Enables logging to stream using the provided log level with rich log formatting."""
+        # pylint: disable=import-outside-toplevel
+        from rich.logging import RichHandler
+
         handler = RichHandler()
         handler.setLevel(logging_level)
         formatter = logging.Formatter(fmt="%(message)s", datefmt="[%X]")
