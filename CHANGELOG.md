@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v0.11.1 - 04.12.25
+### Changed
+- Move repo to github
+
+
 ## v0.11.0 - 07.11.25
 ### Added
 - CPX-AP: Update documentation and add examples for `cycle_time` feature
@@ -147,7 +152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added further explanation to `example_cpxap_digital_output.py` regarding timeout
 - Several backend changes in ap_module to clear lately ignored pylint issues
 
-## Added
+### Added
 - Unittests for CpxAp
 
 ## v0.6.1 - 22.08.24
