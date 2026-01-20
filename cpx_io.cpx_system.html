@@ -1,0 +1,772 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpx_io.cpx_system package &mdash; festo-cpx-io  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpx_io.cpx_system.cpx_ap package" href="cpx_io.cpx_system.cpx_ap.html" />
+    <link rel="prev" title="cpx_io.cli package" href="cpx_io.cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            festo-cpx-io
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Features:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="features/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/cpx_io.html">CPX-SYSTEM</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indices and tables:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module Sources</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpx_io.html">cpx_io package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="cpx_io.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cli.html">cpx_io.cli package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">cpx_io.cpx_system package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.utils.html">cpx_io.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.html#module-cpx_io">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">festo-cpx-io</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+          <li class="breadcrumb-item"><a href="cpx_io.html">cpx_io package</a></li>
+      <li class="breadcrumb-item active">cpx_io.cpx_system package</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Festo-se/festo-cpx-io/blob/main/doc/source/cpx_io.cpx_system.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpx-io-cpx-system-package">
+<h1>cpx_io.cpx_system package<a class="headerlink" href="#cpx-io-cpx-system-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html">cpx_io.cpx_system.cpx_ap package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html">cpx_io.cpx_system.cpx_ap.builder package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.ap_module_builder">cpx_io.cpx_system.cpx_ap.builder.ap_module_builder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder">cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.channel_builder">cpx_io.cpx_system.cpx_ap.builder.channel_builder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder">cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.parameter_builder">cpx_io.cpx_system.cpx_ap.builder.parameter_builder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder">cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html">cpx_io.cpx_system.cpx_ap.dataclasses package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information">cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.channels">cpx_io.cpx_system.cpx_ap.dataclasses.channels module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis">cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters">cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters">cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_docu_generator">cpx_io.cpx_system.cpx_ap.ap_docu_generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_docu_generator.generate_system_information_file"><code class="docutils literal notranslate"><span class="pre">generate_system_information_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_modbus_registers">cpx_io.cpx_system.cpx_ap.ap_modbus_registers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister"><code class="docutils literal notranslate"><span class="pre">ModbusRegister</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister.length"><code class="docutils literal notranslate"><span class="pre">ModbusRegister.length</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister.register_address"><code class="docutils literal notranslate"><span class="pre">ModbusRegister.register_address</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_module">cpx_io.cpx_system.cpx_ap.ap_module module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule"><code class="docutils literal notranslate"><span class="pre">ApModule</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.is_function_supported"><code class="docutils literal notranslate"><span class="pre">ApModule.is_function_supported()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_output_channels"><code class="docutils literal notranslate"><span class="pre">ApModule.read_output_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_channels"><code class="docutils literal notranslate"><span class="pre">ApModule.read_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_output_channel"><code class="docutils literal notranslate"><span class="pre">ApModule.read_output_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_channel"><code class="docutils literal notranslate"><span class="pre">ApModule.read_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_channels"><code class="docutils literal notranslate"><span class="pre">ApModule.write_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_channel"><code class="docutils literal notranslate"><span class="pre">ApModule.write_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.set_channel"><code class="docutils literal notranslate"><span class="pre">ApModule.set_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.reset_channel"><code class="docutils literal notranslate"><span class="pre">ApModule.reset_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.toggle_channel"><code class="docutils literal notranslate"><span class="pre">ApModule.toggle_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_module_parameter"><code class="docutils literal notranslate"><span class="pre">ApModule.write_module_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.get_parameter_from_identifier"><code class="docutils literal notranslate"><span class="pre">ApModule.get_parameter_from_identifier()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_module_parameter"><code class="docutils literal notranslate"><span class="pre">ApModule.read_module_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_module_parameter_enum_str"><code class="docutils literal notranslate"><span class="pre">ApModule.read_module_parameter_enum_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_diagnosis_code"><code class="docutils literal notranslate"><span class="pre">ApModule.read_diagnosis_code()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_present_state"><code class="docutils literal notranslate"><span class="pre">ApModule.read_present_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_diagnosis_information"><code class="docutils literal notranslate"><span class="pre">ApModule.read_diagnosis_information()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_system_parameters"><code class="docutils literal notranslate"><span class="pre">ApModule.read_system_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_pqi"><code class="docutils literal notranslate"><span class="pre">ApModule.read_pqi()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_fieldbus_parameters"><code class="docutils literal notranslate"><span class="pre">ApModule.read_fieldbus_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.cast_channel_argument_to_list"><code class="docutils literal notranslate"><span class="pre">ApModule.cast_channel_argument_to_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_isdu"><code class="docutils literal notranslate"><span class="pre">ApModule.read_isdu()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_isdu"><code class="docutils literal notranslate"><span class="pre">ApModule.write_isdu()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.change_variant"><code class="docutils literal notranslate"><span class="pre">ApModule.change_variant()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_parameter">cpx_io.cpx_system.cpx_ap.ap_parameter module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.parameter_id"><code class="docutils literal notranslate"><span class="pre">Parameter.parameter_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.parameter_instances"><code class="docutils literal notranslate"><span class="pre">Parameter.parameter_instances</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.is_writable"><code class="docutils literal notranslate"><span class="pre">Parameter.is_writable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.array_size"><code class="docutils literal notranslate"><span class="pre">Parameter.array_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.data_type"><code class="docutils literal notranslate"><span class="pre">Parameter.data_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.default_value"><code class="docutils literal notranslate"><span class="pre">Parameter.default_value</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.description"><code class="docutils literal notranslate"><span class="pre">Parameter.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.name"><code class="docutils literal notranslate"><span class="pre">Parameter.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.unit"><code class="docutils literal notranslate"><span class="pre">Parameter.unit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.enums"><code class="docutils literal notranslate"><span class="pre">Parameter.enums</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum"><code class="docutils literal notranslate"><span class="pre">ParameterEnum</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.enum_id"><code class="docutils literal notranslate"><span class="pre">ParameterEnum.enum_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.bits"><code class="docutils literal notranslate"><span class="pre">ParameterEnum.bits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.data_type"><code class="docutils literal notranslate"><span class="pre">ParameterEnum.data_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.enum_values"><code class="docutils literal notranslate"><span class="pre">ParameterEnum.enum_values</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.ethercat_enum_id"><code class="docutils literal notranslate"><span class="pre">ParameterEnum.ethercat_enum_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.name"><code class="docutils literal notranslate"><span class="pre">ParameterEnum.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.parameter_unpack"><code class="docutils literal notranslate"><span class="pre">parameter_unpack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_parameter.parameter_pack"><code class="docutils literal notranslate"><span class="pre">parameter_pack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_product_categories">cpx_io.cpx_system.cpx_ap.ap_product_categories module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory"><code class="docutils literal notranslate"><span class="pre">ProductCategory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.INTERFACE"><code class="docutils literal notranslate"><span class="pre">ProductCategory.INTERFACE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.ANALOG"><code class="docutils literal notranslate"><span class="pre">ProductCategory.ANALOG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.DIGITAL"><code class="docutils literal notranslate"><span class="pre">ProductCategory.DIGITAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MOTION"><code class="docutils literal notranslate"><span class="pre">ProductCategory.MOTION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.SERVO_DRIVES"><code class="docutils literal notranslate"><span class="pre">ProductCategory.SERVO_DRIVES</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.SAFETY"><code class="docutils literal notranslate"><span class="pre">ProductCategory.SAFETY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.IO_LINK"><code class="docutils literal notranslate"><span class="pre">ProductCategory.IO_LINK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.INFRASTRUCTURE"><code class="docutils literal notranslate"><span class="pre">ProductCategory.INFRASTRUCTURE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MPA_L"><code class="docutils literal notranslate"><span class="pre">ProductCategory.MPA_L</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MPA_S"><code class="docutils literal notranslate"><span class="pre">ProductCategory.MPA_S</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTSA"><code class="docutils literal notranslate"><span class="pre">ProductCategory.VTSA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTUG"><code class="docutils literal notranslate"><span class="pre">ProductCategory.VTUG</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTUX"><code class="docutils literal notranslate"><span class="pre">ProductCategory.VTUX</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTOM"><code class="docutils literal notranslate"><span class="pre">ProductCategory.VTOM</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.CONTROLLERS"><code class="docutils literal notranslate"><span class="pre">ProductCategory.CONTROLLERS</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_supported_datatypes">cpx_io.cpx_system.cpx_ap.ap_supported_datatypes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.ap_supported_functions">cpx_io.cpx_system.cpx_ap.ap_supported_functions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap.cpx_ap">cpx_io.cpx_system.cpx_ap.cpx_ap module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp"><code class="docutils literal notranslate"><span class="pre">CpxAp</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation"><code class="docutils literal notranslate"><span class="pre">CpxAp.ApInformation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics"><code class="docutils literal notranslate"><span class="pre">CpxAp.Diagnostics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.shutdown"><code class="docutils literal notranslate"><span class="pre">CpxAp.shutdown()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.perform_io"><code class="docutils literal notranslate"><span class="pre">CpxAp.perform_io()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.delete_apdds"><code class="docutils literal notranslate"><span class="pre">CpxAp.delete_apdds()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_apdd_path"><code class="docutils literal notranslate"><span class="pre">CpxAp.create_apdd_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_docu_path"><code class="docutils literal notranslate"><span class="pre">CpxAp.create_docu_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.modules"><code class="docutils literal notranslate"><span class="pre">CpxAp.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.apdd_path"><code class="docutils literal notranslate"><span class="pre">CpxAp.apdd_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.docu_path"><code class="docutils literal notranslate"><span class="pre">CpxAp.docu_path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout"><code class="docutils literal notranslate"><span class="pre">CpxAp.set_timeout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_module_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.print_system_information"><code class="docutils literal notranslate"><span class="pre">CpxAp.print_system_information()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.print_system_state"><code class="docutils literal notranslate"><span class="pre">CpxAp.print_system_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_apdd_information()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_diagnostic_status"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_diagnostic_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_global_diagnosis_state"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_global_diagnosis_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_active_diagnosis_count"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_active_diagnosis_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_latest_diagnosis_index"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_latest_diagnosis_index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_latest_diagnosis_code"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_latest_diagnosis_code()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.write_parameter"><code class="docutils literal notranslate"><span class="pre">CpxAp.write_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_parameter"><code class="docutils literal notranslate"><span class="pre">CpxAp.read_parameter()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.html#module-cpx_io.cpx_system.cpx_ap">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html">cpx_io.cpx_system.cpx_e package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.cpx_e">cpx_io.cpx_system.cpx_e.cpx_e module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE"><code class="docutils literal notranslate"><span class="pre">CpxE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.modules"><code class="docutils literal notranslate"><span class="pre">CpxE.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.unwrap_cpxe_typecode"><code class="docutils literal notranslate"><span class="pre">CpxE.unwrap_cpxe_typecode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.set_timeout"><code class="docutils literal notranslate"><span class="pre">CpxE.set_timeout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.write_function_number"><code class="docutils literal notranslate"><span class="pre">CpxE.write_function_number()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.read_function_number"><code class="docutils literal notranslate"><span class="pre">CpxE.read_function_number()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.module_count"><code class="docutils literal notranslate"><span class="pre">CpxE.module_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.read_fault_detection"><code class="docutils literal notranslate"><span class="pre">CpxE.read_fault_detection()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.read_device_identification"><code class="docutils literal notranslate"><span class="pre">CpxE.read_device_identification()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e.CpxE.add_module"><code class="docutils literal notranslate"><span class="pre">CpxE.add_module()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.cpx_e_enums">cpx_io.cpx_system.cpx_e.cpx_e_enums module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DebounceTime"><code class="docutils literal notranslate"><span class="pre">DebounceTime</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DebounceTime.T_100US"><code class="docutils literal notranslate"><span class="pre">DebounceTime.T_100US</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DebounceTime.T_3MS"><code class="docutils literal notranslate"><span class="pre">DebounceTime.T_3MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DebounceTime.T_10MS"><code class="docutils literal notranslate"><span class="pre">DebounceTime.T_10MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DebounceTime.T_20MS"><code class="docutils literal notranslate"><span class="pre">DebounceTime.T_20MS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalExtension"><code class="docutils literal notranslate"><span class="pre">SignalExtension</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalExtension.T_500US"><code class="docutils literal notranslate"><span class="pre">SignalExtension.T_500US</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalExtension.T_15MS"><code class="docutils literal notranslate"><span class="pre">SignalExtension.T_15MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalExtension.T_50MS"><code class="docutils literal notranslate"><span class="pre">SignalExtension.T_50MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalExtension.T_100MS"><code class="docutils literal notranslate"><span class="pre">SignalExtension.T_100MS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange"><code class="docutils literal notranslate"><span class="pre">ChannelRange</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.NONE"><code class="docutils literal notranslate"><span class="pre">ChannelRange.NONE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_10V"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_10V</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.B_10V"><code class="docutils literal notranslate"><span class="pre">ChannelRange.B_10V</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.B_5V"><code class="docutils literal notranslate"><span class="pre">ChannelRange.B_5V</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_1_5V"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_1_5V</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_20MA"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_20MA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_4_20MA"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_4_20MA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.B_20MA"><code class="docutils literal notranslate"><span class="pre">ChannelRange.B_20MA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_10V_NO_UNDERDRIVE"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_10V_NO_UNDERDRIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_20MA_NO_UNDERDRIVE"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_20MA_NO_UNDERDRIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.ChannelRange.U_4_20MA_NO_UNDERDRIVE"><code class="docutils literal notranslate"><span class="pre">ChannelRange.U_4_20MA_NO_UNDERDRIVE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DigInDebounceTime"><code class="docutils literal notranslate"><span class="pre">DigInDebounceTime</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DigInDebounceTime.T_20US"><code class="docutils literal notranslate"><span class="pre">DigInDebounceTime.T_20US</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DigInDebounceTime.T_100US"><code class="docutils literal notranslate"><span class="pre">DigInDebounceTime.T_100US</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.DigInDebounceTime.T_3MS"><code class="docutils literal notranslate"><span class="pre">DigInDebounceTime.T_3MS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.IntegrationTime"><code class="docutils literal notranslate"><span class="pre">IntegrationTime</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.IntegrationTime.T_1MS"><code class="docutils literal notranslate"><span class="pre">IntegrationTime.T_1MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.IntegrationTime.T_10MS"><code class="docutils literal notranslate"><span class="pre">IntegrationTime.T_10MS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.IntegrationTime.T_100MS"><code class="docutils literal notranslate"><span class="pre">IntegrationTime.T_100MS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalType"><code class="docutils literal notranslate"><span class="pre">SignalType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalType.ENCODER_5V_DIFFERENTIAL"><code class="docutils literal notranslate"><span class="pre">SignalType.ENCODER_5V_DIFFERENTIAL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalType.ENCODER_5V_SINGLE_ENDED"><code class="docutils literal notranslate"><span class="pre">SignalType.ENCODER_5V_SINGLE_ENDED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalType.ENCODER_24V_SINGLE_ENDED"><code class="docutils literal notranslate"><span class="pre">SignalType.ENCODER_24V_SINGLE_ENDED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalEvaluation"><code class="docutils literal notranslate"><span class="pre">SignalEvaluation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalEvaluation.INCREMENTAL_SINGLE_EVALUATION"><code class="docutils literal notranslate"><span class="pre">SignalEvaluation.INCREMENTAL_SINGLE_EVALUATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalEvaluation.INCREMENTAL_DOUBLE_EVALUATION"><code class="docutils literal notranslate"><span class="pre">SignalEvaluation.INCREMENTAL_DOUBLE_EVALUATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalEvaluation.INCREMENTAL_QUADRUPLE_EVALUATION"><code class="docutils literal notranslate"><span class="pre">SignalEvaluation.INCREMENTAL_QUADRUPLE_EVALUATION</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.SignalEvaluation.PULSE_GENERATOR"><code class="docutils literal notranslate"><span class="pre">SignalEvaluation.PULSE_GENERATOR</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.LatchingEvent"><code class="docutils literal notranslate"><span class="pre">LatchingEvent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.LatchingEvent.RISING_EDGE"><code class="docutils literal notranslate"><span class="pre">LatchingEvent.RISING_EDGE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.LatchingEvent.FALLING_EDGE"><code class="docutils literal notranslate"><span class="pre">LatchingEvent.FALLING_EDGE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.LatchingEvent.BOTH_EDGES"><code class="docutils literal notranslate"><span class="pre">LatchingEvent.BOTH_EDGES</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.AddressSpace"><code class="docutils literal notranslate"><span class="pre">AddressSpace</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.AddressSpace.PORT_2E2A"><code class="docutils literal notranslate"><span class="pre">AddressSpace.PORT_2E2A</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.AddressSpace.PORT_4E4A"><code class="docutils literal notranslate"><span class="pre">AddressSpace.PORT_4E4A</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.AddressSpace.PORT_8E8A"><code class="docutils literal notranslate"><span class="pre">AddressSpace.PORT_8E8A</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.AddressSpace.PORT_16E16A"><code class="docutils literal notranslate"><span class="pre">AddressSpace.PORT_16E16A</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.AddressSpace.PORT_32E32A"><code class="docutils literal notranslate"><span class="pre">AddressSpace.PORT_32E32A</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.OperatingMode"><code class="docutils literal notranslate"><span class="pre">OperatingMode</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.OperatingMode.INACTIVE"><code class="docutils literal notranslate"><span class="pre">OperatingMode.INACTIVE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.OperatingMode.DI"><code class="docutils literal notranslate"><span class="pre">OperatingMode.DI</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_enums.OperatingMode.IO_LINK"><code class="docutils literal notranslate"><span class="pre">OperatingMode.IO_LINK</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers">cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers.ModbusRegister"><code class="docutils literal notranslate"><span class="pre">ModbusRegister</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers.ModbusRegister.length"><code class="docutils literal notranslate"><span class="pre">ModbusRegister.length</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers.ModbusRegister.register_address"><code class="docutils literal notranslate"><span class="pre">ModbusRegister.register_address</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.cpx_e_module_definitions">cpx_io.cpx_system.cpx_e.cpx_e_module_definitions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.cpx_e_supported_datatypes">cpx_io.cpx_system.cpx_e.cpx_e_supported_datatypes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.e16di">cpx_io.cpx_system.cpx_e.e16di module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di"><code class="docutils literal notranslate"><span class="pre">CpxE16Di</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.read_channels"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.read_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.read_channel"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.read_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.configure_diagnostics"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.configure_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.configure_power_reset"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.configure_power_reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.configure_debounce_time"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.configure_debounce_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e16di.CpxE16Di.configure_signal_extension_time"><code class="docutils literal notranslate"><span class="pre">CpxE16Di.configure_signal_extension_time()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.e1ci">cpx_io.cpx_system.cpx_e.e1ci module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.StatusWord"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.StatusWord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.ProcessData"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.ProcessData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.read_value"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.read_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.read_latching_value"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.read_latching_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.read_status_word"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.read_status_word()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.read_process_data"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.read_process_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.write_process_data"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.write_process_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_signal_type"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_signal_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_signal_evaluation"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_signal_evaluation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_monitoring_of_cable_brake"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_monitoring_of_cable_brake()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_monitoring_of_tracking_error"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_monitoring_of_tracking_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_monitoring_of_zero_pulse"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_monitoring_of_zero_pulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_pulses_per_zero_pulse"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_pulses_per_zero_pulse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_latching_signal"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_latching_signal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_latching_event"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_latching_event()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_latching_response"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_latching_response()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_upper_counter_limit"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_upper_counter_limit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_lower_counter_limit"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_lower_counter_limit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_load_value"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_load_value()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_debounce_time_for_digital_inputs"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_debounce_time_for_digital_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e1ci.CpxE1Ci.configure_integration_time_for_speed_measurement"><code class="docutils literal notranslate"><span class="pre">CpxE1Ci.configure_integration_time_for_speed_measurement()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.e4aiui">cpx_io.cpx_system.cpx_e.e4aiui module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.read_channels"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.read_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.read_channel"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.read_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_diagnostics"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_power_reset"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_power_reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_data_format"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_data_format()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_sensor_supply"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_sensor_supply()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_diagnostics_overload"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_diagnostics_overload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_behaviour_overload"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_behaviour_overload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_hysteresis_limit_monitoring"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_hysteresis_limit_monitoring()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_diagnostics_limits"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_diagnostics_limits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_diagnostics_wire_break"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_diagnostics_wire_break()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_diagnostics_underflow_overflow"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_diagnostics_underflow_overflow()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_diagnostics_parameter_error"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_diagnostics_parameter_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_range"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_range()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_smoothing"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_smoothing()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aiui.CpxE4AiUI.configure_channel_limits"><code class="docutils literal notranslate"><span class="pre">CpxE4AiUI.configure_channel_limits()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.e4aoui">cpx_io.cpx_system.cpx_e.e4aoui module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.read_channels"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.read_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.read_channel"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.read_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.write_channels"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.write_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.write_channel"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.write_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_diagnostics"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_power_reset"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_power_reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_behaviour_overload"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_behaviour_overload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_data_format"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_data_format()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_actuator_supply"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_actuator_supply()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_channel_diagnostics_wire_break"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_channel_diagnostics_wire_break()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_channel_diagnostics_overload_short_circuit"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_channel_diagnostics_overload_short_circuit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_channel_diagnostics_parameter_error"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_channel_diagnostics_parameter_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4aoui.CpxE4AoUI.configure_channel_range"><code class="docutils literal notranslate"><span class="pre">CpxE4AoUI.configure_channel_range()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.e4iol">cpx_io.cpx_system.cpx_e.e4iol module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.read_channels"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.read_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.read_channel"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.read_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.write_channel"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.write_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.write_channels"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.write_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_monitoring_uload"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_monitoring_uload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_behaviour_after_scl"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_behaviour_after_scl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_behaviour_after_sco"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_behaviour_after_sco()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_ps_supply"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_ps_supply()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_cycle_time"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_cycle_time()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_pl_supply"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_pl_supply()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.configure_operating_mode"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.configure_operating_mode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.read_line_state"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.read_line_state()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.read_device_error"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.read_device_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.read_isdu"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.read_isdu()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e4iol.CpxE4Iol.write_isdu"><code class="docutils literal notranslate"><span class="pre">CpxE4Iol.write_isdu()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.e8do">cpx_io.cpx_system.cpx_e.e8do module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do"><code class="docutils literal notranslate"><span class="pre">CpxE8Do</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.read_channels"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.read_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.read_channel"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.read_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.write_channels"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.write_channels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.write_channel"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.write_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.read_status"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.read_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.set_channel"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.set_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.reset_channel"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.reset_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.toggle_channel"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.toggle_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.configure_diagnostics"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.configure_diagnostics()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.e8do.CpxE8Do.configure_power_reset"><code class="docutils literal notranslate"><span class="pre">CpxE8Do.configure_power_reset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e.eep">cpx_io.cpx_system.cpx_e.eep module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#cpx_io.cpx_system.cpx_e.eep.CpxEEp"><code class="docutils literal notranslate"><span class="pre">CpxEEp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_e.html#module-cpx_io.cpx_system.cpx_e">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-cpx_io.cpx_system.cpx_base">
+<span id="cpx-io-cpx-system-cpx-base-module"></span><h2>cpx_io.cpx_system.cpx_base module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_base" title="Link to this heading"></a></h2>
+<p>CPX Base</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxInitError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_base.</span></span><span class="sig-name descname"><span class="pre">CpxInitError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Module</span> <span class="pre">must</span> <span class="pre">be</span> <span class="pre">part</span> <span class="pre">of</span> <span class="pre">a</span> <span class="pre">Cpx</span> <span class="pre">class.</span> <span class="pre">Use</span> <span class="pre">add_module()</span> <span class="pre">to</span> <span class="pre">add</span> <span class="pre">it'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxInitError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error should be raised if a cpx-… module
+is instanciated without connecting it to a base module.
+Connect it to the cpx by adding it with add_module(&lt;object instance&gt;)</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxRequestError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_base.</span></span><span class="sig-name descname"><span class="pre">CpxRequestError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Request</span> <span class="pre">failed'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxRequestError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error should be raised if a parameter or register request is denied</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxConnectionError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_base.</span></span><span class="sig-name descname"><span class="pre">CpxConnectionError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Failed</span> <span class="pre">to</span> <span class="pre">connect</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">CPX</span> <span class="pre">system.Check</span> <span class="pre">your</span> <span class="pre">connection</span> <span class="pre">and</span> <span class="pre">network</span> <span class="pre">configuration.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxConnectionError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error should be raised when a connection to the CPX system fails.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_base.</span></span><span class="sig-name descname"><span class="pre">CpxBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip_address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to connect to the Festo CPX system and read data from IO modules</p>
+<p>Constructor of CpxBase class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ip_address</strong> (<em>str</em>) – Required IP address as string e.g. (‘192.168.1.1’)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.update_module_names">
+<span class="sig-name descname"><span class="pre">update_module_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.update_module_names" title="Link to this definition"></a></dt>
+<dd><p>Updates the module name list and attributes accordingly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.shutdown">
+<span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.shutdown" title="Link to this definition"></a></dt>
+<dd><p>Shutdown function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.reconnect">
+<span class="sig-name descname"><span class="pre">reconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.reconnect" title="Link to this definition"></a></dt>
+<dd><p>Shutdown modbus connection and reconnect</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.connected">
+<span class="sig-name descname"><span class="pre">connected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.connected" title="Link to this definition"></a></dt>
+<dd><p>Returns information about connection status</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.check_connection_and_try_reconnect">
+<span class="sig-name descname"><span class="pre">check_connection_and_try_reconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.check_connection_and_try_reconnect" title="Link to this definition"></a></dt>
+<dd><p>checks the modbus connection and tries to reconnect if the connection is timedout</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.read_device_info">
+<span class="sig-name descname"><span class="pre">read_device_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.read_device_info" title="Link to this definition"></a></dt>
+<dd><p>Reads device info from the CPX system and returns dict with containing values</p>
+<p>return: Contains device information values
+rtype: dict</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg8">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BitwiseReg8</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg8" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_BitwiseReg</span></code></p>
+<p>Half Register</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg8.byte_size">
+<span class="sig-name descname"><span class="pre">byte_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg8.byte_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg16">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BitwiseReg16</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg16" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_BitwiseReg</span></code></p>
+<p>Full Register</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg16.byte_size">
+<span class="sig-name descname"><span class="pre">byte_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg16.byte_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.read_reg_data">
+<span class="sig-name descname"><span class="pre">read_reg_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.read_reg_data" title="Link to this definition"></a></dt>
+<dd><p>Reads and returns register(s) from Modbus server without interpreting the data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>register</strong> (<em>int</em>) – adress of the first register to read</p></li>
+<li><p><strong>length</strong> (<em>int</em>) – number of registers to read (default: 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Register(s) content</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.write_reg_data">
+<span class="sig-name descname"><span class="pre">write_reg_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.write_reg_data" title="Link to this definition"></a></dt>
+<dd><p>Write bytes object data to register(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – data to write to the register(s)</p></li>
+<li><p><strong>register</strong> (<em>int</em>) – adress of the first register to write</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.write_reg_data_with_single_cmds">
+<span class="sig-name descname"><span class="pre">write_reg_data_with_single_cmds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">register</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.write_reg_data_with_single_cmds" title="Link to this definition"></a></dt>
+<dd><p>Write bytes object data to register(s), with only single register writes.
+This is necessary for some firmware on particular addresses, where multiple
+register writes are not supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em>) – data to write to the register(s)</p></li>
+<li><p><strong>register</strong> (<em>int</em>) – adress of the first register to write</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_base.CpxBase.require_base">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">require_base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_base.CpxBase.require_base" title="Link to this definition"></a></dt>
+<dd><p>For most module functions, a base is required that handles the registers,
+module numbering, etc.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_dataclasses">
+<span id="cpx-io-cpx-system-cpx-dataclasses-module"></span><h2>cpx_io.cpx_system.cpx_dataclasses module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_dataclasses" title="Link to this heading"></a></h2>
+<p>CPX SystemEntryRegisters dataclass</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_dataclasses.</span></span><span class="sig-name descname"><span class="pre">SystemEntryRegisters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnosis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Initial modbus registers of the AP system</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters.inputs">
+<span class="sig-name descname"><span class="pre">inputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters.inputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters.outputs">
+<span class="sig-name descname"><span class="pre">outputs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters.outputs" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters.diagnosis">
+<span class="sig-name descname"><span class="pre">diagnosis</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_dataclasses.SystemEntryRegisters.diagnosis" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_module">
+<span id="cpx-io-cpx-system-cpx-module-module"></span><h2>cpx_io.cpx_system.cpx_module module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_module" title="Link to this heading"></a></h2>
+<p>CpxModule</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_module.CpxModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_module.</span></span><span class="sig-name descname"><span class="pre">CpxModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_module.CpxModule" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to connect to the Festo CPX system and read data from IO modules</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_module.CpxModule.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_module.CpxModule.name" title="Link to this definition"></a></dt>
+<dd><p>Property getter for name.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.io_thread">
+<span id="cpx-io-cpx-system-io-thread-module"></span><h2>cpx_io.cpx_system.io_thread module<a class="headerlink" href="#module-cpx_io.cpx_system.io_thread" title="Link to this heading"></a></h2>
+<p>cpx_io - IOThread class for handling I/O transfers in a separate thread.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.io_thread.IOThread">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.io_thread.</span></span><span class="sig-name descname"><span class="pre">IOThread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perform_io</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.io_thread.IOThread" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></p>
+<p>Class to handle I/O transfers in a separate thread.</p>
+<p>Constructor of the IOThread class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>perform_io</strong> (<em>function</em>) – function that is called periodically (with interval cycle_time)
+and performs the I/O data transfer</p></li>
+<li><p><strong>cycle_time</strong> (<em>float</em>) – Cycle time that should be used for I/O transfers</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.io_thread.IOThread.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.io_thread.IOThread.run" title="Link to this definition"></a></dt>
+<dd><p>Method that needs to be implemented by child.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.io_thread.IOThread.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.io_thread.IOThread.start" title="Link to this definition"></a></dt>
+<dd><p>Starts the thread.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.io_thread.IOThread.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.io_thread.IOThread.stop" title="Link to this definition"></a></dt>
+<dd><p>Stops the thread.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpx_io.cpx_system" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpx_io.cli.html" class="btn btn-neutral float-left" title="cpx_io.cli package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpx_io.cpx_system.cpx_ap.html" class="btn btn-neutral float-right" title="cpx_io.cpx_system.cpx_ap package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Festo SE &amp; Co. KG.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

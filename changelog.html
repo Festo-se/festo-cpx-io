@@ -1,0 +1,791 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; festo-cpx-io  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="cpx_io.utils package" href="cpx_io.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            festo-cpx-io
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Features:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="features/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/cpx_io.html">CPX-SYSTEM</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indices and tables:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Module Sources</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">Unreleased</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-11-1-04-12-25">v0.11.1 - 04.12.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-11-0-07-11-25">v0.11.0 - 07.11.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-10-0-15-07-25">v0.10.0 - 15.07.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-9-0-05-05-25">v0.9.0 - 05.05.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-8-1-14-02-25">v0.8.1 - 14.02.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-8-0-14-01-25">v0.8.0 - 14.01.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-7-0-07-01-25">v0.7.0 - 07.01.25</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#removed">Removed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-4-30-10-24">v0.6.4 - 30.10.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-3-17-10-24">v0.6.3 - 17.10.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id21">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-2-30-09-24">v0.6.2 - 30.09.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id22">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id23">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id24">Added</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-1-22-08-24">v0.6.1 - 22.08.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id25">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-0-22-08-24">v0.6.0 - 22.08.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id26">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id27">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id28">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-3-09-08-24">v0.5.3 - 09.08.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id29">Added</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-2-02-08-24">v0.5.2 - 02.08.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id30">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id31">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id32">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-1-21-06-24">v0.5.1 - 21.06.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id33">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id34">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id35">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id36">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id37">Removed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-0-17-06-24">v0.5.0 - 17.06.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id38">Added</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-2-29-05-24">v0.4.2 - 29.05.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id39">Changed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-1-29-05-24">v0.4.1 - 29.05.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id40">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id41">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-0-23-05-24">v0.4.0 - 23.05.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id42">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id43">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id44">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-3-0-02-04-24">v0.3.0 - 02.04.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id45">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id46">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id47">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-2-0-26-01-24">v0.2.0 - 26.01.24</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id48">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id49">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id50">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-1-20-10-23">v0.1.1 - 20.10.23</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id51">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id52">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-0-17-10-23">v0.1.0 - 17.10.23</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">festo-cpx-io</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Festo-se/festo-cpx-io/blob/main/doc/source/changelog.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<p>All notable changes to this project will be documented in this file.</p>
+<p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
+and this project adheres to <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<section id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+</section>
+<section id="v0-11-1-04-12-25">
+<h2>v0.11.1 - 04.12.25<a class="headerlink" href="#v0-11-1-04-12-25" title="Link to this heading"></a></h2>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Move repo to github</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-11-0-07-11-25">
+<h2>v0.11.0 - 07.11.25<a class="headerlink" href="#v0-11-0-07-11-25" title="Link to this heading"></a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: Update documentation and add examples for <code class="docutils literal notranslate"><span class="pre">cycle_time</span></code> feature</p></li>
+<li><p>CPX-AP: Example for EHPS gripper</p></li>
+<li><p>CPX-AP: Support the switch of variants of modules</p></li>
+<li><p>CPX-AP: Example for IO-Link Master variant switching</p></li>
+<li><p>Documentation: Make the channel description more comprehensive</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Changed<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: <code class="docutils literal notranslate"><span class="pre">set_channel</span></code>, <code class="docutils literal notranslate"><span class="pre">reset_channel</span></code>, and <code class="docutils literal notranslate"><span class="pre">toggle_channel</span></code> are now only available for BOOL output channels</p></li>
+<li><p>CPX-AP: Use 10ms as default <code class="docutils literal notranslate"><span class="pre">cycle_time</span></code></p></li>
+<li><p>CPX-AP: allow usage of <code class="docutils literal notranslate"><span class="pre">read_output_channel(s)</span></code> for IO-Link modules</p></li>
+<li><p>Documentation: The generated system documentation now explicitly lists which output channels support set/reset/toggle (i.e., all BOOL channels).</p></li>
+<li><p>Update minimum required python version to 3.10 - version 3.9 is end-of-life</p></li>
+<li><p>Update dependencies to new version</p></li>
+<li><p>Introduce <code class="docutils literal notranslate"><span class="pre">[cli]</span></code> and <code class="docutils literal notranslate"><span class="pre">[dev]</span></code> install options</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unit tests now cover error cases for set/reset/toggle on non-BOOL channels.</p></li>
+<li><p>CPX-AP: fix parallism of high level function with multiple read/write commands</p></li>
+<li><p>CPX-AP/E: IO-Link padding for uneven bytes</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-10-0-15-07-25">
+<h2>v0.10.0 - 15.07.25<a class="headerlink" href="#v0-10-0-15-07-25" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>Added<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: add optional <code class="docutils literal notranslate"><span class="pre">cycle_time</span></code> arg to spawn thread reading diagnostics</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: datatype of argument channel in read_isda() and write_isda() from int to (list[int] and int) to pass a list of channels or a single channel which should be r/w</p></li>
+<li><p>CPX-AP: return value of read_isda() from any to list[any] and any</p></li>
+<li><p>update dependencies rich and setuptools to new version</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Fixed<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: De/Encode array channels and bool channels correctly</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-9-0-05-05-25">
+<h2>v0.9.0 - 05.05.25<a class="headerlink" href="#v0-9-0-05-05-25" title="Link to this heading"></a></h2>
+<section id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: Float interpretation for ISDU write</p></li>
+<li><p>CPX-AP: <code class="docutils literal notranslate"><span class="pre">-mt,</span> <span class="pre">--modbus-timeout</span></code> command for cli to set explicitly a timeout</p></li>
+<li><p>CPX-E: ISDU access for CPX-E-4IOL.</p></li>
+<li><p>CPX-E: Optional parameter <code class="docutils literal notranslate"><span class="pre">bytelength</span></code> for CPX-E-4IOL <code class="docutils literal notranslate"><span class="pre">read/write_channel(s)</span></code> functions to specify io-link device length</p></li>
+<li><p>CPX-E: Support modbus timeout</p></li>
+<li><p>Modbus connection error which is raised if connection to the target device could not be established</p></li>
+<li><p>Security policy and describe the way to responsibly submit security issues</p></li>
+<li><p>Small composition example to illustrate a possible abstraction for more complex CPX systems</p></li>
+<li><p>Add renovate bot</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: ISDU type <code class="docutils literal notranslate"><span class="pre">&quot;int&quot;</span></code> now refers to signed integers (follows naming convention of IO-Link datatypes). Use <code class="docutils literal notranslate"><span class="pre">&quot;uint&quot;</span></code> instead for unsigned integers</p></li>
+<li><p>CPX-AP: removed the reset of the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)</p></li>
+<li><p>CPX-E: increase robustness of write register commands</p></li>
+<li><p>Logging levels for better usability of Logging functionality</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: Issues with IO-Link read/write ISDU</p></li>
+<li><p>CPX-AP: make the initialization more robust against a slow apdd loading</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-8-1-14-02-25">
+<h2>v0.8.1 - 14.02.25<a class="headerlink" href="#v0-8-1-14-02-25" title="Link to this heading"></a></h2>
+<section id="id8">
+<h3>Added<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>System test for CPX-AP-A-4AI</p></li>
+<li><p>Extended cli tests</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Changed<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>moved requirements into requirements.txt</p></li>
+<li><p>demoted logging of IO Link padding from warning to info</p></li>
+<li><p>Performance writes for (u)int on write_channels</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3>Fixed<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>fixed CPX-E value parsing for write commands (previously only True was written)</p></li>
+<li><p>now accepts systems where the bus module is not on AP slot 1 (leftmost module)</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-8-0-14-01-25">
+<h2>v0.8.0 - 14.01.25<a class="headerlink" href="#v0-8-0-14-01-25" title="Link to this heading"></a></h2>
+<section id="id11">
+<h3>Changed<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Renamed <code class="docutils literal notranslate"><span class="pre">docs</span></code> to <code class="docutils literal notranslate"><span class="pre">doc</span></code> for compatibility with template</p></li>
+<li><p>Included python version v3.9</p></li>
+<li><p>print_system_state returns IP and MAC address as string</p></li>
+<li><p>Reset the modbus timeout to 100 ms after shutting down an infinite timeout connection (timeout=0)</p></li>
+<li><p>Used shared gitlab-ci template</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3>Added<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--version</span></code> command for cli to print current version</p></li>
+<li><p>pretty error messages for out of bound module/channel index access</p></li>
+<li><p>Extended cli documentation and readme.md</p></li>
+<li><p>Extended print system state test to verify address string</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>Fixed<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>cli default CPX-AP write value</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-7-0-07-01-25">
+<h2>v0.7.0 - 07.01.25<a class="headerlink" href="#v0-7-0-07-01-25" title="Link to this heading"></a></h2>
+<section id="id14">
+<h3>Fixed<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Docstrings and types of CpxE4Iol <code class="docutils literal notranslate"><span class="pre">write_channel()</span></code></p></li>
+<li><p>Renaming modules manually now checks for duplicates and increments suffix if needed</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>Changed<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Renamed <code class="docutils literal notranslate"><span class="pre">clear_channel()</span></code> to <code class="docutils literal notranslate"><span class="pre">reset_channel()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_module_parameter_enum_str()</span></code> doesn’t raise TypeError anymore when no enums available. Instead gives Logger Info message and returns values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">print_system_information</span></code> now prints enum strings for parameters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_channel(s)</span></code> with IO-Link now returns correct datalength according to device information and None if device information is missing</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>Added<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">write_channels()</span></code> function for IO-Link masters</p></li>
+<li><p>Simple diagnosis example</p></li>
+<li><p>Utils files to documentation</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">read_output_channel()</span></code> from IO-Link masters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">full_size</span></code> parameter. CpxAp will return length of device. CpxE will return length of master</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-4-30-10-24">
+<h2>v0.6.4 - 30.10.24<a class="headerlink" href="#v0-6-4-30-10-24" title="Link to this heading"></a></h2>
+<section id="id17">
+<h3>Changed<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Updated all dependencies</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3>Fixed<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Fixed non ascii characters in user path leading to exception</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-3-17-10-24">
+<h2>v0.6.3 - 17.10.24<a class="headerlink" href="#v0-6-3-17-10-24" title="Link to this heading"></a></h2>
+<section id="id19">
+<h3>Fixed<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All “renaming modules” examples</p></li>
+<li><p>Issue with ´CpxE(TYPECODE)´ containing more than two of the same module type</p></li>
+<li><p>CPX-E-8DO <code class="docutils literal notranslate"><span class="pre">write_channel()</span></code> now behaves correctly and does not reset other channels</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3>Added<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Added example code for isdu read/write</p></li>
+</ul>
+</section>
+<section id="id21">
+<h3>Changed<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Set dependencies to static versions</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-2-30-09-24">
+<h2>v0.6.2 - 30.09.24<a class="headerlink" href="#v0-6-2-30-09-24" title="Link to this heading"></a></h2>
+<section id="id22">
+<h3>Fixed<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Length calculation in IO-Link function <code class="docutils literal notranslate"><span class="pre">write_isdu()</span></code></p></li>
+<li><p>Amount of tries and check in isdu functions are now consistent</p></li>
+<li><p>Fixed some Docstrings</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3>Changed<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP ISDU access now returns only relevant and valid data. Optional parameter <code class="docutils literal notranslate"><span class="pre">data_type</span></code>
+defines the expected return value of <code class="docutils literal notranslate"><span class="pre">read_isdu()</span></code>. While <code class="docutils literal notranslate"><span class="pre">write_isdu()</span></code> checks for the data_type
+of parameter <code class="docutils literal notranslate"><span class="pre">data</span></code> and behaves accordingly</p></li>
+<li><p>Made <code class="docutils literal notranslate"><span class="pre">CpxAp.add_module()</span></code> a private function as it should not be accessed by the user</p></li>
+<li><p>Some minor code improvements</p></li>
+<li><p>Added further explanation to <code class="docutils literal notranslate"><span class="pre">example_cpxap_digital_output.py</span></code> regarding timeout</p></li>
+<li><p>Several backend changes in ap_module to clear lately ignored pylint issues</p></li>
+</ul>
+</section>
+<section id="id24">
+<h3>Added<a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Unittests for CpxAp</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-1-22-08-24">
+<h2>v0.6.1 - 22.08.24<a class="headerlink" href="#v0-6-1-22-08-24" title="Link to this heading"></a></h2>
+<section id="id25">
+<h3>Fixed<a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Parameter handling for CHAR types</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-6-0-22-08-24">
+<h2>v0.6.0 - 22.08.24<a class="headerlink" href="#v0-6-0-22-08-24" title="Link to this heading"></a></h2>
+<section id="id26">
+<h3>Added<a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Support for INT8 and UINT8 channels (used by vacuum valves for VTUX)</p></li>
+<li><p>Support for AP modules with different channel types</p></li>
+<li><p>System tests for VTUX-AS</p></li>
+<li><p>Information on channels in system_information docu</p></li>
+</ul>
+</section>
+<section id="id27">
+<h3>Changed<a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Removed optional parameter <code class="docutils literal notranslate"><span class="pre">raw</span></code> from <code class="docutils literal notranslate"><span class="pre">read_module_parameter()</span></code>. Added <code class="docutils literal notranslate"><span class="pre">read_module_parameter_enum_str()</span></code> instead.</p></li>
+<li><p>Removed optional parameter <code class="docutils literal notranslate"><span class="pre">outputs_only</span></code> from <code class="docutils literal notranslate"><span class="pre">read_channel(s)()</span></code>. Added <code class="docutils literal notranslate"><span class="pre">read_output_channel(s)()</span></code> instead.</p></li>
+<li><p>Updated examples</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3>Fixed<a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Updated ModbusException handling for ConnectionAbortedError and corresponding unittest</p></li>
+<li><p>Corrected (U)INT16 handling and corresponding unittests</p></li>
+<li><p>Typos in CPX-AP docu (import, instantiation)</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-5-3-09-08-24">
+<h2>v0.5.3 - 09.08.24<a class="headerlink" href="#v0-5-3-09-08-24" title="Link to this heading"></a></h2>
+<section id="id29">
+<h3>Added<a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Added optional parameter <code class="docutils literal notranslate"><span class="pre">raw</span></code> for <code class="docutils literal notranslate"><span class="pre">read_module_parameter()</span></code> which returns ENUM id instead of name.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-5-2-02-08-24">
+<h2>v0.5.2 - 02.08.24<a class="headerlink" href="#v0-5-2-02-08-24" title="Link to this heading"></a></h2>
+<section id="id30">
+<h3>Added<a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Checker script to read in APDDs and check if they are compatible with the library</p></li>
+<li><p>Added type hint for ap modules property to enable autocompletion.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">int_to_boollist()</span></code> to utils.boollist</p></li>
+</ul>
+</section>
+<section id="id31">
+<h3>Changed<a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP now interprets apdds with utf-8 instead of ascii encoding</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CpxAp.read_global_diagnosis_state()</span></code> now returns dict according to “module diagnostics state” (see datasheet CPX-AP-*-EP-*)</p></li>
+<li><p>Increment pymodbus version to 3.7.0</p></li>
+</ul>
+</section>
+<section id="id32">
+<h3>Fixed<a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Updated <code class="docutils literal notranslate"><span class="pre">requests</span></code> dependency to remove missing <code class="docutils literal notranslate"><span class="pre">chardet</span></code> error. Will now only raise a warning. Can be fixed by manually installing <code class="docutils literal notranslate"><span class="pre">chardet</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="v0-5-1-21-06-24">
+<h2>v0.5.1 - 21.06.24<a class="headerlink" href="#v0-5-1-21-06-24" title="Link to this heading"></a></h2>
+<section id="id33">
+<h3>Fixed<a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: Limited the modbus timeout to a minimum 100 ms. Values lower that that could lead to exclusion from the system.</p></li>
+</ul>
+</section>
+<section id="id34">
+<h3>Added<a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>boollist_to_int convenience function</p></li>
+<li><p>CLI: cpx_ap read/write channel functionality</p></li>
+<li><p>CPX-AP: Outdated and not-supported module firmware will now raise RuntimeError with suggestion to update firmware.</p></li>
+</ul>
+</section>
+<section id="id35">
+<h3>Changed<a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>CPX-AP: Changed default apdd and docu path “appauthor” to Festo</p></li>
+<li><p>CPX-AP: Added diagnosis example</p></li>
+</ul>
+</section>
+<section id="id36">
+<h3>Fixed<a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>ApModule: write_channel bug causing other channels to be resetted for some module types.</p></li>
+</ul>
+</section>
+<section id="id37">
+<h3>Removed<a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">chardet</span></code> dependency</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-5-0-17-06-24">
+<h2>v0.5.0 - 17.06.24<a class="headerlink" href="#v0-5-0-17-06-24" title="Link to this heading"></a></h2>
+<section id="id38">
+<h3>Added<a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Diagnosis for CpxAp and ApModule. This includes a ModuleInformation dataclass and builder as well as some new functions</p></li>
+<li><p>CpxAp: Read the global diagnosis state from the cpx-ap system with <code class="docutils literal notranslate"><span class="pre">CpxAp.read_global_diagnosis_state()</span></code></p></li>
+<li><p>CpxAp: Read the count of active diagnosis from the cpx-ap system with <code class="docutils literal notranslate"><span class="pre">CpxAp.read_active_diagnosis_count()</span></code></p></li>
+<li><p>CpxAp: Read the module index with the latest diagnosis from the cpx-ap system with <code class="docutils literal notranslate"><span class="pre">CpxAp.read_latest_diagnosis_index()</span></code></p></li>
+<li><p>CpxAp: Read the latest diagnosis code from the cpx-ap system with <code class="docutils literal notranslate"><span class="pre">CpxAp.read_latest_diagnosis_code()</span></code></p></li>
+<li><p>CpxAp: Added INT16 and UINT16 support for MPA modules in read/write functions, expanded system tests</p></li>
+<li><p>ApModule: Read the diagnosis code from the module with <code class="docutils literal notranslate"><span class="pre">ApModule.read_diagnosis_code()</span></code></p></li>
+<li><p>ApModule: Read the diagnosis information from the module with <code class="docutils literal notranslate"><span class="pre">ApModule.read_diagnosis_information()</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="v0-4-2-29-05-24">
+<h2>v0.4.2 - 29.05.24<a class="headerlink" href="#v0-4-2-29-05-24" title="Link to this heading"></a></h2>
+<section id="id39">
+<h3>Changed<a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Updated links to public repo</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-4-1-29-05-24">
+<h2>v0.4.1 - 29.05.24<a class="headerlink" href="#v0-4-1-29-05-24" title="Link to this heading"></a></h2>
+<section id="id40">
+<h3>Changed<a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>improved ap_module <code class="docutils literal notranslate"><span class="pre">read_channels()</span></code>/<code class="docutils literal notranslate"><span class="pre">write_channels()</span></code> functions</p></li>
+<li><p>improved unittests for ap_module</p></li>
+</ul>
+</section>
+<section id="id41">
+<h3>Fixed<a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>fixed bug in ap_module <code class="docutils literal notranslate"><span class="pre">_check_instances()</span></code> that lead to incorrect behaviour when no instances where specified</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-4-0-23-05-24">
+<h2>v0.4.0 - 23.05.24<a class="headerlink" href="#v0-4-0-23-05-24" title="Link to this heading"></a></h2>
+<section id="id42">
+<h3>Changed<a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>This release will drastically change the usability of all AP components. Modules are now autogenerated in the runtime. The documentation will only be available on the user device. There is a very useful <code class="docutils literal notranslate"><span class="pre">CpxAp.print_system_information()</span></code> function that will give you all the details about your system.</p></li>
+<li><p>Exchanged individual <code class="docutils literal notranslate"><span class="pre">configure_...</span></code> functions to generic <code class="docutils literal notranslate"><span class="pre">read_module_parameter()</span></code>/<code class="docutils literal notranslate"><span class="pre">write_module_parameter()</span></code></p></li>
+<li><p>Exchanged parameter mapping with read out information from ap system</p></li>
+<li><p>CPX-AP-*-EP: <code class="docutils literal notranslate"><span class="pre">read_parameters()</span></code> renamed to <code class="docutils literal notranslate"><span class="pre">read_system_parameters()</span></code></p></li>
+</ul>
+</section>
+<section id="id43">
+<h3>Added<a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Documentation for usage in README</p></li>
+<li><p>Documentation will now be generated on user device</p></li>
+<li><p>ap_module_builder that configures a generic_ap_module by its apdd</p></li>
+<li><p>Added gitlab release job</p></li>
+</ul>
+</section>
+<section id="id44">
+<h3>Fixed<a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>TypeError message in <code class="docutils literal notranslate"><span class="pre">write_channel()</span></code> doesn’t raise AttributeError anymore</p></li>
+<li><p>IndexError output on digital functions <code class="docutils literal notranslate"><span class="pre">set_channel()</span></code>/<code class="docutils literal notranslate"><span class="pre">clear_channel()</span></code>/<code class="docutils literal notranslate"><span class="pre">toggle_channel()</span></code> now show correct string</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-3-0-02-04-24">
+<h2>v0.3.0 - 02.04.24<a class="headerlink" href="#v0-3-0-02-04-24" title="Link to this heading"></a></h2>
+<section id="id45">
+<h3>Added<a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Added VABA (electric interface for VTSA valve terminal)</p></li>
+<li><p>CLI command <code class="docutils literal notranslate"><span class="pre">parameter</span></code> (options <code class="docutils literal notranslate"><span class="pre">--list</span></code> and <code class="docutils literal notranslate"><span class="pre">--meta</span></code>) showing parameter meta data</p></li>
+<li><p>channel_range_check in helpers, now raises IndexError instead of ValueError</p></li>
+<li><p>VMPAL Valve Terminal for CPX-AP</p></li>
+<li><p>VAEM Valve Terminal for CPX-AP</p></li>
+<li><p>Enums for configure functions</p></li>
+<li><p>Systemtests for VABX</p></li>
+<li><p>Examples for cyclic access with threading</p></li>
+<li><p>CpxBase: read_device_info</p></li>
+<li><p>CpxApEp: read_diagnostic_status reads Diagnostics for each module</p></li>
+<li><p>Unittests for CpxBase</p></li>
+<li><p>More examples</p></li>
+</ul>
+</section>
+<section id="id46">
+<h3>Changed<a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Determine parameter ids based on .csv.</p></li>
+<li><p>configure functions don’t accept strings anymore. Instead use enums from cpx_ap/e_enums</p></li>
+<li><p>Moved read_diagnostics_status from CpxApEp to CpxAp</p></li>
+<li><p>Renamed ApParameter to ParameterMapItem,</p></li>
+<li><p>Renamed ApParameters to ModuleParameters</p></li>
+<li><p>ap4iol: code optimization</p></li>
+<li><p>CpxE: functions renamed to read_status, read_fault_detection</p></li>
+<li><p>CpxBase: now initializes with self.base=None instead of no self.base at all</p></li>
+<li><p>CpxAp: Parameter read/write now utilizes multi-register access</p></li>
+<li><p>CpxAp4Iol: read_channel now takes “full_size” parameter. Default is now to return the length from the device information (returns only relevant bytes)</p></li>
+<li><p>CpxApEP: deleted write_parameters(), added configure_monitoring_load_supply() instead</p></li>
+<li><p>Pybodmus Error now raises “ConnectionAbortedError” instead of “ValueError”</p></li>
+<li><p>IO-Link modules now read and write bytes objects</p></li>
+<li><p>Deleted obsolete cpx-e “read_module_count” function</p></li>
+</ul>
+</section>
+<section id="id47">
+<h3>Fixed<a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>4DI4DO and 12DI4DO modules toggle channel now working as expected</p></li>
+<li><p>AP Parameter length register is now interpreted correctly as “in bytes”</p></li>
+<li><p>Removed unnecessary validation check in write_parameter_raw</p></li>
+<li><p>Many logger.info strings in modules</p></li>
+<li><p>Docstring in e4aoui configure_channel_range</p></li>
+<li><p>ip-address octetts now in correct order</p></li>
+<li><p>Project URLs in pyproject.toml</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-2-0-26-01-24">
+<h2>v0.2.0 - 26.01.24<a class="headerlink" href="#v0-2-0-26-01-24" title="Link to this heading"></a></h2>
+<section id="id48">
+<h3>Added<a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Added content to README.md</p></li>
+<li><p>Added module functions CPX-E/AP</p></li>
+<li><p>Handling of naming for more modules of one type (CPX-E and -AP)</p></li>
+<li><p>Added warning if cpx-e-ep module is added multiple times</p></li>
+<li><p>Added vabx module for vtux access</p></li>
+<li><p>ISDU Access for CPX-AP-4IOL</p></li>
+<li><p>Added CPX-AP-A modules</p></li>
+<li><p>Implemented CPX-E-1CI module</p></li>
+<li><p>Unittests for cpxe and cpxap modules</p></li>
+<li><p>CpxE and CpxAP: Added <code class="docutils literal notranslate"><span class="pre">__repr__</span></code> function</p></li>
+<li><p>CpxE: Added property setter / getter for more modules.</p></li>
+<li><p>CpxE: Added access-by-name for modules of CpxE.</p></li>
+<li><p>CpxE: Added construction from typecode.</p></li>
+<li><p>CpxE: Added property setter for modules.</p></li>
+<li><p>CpxE8Do: Added access-by-index-operator to channels</p></li>
+<li><p>CpxE: Added CLI for writing and reading values.</p></li>
+</ul>
+</section>
+<section id="id49">
+<h3>Changed<a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Removed timeout and port from CPX-base, implemented timeout for CPX-AP</p></li>
+<li><p>changed return value of read function number to int</p></li>
+<li><p>Added context manager functionality to cpx base class. Adapted examples to use this context manager.</p></li>
+<li><p>Updated modules list so each module can be adressed via the base class</p></li>
+</ul>
+</section>
+<section id="id50">
+<h3>Fixed<a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>General Bugfixes</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-1-1-20-10-23">
+<h2>v0.1.1 - 20.10.23<a class="headerlink" href="#v0-1-1-20-10-23" title="Link to this heading"></a></h2>
+<section id="id51">
+<h3>Added<a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Added deployment to artifactory.</p></li>
+</ul>
+</section>
+<section id="id52">
+<h3>Fixed<a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Fixed CI stages for unit test and linting.</p></li>
+</ul>
+</section>
+</section>
+<section id="v0-1-0-17-10-23">
+<h2>v0.1.0 - 17.10.23<a class="headerlink" href="#v0-1-0-17-10-23" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Initial release</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpx_io.utils.html" class="btn btn-neutral float-left" title="cpx_io.utils package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Festo SE &amp; Co. KG.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

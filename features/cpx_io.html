@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CPX-SYSTEM &mdash; festo-cpx-io  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="../examples.html" />
+    <link rel="prev" title="CLI" href="cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            festo-cpx-io
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Features:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cli.html">CLI</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CPX-SYSTEM</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#festo-cpx-io">festo-cpx-io</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cpx-e">CPX-E</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#import">Import</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#instantiate-your-cpx-system">Instantiate your cpx-system</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-naming">Module naming</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-the-modules-functions">Use the modules functions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cpx-ap">CPX-AP</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Import</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Instantiate your cpx-system</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">Module naming</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">Use the modules functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indices and tables:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Module Sources</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">festo-cpx-io</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CPX-SYSTEM</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Festo-se/festo-cpx-io/blob/main/doc/source/features/cpx_io.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpx-system">
+<h1>CPX-SYSTEM<a class="headerlink" href="#cpx-system" title="Link to this heading"></a></h1>
+<section id="festo-cpx-io">
+<h2>festo-cpx-io<a class="headerlink" href="#festo-cpx-io" title="Link to this heading"></a></h2>
+<p>Python modbus implementation for Festo cpx remote-io systems.</p>
+<section id="cpx-e">
+<h3>CPX-E<a class="headerlink" href="#cpx-e" title="Link to this heading"></a></h3>
+<p>The automation system CPX-E is a high-performance control and automation system focusing primarily on motion control functions for handling technology. It comprises individual function modules that allow a very flexible system structure. Depending on the combination, the automation system CPX-E can be configured and used purely as a remote I/O system or as a control system. The following modules are available:</p>
+<ul class="simple">
+<li><p>Controller</p></li>
+<li><p>Bus modules</p></li>
+<li><p>Input/output modules</p></li>
+<li><p>Counter modules</p></li>
+<li><p>IO-Link master modules</p></li>
+</ul>
+<p>In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via ModbusTCP on ethernet. Therefore, the bus module CPX-E-EP is required to use this software.</p>
+<section id="import">
+<h4>Import<a class="headerlink" href="#import" title="Link to this heading"></a></h4>
+<p>Import the required cpx-system</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+</pre></div>
+</div>
+</section>
+<section id="instantiate-your-cpx-system">
+<h4>Instantiate your cpx-system<a class="headerlink" href="#instantiate-your-cpx-system" title="Link to this heading"></a></h4>
+<p>You can use the typecode from your CPX order <a class="reference external" href="https://www.festo.com/">(festo.com)</a> to get the correct modules and their order.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myCPX</span> <span class="o">=</span> <span class="n">CpxE</span><span class="p">(</span><span class="s2">&quot;60E-EP-MLNINO&quot;</span><span class="p">,</span> <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also instantiate an “empty” cpx system and add modules later. This requires importing the module itself first.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e8do</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE8Do</span>
+
+<span class="n">myCPX</span> <span class="o">=</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span>
+<span class="n">e8do</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="n">CpxE8Do</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>You can also instantiate “empty” modules first and add them to the cpx system later. Either in the constructor or later via <code class="docutils literal notranslate"><span class="pre">add_module(...)</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e8do</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE8Do</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+
+<span class="c1"># add via constructor. Here you should always provide the -EP module first</span>
+<span class="n">eep</span> <span class="o">=</span> <span class="n">CpxEEp</span><span class="p">()</span>
+<span class="n">e8do</span> <span class="o">=</span> <span class="n">CpxE8Do</span><span class="p">()</span>
+<span class="n">myCPX</span> <span class="o">=</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">eep</span><span class="p">,</span> <span class="n">e8do</span><span class="p">])</span>
+
+<span class="c1"># alternatively, add them later via add_module</span>
+<span class="n">eep</span> <span class="o">=</span> <span class="n">CpxEEp</span><span class="p">()</span>
+<span class="n">e8do</span> <span class="o">=</span> <span class="n">CpxE8Do</span><span class="p">()</span>
+<span class="n">myCPX</span> <span class="o">=</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="c1"># this will already put an CpxEEp module at position 0</span>
+<span class="n">myCPX</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="n">e8Do</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All of the above can be used with a context manager, for example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="s2">&quot;60E-EP-MLNINO&quot;</span><span class="p">,</span> <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># read system information</span>
+    <span class="n">module_count</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">read_module_count</span><span class="p">()</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span>
+</pre></div>
+</div>
+</section>
+<section id="module-naming">
+<h4>Module naming<a class="headerlink" href="#module-naming" title="Link to this heading"></a></h4>
+<p>Modules in the CPX system are named automatically if no name is given. If there is more than one module of the same type in the system, an underscore and incrementing number will be added to the name. You can rename modules by setting the name variable.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e16di</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE16Di</span>
+
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">CpxEEp</span><span class="p">(),</span> <span class="n">CpxE16Di</span><span class="p">()])</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># assuming you have one CpxE16Di in your system</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># will return &quot;cpxe16di (idx: 1, type: CpxE16Di)&quot; where cpxe16di is the automatically generated name</span>
+    <span class="c1"># you can access the module by its name</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="p">)</span>
+    <span class="c1"># will also return &quot;cpxe16di (idx: 1, type: CpxE16Di)&quot;</span>
+
+    <span class="c1"># rename the module</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my16di&quot;</span>
+
+    <span class="c1"># you can access the module with the new name</span>
+    <span class="n">cpx</span><span class="o">.</span><span class="n">my16di</span>
+    <span class="c1"># and the myCPX.modules[1] will return the new name &quot;my16di (idx: 1, type: CpxE16Di)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="use-the-modules-functions">
+<h4>Use the modules functions<a class="headerlink" href="#use-the-modules-functions" title="Link to this heading"></a></h4>
+<p>The modules offer different functions, but most of them have <code class="docutils literal notranslate"><span class="pre">read_channel()</span></code> and depending on the kind of module, <code class="docutils literal notranslate"><span class="pre">write_channel()</span></code>, as well as very individual configure functions. Read the <a class="reference external" href="https://festo-se.github.io/festo-cpx-io/">doc</a> and have a look at the <a class="reference internal" href="../examples.html"><span class="doc std std-doc">examples</span></a> for more information.</p>
+</section>
+</section>
+<section id="cpx-ap">
+<h3>CPX-AP<a class="headerlink" href="#cpx-ap" title="Link to this heading"></a></h3>
+<p>CPX-AP is a modular and lightweight IO system with IP65/IP67 protection.</p>
+<ul class="simple">
+<li><p>Can be adapted to Festo valve terminals</p></li>
+<li><p>Highly flexible remote IO system with maximum performance</p></li>
+<li><p>Parameterisable and scalable</p></li>
+<li><p>Up to 15 modules in one automation system CPX-AP-A</p></li>
+<li><p>Complete IO-Link master V1.1 with data storage mechanism including device parameterisation tool</p></li>
+</ul>
+<p>In this implementation, the control (PLC) will be your pc. The cpx-system will be connected via ModbusTCP on ethernet. Therefore the bus module CPX-A-EP or CPX-I-EP is required to use this software.</p>
+<section id="id1">
+<h4>Import<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<p>Import the required cpx-system</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h4>Instantiate your cpx-system<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<p>On CPX-AP, the modules will be generated automatically when the CpxAp object is instantiated. Optionally, a modbus timeout in seconds can be set in the constructor. The default timeout of a CPX-AP system is 0.1s and will not be changed if the timeout parameter does not specify another time. Don’t forget to close the connection or the CPX will eventually not allow more connections.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">myCPX</span> <span class="o">=</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="c1"># your code</span>
+<span class="o">...</span>
+<span class="n">myCPX</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You do not need to manually close the connection if you use a context manager, as it will handle cleanup even if your program encounters an error.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># print system information</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">print_system_information</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If your code does not periodically interact with the CPX-AP system, the connection will time out. With the cycle_time
+parameter, the CpxAp object will maintain the connection by periodically interacting with the system.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">cycle_time</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">print_system_information</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># this command would timeout without the cycle_time parameter</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">print_system_information</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Because the modules are built from your CPX system, this documentation can only provide a rough overview. Therefore, individual documentation of <strong>your</strong> system is stored on <strong>your</strong> device. There is a default path where this information is stored, which you can print with <code class="docutils literal notranslate"><span class="pre">print(myCPX.docu_path)</span></code></p>
+<p>This path can be set individually by passing it as the docu_path argument in the init like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">docu_path</span><span class="o">=</span><span class="s2">&quot;user/docu&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The system documentation is stored as json and markdown file and includes all relevant user information for your setup. You can also print the system information to the output console with <code class="docutils literal notranslate"><span class="pre">CpxAp.print_system_information()</span></code></p>
+</section>
+<section id="id3">
+<h4>Module naming<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p>The modules in the CPX system will be named automatically, if no name is given. If there are more of one module of the same type in the system, an underscore and rising number will be added to the name. You can rename the modules to your liking by setting the name variable.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># assuming you have one CpxAp8Di in your system</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># will return &quot;cpx_ap_i_8di_m8_3p (idx: 1, type: CPX-AP-I-8DI-M8-3P)&quot; where cpx_ap_i_8di_m8_3p is the automatically generated name</span>
+    <span class="c1"># you can access the module by its name</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">cpx_ap_i_8di_m8_3p</span><span class="p">)</span>
+    <span class="c1"># will also return &quot;cpx_ap_i_8di_m8_3p (idx: 1, type: CPX-AP-I-8DI-M8-3P)&quot;</span>
+    <span class="n">cpx</span><span class="o">.</span><span class="n">cpx_ap_i_8di_m8_3p</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my8di&quot;</span> <span class="c1"># rename the module</span>
+    <span class="c1"># you can access the module with the new name</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cpx</span><span class="o">.</span><span class="n">my8di</span><span class="p">)</span>
+    <span class="c1"># and the myCPX.modules[1] will return the new name &quot;my8di (idx: 1, type: CPX-AP-I-8DI-M8-3P)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h4>Use the modules functions<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>The modules offer different functions but most of them have read and write channel functions as well as parameter read and write. Read your individual system documentation in CpxAp.docu_path to get to know what functions your modules offer and have a look at the <a class="reference external" href="https://festo-se.github.io/festo-cpx-io/">doc</a> and the <a class="reference internal" href="../examples.html"><span class="doc std std-doc">examples</span></a> for more information.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli.html" class="btn btn-neutral float-left" title="CLI" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Festo SE &amp; Co. KG.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

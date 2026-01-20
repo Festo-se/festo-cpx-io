@@ -1,0 +1,1270 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Examples &mdash; festo-cpx-io  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="src" href="modules.html" />
+    <link rel="prev" title="CPX-SYSTEM" href="features/cpx_io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            festo-cpx-io
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Features:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="features/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/cpx_io.html">CPX-SYSTEM</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cpx-ap">CPX-AP</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#startup">startup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-read-write">parameter read/write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#digital-input">digital input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#digital-output">digital output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-diagnosis">simple diagnosis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-with-sdas">io link with sdas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-isdu-read-write-with-sdas">io link isdu read/write with sdas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-with-ehps">io link with ehps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-switch-variant">io link switch variant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fault-detection-and-threading">fault detection and threading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timeout-and-cycle-time">timeout and cycle_time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-manual-connection-and-diagnosis">io-link manual connection and diagnosis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-composition-example-to-illustrate-a-possible-abstraction-of-a-more-complex-cpx-system">Simple composition example to illustrate a possible abstraction of a more complex CPX system</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cpx-e">CPX-E</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#object-with-typecode">object with typecode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#object-with-module-list">object with module list</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#empty-object-and-add-modules-later">empty object and add modules later</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">digital input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">digital output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-sensor-sdas">io-link sensor (sdas)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io-link-actuator-ehps">io-link actuator (ehps)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">fault detection and threading</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indices and tables:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Module Sources</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">festo-cpx-io</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Examples</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Festo-se/festo-cpx-io/blob/main/doc/source/examples.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h1>
+<section id="cpx-ap">
+<h2>CPX-AP<a class="headerlink" href="#cpx-ap" title="Link to this heading"></a></h2>
+<section id="startup">
+<h3>startup<a class="headerlink" href="#startup" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP startup and system information&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for cpx_ap, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># view the system documentation by going to the apdd path on your system directory</span>
+    <span class="c1"># this documentation is updated everytime the CpxAp Object with this ip address is</span>
+    <span class="c1"># instanciated. It gives an overview of all parameters and functions of each module</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">docu_path</span><span class="p">)</span>
+
+    <span class="c1"># alternatively you can print out the system information in the console</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">print_system_information</span><span class="p">()</span>
+
+    <span class="c1"># to get an overview of all available parameters, there is a function that iterates</span>
+    <span class="c1"># over every module and reads out the parameters and channels if available</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">print_system_state</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/09bf92f2838593637660e7fa9bcd095e/example_cpxap_startup.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="parameter-read-write">
+<h3>parameter read/write<a class="headerlink" href="#parameter-read-write" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP parameter read and write&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for cpx_ap, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># Read the automatically generated documentation on your system folder</span>
+    <span class="c1"># It gives an overview of all parameters and functions of each module</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">docu_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># to get an overview of all available parameters, there is a function that iterates</span>
+    <span class="c1"># over every module and reads out the parameters and channels if available</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">print_system_state</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># to read or write an individual parameter, you can either call it by ID or name,</span>
+    <span class="c1"># ID is a bit faster. You can get both ID and name from the print_system_state function</span>
+    <span class="c1"># or from the documentation or print the available parameters from each module. If the</span>
+    <span class="c1"># value has enums as value, it will return the enum strings instead of the integer.</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">module_dicts</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="c1"># if you want to read it and print the correct unit of the value, you can get the unit</span>
+        <span class="c1"># from the parameter. If you want to get the (if available) enum string, use</span>
+        <span class="c1"># read_module_parameter_enum_str() instead.</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">module</span><span class="o">.</span><span class="n">read_module_parameter</span><span class="p">(</span><span class="n">parameter</span><span class="o">.</span><span class="n">parameter_id</span><span class="p">),</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># writing a parameter is almost the same, you can check if the parameter is writable by</span>
+    <span class="c1"># the R/W tag or get it from the parameter. You should also check the datatype of the</span>
+    <span class="c1"># parameter to reduce unwanted behaviours. If the parameter allows enums as value you can</span>
+    <span class="c1"># either use the enum strings (you can get them by printing them from the parameter)</span>
+
+    <span class="c1"># try this example with a cpx-ap digital input module on index 1 or adapt VALUE to the</span>
+    <span class="c1"># correct value for your module parameter</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">PARAM_VALUE</span> <span class="o">=</span> <span class="s2">&quot;3ms&quot;</span>
+    <span class="n">PARAM_ID</span> <span class="o">=</span> <span class="mi">20014</span>
+
+    <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">module_dicts</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">parameter_id</span><span class="p">,</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Is writeable: &quot;</span><span class="p">,</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">is_writable</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Data type: &quot;</span><span class="p">,</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Enums: &quot;</span><span class="p">,</span>
+            <span class="n">parameter</span><span class="o">.</span><span class="n">enums</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># adapt this to your found parameter</span>
+    <span class="n">module</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="n">PARAM_ID</span><span class="p">,</span> <span class="n">PARAM_VALUE</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/b172a5e721b10882a64b4951c296bf8f/example_cpxap_parameter_read_write.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="digital-input">
+<h3>digital input<a class="headerlink" href="#digital-input" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP digital input&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for cpx_ap, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># Read the automatically generated documentation on your system folder</span>
+    <span class="c1"># It gives an overview of all parameters and functions of each module</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">docu_path</span><span class="p">)</span>
+
+    <span class="c1"># module index 0 is &#39;CPX-AP-*-EP&#39; (* can be I or A)</span>
+    <span class="c1"># The first IO module (index 1) is &#39;CPX-AP-I-8DI-M8-3P&#39;</span>
+
+    <span class="c1"># read digital input on channel 0</span>
+    <span class="c1"># access by index</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># or access by automatically generated name, you can see the default names</span>
+    <span class="c1"># in the documentation but you can rename the modules anytime you like</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cpxap8di&quot;</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxap8di</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># you can also assign it to a custom object</span>
+    <span class="n">myIO</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">myIO</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># you can read all channels at once, this returns a list of bool</span>
+    <span class="n">myIO</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+
+    <span class="c1"># configure the module</span>
+    <span class="c1"># you can read/write the parameters from the module. Check the parameter_read_write example</span>
+    <span class="c1"># for detailed information. The Input Debounce Time parameter will return an enum string.</span>
+    <span class="n">debounce_time</span> <span class="o">=</span> <span class="n">myIO</span><span class="o">.</span><span class="n">read_module_parameter_enum_str</span><span class="p">(</span><span class="s2">&quot;Input Debounce Time&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/0483adf5d8baa55c5ddb079f7d951310/example_cpxap_digital_input.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="digital-output">
+<h3>digital output<a class="headerlink" href="#digital-output" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP digital output&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for cpx_ap, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># Read the automatically generated documentation on your system folder</span>
+    <span class="c1"># It gives an overview of all parameters and functions of each module</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">docu_path</span><span class="p">)</span>
+
+    <span class="c1"># module index 0 is &#39;CPX-AP-*-EP&#39; (* can be I or A)</span>
+    <span class="c1"># in this example the first IO module (index 1) is &#39;CPX-AP-*-4DI4DO-M12-5P&#39;</span>
+    <span class="c1"># same as with every module, you can access it by the module index or the automatically</span>
+    <span class="c1"># generated name (get it from documentation) as well as rename it (see digital_input example)</span>
+
+    <span class="n">dido</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># keep in mind that the outputs will switch on and off as fast as your pc allows. It is very</span>
+    <span class="c1"># likely, that you will not see any change on the outputs before the code runs through and</span>
+    <span class="c1"># the connection is closed. If you actually want to see something in this example, I suggest</span>
+    <span class="c1"># using the sleep function from the time module to wait. Keep in mind that this will only work</span>
+    <span class="c1"># if you disable the modbus timeout by passing timeout=0 in the CpxAp constructor.</span>
+
+    <span class="c1"># set, reset, toggle a digital output</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">set_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sets one channel, returns none</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">reset_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># reset one channel, returns none</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">toggle_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># toggle the state of one channel, returns none</span>
+
+    <span class="c1"># sets all channel to list values [0,1,2,3] and returns none</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">write_channels</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+    <span class="c1"># read back the values of all channels. Consists of 4 input channels and 4 output channels</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+
+    <span class="c1"># reads back the first input channel</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># reads back the first output channel, same as &quot;read_channel(4)&quot;</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">read_output_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># configure the module. Check what parameters are available in the documentation or read</span>
+    <span class="c1"># them from the module (see parameter_read_write example)</span>
+    <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">dido</span><span class="o">.</span><span class="n">module_dicts</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+
+    <span class="c1"># sets debounce time to 10ms</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Input Debounce Time&quot;</span><span class="p">,</span> <span class="s2">&quot;10ms&quot;</span><span class="p">)</span>
+    <span class="c1"># sets Load supply monitoring inactive, you can access also by ID (is a bit faster than name)</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="mi">20022</span><span class="p">,</span> <span class="s2">&quot;Load supply monitoring inactive&quot;</span><span class="p">)</span>
+    <span class="c1"># hold last state on the outputs, you can also set it by the integer value instead of the enum</span>
+    <span class="n">dido</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="mi">20052</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/656b7fc53433c3b25e3f1ec933261d6b/example_cpxap_digital_output.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="simple-diagnosis">
+<h3>simple diagnosis<a class="headerlink" href="#simple-diagnosis" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP startup and system information&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for cpx_ap, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+
+    <span class="c1"># iterate over each module and print out the available diagnosis object</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">module</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">):</span>
+        <span class="n">diagnosis</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">read_diagnosis_information</span><span class="p">()</span>
+
+        <span class="c1"># don&#39;t print if diagnosis == None</span>
+        <span class="k">if</span> <span class="n">diagnosis</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">diagnosis</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/28a82b1c14b8c91ed3fedc0dfddd0489/example_cpxap_simple_diagnosis.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-with-sdas">
+<h3>io link with sdas<a class="headerlink" href="#io-link-with-sdas" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP io-link&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for CpxAp, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># Read the automatically generated documentation on your system folder</span>
+    <span class="c1"># It gives an overview of all parameters and functions of each module</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">docu_path</span><span class="p">)</span>
+
+    <span class="n">SDAS_CHANNEL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">io_link_master</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="c1"># print available parameters or look at documentation</span>
+    <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">module_dicts</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
+
+    <span class="c1"># set operating mode of channel 0 to &quot;IO-Link communication&quot;</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Port Mode&quot;</span><span class="p">,</span> <span class="s2">&quot;IOL_AUTOSTART&quot;</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># read back the port status information to check if it&#39;s &quot;OPERATE&quot;</span>
+    <span class="c1"># wait for it to become &quot;OPERATE&quot;</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">param</span><span class="p">[</span><span class="n">SDAS_CHANNEL</span><span class="p">][</span><span class="s2">&quot;Port status information&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OPERATE&quot;</span><span class="p">:</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+
+    <span class="c1"># read the channel 0 process data. This takes the device information and returns</span>
+    <span class="c1"># only relevant bytes (2)</span>
+    <span class="n">sdas_data</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># the process data consists of 4 ssc bits and 12 bit pdv (see datasheet sdas)</span>
+    <span class="c1"># you can convert the bytes data to integer first and then do bitwise operations</span>
+    <span class="n">process_data_int</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">sdas_data</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s2">&quot;big&quot;</span><span class="p">)</span>
+    <span class="n">ssc1</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x1</span><span class="p">)</span>
+    <span class="n">ssc2</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x2</span><span class="p">)</span>
+    <span class="n">ssc3</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x4</span><span class="p">)</span>
+    <span class="n">ssc4</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x8</span><span class="p">)</span>
+    <span class="n">pdv</span> <span class="o">=</span> <span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0xFFF0</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/2487d217f50b447078363e8ab62d0fd7/example_cpxap_iolink_sdas.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-isdu-read-write-with-sdas">
+<h3>io link isdu read/write with sdas<a class="headerlink" href="#io-link-isdu-read-write-with-sdas" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP io-link isdu access&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="c1"># for CpxAp, the attached modules are found automatically</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># Read the automatically generated documentation on your system folder</span>
+    <span class="c1"># It gives an overview of all parameters and functions of each module</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">docu_path</span><span class="p">)</span>
+
+    <span class="n">SDAS_CHANNEL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">io_link_master</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="c1"># setup the master for communication (see example_cpxap_iolink_sdas)</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Port Mode&quot;</span><span class="p">,</span> <span class="s2">&quot;IOL_AUTOSTART&quot;</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+
+    <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">param</span><span class="p">[</span><span class="n">SDAS_CHANNEL</span><span class="p">][</span><span class="s2">&quot;Port status information&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OPERATE&quot;</span><span class="p">:</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+
+    <span class="c1"># Read raw isdu value into a single channel as parameter</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_isdu</span><span class="p">(</span><span class="n">SDAS_CHANNEL</span><span class="p">,</span> <span class="mh">0x0010</span><span class="p">)</span>  <span class="c1"># subindex is optional</span>
+    <span class="c1"># without specifying the data_type, this returns a list with a bytes object. Since in</span>
+    <span class="c1"># io-Link strings are encoded &quot;msb first&quot;, no change is required in decoding.</span>
+    <span class="c1"># For example:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Read isdu with data_type defined with channel in a list</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_isdu</span><span class="p">([</span><span class="n">SDAS_CHANNEL</span><span class="p">],</span> <span class="mh">0x0010</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+    <span class="c1"># If you know the expected datatype, you can specify it and get the isdu data</span>
+    <span class="c1"># interpreted correctly. ret will now be a python str type.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+    <span class="c1"># Write isdu raw (bytes) into a single channel as parameter</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_isdu</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;FESTO&quot;</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">,</span> <span class="mh">0x0018</span><span class="p">)</span>
+    <span class="c1"># this will write b&quot;FESTO&quot; to the isdu, can be read back with:</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_isdu</span><span class="p">(</span><span class="n">SDAS_CHANNEL</span><span class="p">,</span> <span class="mh">0x0018</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Write isdu with datatype defined with channel in a list</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_isdu</span><span class="p">(</span><span class="s2">&quot;FESTO&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">SDAS_CHANNEL</span><span class="p">],</span> <span class="mh">0x0018</span><span class="p">)</span>
+    <span class="c1"># this will write a string &quot;FESTO&quot; to the isdu with correct interpretation of the</span>
+    <span class="c1"># datatype. This can be read back with:</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_isdu</span><span class="p">([</span><span class="n">SDAS_CHANNEL</span><span class="p">],</span> <span class="mh">0x0018</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/da89f148c34e8737f0f43b5ff036be94/example_cpxap_iolink_isdu_sdas.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-with-ehps">
+<h3>io link with ehps<a class="headerlink" href="#io-link-with-ehps" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP IO-Link master with gripper EHPS&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># import the libraries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+
+<span class="c1"># process data as dict</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_process_data_in</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the process data and return as dict&quot;&quot;&quot;</span>
+    <span class="c1"># ehps provides 3 x UIntegerT16 &quot;process data in&quot; according to datasheet.</span>
+    <span class="c1"># you can unpack the data easily with stuct</span>
+    <span class="n">ehps_data</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;HHH&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="n">process_data_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;Error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;DirectionCloseFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;DirectionOpenFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">13</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;LatchDataOk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;UndefinedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">11</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;ClosedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;GrippedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;OpenedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;Ready&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;ErrorNumber&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehps_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;ActualPosition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehps_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">process_data_dict</span>
+
+
+<span class="c1"># list of some connected modules. IO-Link module is specified with 8 bytes per port:</span>
+<span class="c1"># Datasheet: Per port: 8 E / 8 A  Module: 32 E / 32 A. This has to be set up with the</span>
+<span class="c1"># switch on the module.</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># example EHPS-20-A-LK on port 1</span>
+    <span class="n">EHPS_CHANNEL</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># (optional) get the module and assign it to a new variable for easy access</span>
+    <span class="n">io_link_master</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+
+    <span class="c1"># set operating mode of channel 0 to &quot;IO-Link communication&quot;</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Port Mode&quot;</span><span class="p">,</span> <span class="s2">&quot;IOL_AUTOSTART&quot;</span><span class="p">,</span> <span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># (optional) read line-state, should now be &quot;OPERATE&quot; for the channel</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">param</span><span class="p">[</span><span class="n">EHPS_CHANNEL</span><span class="p">][</span><span class="s2">&quot;Port status information&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OPERATE&quot;</span><span class="p">:</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+
+    <span class="c1"># read process data</span>
+    <span class="n">raw_data</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># interpret it according to datasheet</span>
+    <span class="n">process_data_in</span> <span class="o">=</span> <span class="n">read_process_data_in</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+
+    <span class="c1"># demo of process data out needed to initialize EHPS</span>
+    <span class="n">control_word</span> <span class="o">=</span> <span class="mh">0x0001</span>  <span class="c1"># latch</span>
+    <span class="n">gripping_mode</span> <span class="o">=</span> <span class="mh">0x46</span>  <span class="c1"># universal</span>
+    <span class="n">workpiece_no</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">gripping_position</span> <span class="o">=</span> <span class="mh">0x03E8</span>
+    <span class="n">gripping_force</span> <span class="o">=</span> <span class="mh">0x03</span>  <span class="c1"># ca. 85%</span>
+    <span class="n">gripping_tolerance</span> <span class="o">=</span> <span class="mh">0x0A</span>
+
+    <span class="n">pd_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">control_word</span><span class="p">,</span>
+        <span class="n">gripping_mode</span><span class="p">,</span>
+        <span class="n">workpiece_no</span><span class="p">,</span>
+        <span class="n">gripping_position</span><span class="p">,</span>
+        <span class="n">gripping_force</span><span class="p">,</span>
+        <span class="n">gripping_tolerance</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># init</span>
+    <span class="n">process_data_out</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HBBHBB&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">pd_list</span><span class="p">)</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">,</span> <span class="n">process_data_out</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># Open command: 0x0100</span>
+    <span class="n">pd_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0100</span>
+    <span class="n">process_data_out</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HBBHBB&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">pd_list</span><span class="p">)</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">,</span> <span class="n">process_data_out</span><span class="p">)</span>
+
+    <span class="c1"># wait for the process data in to change to &quot;opened&quot;</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">process_data_in</span><span class="p">[</span><span class="s2">&quot;OpenedPositionFlag&quot;</span><span class="p">]:</span>
+        <span class="n">process_data_in</span> <span class="o">=</span> <span class="n">read_process_data_in</span><span class="p">(</span><span class="n">io_link_master</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># Close command 0x 0200</span>
+    <span class="n">pd_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0200</span>
+    <span class="n">process_data_out</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HBBHBB&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">pd_list</span><span class="p">)</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">,</span> <span class="n">process_data_out</span><span class="p">)</span>
+
+    <span class="c1"># wait for the process data in to change to &quot;closed&quot;</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">process_data_in</span><span class="p">[</span><span class="s2">&quot;ClosedPositionFlag&quot;</span><span class="p">]:</span>
+        <span class="n">process_data_in</span> <span class="o">=</span> <span class="n">read_process_data_in</span><span class="p">(</span><span class="n">io_link_master</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Port Mode&quot;</span><span class="p">,</span> <span class="s2">&quot;DEACTIVATED&quot;</span><span class="p">,</span> <span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+    <span class="c1"># wait for inactive</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">param</span><span class="p">[</span><span class="n">EHPS_CHANNEL</span><span class="p">][</span><span class="s2">&quot;Port status information&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;DEACTIVATED&quot;</span><span class="p">:</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">io_link_master</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/3780f08dca2308853510a7f07f376f81/example_cpxap_iolink_ehps.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-switch-variant">
+<h3>io link switch variant<a class="headerlink" href="#io-link-switch-variant" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-AP IO-Link master variant switch&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># import the libraries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="c1"># (optional) get the module and assign it to a new variable for easy access</span>
+    <span class="n">io_link_master</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">change_variant</span><span class="p">(</span><span class="s2">&quot;CPX-AP-I-4IOL-M12 Variant 16&quot;</span><span class="p">)</span>
+    <span class="c1"># alternatively, change by module code</span>
+    <span class="c1"># io_link_master.change_variant(8210)</span>
+<span class="c1"># We have to reinitialize the myCPX object to update the system information and new</span>
+<span class="c1"># process data length</span>
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="n">io_link_master</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+    <span class="c1"># now we can use the new variant of the IO-Link master</span>
+    <span class="n">io_link_master</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Port Mode&quot;</span><span class="p">,</span> <span class="s2">&quot;IOL_AUTOSTART&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/3a2b325819ff9edeea0acd8df8eda1eb/example_cpxap_iolink_switch_variant.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="fault-detection-and-threading">
+<h3>fault detection and threading<a class="headerlink" href="#fault-detection-and-threading" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for cyclic access with python threading&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ThreadedCpx</span><span class="p">(</span><span class="n">CpxAp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for threaded CpxAp&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># lock for modbus transmissions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="c1"># error flag for error handling outside this thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_error</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="c1"># start the thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continous_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">status_update</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continous_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="c1"># exit the thread and then close the connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">status_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;continous thread to read faults in a cyclic access&quot;&quot;&quot;</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+            <span class="c1"># lock the thread when accessing the connection</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="n">module_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_diagnostic_status</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">degree_of_severity_error</span> <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">module_status</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Status Error in module(s): &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">enumerate</span><span class="p">(</span><span class="n">module_status</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">s</span><span class="o">.</span><span class="n">degree_of_severity_error</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_error</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+            <span class="c1"># a counter to show that the thread is running</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ErrorEventCpx</span><span class="p">(</span><span class="n">CpxAp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for error event using the internal cycle_time feature&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># no lock for modbus transmissions required</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_error</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="c1"># thread is automatically started</span>
+        <span class="c1"># simulate counter from above</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">perform_io</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overwrite perform_io function, which is called periodically in a thread.</span>
+<span class="sd">        It has to perform some input/output with the device in order to reset</span>
+<span class="sd">        the modbus timeout, e.g. read_diagnostic_status()&quot;&quot;&quot;</span>
+        <span class="n">module_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_diagnostic_status</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">degree_of_severity_error</span> <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">module_status</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Status Error in module(s): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">enumerate</span><span class="p">(</span><span class="n">module_status</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">s</span><span class="o">.</span><span class="n">degree_of_severity_error</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_error</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<span class="c1"># main task with acyclic access</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;main thread with acyclic access&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">ThreadedCpx</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+
+        <span class="c1"># your main application here...</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="c1"># acyclic communication with locking</span>
+            <span class="k">with</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="n">information</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">read_apdd_information</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">channels</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+
+            <span class="c1"># error handling</span>
+            <span class="k">if</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">status_error</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR handling ...&quot;</span><span class="p">)</span>
+
+            <span class="c1"># jobs outside the cpx access can go here so they don&#39;t block the cyclic thread</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">information</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="c1"># the cycle_time allows this with a simpler construct:</span>
+    <span class="k">with</span> <span class="n">ErrorEventCpx</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cycle_time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">read_apdd_information</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">read_channels</span><span class="p">())</span>
+
+            <span class="c1"># error handling</span>
+            <span class="k">if</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">status_error</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR handling ...&quot;</span><span class="p">)</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;End of main&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/17bf40916231e68f25f91cb851e746ea/example_cpxap_fault_detection.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="timeout-and-cycle-time">
+<h3>timeout and cycle_time<a class="headerlink" href="#timeout-and-cycle-time" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for cyclic access with python threading&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomPerfomIo</span><span class="p">(</span><span class="n">CpxAp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for error event using the internal cycle_time feature&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">perform_io</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Overwrite perform_io function, which is called periodically in a thread.</span>
+<span class="sd">        It has to perform some input/output with the device in order to reset</span>
+<span class="sd">        the modbus timeout, e.g. read_diagnostic_status()&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">read_channels</span><span class="p">())</span>
+
+
+<span class="c1"># main task with acyclic access</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;main thread with acyclic access&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">cycle_time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">read_diagnostic_status</span><span class="p">())</span>
+        <span class="c1"># the modbus connection does not timeout although we wait 10 seconds</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">myCPX</span><span class="o">.</span><span class="n">read_diagnostic_status</span><span class="p">())</span>
+
+    <span class="c1"># It is possible to overwrite the function is called in the thread cyclicly</span>
+    <span class="k">with</span> <span class="n">CustomPerfomIo</span><span class="p">(</span>
+        <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">cycle_time</span><span class="o">=</span><span class="mf">0.05</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/b73d6cc8a54683edec97ec74d28d4e5e/example_cpxap_timeout.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-manual-connection-and-diagnosis">
+<h3>io-link manual connection and diagnosis<a class="headerlink" href="#io-link-manual-connection-and-diagnosis" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for diagnosis with CPX-AP&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># Import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+<span class="k">with</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># optional: for easy access, assign the IO-Link module to an object</span>
+    <span class="n">myIOL</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpx_ap_a_4iol_m12_variant_16</span>
+    <span class="n">SDAS_CHANNEL</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># this assumes you have a SDAS sensor on channel 2</span>
+
+    <span class="c1"># Write the validation setting</span>
+    <span class="n">myIOL</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span>
+        <span class="s2">&quot;Validation &amp; Backup&quot;</span><span class="p">,</span> <span class="s2">&quot;Type compatible Device V1.1&quot;</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Write the IO-Link device ID and Vendor ID to the IO-Link module</span>
+    <span class="c1"># You can read these with read_fieldbus_parameters()[SDAS_CHANNEL]</span>
+    <span class="c1"># In this example, we write a wrong ID on purpose (it should be 12)</span>
+    <span class="c1"># So that an error occures and we can read it out.</span>
+    <span class="n">myIOL</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;DeviceID&quot;</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+    <span class="n">myIOL</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Nominal Vendor ID&quot;</span><span class="p">,</span> <span class="mi">333</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># Set the Port Mode to IOL_MANUAL. This will compare the written DeviceID</span>
+    <span class="c1"># with the actual device ID and the Nominal Vendor ID with the actual vendor</span>
+    <span class="c1"># ID. If they do not match, the &quot;Port status information&quot; of the fieldbus</span>
+    <span class="c1"># parameters will change to &quot;PORT_DIAG&quot;</span>
+    <span class="n">myIOL</span><span class="o">.</span><span class="n">write_module_parameter</span><span class="p">(</span><span class="s2">&quot;Port Mode&quot;</span><span class="p">,</span> <span class="s2">&quot;IOL_MANUAL&quot;</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>  <span class="c1"># give it some time to set everything</span>
+
+    <span class="n">param</span> <span class="o">=</span> <span class="n">myIOL</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="n">SDAS_CHANNEL</span><span class="p">])</span>
+
+    <span class="c1"># If everything works, this loop will run until the port goes into OPERATE</span>
+    <span class="c1"># mode. But in our example it will go to PORT_DIAG. We catch this with the</span>
+    <span class="c1"># following if statement and print the diagnosis information from the module</span>
+    <span class="k">while</span> <span class="n">param</span><span class="p">[</span><span class="n">SDAS_CHANNEL</span><span class="p">][</span><span class="s2">&quot;Port status information&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;OPERATE&quot;</span><span class="p">:</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">myIOL</span><span class="o">.</span><span class="n">read_fieldbus_parameters</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="n">SDAS_CHANNEL</span><span class="p">][</span><span class="s2">&quot;Port status information&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PORT_DIAG&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">myIOL</span><span class="o">.</span><span class="n">read_diagnosis_information</span><span class="p">())</span>
+            <span class="k">break</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/20ab453618a9fd1de4ed0049f596ce20/example_cpxap_diagnosis.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="simple-composition-example-to-illustrate-a-possible-abstraction-of-a-more-complex-cpx-system">
+<h3>Simple composition example to illustrate a possible abstraction of a more complex CPX system<a class="headerlink" href="#simple-composition-example-to-illustrate-a-possible-abstraction-of-a-more-complex-cpx-system" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_ap.cpx_ap</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxAp</span>
+
+
+<span class="c1"># This is your personal class. It doesn&#39;t inherit from anything!</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PersonalClass</span><span class="p">:</span>
+    <span class="c1"># Initialize your CpxAp System and configure it with your (default) parameters</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span>
+    <span class="p">):</span>  <span class="c1"># you can pass down the arguments that you want.</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;initialize the personal class&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpx</span> <span class="o">=</span> <span class="n">CpxAp</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="n">ip_address</span><span class="p">)</span>
+
+    <span class="c1"># to be used in a context manager, add the enter and exit function (leave the enter as it is)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;enter the personal class&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="c1"># be sure to shutdown the cpx object in the exit function.</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;clean up CpxAp&quot;</span><span class="p">)</span>
+        <span class="c1"># clean up everything</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpx</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+
+    <span class="c1"># implement your personal functions. For example a pressurize function with VTUX</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pressurize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valve_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="c1"># do some complex computation and evaluation of different</span>
+        <span class="c1"># ap modules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpx</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_channel</span><span class="p">(</span><span class="n">valve_number</span><span class="p">)</span>
+
+
+
+<span class="c1"># Demo to show that everything works correctly</span>
+<span class="c1"># if you run this script it will create a personal class but then raise a ZeroDivisionError.</span>
+<span class="c1"># You can see from the prints in the console how it behaves and that the use of the context</span>
+<span class="c1"># manager of PersonalClass is working and shutting down the cpx correctly</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># simply use the pressurize command</span>
+    <span class="k">with</span> <span class="n">PersonalClass</span><span class="p">()</span> <span class="k">as</span> <span class="n">personal</span><span class="p">:</span>
+        <span class="n">personal</span><span class="o">.</span><span class="n">pressurize</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">PersonalClass</span><span class="p">()</span> <span class="k">as</span> <span class="n">personal</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is never reached&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/cc8f42d6cf604d1bf62c6cfecc33ab79/example_cpxap_composition.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+</section>
+<section id="cpx-e">
+<h2>CPX-E<a class="headerlink" href="#cpx-e" title="Link to this heading"></a></h2>
+<section id="object-with-typecode">
+<h3>object with typecode<a class="headerlink" href="#object-with-typecode" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E with typecode&quot;&quot;&quot;</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+
+<span class="c1"># use the typecode to setup all attached modules</span>
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="s2">&quot;60E-EP-MLNINO&quot;</span><span class="p">,</span> <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># read system information</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span>
+
+    <span class="c1"># the modules are all named automatically and one can access them by their name or index</span>
+    <span class="n">module_0</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># access by index</span>
+    <span class="n">module_1</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span>  <span class="c1"># access by name (automatically generated)</span>
+
+    <span class="c1"># rename modules (also see example_cpxe_add_module.py)</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ep_module&quot;</span>  <span class="c1"># access by index</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;digital_output_module&quot;</span>  <span class="c1"># access by name</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/f511e46a393ebcdca3ff82fb6b44ecbf/example_cpxe_typecode.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="object-with-module-list">
+<h3>object with module list<a class="headerlink" href="#object-with-module-list" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E with list of modules&quot;&quot;&quot;</span>
+
+<span class="c1"># import the librarys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e16di</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE16Di</span>
+
+<span class="c1"># use list of modules to call CpxE</span>
+<span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">CpxEEp</span><span class="p">(),</span> <span class="n">CpxE16Di</span><span class="p">()]</span>
+
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="n">modules</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># read system information</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span>
+
+    <span class="c1"># the modules are all named automatically and one can access them by their name or index</span>
+    <span class="n">module_0</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># access by index</span>
+    <span class="n">module_1</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span>  <span class="c1"># access by name (automatically generated)</span>
+
+    <span class="c1"># rename modules (also see example_cpxe_add_module.py)</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ep_module&quot;</span>  <span class="c1"># access by index</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;digital_input_module&quot;</span>  <span class="c1"># access by name</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/cda1bb76978b034aba17b8b87eae8787/example_cpxe_modulelist.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="empty-object-and-add-modules-later">
+<h3>empty object and add modules later<a class="headerlink" href="#empty-object-and-add-modules-later" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E add module&quot;&quot;&quot;</span>
+
+<span class="c1"># import the librarys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e16di</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE16Di</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e8do</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE8Do</span>
+
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># add modules (the order must be from left to right in the cpx-e system,</span>
+    <span class="c1"># the first module -EP is already added at position 0)</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="n">CpxE16Di</span><span class="p">())</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="n">CpxE8Do</span><span class="p">())</span>
+
+    <span class="c1"># read system information</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span>
+
+    <span class="c1"># the modules are all named automatically and one can access them by their name or index</span>
+    <span class="n">module_0</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># access by index</span>
+    <span class="n">module_1</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span>  <span class="c1"># access by name (automatically generated)</span>
+    <span class="n">module_2</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span>  <span class="c1"># access by name (automatically generated)</span>
+
+    <span class="c1"># rename modules</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ep_module&quot;</span>  <span class="c1"># access by index</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;digital_input_module&quot;</span>  <span class="c1"># access by name</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;digital_output_module&quot;</span>  <span class="c1"># access by name</span>
+
+    <span class="c1"># rename them again</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_ep_module&quot;</span>  <span class="c1"># access by index</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">digital_input_module</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_digital_input_module&quot;</span>  <span class="c1"># access by name</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">digital_output_module</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;my_digital_output_module&quot;</span>  <span class="c1"># access by name</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/194ee0d0516fb03ad762e6fdd0149e5d/example_cpxe_add_module.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="id1">
+<h3>digital input<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E digital input&quot;&quot;&quot;</span>
+
+<span class="c1"># import the librarys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e16di</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE16Di</span>
+
+<span class="c1"># use the typecode to setup all attached modules</span>
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">CpxEEp</span><span class="p">(),</span> <span class="n">CpxE16Di</span><span class="p">()])</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># the modules are all named automatically and one can access them by their name or index</span>
+
+    <span class="c1"># read all channels</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+
+    <span class="c1"># read one channel</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># configure the diagnostics of the module</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">configure_diagnostics</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># configure the power reset</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">configure_power_reset</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># configure input debounce time</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe16di</span><span class="o">.</span><span class="n">configure_debounce_time</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/43e9f8785a9fb35984af0a148a3d9806/example_cpxe_digital_input.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="id2">
+<h3>digital output<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E digital output&quot;&quot;&quot;</span>
+
+<span class="c1"># import the librarys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e8do</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE8Do</span>
+
+<span class="c1"># use the typecode to setup all attached modules</span>
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">CpxEEp</span><span class="p">(),</span> <span class="n">CpxE8Do</span><span class="p">()])</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># the modules are all named automatically and one can access them by their name or index</span>
+
+    <span class="c1"># read all channels</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+
+    <span class="c1"># read one channel</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># write all channels at once</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">write_channels</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># set and reset or toggle the state of one channel</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">set_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">reset_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">toggle_channel</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># configure the diagnostics of the module</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">configure_diagnostics</span><span class="p">(</span><span class="n">short_circuit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">undervoltage</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># configure the power reset</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe8do</span><span class="o">.</span><span class="n">configure_power_reset</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/79404278a50ca4f58f697780e92b782a/example_cpxe_digital_output.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-sensor-sdas">
+<h3>io-link sensor (sdas)<a class="headerlink" href="#io-link-sensor-sdas" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E IO-Link master with sensor SDAS&quot;&quot;&quot;</span>
+
+<span class="c1"># import the librarys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e4iol</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE4Iol</span>
+
+<span class="c1"># use the typecode to setup all attached modules</span>
+<span class="c1"># adapt the address_space according to your setup (dip switches)</span>
+<span class="c1"># default is 2 bytes per port</span>
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span>
+    <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span>
+    <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">CpxEEp</span><span class="p">(),</span> <span class="n">CpxE4Iol</span><span class="p">()],</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># read system information</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span>
+
+    <span class="n">SDAS_CHANNEL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># set operating mode of channel 0 to &quot;IO-Link communication&quot;</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe4iol</span><span class="o">.</span><span class="n">configure_operating_mode</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># read line-state, should now be &quot;OPERATE&quot;</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe4iol</span><span class="o">.</span><span class="n">read_line_state</span><span class="p">()</span>
+
+    <span class="c1"># read the channel 0 process data</span>
+    <span class="n">sdas_data</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe4iol</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">SDAS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># the process data consists of 4 ssc bits and 12 bit pdv (see datasheet sdas)</span>
+    <span class="c1"># you can convert the bytes data to integer first and then do bitwise operations</span>
+    <span class="n">process_data_int</span> <span class="o">=</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">sdas_data</span><span class="p">,</span> <span class="n">byteorder</span><span class="o">=</span><span class="s2">&quot;big&quot;</span><span class="p">)</span>
+    <span class="n">ssc1</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x1</span><span class="p">)</span>
+    <span class="n">ssc2</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x2</span><span class="p">)</span>
+    <span class="n">ssc3</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x4</span><span class="p">)</span>
+    <span class="n">ssc4</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0x8</span><span class="p">)</span>
+    <span class="n">pdv</span> <span class="o">=</span> <span class="p">(</span><span class="n">process_data_int</span> <span class="o">&amp;</span> <span class="mh">0xFFF0</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span>
+
+    <span class="c1"># you can also read the device error or other parameters</span>
+    <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe4iol</span><span class="o">.</span><span class="n">read_device_error</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/98002c140d58c41826c714918e5720cb/example_cpxe_iolink_sdas.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="io-link-actuator-ehps">
+<h3>io-link actuator (ehps)<a class="headerlink" href="#io-link-actuator-ehps" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for CPX-E IO-Link master with gripper EHPS&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="c1"># import the librarys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.eep</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxEEp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e4iol</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE4Iol</span>
+
+
+<span class="c1"># process data as dict</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_process_data_in</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the process data and return as dict&quot;&quot;&quot;</span>
+    <span class="c1"># ehps provides 3 x UIntegerT16 &quot;process data in&quot; according to datasheet.</span>
+    <span class="c1"># you can unpack the data easily with stuct</span>
+    <span class="n">ehps_data</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&gt;HHHH&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="c1"># the last 16 bit value of this list is always 0 since ehps only uses 3*16 bit</span>
+    <span class="k">assert</span> <span class="n">ehps_data</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="n">process_data_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;Error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;DirectionCloseFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;DirectionOpenFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">13</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;LatchDataOk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;UndefinedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">11</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;ClosedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;GrippedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">9</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;OpenedPositionFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;Ready&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">ehps_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;ErrorNumber&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehps_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">process_data_dict</span><span class="p">[</span><span class="s2">&quot;ActualPosition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ehps_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">process_data_dict</span>
+
+
+<span class="c1"># list of some connected modules. IO-Link module is specified with 8 bytes per port:</span>
+<span class="c1"># Datasheet: Per port: 8 E / 8 A  Module: 32 E / 32 A. This has to be set up with the</span>
+<span class="c1"># switch on the module.</span>
+<span class="k">with</span> <span class="n">CpxE</span><span class="p">(</span>
+    <span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">,</span>
+    <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">CpxEEp</span><span class="p">(),</span> <span class="n">CpxE4Iol</span><span class="p">(</span><span class="mi">8</span><span class="p">)],</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+    <span class="c1"># read system information</span>
+    <span class="n">module_list</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span>
+
+    <span class="c1"># example EHPS-20-A-LK on port 1</span>
+    <span class="n">EHPS_CHANNEL</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># (optional) get the module and assign it to a new variable for easy access</span>
+    <span class="n">e4iol</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">cpxe4iol</span>
+
+    <span class="c1"># (optional) you can reset the power for each channel</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">configure_pl_supply</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">configure_ps_supply</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">configure_pl_supply</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">configure_ps_supply</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># set operating mode of channel 0 to &quot;IO-Link communication&quot;</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">configure_operating_mode</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># (optional) read line-state, should now be &quot;OPERATE&quot; for the channel</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">e4iol</span><span class="o">.</span><span class="n">read_line_state</span><span class="p">()</span>
+
+    <span class="c1"># read process data</span>
+    <span class="n">raw_data</span> <span class="o">=</span> <span class="n">e4iol</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">)</span>
+
+    <span class="c1"># interpret it according to datasheet</span>
+    <span class="n">process_data_in</span> <span class="o">=</span> <span class="n">read_process_data_in</span><span class="p">(</span><span class="n">raw_data</span><span class="p">)</span>
+
+    <span class="c1"># demo of process data out needed to initialize EHPS</span>
+    <span class="n">control_word_msb</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">control_word_lsb</span> <span class="o">=</span> <span class="mh">0x01</span>  <span class="c1"># latch</span>
+    <span class="n">gripping_mode</span> <span class="o">=</span> <span class="mh">0x46</span>  <span class="c1"># universal</span>
+    <span class="n">workpiece_no</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">gripping_position</span> <span class="o">=</span> <span class="mh">0x03E8</span>
+    <span class="n">gripping_force</span> <span class="o">=</span> <span class="mh">0x03</span>  <span class="c1"># ca. 85%</span>
+    <span class="n">gripping_tolerance</span> <span class="o">=</span> <span class="mh">0x0A</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">control_word_lsb</span> <span class="o">+</span> <span class="p">(</span><span class="n">control_word_msb</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">),</span>
+        <span class="n">workpiece_no</span> <span class="o">+</span> <span class="p">(</span><span class="n">gripping_mode</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">),</span>
+        <span class="n">gripping_position</span><span class="p">,</span>
+        <span class="n">gripping_tolerance</span> <span class="o">+</span> <span class="p">(</span><span class="n">gripping_force</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># init</span>
+    <span class="c1"># pack the 4*16bit values to bytes</span>
+    <span class="n">process_data_out</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HHHH&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">write_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">,</span> <span class="n">process_data_out</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># Open command: 0x0100</span>
+    <span class="n">process_data_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0100</span>
+    <span class="n">process_data_out</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HHHH&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">write_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">,</span> <span class="n">process_data_out</span><span class="p">)</span>
+
+    <span class="c1"># wait for the process data in to change to &quot;opened&quot;</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">process_data_in</span><span class="p">[</span><span class="s2">&quot;OpenedPositionFlag&quot;</span><span class="p">]:</span>
+        <span class="n">process_data_in</span> <span class="o">=</span> <span class="n">read_process_data_in</span><span class="p">(</span><span class="n">e4iol</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="c1"># Close command 0x 0200</span>
+    <span class="n">process_data_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mh">0x0200</span>
+    <span class="n">process_data_out</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&gt;HHHH&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">e4iol</span><span class="o">.</span><span class="n">write_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">,</span> <span class="n">process_data_out</span><span class="p">)</span>
+
+    <span class="c1"># wait for the process data in to change to &quot;closed&quot;</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">process_data_in</span><span class="p">[</span><span class="s2">&quot;ClosedPositionFlag&quot;</span><span class="p">]:</span>
+        <span class="n">process_data_in</span> <span class="o">=</span> <span class="n">read_process_data_in</span><span class="p">(</span><span class="n">e4iol</span><span class="o">.</span><span class="n">read_channel</span><span class="p">(</span><span class="n">EHPS_CHANNEL</span><span class="p">))</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/543af109b503fad7922747b74b2b99ef/example_cpxe_iolink_ehps.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+<section id="id3">
+<h3>fault detection and threading<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Example code for cyclic access with python threading&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+
+<span class="c1"># import the library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.cpx_e</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cpx_io.cpx_system.cpx_e.e16di</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpxE16Di</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ThreadedCpx</span><span class="p">(</span><span class="n">CpxE</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for threaded CpxE&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># lock for modbus transmissions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="c1"># error flag for error handling outside this thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_error</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="c1"># start the thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continous_thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">status_update</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continous_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="c1"># exit the thread and then close the connection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">status_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;continous thread to read faults in a cyclic access&quot;&quot;&quot;</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exit_event</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+            <span class="c1"># lock the thread when accessing the connection</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="n">module_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_fault_detection</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">module_status</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Status Error in module(s): &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">enumerate</span><span class="p">(</span><span class="n">module_status</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">s</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_error</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+            <span class="c1"># a counter to show that the thread is running</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<span class="c1"># main task with acyclic access</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;main thread with acyclic access&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">ThreadedCpx</span><span class="p">(</span><span class="n">ip_address</span><span class="o">=</span><span class="s2">&quot;192.168.1.1&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">myCPX</span><span class="p">:</span>
+        <span class="n">myCPX</span><span class="o">.</span><span class="n">add_module</span><span class="p">(</span><span class="n">CpxE16Di</span><span class="p">())</span>
+
+        <span class="c1"># your main application here...</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="c1"># acyclic communication with locking</span>
+            <span class="k">with</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">lock</span><span class="p">:</span>
+                <span class="n">information</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">read_device_identification</span><span class="p">()</span>
+                <span class="n">channels</span> <span class="o">=</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">read_channels</span><span class="p">()</span>
+
+            <span class="c1"># error handling</span>
+            <span class="k">if</span> <span class="n">myCPX</span><span class="o">.</span><span class="n">status_error</span><span class="o">.</span><span class="n">is_set</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR handling ...&quot;</span><span class="p">)</span>
+
+            <span class="c1"># jobs outside the cpx access can go here so they don&#39;t block the cyclic thread</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">information</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;End of main&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" download="" href="_downloads/0fe3fdc41fbd6a248c962b7950e67185/example_cpxe_fault_detection.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Example</span></code></a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="features/cpx_io.html" class="btn btn-neutral float-left" title="CPX-SYSTEM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="src" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Festo SE &amp; Co. KG.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
