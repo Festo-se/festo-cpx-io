@@ -67,7 +67,7 @@ jobs:
         run: |
             mkdir -p public
             uv run sphinx-apidoc -f -o doc/source src
-            make -C doc html || exit_code=$?
+            uv run make -C doc html || exit_code=$?
             if [[ $exit_code -ne 0 ]]; then
               echo "Sphinx-build failure"
               exit 1
