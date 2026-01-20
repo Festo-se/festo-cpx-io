@@ -1,0 +1,1283 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cpx_io.cpx_system.cpx_ap package &mdash; festo-cpx-io  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cpx_io.cpx_system.cpx_ap.builder package" href="cpx_io.cpx_system.cpx_ap.builder.html" />
+    <link rel="prev" title="cpx_io.cpx_system package" href="cpx_io.cpx_system.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            festo-cpx-io
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Features:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="features/cli.html">CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/cpx_io.html">CPX-SYSTEM</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Indices and tables:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Module Sources</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cpx_io.html">cpx_io package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="cpx_io.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cli.html">cpx_io.cli package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="cpx_io.cpx_system.html">cpx_io.cpx_system package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.utils.html">cpx_io.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.html#module-cpx_io">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">festo-cpx-io</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+          <li class="breadcrumb-item"><a href="cpx_io.html">cpx_io package</a></li>
+          <li class="breadcrumb-item"><a href="cpx_io.cpx_system.html">cpx_io.cpx_system package</a></li>
+      <li class="breadcrumb-item active">cpx_io.cpx_system.cpx_ap package</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/Festo-se/festo-cpx-io/blob/main/doc/source/cpx_io.cpx_system.cpx_ap.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cpx-io-cpx-system-cpx-ap-package">
+<h1>cpx_io.cpx_system.cpx_ap package<a class="headerlink" href="#cpx-io-cpx-system-cpx-ap-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html">cpx_io.cpx_system.cpx_ap.builder package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.ap_module_builder">cpx_io.cpx_system.cpx_ap.builder.ap_module_builder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.ap_module_builder.build_ap_module"><code class="docutils literal notranslate"><span class="pre">build_ap_module()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder">cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant"><code class="docutils literal notranslate"><span class="pre">Variant</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant.channel_group_ids"><code class="docutils literal notranslate"><span class="pre">Variant.channel_group_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant.description"><code class="docutils literal notranslate"><span class="pre">Variant.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant.name"><code class="docutils literal notranslate"><span class="pre">Variant.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant.parameter_group_ids"><code class="docutils literal notranslate"><span class="pre">Variant.parameter_group_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant.profile"><code class="docutils literal notranslate"><span class="pre">Variant.profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.Variant.variant_identification"><code class="docutils literal notranslate"><span class="pre">Variant.variant_identification</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.build_variant"><code class="docutils literal notranslate"><span class="pre">build_variant()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.build_variant_list"><code class="docutils literal notranslate"><span class="pre">build_variant_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.get_variant_switch_parameter"><code class="docutils literal notranslate"><span class="pre">get_variant_switch_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.build_actual_variant"><code class="docutils literal notranslate"><span class="pre">build_actual_variant()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder.build_apdd_information"><code class="docutils literal notranslate"><span class="pre">build_apdd_information()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.channel_builder">cpx_io.cpx_system.cpx_ap.builder.channel_builder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.ChannelGroup"><code class="docutils literal notranslate"><span class="pre">ChannelGroup</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.ChannelGroup.channel_group_id"><code class="docutils literal notranslate"><span class="pre">ChannelGroup.channel_group_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.ChannelGroup.channels"><code class="docutils literal notranslate"><span class="pre">ChannelGroup.channels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.ChannelGroup.name"><code class="docutils literal notranslate"><span class="pre">ChannelGroup.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.ChannelGroup.parameter_group_ids"><code class="docutils literal notranslate"><span class="pre">ChannelGroup.parameter_group_ids</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel"><code class="docutils literal notranslate"><span class="pre">Channel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.array_size"><code class="docutils literal notranslate"><span class="pre">Channel.array_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.bits"><code class="docutils literal notranslate"><span class="pre">Channel.bits</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.bit_offset"><code class="docutils literal notranslate"><span class="pre">Channel.bit_offset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.byte_swap_needed"><code class="docutils literal notranslate"><span class="pre">Channel.byte_swap_needed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.channel_id"><code class="docutils literal notranslate"><span class="pre">Channel.channel_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.data_type"><code class="docutils literal notranslate"><span class="pre">Channel.data_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.description"><code class="docutils literal notranslate"><span class="pre">Channel.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.direction"><code class="docutils literal notranslate"><span class="pre">Channel.direction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.name"><code class="docutils literal notranslate"><span class="pre">Channel.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.parameter_group_ids"><code class="docutils literal notranslate"><span class="pre">Channel.parameter_group_ids</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.Channel.profile_list"><code class="docutils literal notranslate"><span class="pre">Channel.profile_list</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.build_channel_group"><code class="docutils literal notranslate"><span class="pre">build_channel_group()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.build_channel"><code class="docutils literal notranslate"><span class="pre">build_channel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.channel_builder.build_channel_list"><code class="docutils literal notranslate"><span class="pre">build_channel_list()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder">cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder.build_diagnosis"><code class="docutils literal notranslate"><span class="pre">build_diagnosis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.diagnosis_builder.build_diagnosis_list"><code class="docutils literal notranslate"><span class="pre">build_diagnosis_list()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.parameter_builder">cpx_io.cpx_system.cpx_ap.builder.parameter_builder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.parameter_builder.build_parameter_enum"><code class="docutils literal notranslate"><span class="pre">build_parameter_enum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.parameter_builder.build_parameter"><code class="docutils literal notranslate"><span class="pre">build_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.parameter_builder.build_parameter_list"><code class="docutils literal notranslate"><span class="pre">build_parameter_list()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder">cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalUnit"><code class="docutils literal notranslate"><span class="pre">PhysicalUnit</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalUnit.format_string"><code class="docutils literal notranslate"><span class="pre">PhysicalUnit.format_string</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalUnit.name"><code class="docutils literal notranslate"><span class="pre">PhysicalUnit.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalUnit.physical_unit_id"><code class="docutils literal notranslate"><span class="pre">PhysicalUnit.physical_unit_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalQuantity"><code class="docutils literal notranslate"><span class="pre">PhysicalQuantity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalQuantity.physical_quantity_id"><code class="docutils literal notranslate"><span class="pre">PhysicalQuantity.physical_quantity_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalQuantity.name"><code class="docutils literal notranslate"><span class="pre">PhysicalQuantity.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.PhysicalQuantity.units"><code class="docutils literal notranslate"><span class="pre">PhysicalQuantity.units</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.build_physical_unit"><code class="docutils literal notranslate"><span class="pre">build_physical_unit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#cpx_io.cpx_system.cpx_ap.builder.physical_quantity_builder.build_physical_quantity"><code class="docutils literal notranslate"><span class="pre">build_physical_quantity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.builder.html#module-cpx_io.cpx_system.cpx_ap.builder">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html">cpx_io.cpx_system.cpx_ap.dataclasses package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information">cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation"><code class="docutils literal notranslate"><span class="pre">ApddInformation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.description"><code class="docutils literal notranslate"><span class="pre">ApddInformation.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.name"><code class="docutils literal notranslate"><span class="pre">ApddInformation.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.module_type"><code class="docutils literal notranslate"><span class="pre">ApddInformation.module_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.configurator_code"><code class="docutils literal notranslate"><span class="pre">ApddInformation.configurator_code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.part_number"><code class="docutils literal notranslate"><span class="pre">ApddInformation.part_number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.module_class"><code class="docutils literal notranslate"><span class="pre">ApddInformation.module_class</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.module_code"><code class="docutils literal notranslate"><span class="pre">ApddInformation.module_code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.order_text"><code class="docutils literal notranslate"><span class="pre">ApddInformation.order_text</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.product_category"><code class="docutils literal notranslate"><span class="pre">ApddInformation.product_category</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation.product_family"><code class="docutils literal notranslate"><span class="pre">ApddInformation.product_family</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.channels">cpx_io.cpx_system.cpx_ap.dataclasses.channels module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.channels.Channels"><code class="docutils literal notranslate"><span class="pre">Channels</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.channels.Channels.inputs"><code class="docutils literal notranslate"><span class="pre">Channels.inputs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.channels.Channels.outputs"><code class="docutils literal notranslate"><span class="pre">Channels.outputs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.channels.Channels.inouts"><code class="docutils literal notranslate"><span class="pre">Channels.inouts</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis">cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis"><code class="docutils literal notranslate"><span class="pre">ModuleDiagnosis</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis.description"><code class="docutils literal notranslate"><span class="pre">ModuleDiagnosis.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis.diagnosis_id"><code class="docutils literal notranslate"><span class="pre">ModuleDiagnosis.diagnosis_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis.guideline"><code class="docutils literal notranslate"><span class="pre">ModuleDiagnosis.guideline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis.name"><code class="docutils literal notranslate"><span class="pre">ModuleDiagnosis.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters">cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters"><code class="docutils literal notranslate"><span class="pre">ModuleParameters</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.fieldbus_serial_number"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.fieldbus_serial_number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.product_key"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.product_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.firmware_version"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.firmware_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.module_code"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.module_code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.temp_asic"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.temp_asic</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.logic_voltage"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.logic_voltage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.load_voltage"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.load_voltage</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.hw_version"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.hw_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.io_link_variant"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.io_link_variant</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters.ModuleParameters.operating_supply"><code class="docutils literal notranslate"><span class="pre">ModuleParameters.operating_supply</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters">cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters"><code class="docutils literal notranslate"><span class="pre">SystemParameters</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.dhcp_enable"><code class="docutils literal notranslate"><span class="pre">SystemParameters.dhcp_enable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.ip_address"><code class="docutils literal notranslate"><span class="pre">SystemParameters.ip_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.subnet_mask"><code class="docutils literal notranslate"><span class="pre">SystemParameters.subnet_mask</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.gateway_address"><code class="docutils literal notranslate"><span class="pre">SystemParameters.gateway_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.active_ip_address"><code class="docutils literal notranslate"><span class="pre">SystemParameters.active_ip_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.active_subnet_mask"><code class="docutils literal notranslate"><span class="pre">SystemParameters.active_subnet_mask</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.active_gateway_address"><code class="docutils literal notranslate"><span class="pre">SystemParameters.active_gateway_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.mac_address"><code class="docutils literal notranslate"><span class="pre">SystemParameters.mac_address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters.setup_monitoring_load_supply"><code class="docutils literal notranslate"><span class="pre">SystemParameters.setup_monitoring_load_supply</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#module-cpx_io.cpx_system.cpx_ap.dataclasses">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_docu_generator">
+<span id="cpx-io-cpx-system-cpx-ap-ap-docu-generator-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_docu_generator module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_docu_generator" title="Link to this heading"></a></h2>
+<p>Documentation generator for AP systems</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_docu_generator.generate_system_information_file">
+<span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_docu_generator.</span></span><span class="sig-name descname"><span class="pre">generate_system_information_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ap_system</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_docu_generator.generate_system_information_file" title="Link to this definition"></a></dt>
+<dd><p>Saves a readable document that includes the system information in the apdd path</p>
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_modbus_registers">
+<span id="cpx-io-cpx-system-cpx-ap-ap-modbus-registers-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_modbus_registers module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_modbus_registers" title="Link to this heading"></a></h2>
+<p>Modbus register definitions for CPX-AP</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_modbus_registers.</span></span><span class="sig-name descname"><span class="pre">ModbusRegister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">register_address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Create new instance of ModbusRegister(register_address, length)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister.length">
+<span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister.length" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister.register_address">
+<span class="sig-name descname"><span class="pre">register_address</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_modbus_registers.ModbusRegister.register_address" title="Link to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_module">
+<span id="cpx-io-cpx-system-cpx-ap-ap-module-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_module module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_module" title="Link to this heading"></a></h2>
+<p>Generic AP module implementation from APDD</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_module.</span></span><span class="sig-name descname"><span class="pre">ApModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apdd_information</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation" title="cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information.ApddInformation"><span class="pre">ApddInformation</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnosis_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant_switch_parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cpx_io.cpx_system.html#cpx_io.cpx_system.cpx_module.CpxModule" title="cpx_io.cpx_system.cpx_module.CpxModule"><code class="xref py py-class docutils literal notranslate"><span class="pre">CpxModule</span></code></a></p>
+<p>Generic AP module class. This includes all functions that are shared
+among the modules. To get an overview of your system and the supported
+functions of the individual modules, see the system documentation of the
+CpxAp object</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.is_function_supported">
+<span class="sig-name descname"><span class="pre">is_function_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.is_function_supported" title="Link to this definition"></a></dt>
+<dd><p>Returns False if function is not supported</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_output_channels">
+<span class="sig-name descname"><span class="pre">read_output_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_output_channels" title="Link to this definition"></a></dt>
+<dd><p>Read only output channels from module and interpret them as the module intends.</p>
+<p>For mixed IN/OUTput modules the outputs are numbered from 0..&lt;number of output channels&gt;,
+the inputs cannot be accessed this way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of values of the channels</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_channels">
+<span class="sig-name descname"><span class="pre">read_channels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_channels" title="Link to this definition"></a></dt>
+<dd><p>Read all channels from module and interpret them as the module intends.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of values of the channels</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_output_channel">
+<span class="sig-name descname"><span class="pre">read_output_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_output_channel" title="Link to this definition"></a></dt>
+<dd><p>Read back the value of one output channel.</p>
+<p>For mixed IN/OUTput modules the outputs are numbered from 0..&lt;number of output channels&gt;,
+the inputs cannot be accessed this way.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Value of the channel</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_channel">
+<span class="sig-name descname"><span class="pre">read_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_channel" title="Link to this definition"></a></dt>
+<dd><p>Read back the value of one channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Value of the channel</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_channels">
+<span class="sig-name descname"><span class="pre">write_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_channels" title="Link to this definition"></a></dt>
+<dd><p>Write all channels with a list of values. Length of the list must fit the output
+size of the module. Get the size first by reading the channels and using len().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) – list of values for each output channel. The type of the list elements must
+fit to the module type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_channel">
+<span class="sig-name descname"><span class="pre">write_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_channel" title="Link to this definition"></a></dt>
+<dd><p>Set one channel value. Value must be the correct type, typecheck is done by the function
+Get the correct type by reading out the channel first and using type() on the value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0</p>
+</dd>
+<dt class="field-even">Value<span class="colon">:</span></dt>
+<dd class="field-even"><p>Value that should be written to the channel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.set_channel">
+<span class="sig-name descname"><span class="pre">set_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.set_channel" title="Link to this definition"></a></dt>
+<dd><p>Set one channel to logic high level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.reset_channel">
+<span class="sig-name descname"><span class="pre">reset_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.reset_channel" title="Link to this definition"></a></dt>
+<dd><p>Set one channel to logic low level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.toggle_channel">
+<span class="sig-name descname"><span class="pre">toggle_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.toggle_channel" title="Link to this definition"></a></dt>
+<dd><p>Set one channel the inverted of current logic level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_module_parameter">
+<span class="sig-name descname"><span class="pre">write_module_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_module_parameter" title="Link to this definition"></a></dt>
+<dd><p>Write module parameter if available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter</strong> (<em>str</em><em> | </em><em>int</em>) – Parameter name or ID</p></li>
+<li><p><strong>value</strong> (<em>int</em><em> | </em><em>bool</em><em> | </em><em>str</em>) – Value to write to the parameter, type depending on parameter</p></li>
+<li><p><strong>instances</strong> – (optional) Index or list of instances of the parameter.
+If None, all instances will be written</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.get_parameter_from_identifier">
+<span class="sig-name descname"><span class="pre">get_parameter_from_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter_identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.get_parameter_from_identifier" title="Link to this definition"></a></dt>
+<dd><p>helper function to get parameter object from identifier</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_module_parameter">
+<span class="sig-name descname"><span class="pre">read_module_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_module_parameter" title="Link to this definition"></a></dt>
+<dd><p>Read module parameter if available. Access either by ID (faster) or by Name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter</strong> (<em>str</em><em> | </em><em>int</em>) – Parameter name or ID</p></li>
+<li><p><strong>instances</strong> – (optional) Index or list of instances of the parameter.
+If None, all instances will be written</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Value of the parameter. Type depends on the parameter</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_module_parameter_enum_str">
+<span class="sig-name descname"><span class="pre">read_module_parameter_enum_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_module_parameter_enum_str" title="Link to this definition"></a></dt>
+<dd><p>Read enum name of module parameter if available. Access either by ID (faster) or by Name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter</strong> (<em>str</em><em> | </em><em>int</em>) – Parameter name or ID</p></li>
+<li><p><strong>instances</strong> – (optional) Index or list of instances of the parameter.
+If None, all instances will be written</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the enum value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_diagnosis_code">
+<span class="sig-name descname"><span class="pre">read_diagnosis_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_diagnosis_code" title="Link to this definition"></a></dt>
+<dd><p>Read the diagnosis code from the module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Diagnosis code</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_present_state">
+<span class="sig-name descname"><span class="pre">read_present_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_present_state" title="Link to this definition"></a></dt>
+<dd><p>Read the present state from the module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Present state</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_diagnosis_information">
+<span class="sig-name descname"><span class="pre">read_diagnosis_information</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis" title="cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis"><span class="pre">ModuleDiagnosis</span></a></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_diagnosis_information" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Read the diagnosis information from the module. Contains:</dt><dd><ul class="simple">
+<li><p>diagnosis_id</p></li>
+<li><p>name</p></li>
+<li><p>description</p></li>
+<li><p>guideline</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Diagnosis information</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis" title="cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis.ModuleDiagnosis">ModuleDiagnosis</a> or None if no diagnosis is active</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_system_parameters">
+<span class="sig-name descname"><span class="pre">read_system_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="cpx_io.cpx_system.cpx_ap.dataclasses.html#cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters" title="cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters.SystemParameters"><span class="pre">SystemParameters</span></a></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_system_parameters" title="Link to this definition"></a></dt>
+<dd><p>Read parameters from EP module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Parameters object containing all r/w parameters</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parameters</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_pqi">
+<span class="sig-name descname"><span class="pre">read_pqi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_pqi" title="Link to this definition"></a></dt>
+<dd><p>Returns Port Qualifier Information for each channel. If no channel is given,
+returns a list of PQI dict for all channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channel</strong> (<em>int</em>) – Channel number, starting with 0, optional</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PQI information as dict for one channel or as list of dicts for more channels</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict | list[dict] depending on param channel</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_fieldbus_parameters">
+<span class="sig-name descname"><span class="pre">read_fieldbus_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_fieldbus_parameters" title="Link to this definition"></a></dt>
+<dd><p>Read all fieldbus parameters (status/information) for all channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a dict of parameters for every channel.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.cast_channel_argument_to_list">
+<span class="sig-name descname"><span class="pre">cast_channel_argument_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.cast_channel_argument_to_list" title="Link to this definition"></a></dt>
+<dd><p>Checks if the given channel argument is a list and casts it to a list if not.
+Else the list stays as it is.
+Returns a list containing the channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>channels</strong> – list of channels or single channel number</p>
+</dd>
+<dt class="field-even">Type<span class="colon">:</span></dt>
+<dd class="field-even"><p>channels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_isdu">
+<span class="sig-name descname"><span class="pre">read_isdu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subindex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'raw'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.read_isdu" title="Link to this definition"></a></dt>
+<dd><p>Read isdu (device parameter) from defined channel.
+Raises CpxRequestError when read failed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channels</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>int</em>) – list of channels or single channel number(s)
+which should be read, starting with 0</p></li>
+<li><p><strong>index</strong> (<em>int</em>) – io-link parameter index</p></li>
+<li><p><strong>subindex</strong> (<em>int</em>) – (optional) io-link parameter subindex, defaults to 0</p></li>
+<li><p><strong>data_type</strong> (<em>str</em>) – (optional) datatype for correct interpretation.
+Check ap_supported_datatypes.SUPPORTED_ISDU_DATATYPES for a list of
+supported datatypes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of values or single value depending on the datatype for each channel</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[any] | any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_isdu">
+<span class="sig-name descname"><span class="pre">write_isdu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subindex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.write_isdu" title="Link to this definition"></a></dt>
+<dd><p>Write isdu (device parameter) to defined channel.
+Raises CpxRequestError when write failed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>bytes</em><em>|</em><em>str</em><em>|</em><em>int</em><em>|</em><em>bool</em>) – Data to write.</p></li>
+<li><p><strong>channels</strong> (<em>list</em><em>[</em><em>int</em><em>] </em><em>| </em><em>int</em>) – list of channel numbers or single channel number
+which should be written, starting with 0</p></li>
+<li><p><strong>index</strong> (<em>int</em>) – io-link parameter index</p></li>
+<li><p><strong>subindex</strong> (<em>int</em>) – io-link parameter subindex</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_module.ApModule.change_variant">
+<span class="sig-name descname"><span class="pre">change_variant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule.change_variant" title="Link to this definition"></a></dt>
+<dd><p>Change the module variant if supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variant</strong> (<em>int</em><em> | </em><em>str</em>) – Variant number or name to change to</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_parameter">
+<span id="cpx-io-cpx-system-cpx-ap-ap-parameter-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_parameter module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_parameter" title="Link to this heading"></a></h2>
+<p>Contains functions which provide mapping of parameter types.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_parameter.</span></span><span class="sig-name descname"><span class="pre">Parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_instances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_writable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enums</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parameter dataclass</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.parameter_id">
+<span class="sig-name descname"><span class="pre">parameter_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.parameter_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.parameter_instances">
+<span class="sig-name descname"><span class="pre">parameter_instances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.parameter_instances" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.is_writable">
+<span class="sig-name descname"><span class="pre">is_writable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.is_writable" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.array_size">
+<span class="sig-name descname"><span class="pre">array_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.array_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.data_type">
+<span class="sig-name descname"><span class="pre">data_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.data_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.default_value">
+<span class="sig-name descname"><span class="pre">default_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.default_value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.description" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.unit">
+<span class="sig-name descname"><span class="pre">unit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.unit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.enums">
+<span class="sig-name descname"><span class="pre">enums</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter.enums" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_parameter.</span></span><span class="sig-name descname"><span class="pre">ParameterEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enum_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Enum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ethercat_enum_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ParameterEnum dataclass</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.enum_id">
+<span class="sig-name descname"><span class="pre">enum_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.enum_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.bits">
+<span class="sig-name descname"><span class="pre">bits</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.bits" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.data_type">
+<span class="sig-name descname"><span class="pre">data_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.data_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.enum_values">
+<span class="sig-name descname"><span class="pre">enum_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Enum</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.enum_values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.ethercat_enum_id">
+<span class="sig-name descname"><span class="pre">ethercat_enum_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.ethercat_enum_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.ParameterEnum.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.parameter_unpack">
+<span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_parameter.</span></span><span class="sig-name descname"><span class="pre">parameter_unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.parameter_unpack" title="Link to this definition"></a></dt>
+<dd><p>Unpacks a raw byte value to specific type.
+The type is determined by the parameters included in ParameterMap.</p>
+<p>param parameter: Parameter that should be unpacked.
+type parameter: Parameter
+param raw: Raw bytes value that should be unpacked.
+type raw: bytes
+param forced_format: Optional format char (see struct) to force the unpacking strategy.
+type forced_format: str
+return: Unpacked value with determined type
+rtype: Any</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_parameter.parameter_pack">
+<span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_parameter.</span></span><span class="sig-name descname"><span class="pre">parameter_pack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forced_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.parameter_pack" title="Link to this definition"></a></dt>
+<dd><p>Packs a provided value to raw bytes object.
+The type is determined by the parameters included in ParameterMap.</p>
+<blockquote>
+<div><p>param parameter: Parameter of value that should be unpacked.
+type parameter: Parameter
+param value: Value that should be packed.
+type value: Any
+param forced_format: Optional format char (see struct) to force the packing strategy.
+type forced_format: str</p>
+<p>return: Packed value
+rtype: bytes</p>
+</div></blockquote>
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_product_categories">
+<span id="cpx-io-cpx-system-cpx-ap-ap-product-categories-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_product_categories module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_product_categories" title="Link to this heading"></a></h2>
+<p>AP product categories ENUMS</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.ap_product_categories.</span></span><span class="sig-name descname"><span class="pre">ProductCategory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum for ProductCategory</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.INTERFACE">
+<span class="sig-name descname"><span class="pre">INTERFACE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.INTERFACE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.ANALOG">
+<span class="sig-name descname"><span class="pre">ANALOG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.ANALOG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.DIGITAL">
+<span class="sig-name descname"><span class="pre">DIGITAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">30</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.DIGITAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MOTION">
+<span class="sig-name descname"><span class="pre">MOTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">40</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MOTION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.SERVO_DRIVES">
+<span class="sig-name descname"><span class="pre">SERVO_DRIVES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.SERVO_DRIVES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.SAFETY">
+<span class="sig-name descname"><span class="pre">SAFETY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">60</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.SAFETY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.IO_LINK">
+<span class="sig-name descname"><span class="pre">IO_LINK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">61</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.IO_LINK" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.INFRASTRUCTURE">
+<span class="sig-name descname"><span class="pre">INFRASTRUCTURE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">70</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.INFRASTRUCTURE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MPA_L">
+<span class="sig-name descname"><span class="pre">MPA_L</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">80</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MPA_L" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MPA_S">
+<span class="sig-name descname"><span class="pre">MPA_S</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">81</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.MPA_S" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTSA">
+<span class="sig-name descname"><span class="pre">VTSA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">82</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTSA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTUG">
+<span class="sig-name descname"><span class="pre">VTUG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">83</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTUG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTUX">
+<span class="sig-name descname"><span class="pre">VTUX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">84</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTUX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTOM">
+<span class="sig-name descname"><span class="pre">VTOM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">85</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.VTOM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.CONTROLLERS">
+<span class="sig-name descname"><span class="pre">CONTROLLERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.ap_product_categories.ProductCategory.CONTROLLERS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_supported_datatypes">
+<span id="cpx-io-cpx-system-cpx-ap-ap-supported-datatypes-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_supported_datatypes module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_supported_datatypes" title="Link to this heading"></a></h2>
+<p>All implemented datatypes</p>
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.ap_supported_functions">
+<span id="cpx-io-cpx-system-cpx-ap-ap-supported-functions-module"></span><h2>cpx_io.cpx_system.cpx_ap.ap_supported_functions module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.ap_supported_functions" title="Link to this heading"></a></h2>
+<p>All supported functions</p>
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap.cpx_ap">
+<span id="cpx-io-cpx-system-cpx-ap-cpx-ap-module"></span><h2>cpx_io.cpx_system.cpx_ap.cpx_ap module<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap.cpx_ap" title="Link to this heading"></a></h2>
+<p>CPX-AP module implementations</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cpx_io.cpx_system.cpx_ap.cpx_ap.</span></span><span class="sig-name descname"><span class="pre">CpxAp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apdd_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docu_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_docu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cpx_io.cpx_system.html#cpx_io.cpx_system.cpx_base.CpxBase" title="cpx_io.cpx_system.cpx_base.CpxBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">CpxBase</span></code></a></p>
+<p>CPX-AP base class</p>
+<p>Constructor of the CpxAp class.
+This generates an individual documentation in the &lt;docu_path&gt;. This path is individual for
+each operating system. You can either set the path as a parameter or print &lt;self.docu_path&gt;
+to see the path for your system. CPX-AP systems will be setup automatically from the device
+description files (APDD) of the modules. If there is a change in the system a reconnect is
+always required and this will also update the documentation. The filename will always
+include the ip-address, so you can have multiple systems with individual documentations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timeout</strong> (<em>float</em>) – Modbus timeout (in s) that should be configured on the slave</p></li>
+<li><p><strong>apdd_path</strong> (<em>str</em>) – (optional) Path where the description files of the modules are saved</p></li>
+<li><p><strong>docu_path</strong> (<em>str</em>) – (optional) Path where the documentation files are saved</p></li>
+<li><p><strong>generate_docu</strong> (<em>bool</em>) – (optional) parameter to disable the generation of the documentation
+this is useful for big systems when the generation takes too long</p></li>
+<li><p><strong>cycle_time</strong> (<em>float</em>) – (optional) Cycle time (in s) for refreshing the connection automatically
+to avoid timeouts. If None, no automatic refresh is done.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ApInformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">communication_profiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hw_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fw_version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serial_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">product_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Information of AP Module</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.module_code">
+<span class="sig-name descname"><span class="pre">module_code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.module_code" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.module_class">
+<span class="sig-name descname"><span class="pre">module_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.module_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.communication_profiles">
+<span class="sig-name descname"><span class="pre">communication_profiles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.communication_profiles" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.input_size">
+<span class="sig-name descname"><span class="pre">input_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.input_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.input_channels">
+<span class="sig-name descname"><span class="pre">input_channels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.input_channels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.output_size">
+<span class="sig-name descname"><span class="pre">output_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.output_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.output_channels">
+<span class="sig-name descname"><span class="pre">output_channels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.output_channels" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.hw_version">
+<span class="sig-name descname"><span class="pre">hw_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.hw_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.fw_version">
+<span class="sig-name descname"><span class="pre">fw_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.fw_version" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.serial_number">
+<span class="sig-name descname"><span class="pre">serial_number</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.serial_number" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.product_key">
+<span class="sig-name descname"><span class="pre">product_key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.product_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.order_text">
+<span class="sig-name descname"><span class="pre">order_text</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation.order_text" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Diagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree_of_severity_information</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree_of_severity_maintenance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree_of_severity_warning</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degree_of_severity_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_4</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_5</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_present</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_7</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="cpx_io.cpx_system.html#cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg8" title="cpx_io.cpx_system.cpx_base.CpxBase.BitwiseReg8"><code class="xref py py-class docutils literal notranslate"><span class="pre">BitwiseReg8</span></code></a></p>
+<p>Diagnostic information</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_information">
+<span class="sig-name descname"><span class="pre">degree_of_severity_information</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_information" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_maintenance">
+<span class="sig-name descname"><span class="pre">degree_of_severity_maintenance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_maintenance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_warning">
+<span class="sig-name descname"><span class="pre">degree_of_severity_warning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_warning" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_error">
+<span class="sig-name descname"><span class="pre">degree_of_severity_error</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.degree_of_severity_error" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.module_present">
+<span class="sig-name descname"><span class="pre">module_present</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics.module_present" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.shutdown">
+<span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.shutdown" title="Link to this definition"></a></dt>
+<dd><p>Shutdown function</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.perform_io">
+<span class="sig-name descname"><span class="pre">perform_io</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.perform_io" title="Link to this definition"></a></dt>
+<dd><p>This function is called periodically by the IOThread.
+It reads the current diagnosis status.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.delete_apdds">
+<span class="sig-name descname"><span class="pre">delete_apdds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.delete_apdds" title="Link to this definition"></a></dt>
+<dd><p>Delete all downloaded apdds in the apdds path.
+This forces a refresh when a new CPX-AP System is instantiated</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_apdd_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_apdd_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_apdd_path" title="Link to this definition"></a></dt>
+<dd><p>Creates the apdd directory depending on the operating system and returns the path</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_docu_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_docu_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.create_docu_path" title="Link to this definition"></a></dt>
+<dd><p>Creates the docu directory depending on the operating system and returns the path</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.modules">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_module.ApModule" title="cpx_io.cpx_system.cpx_ap.ap_module.ApModule"><span class="pre">ApModule</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.modules" title="Link to this definition"></a></dt>
+<dd><p>getter function for private modules property</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.apdd_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apdd_path</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.apdd_path" title="Link to this definition"></a></dt>
+<dd><p>getter function for private apdd_path property</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.docu_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">docu_path</span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.docu_path" title="Link to this definition"></a></dt>
+<dd><p>getter function for private docu_path property</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout">
+<span class="sig-name descname"><span class="pre">set_timeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout_ms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.set_timeout" title="Link to this definition"></a></dt>
+<dd><p>Sets the modbus timeout to the provided value</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeout_ms</strong> (<em>int</em>) – Modbus timeout in ms (milli-seconds)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count">
+<span class="sig-name descname"><span class="pre">read_module_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_module_count" title="Link to this definition"></a></dt>
+<dd><p>Reads and returns IO module count as integer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of the total amount of connected modules</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.print_system_information">
+<span class="sig-name descname"><span class="pre">print_system_information</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.print_system_information" title="Link to this definition"></a></dt>
+<dd><p>Prints all parameters from all modules</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.print_system_state">
+<span class="sig-name descname"><span class="pre">print_system_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.print_system_state" title="Link to this definition"></a></dt>
+<dd><p>Prints all parameters and channels from every module</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information">
+<span class="sig-name descname"><span class="pre">read_apdd_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation" title="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation"><span class="pre">ApInformation</span></a></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_apdd_information" title="Link to this definition"></a></dt>
+<dd><p>Reads and returns detailed information for a specific IO module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>position</strong> (<em>int</em>) – Module position index starting with 0</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ApInformation object containing all the module information from the module</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation" title="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.ApInformation">ApInformation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_diagnostic_status">
+<span class="sig-name descname"><span class="pre">read_diagnostic_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics" title="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics"><span class="pre">Diagnostics</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_diagnostic_status" title="Link to this definition"></a></dt>
+<dd><p>Read the diagnostic status and return a Diagnostics object for each module</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Diagnostics status for every module</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics" title="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.Diagnostics">Diagnostics</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_global_diagnosis_state">
+<span class="sig-name descname"><span class="pre">read_global_diagnosis_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_global_diagnosis_state" title="Link to this definition"></a></dt>
+<dd><p>Read the global diagnosis state from the cpx system. Returns dict
+of module diagnosis state containing a logical OR over all modules errors.
+This will give you an overview about what state the system is in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Diagnosis state</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_active_diagnosis_count">
+<span class="sig-name descname"><span class="pre">read_active_diagnosis_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_active_diagnosis_count" title="Link to this definition"></a></dt>
+<dd><p>Read count of currently active diagnosis from the cpx system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Amount of active diagnosis</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_latest_diagnosis_index">
+<span class="sig-name descname"><span class="pre">read_latest_diagnosis_index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_latest_diagnosis_index" title="Link to this definition"></a></dt>
+<dd><p>Read the index of the module with the latest diagnosis.
+If no diagnosis is available, returns None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Modul index</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_latest_diagnosis_code">
+<span class="sig-name descname"><span class="pre">read_latest_diagnosis_code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_latest_diagnosis_code" title="Link to this definition"></a></dt>
+<dd><p>Read the latest diagnosis code from the cpx system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Ret value<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Diagnosis code</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.write_parameter">
+<span class="sig-name descname"><span class="pre">write_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.write_parameter" title="Link to this definition"></a></dt>
+<dd><p>Write parameters via module position, param_id, instance (=channel) and data to write
+Data must be a list of (signed) 16 bit values or one 16 bit (signed) value or bool
+Raises “CpxRequestError” if request denied</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>int</em>) – Module position index starting with 0</p></li>
+<li><p><strong>parameter</strong> (<a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><em>Parameter</em></a>) – AP Parameter</p></li>
+<li><p><strong>data</strong> (<em>list</em><em> | </em><em>int</em><em> | </em><em>bool</em>) – list of 16 bit signed integers, one signed 16 bit integer or bool to write</p></li>
+<li><p><strong>instance</strong> (<em>int</em>) – Parameter Instance (typically used to define the channel, see datasheet)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_parameter">
+<span class="sig-name descname"><span class="pre">read_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><span class="pre">Parameter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#cpx_io.cpx_system.cpx_ap.cpx_ap.CpxAp.read_parameter" title="Link to this definition"></a></dt>
+<dd><p>Read parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<em>int</em>) – Module position index starting with 0</p></li>
+<li><p><strong>parameter</strong> (<a class="reference internal" href="#cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter" title="cpx_io.cpx_system.cpx_ap.ap_parameter.Parameter"><em>Parameter</em></a>) – AP Parameter</p></li>
+<li><p><strong>instance</strong> (<em>int</em>) – (optional) Parameter Instance (typically the channel, see datasheet)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parameter value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cpx_io.cpx_system.cpx_ap">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cpx_io.cpx_system.cpx_ap" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cpx_io.cpx_system.html" class="btn btn-neutral float-left" title="cpx_io.cpx_system package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpx_io.cpx_system.cpx_ap.builder.html" class="btn btn-neutral float-right" title="cpx_io.cpx_system.cpx_ap.builder package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Festo SE &amp; Co. KG.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

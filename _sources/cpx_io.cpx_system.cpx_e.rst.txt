@@ -1,0 +1,109 @@
+cpx\_io.cpx\_system.cpx\_e package
+==================================
+
+Submodules
+----------
+
+cpx\_io.cpx\_system.cpx\_e.cpx\_e module
+----------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.cpx_e
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.cpx\_e\_enums module
+-----------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.cpx_e_enums
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.cpx\_e\_modbus\_registers module
+-----------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.cpx_e_modbus_registers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.cpx\_e\_module\_definitions module
+-------------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.cpx_e_module_definitions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.cpx\_e\_supported\_datatypes module
+--------------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.cpx_e_supported_datatypes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.e16di module
+---------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.e16di
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.e1ci module
+--------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.e1ci
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.e4aiui module
+----------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.e4aiui
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.e4aoui module
+----------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.e4aoui
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.e4iol module
+---------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.e4iol
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.e8do module
+--------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.e8do
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_e.eep module
+-------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e.eep
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: cpx_io.cpx_system.cpx_e
+   :members:
+   :undoc-members:
+   :show-inheritance:

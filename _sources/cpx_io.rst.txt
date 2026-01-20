@@ -1,0 +1,20 @@
+cpx\_io package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   cpx_io.cli
+   cpx_io.cpx_system
+   cpx_io.utils
+
+Module contents
+---------------
+
+.. automodule:: cpx_io
+   :members:
+   :undoc-members:
+   :show-inheritance:
