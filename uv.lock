@@ -360,7 +360,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "platformdirs", specifier = ">=4.5.0" },
-    { name = "pymodbus", specifier = "==3.11.3" },
+    { name = "pymodbus", specifier = "==3.12.0" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "rich", marker = "extra == 'cli'", specifier = ">=14.2.0" },
 ]
@@ -647,11 +647,11 @@ wheels = [
 
 [[package]]
 name = "pymodbus"
-version = "3.11.3"
+version = "3.12.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2e/3b/599f812b03147f1eee357f0eb62f1753ff5bfc099da9aced63ecf6f32560/pymodbus-3.11.3.tar.gz", hash = "sha256:10c2902838ad5a233baefb64b1c1fb064fa762b22b221bf35191bf39f01449a8", size = 162906, upload-time = "2025-09-25T13:06:51.729Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/41/dc/8db192f3a66032e1bd900eb87b5bbcb539d5118f520372af0cb92ba42499/pymodbus-3.12.0.tar.gz", hash = "sha256:3fafe85e5d82bb9bcbda14b97a0e69a47dc46be55631e9f988adfaf95140c44b", size = 166075, upload-time = "2026-02-08T22:13:14.623Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/48/be/65c44a34dd9ac38104819a6182ac9df55dd10b9505ef1dc2ea1d46cb2cbb/pymodbus-3.11.3-py3-none-any.whl", hash = "sha256:fcb84f3389325fc37a644229abf1f31f6704a86265ff3f5ad6ec550c2f243aa1", size = 164377, upload-time = "2025-09-25T13:06:48.587Z" },
+    { url = "https://files.pythonhosted.org/packages/52/34/425cc4cd1ca9650498d74cec48582ecca204db9c9a5de514502738b3ec1d/pymodbus-3.12.0-py3-none-any.whl", hash = "sha256:fff8d216a0977b2e7c10796f6b1a90fefbf88d4cc598dee7dff21d383870ca7c", size = 167829, upload-time = "2026-02-08T22:13:11.981Z" },
 ]
 
 [[package]]
