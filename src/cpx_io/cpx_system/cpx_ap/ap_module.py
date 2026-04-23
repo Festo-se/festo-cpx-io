@@ -391,7 +391,7 @@ class ApModule(CpxModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         :return: Value of the channel
-        :rtype: bool
+        :rtype: Any
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
         channel_range_check(channel, len(self.channels.outputs))
@@ -404,7 +404,7 @@ class ApModule(CpxModule):
         :param channel: Channel number, starting with 0
         :type channel: int
         :return: Value of the channel
-        :rtype: bool
+        :rtype: Any
         """
         self._check_function_supported(inspect.currentframe().f_code.co_name)
 
