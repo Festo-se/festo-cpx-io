@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
 
 jobs:
   changelog_test:
@@ -17,7 +19,6 @@ jobs:
           echo "Test whether CHANGELOG.md has changed when modifying doc, examples, or src..."
           CHANGED_DIRS=$(git diff --name-only origin/$GITHUB_BASE_REF...origin/${GITHUB_HEAD_REF} | grep -E '^(doc|examples|src)/' | wc -l)
           CHANGED_CHANGELOG=$(git diff --name-only origin/$GITHUB_BASE_REF...origin/${GITHUB_HEAD_REF} CHANGELOG.md | wc -l)
-          
           if [ $CHANGED_DIRS -gt 0 ] && [ 0 -eq $CHANGED_CHANGELOG ]; then
             echo "Error: Changes in doc, examples, or src directories require a CHANGELOG.md update"
             exit 1
