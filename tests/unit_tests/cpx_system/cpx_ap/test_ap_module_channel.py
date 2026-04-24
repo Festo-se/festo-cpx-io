@@ -349,3 +349,43 @@ class TestApModule:
         module.base.write_reg_data.assert_called_with(
             bytearray(b"\xff\xf0\xc0\xa5\x92\x36\x47\xc8"), None
         )
+
+    def test_write_output_channel(self, module_fixture):
+        module = module_fixture
+        module.apdd_information.product_category = ProductCategory.VTUX.value
+        module.information = CpxAp.ApInformation(input_size=0, output_size=4)
+        channel_outputs = [
+            Channel(
+                array_size=None,
+                bits=1,
+                bit_offset=bit_offset,
+                byte_swap_needed=None,
+                channel_id=0,
+                data_type="BOOL",
+                description="",
+                direction="out",
+                name="Coil %d",
+                parameter_group_ids=[2],
+                profile_list=[7],
+            )
+            for bit_offset in range(32)
+        ]
+        module.channels.outputs = channel_outputs
+        if module.channels.outputs and len(module.channels.outputs) > 0:
+            biggest_byte_offset_channel = max(
+                module.channels.outputs, key=lambda x: x.bit_offset
+            )
+            module.output_byte_size = div_ceil(
+                biggest_byte_offset_channel.bit_offset
+                + biggest_byte_offset_channel.bits,
+                8,
+            )
+
+        module.system_entry_registers.outputs = 5000
+        module.base = Mock()
+        # return channel 18 already set
+        module.base.read_reg_data = Mock(return_value=b"\x04\x00")
+        # Act
+        module.write_channel(16, 1)
+        # channel 16 and 18 should be now set
+        module.base.write_reg_data.assert_called_with(bytearray(b"\x05\x00"), 5001)
