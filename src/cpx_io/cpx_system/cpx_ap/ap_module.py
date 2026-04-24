@@ -524,7 +524,7 @@ class ApModule(CpxModule):
                 self.system_entry_registers.outputs + output_index, size
             )
             for i in range(size):
-                prev_data[i + output_index] = old_data[i]
+                prev_data[i + output_index * 2] = old_data[i]
             ApModule._convert_channel_data_to_bytes(
                 self.channels.outputs[channel], value, prev_data
             )

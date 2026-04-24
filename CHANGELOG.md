@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Docstring return value of read_output_channel and read_channel
+- Write channel wrongly updating other channels
 
 ## v0.11.1 - 04.12.25
 
