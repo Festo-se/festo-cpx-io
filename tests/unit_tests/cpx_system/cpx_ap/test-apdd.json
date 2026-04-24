@@ -1,0 +1,57 @@
+{
+    "ChannelGroups": [
+        {
+            "ChannelGroupId": 0,
+            "Channels": [
+                {
+                    "ChannelId": 0,
+                    "Count": 32,
+                    "Offset": 0
+                }
+            ],
+            "Name": "32 Coils"
+        }
+    ],
+    "Channels": [
+        {
+            "Bits": 1,
+            "ChannelId": 0,
+            "DataType": "BOOL",
+            "Description": "Coils",
+            "Direction": "out",
+            "Name": "Coil %d"
+        }
+    ],
+    "Variants": {
+        "DefaultModuleCode": 1337,
+        "DeviceIdentification": {
+            "ProductCategory": 1,
+            "ProductFamily": "VTUX",
+            "ProductKey": {
+                "ParameterId": 0,
+                "ParameterInstance": 0
+            },
+            "VendorId": 1
+        },
+        "VariantList": [
+            {
+                "ChannelGroupIds": [
+                    0
+                ],
+                "Description": "Description",
+                "Name": "Name",
+                "ParameterGroupIds": [
+                    0
+                ],
+                "VariantIdentification": {
+                    "AlternativeFestoPartNumbersDeviceList": [
+                        12345
+                    ],
+                    "ModuleCode": 1337,
+                    "NumberOfApNodes": 1,
+                    "OrderText": "TestModule"
+                }
+            }
+        ]
+    }
+}

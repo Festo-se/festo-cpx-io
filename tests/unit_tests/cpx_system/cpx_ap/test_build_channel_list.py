@@ -1,5 +1,8 @@
 """Contains tests for Channel build"""
 
+import json
+from pathlib import Path
+
 from cpx_io.cpx_system.cpx_ap.builder.channel_builder import (
     ChannelGroup,
     Channel,
@@ -7,7 +10,10 @@ from cpx_io.cpx_system.cpx_ap.builder.channel_builder import (
     build_channel,
     build_channel_list,
 )
-from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import Variant
+from cpx_io.cpx_system.cpx_ap.builder.apdd_information_builder import (
+    Variant,
+    build_variant_list,
+)
 
 
 class TestBuildChannelGroup:
@@ -84,6 +90,12 @@ class TestBuildChannel:
 
 class TestBuildChannelList:
     "Test build_channel_list"
+
+    @staticmethod
+    def get_test_apdd_dict():
+        fixture_path = Path(__file__).with_name("test-apdd.json")
+        with fixture_path.open(encoding="utf-8") as fixture_file:
+            return json.load(fixture_file)
 
     def get_test_channel_group_list(self, n_channel_groups, n_channels_per_group):
         channel_group_dict_list = []
@@ -228,3 +240,19 @@ class TestBuildChannelList:
             assert channel.channel_id == 0
         for channel in output_channel_list[3:6]:
             assert channel.channel_id == 1
+
+    def test_build_channel_list_from_test_apdd_returns_32_output_channels(self):
+        # Arrange
+        apdd = self.get_test_apdd_dict()
+        variant = build_variant_list(apdd)[0]
+
+        # Act
+        channel_list = build_channel_list(apdd=apdd, variant=variant, direction="out")
+
+        # Assert
+        assert len(channel_list) == 32
+        for i, channel in enumerate(channel_list):
+            assert isinstance(channel, Channel)
+            assert channel.channel_id == 0
+            assert channel.direction == "out"
+            assert channel.bit_offset == i
