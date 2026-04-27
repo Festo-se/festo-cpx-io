@@ -1,0 +1,53 @@
+cpx\_io.cpx\_system.cpx\_ap.dataclasses package
+===============================================
+
+Submodules
+----------
+
+cpx\_io.cpx\_system.cpx\_ap.dataclasses.apdd\_information module
+----------------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.dataclasses.apdd_information
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.dataclasses.channels module
+-------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.dataclasses.channels
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.dataclasses.module\_diagnosis module
+----------------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.dataclasses.module_diagnosis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.dataclasses.module\_parameters module
+-----------------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.dataclasses.module_parameters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.dataclasses.system\_parameters module
+-----------------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.dataclasses.system_parameters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.dataclasses
+   :members:
+   :undoc-members:
+   :show-inheritance:
