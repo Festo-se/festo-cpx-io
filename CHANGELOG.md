@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v0.11.2 - 27.04.26
+
 ### Fixed
 
-- Docstring return value of read_output_channel and read_channel
-- Write channel wrongly updating other channels
+- CPX-AP: `write_channel` wrongly updating other channels if module process data size is > 2
+- CPX-AP: Docstring return value of `read_output_channel` and `read_channel`
 
 ## v0.11.1 - 04.12.25
 
