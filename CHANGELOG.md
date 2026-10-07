@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## v0.11.3 - 07.10.26
+
 ### Fixed
 
 - Prevent arbitrary path traversal when retrieving the APDD from the web server, including via a crafted HTTP response or a malicious device.
