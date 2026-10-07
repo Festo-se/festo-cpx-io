@@ -1,0 +1,37 @@
+cpx\_io.cli package
+===================
+
+Submodules
+----------
+
+cpx\_io.cli.cli module
+----------------------
+
+.. automodule:: cpx_io.cli.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cli.cpx\_ap module
+--------------------------
+
+.. automodule:: cpx_io.cli.cpx_ap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cli.cpx\_e module
+-------------------------
+
+.. automodule:: cpx_io.cli.cpx_e
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: cpx_io.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

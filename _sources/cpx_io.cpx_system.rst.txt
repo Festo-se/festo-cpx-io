@@ -1,0 +1,54 @@
+cpx\_io.cpx\_system package
+===========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   cpx_io.cpx_system.cpx_ap
+   cpx_io.cpx_system.cpx_e
+
+Submodules
+----------
+
+cpx\_io.cpx\_system.cpx\_base module
+------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_dataclasses module
+-------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_dataclasses
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_module module
+--------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_module
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.io\_thread module
+-------------------------------------
+
+.. automodule:: cpx_io.cpx_system.io_thread
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: cpx_io.cpx_system
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,86 @@
+cpx\_io.cpx\_system.cpx\_ap package
+===================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   cpx_io.cpx_system.cpx_ap.builder
+   cpx_io.cpx_system.cpx_ap.dataclasses
+
+Submodules
+----------
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_docu\_generator module
+------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_docu_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_modbus\_registers module
+--------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_modbus_registers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_module module
+---------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_module
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_parameter module
+------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_parameter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_product\_categories module
+----------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_product_categories
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_supported\_datatypes module
+-----------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_supported_datatypes
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.ap\_supported\_functions module
+-----------------------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.ap_supported_functions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cpx\_io.cpx\_system.cpx\_ap.cpx\_ap module
+------------------------------------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap.cpx_ap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: cpx_io.cpx_system.cpx_ap
+   :members:
+   :undoc-members:
+   :show-inheritance:
