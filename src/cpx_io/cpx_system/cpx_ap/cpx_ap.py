@@ -726,14 +726,23 @@ class CpxAp(CpxBase):
             apdd_name = json_data["Variants"]["VariantList"][0][
                 "VariantIdentification"
             ]["OrderText"]
-            output_file_path = (
-                apdd_path
-                + "/"
-                + apdd_name
-                + "_v"
-                + fw_version.replace(".", "-")
-                + ".json"
+            safe_apdd_name = os.path.basename(os.path.normpath(str(apdd_name))).strip()
+            if not safe_apdd_name or safe_apdd_name in {".", ".."}:
+                raise ValueError(f"Unsafe APDD name: {apdd_name!r}")
+
+            apdd_dir = os.path.realpath(apdd_path)
+            output_file_path = os.path.realpath(
+                os.path.join(
+                    apdd_dir,
+                    f"{safe_apdd_name}_v{fw_version.replace('.', '-')}.json",
+                )
             )
+            # This should never trigger - but is an additional safeguard.
+            if os.path.commonpath([apdd_dir, output_file_path]) != apdd_dir:
+                raise ValueError(
+                    f"APDD output path escapes APDD directory: {output_file_path!r}"
+                )
+
             with open(output_file_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(json_data, indent=4))
             Logging.logger.debug(f"JSON data has been written to: {output_file_path}")
